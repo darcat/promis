@@ -13,6 +13,6 @@ class MyServer(BaseHTTPRequestHandler):
     self.wfile.write(bytes(strftime('{ "time": "%a, %d %b %Y %H:%M:%S +0000" }', gmtime()), "utf8"))
     return 
   
-httpd = HTTPServer( ( "0.0.0.0", 8080 ), MyServer)
+httpd = HTTPServer( ( "0.0.0.0", 80 ), MyServer)
 print("Starting up.")
 httpd.serve_forever()
