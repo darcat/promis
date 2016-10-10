@@ -1,0 +1,8 @@
+---
+- name:  'web'
+  image: 'nginx'
+  ports: [ '80:80', '443:443' ]
+  src:   'sample/frontend'
+  dst:   '/usr/share/nginx/html'
+#- name: 'backend'
+  #image: 'python:3'
