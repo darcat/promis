@@ -12,13 +12,22 @@ Vagrant.configure("2") do |config|
       node.vm.synced_folder ".", "/vagrant", disabled: true
       
       # Adding custom ones
-      # TODO: make sure this doesn't proc if we've not set the config
-      node.vm.synced_folder container["src"], container["dst"]
+      if container["src"]
+        node.vm.synced_folder container["src"], container["dst"]
+      end
       
       # Setting docker stuff
       node.vm.provider "docker" do |docker|
-        docker.image = container["image"]
-        docker.ports = container["ports"]
+        # Pick up whether we need to build or reuse an image
+        if container["image"]
+          docker.image = container["image"]
+        elsif container["build"]
+          docker.build_dir = container["build"]
+        end
+        # Forward ports if necessary
+        if container["ports"]
+          docker.ports = container["ports"]
+        end
         docker.name = container["name"]
       end
     end
