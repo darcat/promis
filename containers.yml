@@ -1,0 +1,10 @@
+---
+- name:   'backend'
+  build:  'sample/backend'
+  
+- name:   'web'
+# TODO maybe nginx:alpine?
+  image:  'nginx'
+  ports:  [ '80:80', '443:443', '8080:8080' ]
+  sync:   [ [ 'sample/frontend', '/usr/share/nginx/html' ], [ 'nginx', '/etc/nginx/conf.d' ] ]
+  link:   [ "backend:backend" ]
