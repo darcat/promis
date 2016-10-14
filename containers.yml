@@ -1,10 +1,10 @@
 ---
-- name:   'backend'
+- name:   'backend.promis'
   build:  'sample/backend'
   
-- name:   'web'
+- name:   'web.promis'
 # TODO maybe nginx:alpine?
   image:  'nginx'
   ports:  [ '80:80', '443:443', '8080:8080' ]
   sync:   [ [ 'sample/frontend', '/usr/share/nginx/html' ], [ 'nginx', '/etc/nginx/conf.d' ] ]
-  link:   [ "backend:backend" ]
+  link:   [ "backend.promis:backend.promis" ]
