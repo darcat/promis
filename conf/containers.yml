@@ -8,6 +8,7 @@
 
 - name:   ${conf.hostname_backend}
   build:  "sample/backend"
+  # build:  "https://github.com/${conf.repo_backend}#${conf.version_backend}"
   link:   [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
@@ -23,5 +24,8 @@
   image:  "nginx:1.11.5"
   ports:  [ "80:80", "443:443", "8080:8080" ]
   # TODO: special rights on /etc/ssl.d/
-  sync:   [ [ "sample/frontend/", "/usr/share/nginx/html/" ], [ "nginx/", "/etc/nginx/conf.d/" ], [ "ssl/", "/etc/ssl.d/"] ]
+  sync:
+    - [ "sample/frontend/", "/usr/share/nginx/html/" ]
+    - [ "nginx/", "/etc/nginx/conf.d/" ]
+    - [ "ssl/", "/etc/ssl.d/"]
   link:   [ "${conf.hostname_backend}:${conf.hostname_backend}" ]
