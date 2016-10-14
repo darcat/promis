@@ -4,7 +4,7 @@
   
 - name:   'web.promis'
 # TODO maybe nginx:alpine?
-  image:  'nginx'
+  image:  'nginx:1.11.5'
   ports:  [ '80:80', '443:443', '8080:8080' ]
   sync:   [ [ 'sample/frontend', '/usr/share/nginx/html' ], [ 'nginx', '/etc/nginx/conf.d' ] ]
   link:   [ "backend.promis:backend.promis" ]
