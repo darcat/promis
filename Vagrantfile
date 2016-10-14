@@ -48,11 +48,6 @@ def cfg(input)
 end
 
 Vagrant.configure("2") do |config|
-  # Using vagrant's nonsecure keypair
-  # This only matters on non-Linux machines so who cares
-  # TODO: this doesn't seem to work though
-  config.ssh.insert_key = false
-  
   containers.each do |container|
     config.vm.define container["name"] do |node|
       # Removing the default folder sync
@@ -67,6 +62,14 @@ Vagrant.configure("2") do |config|
 
       # Setting docker stuff
       node.vm.provider "docker" do |docker|
+        # Not sure we need to set it for every container, but no harm
+        if $conf["force_host_vm"]
+          docker.force_host_vm = true
+        end
+        # This can be set outside of the block above by vagrant itself
+        if docker.force_host_vm
+          docker.vagrant_vagrantfile = "Vagrantfile.hostvm"
+        end
         # Pick up whether we need to build or reuse an image
         if container["image"]
           docker.image = container["image"]
@@ -89,11 +92,7 @@ Vagrant.configure("2") do |config|
             docker.env[env[0]] = cfg(env[1])
           end
         end
-        # Not sure we need to set it for every container, but no harm
-        if $conf["force_host_vm"] 
-          docker.force_host_vm = true
-        end
-        
+
         docker.name = container["name"]
       end
     end
