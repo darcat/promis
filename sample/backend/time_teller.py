@@ -30,6 +30,5 @@ try:
   conn = psycopg2.connect("dbname = '%s' user='%s' host='db.promis' password='%s'" % 
     (os.environ["POSTGRES_DB"], os.environ["POSTGRES_USER"], os.environ["POSTGRES_PASSWORD"]))
   httpd.serve_forever()
-except:
-  print("[ERROR] Failed to connect to the database!")
-  
+except psycopg2.Error as e:
+  print("[ERROR] Failed to connect to the database: %s code %s" % (e.pgerror, e.pgcode))

@@ -1,6 +1,6 @@
 ---
 - name:   'db.promis'
-  image:  'postgres:9.6.0'
+  image:  'mdillon/postgis:9.6'
   env:
     POSTGRES_USER:      conf.postgres_user
     POSTGRES_PASSWORD:  conf.postgres_password
