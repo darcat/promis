@@ -7,7 +7,8 @@
     POSTGRES_DB:        ${conf.postgres_dbname}
 
 - name:     ${conf.hostname_backend}
-  git_repo: "github.com/${conf.repo_backend}#${conf.version_backend}"
+  build:    "repos/promis-backend"
+  # git_repo: "github.com/${conf.repo_backend}#${conf.version_backend}" # requires #17
   link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
@@ -19,10 +20,10 @@
     PYTHONUNBUFFERED:   "0"
 
 - name:   ${conf.hostname_web}
-  image:  "nginx:1.11.5"
+  build:  "repos/promis-frontend"
+  # git_repo: "github.com/${conf.repo_frontend}#${conf.version_frontend}" # requires #17
   ports:  [ "80:80", "443:443", "8080:8080" ]
   sync:
-    - [ "sample/frontend/", "/usr/share/nginx/html/" ]
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "/etc/ssl.d/"]
   link:   [ "${conf.hostname_backend}:${conf.hostname_backend}" ]

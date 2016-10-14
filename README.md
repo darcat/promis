@@ -2,7 +2,9 @@
 IonosatMicro PROMIS system deployment scripts and utilities
 
 ## Usage
-Navigate to the source directory and type `vagrant up`. It just works ™.
+Navigate to the source directory and type `vagrant up`. It just¹ works ™.
+
+¹ before #17 is fixed, you also need to `git submodule update` before starting vagrant, also version specifications in the config don't work yet until vagrant starts supporting building images from git directly.
 
 ## Notes for development
 ### Synced folders and links
@@ -31,3 +33,9 @@ Copy `conf/defaults.yml` as `conf/conf.yml` and edit the values. You can only le
 
 ### Custom nginx sites
 Put your `*.conf` files in `nginx/`. They will not be picked up by Git because of `.gitignore`.
+
+### Where to put SSL certificates
+Everything that goes in `ssl/` folder is mapped to `/etc/ssl.d/` on the nginx container.
+
+### Specify which versions to deploy
+Before #17 is fixed, navigate to `repos/promis-*end` which are submodules and pick the respective revision manually. Try not to commit afterwards, by the way.

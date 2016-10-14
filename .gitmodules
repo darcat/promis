@@ -1,0 +1,6 @@
+[submodule "repos/promis-frontend"]
+	path = repos/promis-frontend
+	url = https://github.com/IonosatMicro/promis-frontend.git
+[submodule "repos/promis-backend"]
+	path = repos/promis-backend
+	url = https://github.com/IonosatMicro/promis-backend.git
