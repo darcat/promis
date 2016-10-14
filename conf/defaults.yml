@@ -1,0 +1,4 @@
+# Copy this file and save it as conf.yml in this folder, then edit it leaving only options you want to override
+postgres_user:      'promis'
+postgres_password:  'swordfish'
+postgres_dbname:    'promisdb'

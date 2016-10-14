@@ -16,3 +16,6 @@ On non-Linux machines vagrant would spin a `boot2docker` virtual machine. It mig
 
 ### Pre 1.8 vagrant
 There might be parallel build issues if you are using old vagrant. Try `vagrant up --no-parallel`, but really upgrade. 1.7 is quite buggy.
+
+### Configuration options
+Copy `conf/defaults.yml` as `conf/conf.yml` and edit the values. You can only leave the options you want to override, the rest will be taken from defaults.

@@ -27,7 +27,19 @@ ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
 require 'yaml'
-containers = YAML.load_file('containers.yml')
+
+# Default options
+conf = YAML.load_file('conf/defaults.yml')
+
+# Overrides with user-defined options
+if File.file?('conf/conf.yml')
+  YAML.load_file('conf/conf.yml').each do |override|
+    conf[override[0]] = override[1]
+  end
+end
+
+# Container definitions
+containers = YAML.load_file('conf/containers.yml')
 
 Vagrant.configure("2") do |config|
   # Using vagrant's nonsecure keypair
