@@ -29,24 +29,30 @@ ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 require 'yaml'
 
 # Default options
-conf = YAML.load_file('conf/defaults.yml')
+$conf = YAML.load_file('conf/defaults.yml')
 
 # Overrides with user-defined options
 if File.file?('conf/conf.yml')
   YAML.load_file('conf/conf.yml').each do |override|
-    conf[override[0]] = override[1]
+    $conf[override[0]] = override[1]
   end
 end
 
 # Container definitions
 containers = YAML.load_file('conf/containers.yml')
 
+# Check if input contains a configuration variable reference, if so, substitute
+def cfg(input)
+  match = input.match("^conf.([a-zA-Z_][a-zA-Z0-9_]*)$")
+  return match.nil? ? input : $conf[match[1]]
+end
+
 Vagrant.configure("2") do |config|
   # Using vagrant's nonsecure keypair
   # This only matters on non-Linux machines so who cares
   # TODO: this doesn't seem to work though
   config.ssh.insert_key = false
-
+  
   containers.each do |container|
     config.vm.define container["name"] do |node|
       # Removing the default folder sync
@@ -80,7 +86,7 @@ Vagrant.configure("2") do |config|
         # Set up environment vars
         if container["env"]
           container["env"].each do |env|
-            docker.env[env[0]] = env[1]
+            docker.env[env[0]] = cfg(env[1])
           end
         end
         docker.name = container["name"]
