@@ -1,6 +1,14 @@
 ---
+- name:   'db.promis'
+  image:  'postgres:9.6.0'
+# TODO: move to configuration file!
+  env:    [ [ 'POSTGRES_USER', 'promis' ], [ 'POSTGRES_PASSWORD', 'swordfish' ], [ 'POSTGRES_DB', 'promisdb' ] ]
+
 - name:   'backend.promis'
   build:  'sample/backend'
+  link:   [ "db.promis:db.promis" ]
+# TODO see above
+  env:    [ [ 'POSTGRES_USER', 'promis' ], [ 'POSTGRES_PASSWORD', 'swordfish' ], [ 'POSTGRES_DB', 'promisdb' ], [ "PYTHONUNBUFFERED", "0" ] ]
   
 - name:   'web.promis'
 # TODO maybe nginx:alpine?

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from time import gmtime, strftime
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import psycopg2, os
+conn = None
 
 class MyServer(BaseHTTPRequestHandler):
   def do_GET(self):
@@ -10,9 +11,25 @@ class MyServer(BaseHTTPRequestHandler):
     self.send_header("Content-type", "application/json")
     self.send_header("Access-Control-Allow-Origin", "*")
     self.end_headers()
-    self.wfile.write(bytes(strftime('{ "time": "%a, %d %b %Y %H:%M:%S +0000" }', gmtime()), "utf8"))
+    result = None
+    try:
+      cur = conn.cursor()
+      cur.execute("""select (now());""")
+      result = cur.fetchall()[0][0]
+      print("Query succeeded")
+    except:
+      result = "PGSQL failed."
+      print("[ERROR] Query failed")
+    self.wfile.write(bytes('{ "time": "%s" }' % str(result), "utf8"))
     return 
   
 httpd = HTTPServer( ( "0.0.0.0", 80 ), MyServer)
-print("Starting up.")
-httpd.serve_forever()
+try:
+  print("Starting up.")
+  # todo pass param
+  conn = psycopg2.connect("dbname = '%s' user='%s' host='db.promis' password='%s'" % 
+    (os.environ["POSTGRES_DB"], os.environ["POSTGRES_USER"], os.environ["POSTGRES_PASSWORD"]))
+  httpd.serve_forever()
+except:
+  print("[ERROR] Failed to connect to the database!")
+  

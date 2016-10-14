@@ -65,6 +65,12 @@ Vagrant.configure("2") do |config|
             docker.link(link)
           end
         end
+        # Set up environment vars
+        if container["env"]
+          container["env"].each do |env|
+            docker.env[env[0]] = env[1]
+          end
+        end
         docker.name = container["name"]
       end
     end
