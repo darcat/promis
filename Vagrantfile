@@ -89,6 +89,11 @@ Vagrant.configure("2") do |config|
             docker.env[env[0]] = cfg(env[1])
           end
         end
+        # Not sure we need to set it for every container, but no harm
+        if $conf["force_host_vm"] 
+          docker.force_host_vm = true
+        end
+        
         docker.name = container["name"]
       end
     end
