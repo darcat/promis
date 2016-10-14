@@ -1,27 +1,27 @@
 ---
-- name:   "db.promis"
+- name:   ${conf.hostname_db}
   image:  "mdillon/postgis:9.6"
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
 
-- name:   "backend.promis"
+- name:   ${conf.hostname_backend}
   build:  "sample/backend"
-  link:   [ "db.promis:db.promis" ]
+  link:   [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
     # TODO: add support to make this configurable somehow?
-    POSTGRES_HOST:      "db.promis"
+    POSTGRES_HOST:      ${conf.hostname_db}
     POSTGRES_PORT:      "5432"
     PYTHONUNBUFFERED:   "0"
 
-- name:   "web.promis"
+- name:   ${conf.hostname_web}
 # TODO maybe nginx:alpine?
   image:  "nginx:1.11.5"
   ports:  [ "80:80", "443:443", "8080:8080" ]
   # TODO: special rights on /etc/ssl.d/
   sync:   [ [ "sample/frontend/", "/usr/share/nginx/html/" ], [ "nginx/", "/etc/nginx/conf.d/" ], [ "ssl/", "/etc/ssl.d/"] ]
-  link:   [ "backend.promis:backend.promis" ]
+  link:   [ "${conf.hostname_backend}:${conf.hostname_backend}" ]

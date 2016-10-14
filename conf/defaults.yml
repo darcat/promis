@@ -1,7 +1,14 @@
 # Copy this file and save it as conf.yml in this folder, then edit it leaving only options you want to override
+
+# Database access
 postgres_user:      'promis'
 postgres_password:  'swordfish'
 postgres_dbname:    'promisdb'
+
+# Standard container names
+hostname_web:       'web.promis'
+hostname_backend:   'backend.promis'
+hostname_db:        'db.promis'
 
 # Set to true/on/yes in conf.yml to cause a boot2docker VM to be run regardless of vagrant's own judgment
 force_host_vm:      off

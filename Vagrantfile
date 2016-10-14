@@ -53,7 +53,7 @@ end
 
 Vagrant.configure("2") do |config|
   containers.each do |container|
-    config.vm.define container["name"] do |node|
+    config.vm.define cfg(container["name"]) do |node|
       # Removing the default folder sync
       node.vm.synced_folder ".", "/vagrant", disabled: true
 
@@ -87,18 +87,17 @@ Vagrant.configure("2") do |config|
         # Link other containers
         if container["link"]
           container["link"].each do |link|
-            docker.link(link)
+            docker.link(cfg(link))
           end
         end
         # Set up environment vars
         if container["env"]
           container["env"].each do |env|
             docker.env[env[0]] = cfg(env[1])
-            puts cfg(env[1])
           end
         end
 
-        docker.name = container["name"]
+        docker.name = cfg(container["name"])
       end
     end
   end
