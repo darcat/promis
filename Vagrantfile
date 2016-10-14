@@ -43,8 +43,12 @@ containers = YAML.load_file('conf/containers.yml')
 
 # Check if input contains a configuration variable reference, if so, substitute
 def cfg(input)
-  match = input.match("^conf.([a-zA-Z_][a-zA-Z0-9_]*)$")
-  return match.nil? ? input : $conf[match[1]]
+  res = input
+  rexp_conf = /\${conf.([a-zA-Z_][a-zA-Z0-9_]*)}/
+  while res.match(rexp_conf)
+    res[rexp_conf] = $conf[res[rexp_conf, 1]]
+  end
+  return res
 end
 
 Vagrant.configure("2") do |config|
@@ -90,6 +94,7 @@ Vagrant.configure("2") do |config|
         if container["env"]
           container["env"].each do |env|
             docker.env[env[0]] = cfg(env[1])
+            puts cfg(env[1])
           end
         end
 
