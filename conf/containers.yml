@@ -6,10 +6,9 @@
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
 
-- name:   ${conf.hostname_backend}
-  build:  "sample/backend"
-  # build:  "https://github.com/${conf.repo_backend}#${conf.version_backend}"
-  link:   [ "${conf.hostname_db}:${conf.hostname_db}" ]
+- name:     ${conf.hostname_backend}
+  git_repo: "github.com/${conf.repo_backend}#${conf.version_backend}"
+  link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
@@ -20,10 +19,8 @@
     PYTHONUNBUFFERED:   "0"
 
 - name:   ${conf.hostname_web}
-# TODO maybe nginx:alpine?
   image:  "nginx:1.11.5"
   ports:  [ "80:80", "443:443", "8080:8080" ]
-  # TODO: special rights on /etc/ssl.d/
   sync:
     - [ "sample/frontend/", "/usr/share/nginx/html/" ]
     - [ "nginx/", "/etc/nginx/conf.d/" ]

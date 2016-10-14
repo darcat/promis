@@ -76,9 +76,11 @@ Vagrant.configure("2") do |config|
         end
         # Pick up whether we need to build or reuse an image
         if container["image"]
-          docker.image = container["image"]
+          docker.image = cfg(container["image"])
         elsif container["build"]
-          docker.build_dir = container["build"]
+          docker.build_dir = cfg(container["build"])
+        elsif container["repo"] # Requires #17
+          docker.git_repo = cfg(container["repo"])
         end
         # Forward ports if necessary
         if container["ports"]
