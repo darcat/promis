@@ -27,8 +27,9 @@ httpd = HTTPServer( ( "0.0.0.0", 80 ), MyServer)
 try:
   print("Starting up.")
   # todo pass param
-  conn = psycopg2.connect("dbname = '%s' user='%s' host='db.promis' password='%s'" % 
-    (os.environ["POSTGRES_DB"], os.environ["POSTGRES_USER"], os.environ["POSTGRES_PASSWORD"]))
+  conn = psycopg2.connect("dbname = '%s' user='%s' password='%s' host='%s' port='%s'" % 
+    (os.environ["POSTGRES_DB"], os.environ["POSTGRES_USER"], os.environ["POSTGRES_PASSWORD"],
+     os.environ["POSTGRES_HOST"], os.environ["POSTGRES_PORT"]))
   httpd.serve_forever()
 except psycopg2.Error as e:
   print("[ERROR] Failed to connect to the database: %s code %s" % (e.pgerror, e.pgcode))
