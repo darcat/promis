@@ -17,10 +17,11 @@
     POSTGRES_HOST:      "db.promis"
     POSTGRES_PORT:      "5432"
     PYTHONUNBUFFERED:   "0"
-  
+
 - name:   "web.promis"
 # TODO maybe nginx:alpine?
   image:  "nginx:1.11.5"
   ports:  [ "80:80", "443:443", "8080:8080" ]
-  sync:   [ [ "sample/frontend", "/usr/share/nginx/html" ], [ "nginx", "/etc/nginx/conf.d" ] ]
+  # TODO: special rights on /etc/ssl.d/
+  sync:   [ [ "sample/frontend/", "/usr/share/nginx/html/" ], [ "nginx/", "/etc/nginx/conf.d/" ], [ "ssl/", "/etc/ssl.d/"] ]
   link:   [ "backend.promis:backend.promis" ]

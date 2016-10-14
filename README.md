@@ -28,3 +28,6 @@ There might be parallel build issues if you are using old vagrant. Try `vagrant 
 
 ### Configuration options
 Copy `conf/defaults.yml` as `conf/conf.yml` and edit the values. You can only leave the options you want to override, the rest will be taken from defaults. You can reference `conf.var_name` in `containers.yml`.
+
+### Custom nginx sites
+Put your `*.conf` files in `nginx/`. They will not be picked up by Git because of `.gitignore`.
