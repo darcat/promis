@@ -19,6 +19,11 @@
 # permissions and limitations under the Licence.
 #
 
+# This VM is only used when run for development purpose on non-Linux
+# operating systems, or within Linux when the config is set to
+# force the VM creation. This should not be used in production.
+# Note the ports.
+
 # Vagrant 1.8 required for docker and no parallel setting
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
 Vagrant.require_version ">= 1.8.0"
