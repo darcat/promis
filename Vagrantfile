@@ -37,20 +37,21 @@ $conf = YAML.load_file("conf/defaults.yml")
 
 # Overrides with user-defined options
 if File.file?("conf/conf.yml")
-  YAML.load_file("conf/conf.yml").each do |override|
+  $user_conf = YAML.load_file("conf/conf.yml")
+  $user_conf.each do |override|
     $conf[override[0]] = override[1]
   end
 end
 
 # Easy to use development version
 if $conf["development_setup"]
-  $conf["disable_ssl"] = true
-  $conf["servername_web"] = "localhost"
-  $conf["servername_api"] = "localhost"
-  $conf["port_web"] = 8081
-  $conf["port_api"] = 8083
-  $conf["prefer_local"] = true
-  $conf["expose_db"] = true
+  $conf["disable_ssl"] = true unless $user_conf.key?("disable_ssl")
+  $conf["servername_web"] = "localhost" unless $user_conf.key?("servername_web")
+  $conf["servername_api"] = "localhost" unless $user_conf.key?("servername_api")
+  $conf["port_web"] = 8081 unless $user_conf.key?("port_web")
+  $conf["port_api"] = 8083 unless $user_conf.key?("port_api")
+  $conf["prefer_local"] = true unless $user_conf.key?("prefer_local")
+  $conf["expose_db"] = true unless $user_conf.key?("expose_db")
 end
 
 # Composing an API url
