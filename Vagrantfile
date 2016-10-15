@@ -23,34 +23,50 @@
 Vagrant.require_version ">= 1.8.0"
 
 # Prevent parallel setup, we need this for links
-ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+ENV["VAGRANT_NO_PARALLEL"] = "yes"
 
 # Enforce default docker provider, for some reason defaults
 # to VirtualBox on some Gentoo setups despite configuration
-ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
+ENV["VAGRANT_DEFAULT_PROVIDER"] = "docker"
 
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
-require 'yaml'
+require "yaml"
 
 # Default options
-$conf = YAML.load_file('conf/defaults.yml')
+$conf = YAML.load_file("conf/defaults.yml")
 
 # Overrides with user-defined options
-if File.file?('conf/conf.yml')
-  YAML.load_file('conf/conf.yml').each do |override|
+if File.file?("conf/conf.yml")
+  YAML.load_file("conf/conf.yml").each do |override|
     $conf[override[0]] = override[1]
   end
 end
 
+# Easy to use development version
+if $conf["development_setup"]
+  $conf["disable_ssl"] = true
+  $conf["servername_web"] = "localhost"
+  $conf["servername_api"] = "localhost"
+  $conf["port_web"] = 8081
+  $conf["port_api"] = 8083
+  $conf["prefer_local"] = true
+end
+
+# Composing an API url
+need_ext = ($conf["disable_ssl"] && $conf["port_api"] == 80) ||
+  (!$conf["disable_ssl"] && $conf["port_api"] == 443)
+$conf["api_url"] = ($conf["disable_ssl"] ? "http://" : "https://") +
+  $conf["servername_web"] + (need_ext ? "" : ":" + $conf["port_api"].to_s)
+
 # Container definitions
-containers = YAML.load_file('conf/containers.yml')
+containers = YAML.load_file("conf/containers.yml")
 
 # Check if input contains a configuration variable reference, if so, substitute
 def cfg(input)
   res = input
   rexp_conf = /\${conf.([a-zA-Z_][a-zA-Z0-9_]*)}/
   while res.match(rexp_conf)
-    res[rexp_conf] = $conf[res[rexp_conf, 1]]
+    res[rexp_conf] = $conf[res[rexp_conf, 1]].to_s
   end
   return res
 end
@@ -82,13 +98,18 @@ Vagrant.configure("2") do |config|
         # Pick up whether we need to build or reuse an image
         if container["image"]
           docker.image = cfg(container["image"])
-        elsif container["build"]
-          docker.build_dir = cfg(container["build"])
-      #  elsif container["repo"] # Requires #17
-      #    docker.git_repo = cfg(container["repo"])
+        elsif
+          if $conf["prefer_local"] && container["build"]
+            docker.build_dir = cfg(container["build"])
+          elsif !$conf["prefer_local"] && container["repo"] # Requires #17
+            docker.git_repo = cfg(container["repo"])
+          end
         end
         # Forward ports if necessary
         if container["ports"]
+          container["ports"].each do |port|
+            port = cfg(port)
+          end
           docker.ports = container["ports"]
         end
         # Link other containers
