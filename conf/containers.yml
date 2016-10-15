@@ -1,6 +1,7 @@
 ---
 - name:   ${conf.hostname_db}
   image:  "mdillon/postgis:9.6"
+  ports:  [ "${conf.port_sql}:${conf.port_sql}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
@@ -15,7 +16,7 @@
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
     POSTGRES_HOST:      ${conf.hostname_db}
-    POSTGRES_PORT:      "5432"
+    POSTGRES_PORT:      ${conf.port_sql}
     PYTHONUNBUFFERED:   "0"
 
 - name:   ${conf.hostname_web}

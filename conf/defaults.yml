@@ -6,6 +6,7 @@
 # servername_web = servername_backend = "localhost"
 # port_web = 8081 port_api = 8083
 # prefer_local = on
+# expose_db = on
 development_setup:  off
 
 # Database access
@@ -23,6 +24,10 @@ port_api_internal:  80
 
 # Set to true in conf.yml to disable SSL for local testing
 disable_ssl:        off
+
+# Whether to expose the SQL server to the development host
+expose_db:          off
+port_sql:           5432
 
 # Standard container names
 hostname_web:       'web.promis'

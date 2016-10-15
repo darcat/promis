@@ -50,6 +50,7 @@ if $conf["development_setup"]
   $conf["port_web"] = 8081
   $conf["port_api"] = 8083
   $conf["prefer_local"] = true
+  $conf["expose_db"] = true
 end
 
 # Composing an API url
@@ -106,7 +107,7 @@ Vagrant.configure("2") do |config|
           end
         end
         # Forward ports if necessary
-        if container["ports"]
+        if container["ports"] && (container["name"]!=$conf["hostname_db"] || $conf["expose_db"])
           container["ports"].each do |port|
             port = cfg(port)
           end
