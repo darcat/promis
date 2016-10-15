@@ -54,6 +54,25 @@ if $conf["development_setup"]
   $conf["expose_db"] = true unless $user_conf.key?("expose_db")
 end
 
+# Fix ports for oblivious people
+$conf["port_web"] = 80 if $conf["port_web"] == 443 && $conf["disable_ssl"]
+$conf["port_web"] = 443 if $conf["port_web"] == 80 && !$conf["disable_ssl"]
+$conf["port_api"] = 80 if $conf["port_api"] == 443 && $conf["disable_ssl"]
+$conf["port_api"] = 443 if $conf["port_api"] == 80 && !$conf["disable_ssl"]
+
+# Compose port-key specifications
+if $conf["disable_ssl"]
+  $conf["port_key_web"] = $conf["port_web"].to_s
+  $conf["port_key_api"] = $conf["port_api"].to_s
+else
+  $conf["port_key_web"] = $conf["port_web"].to_s + " ssl;\n" +
+    "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_web"] + ";\n" +
+    "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_web"]
+  $conf["port_key_api"] = $conf["port_api"].to_s + " ssl;\n" +
+      "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_api"] + ";\n" +
+      "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_api"]
+end
+
 # Composing an API url
 need_ext = ($conf["disable_ssl"] && $conf["port_api"] == 80) ||
   (!$conf["disable_ssl"] && $conf["port_api"] == 443)
@@ -83,7 +102,7 @@ Vagrant.configure("2") do |config|
       # Adding custom ones
       if container["sync"]
         container["sync"].each do |sync|
-          node.vm.synced_folder sync[0], sync[1]
+          node.vm.synced_folder cfg(sync[0]), cfg(sync[1])
         end
       end
 
