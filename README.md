@@ -49,5 +49,8 @@ Set `prefer_local` to `on` in `conf.yml`, then navigate to `repos/promis-*end` w
 
 ### Easy development setup
 Override `development_setup` to `on` in `conf.yml`, it will turn SSL off, route hostnames to localhost and prefer local checkouts to git. The services will start as follows:
-  - [http://localhost:8081] for Web
-  - [http://localhost:8083] for API
+  - <http://localhost:8081> for Web
+  - <http://localhost:8083> for API
+
+### Access the DB directly
+Override `expose_db` to `on` in `conf.yml`, which gives you access to the Postgres at `localhost:5432` (by default). This option is enabled automatically with `development_setup`.
