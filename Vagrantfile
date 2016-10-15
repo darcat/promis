@@ -52,7 +52,7 @@ def cfg(input)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.provider = "docker"
+  config.vm.provider "docker"
   containers.each do |container|
     config.vm.define cfg(container["name"]) do |node|
       # Removing the default folder sync
