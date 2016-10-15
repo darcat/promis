@@ -6,6 +6,14 @@ Navigate to the source directory and type `vagrant up`. It just¹ works ™.
 
 ¹ before #17 is fixed, you also need to `git submodule update` before starting vagrant, also version specifications in the config don't work yet until vagrant starts supporting building images from git directly.
 
+### tl;dr How do I test it quickly pls?
+```BASH
+git submodule update # ²
+echo "development_setup: on" > conf/conf.yml
+vagrant up
+```
+² optional if you have vagrant >= 1.8.7 and #17 is fixed
+
 ## Notes for development
 ### Synced folders and links
 Synced folders and links persist through `vagrant down`/`vagrant up` even if you changed the config. Stop the container and remove it by docker's own means or use `vagrant destroy <container-name` to make sure you have new settings in effect if you are debugging. This also applies to inhouse containers being rebuilt because the id changes in process.
