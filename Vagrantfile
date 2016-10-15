@@ -27,16 +27,33 @@ ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
 require 'yaml'
-containers = YAML.load_file('containers.yml')
+
+# Default options
+$conf = YAML.load_file('conf/defaults.yml')
+
+# Overrides with user-defined options
+if File.file?('conf/conf.yml')
+  YAML.load_file('conf/conf.yml').each do |override|
+    $conf[override[0]] = override[1]
+  end
+end
+
+# Container definitions
+containers = YAML.load_file('conf/containers.yml')
+
+# Check if input contains a configuration variable reference, if so, substitute
+def cfg(input)
+  res = input
+  rexp_conf = /\${conf.([a-zA-Z_][a-zA-Z0-9_]*)}/
+  while res.match(rexp_conf)
+    res[rexp_conf] = $conf[res[rexp_conf, 1]]
+  end
+  return res
+end
 
 Vagrant.configure("2") do |config|
-  # Using vagrant's nonsecure keypair
-  # This only matters on non-Linux machines so who cares
-  # TODO: this doesn't seem to work though
-  config.ssh.insert_key = false
-
   containers.each do |container|
-    config.vm.define container["name"] do |node|
+    config.vm.define cfg(container["name"]) do |node|
       # Removing the default folder sync
       node.vm.synced_folder ".", "/vagrant", disabled: true
 
@@ -49,11 +66,21 @@ Vagrant.configure("2") do |config|
 
       # Setting docker stuff
       node.vm.provider "docker" do |docker|
+        # Not sure we need to set it for every container, but no harm
+        if $conf["force_host_vm"]
+          docker.force_host_vm = true
+        end
+        # This can be set outside of the block above by vagrant itself
+        if docker.force_host_vm
+          docker.vagrant_vagrantfile = "Vagrantfile.hostvm"
+        end
         # Pick up whether we need to build or reuse an image
         if container["image"]
-          docker.image = container["image"]
+          docker.image = cfg(container["image"])
         elsif container["build"]
-          docker.build_dir = container["build"]
+          docker.build_dir = cfg(container["build"])
+      #  elsif container["repo"] # Requires #17
+      #    docker.git_repo = cfg(container["repo"])
         end
         # Forward ports if necessary
         if container["ports"]
@@ -62,10 +89,17 @@ Vagrant.configure("2") do |config|
         # Link other containers
         if container["link"]
           container["link"].each do |link|
-            docker.link(link)
+            docker.link(cfg(link))
           end
         end
-        docker.name = container["name"]
+        # Set up environment vars
+        if container["env"]
+          container["env"].each do |env|
+            docker.env[env[0]] = cfg(env[1])
+          end
+        end
+
+        docker.name = cfg(container["name"])
       end
     end
   end

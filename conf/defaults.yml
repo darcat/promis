@@ -1,0 +1,27 @@
+# Copy this file and save it as conf.yml in this folder, then edit it leaving only options you want to override
+# NOTE: use cfg() in vagrantfile when you expect the string to have a config option
+
+# Database access
+postgres_user:      'promis'
+postgres_password:  'swordfish'
+postgres_dbname:    'promisdb'
+
+# Standard container names
+hostname_web:       'web.promis'
+hostname_backend:   'backend.promis'
+hostname_db:        'db.promis'
+
+# Owners and name of the repos, override if you are working on a fork
+repo_frontend:      'IonosatMicro/promis-frontend'
+repo_backend:       'IonosatMicro/promis-backend'
+repo_test:          'IonosatMicro/promis-setup' # TODO
+
+# Override to specify a version to deploy. Argument can be a sha,
+# branch or tag. Basically what you'd expect feed git checkout with.
+version_frontend:   'master'
+version_backend:    'master'
+version_test:       'master'
+
+# Override to true/on/yes in conf.yml to cause a boot2docker VM to be run
+# regardless of vagrant's own judgment
+force_host_vm:      off

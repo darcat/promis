@@ -1,0 +1,44 @@
+#
+# Copyright 2016 Space Research Institute of NASU and SSAU (Ukraine)
+#
+# Licensed under the EUPL, Version 1.1 or – as soon they
+# will be approved by the European Commission - subsequent
+# versions of the EUPL (the "Licence");
+# You may not use this work except in compliance with the
+# Licence.
+# You may obtain a copy of the Licence at:
+#
+# https://joinup.ec.europa.eu/software/page/eupl
+#
+# Unless required by applicable law or agreed to in
+# writing, software distributed under the Licence is
+# distributed on an "AS IS" basis,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied.
+# See the Licence for the specific language governing
+# permissions and limitations under the Licence.
+#
+
+# This VM is only used when run for development purpose on non-Linux
+# operating systems, or within Linux when the config is set to
+# force the VM creation. This should not be used in production.
+# Note the ports.
+
+# Vagrant 1.8 required for docker and no parallel setting
+# Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
+Vagrant.require_version ">= 1.8.0"
+
+Vagrant.configure("2") do |config|
+  # Using vagrant's nonsecure keypair
+  # This only matters on non-Linux machines so who cares
+  # TODO: this doesn't seem to work though
+  config.ssh.insert_key = false
+
+  # Setting port forwarding, only useful in case we run a VM
+  config.vm.network :forwarded_port, :host => 8080, :guest => 8080
+  config.vm.network :forwarded_port, :host => 8081, :guest => 80
+  config.vm.network :forwarded_port, :host => 8082, :guest => 443
+
+  # Requesting a default boot2docker machine
+  config.vm.box = "hashicorp/boot2docker"
+end

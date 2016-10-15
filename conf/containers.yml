@@ -1,0 +1,29 @@
+---
+- name:   ${conf.hostname_db}
+  image:  "mdillon/postgis:9.6"
+  env:
+    POSTGRES_USER:      ${conf.postgres_user}
+    POSTGRES_PASSWORD:  ${conf.postgres_password}
+    POSTGRES_DB:        ${conf.postgres_dbname}
+
+- name:     ${conf.hostname_backend}
+  build:    "repos/promis-backend"
+  # git_repo: "github.com/${conf.repo_backend}#${conf.version_backend}" # requires #17
+  link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
+  env:
+    POSTGRES_USER:      ${conf.postgres_user}
+    POSTGRES_PASSWORD:  ${conf.postgres_password}
+    POSTGRES_DB:        ${conf.postgres_dbname}
+    # TODO: add support to make this configurable somehow?
+    POSTGRES_HOST:      ${conf.hostname_db}
+    POSTGRES_PORT:      "5432"
+    PYTHONUNBUFFERED:   "0"
+
+- name:   ${conf.hostname_web}
+  build:  "repos/promis-frontend"
+  # git_repo: "github.com/${conf.repo_frontend}#${conf.version_frontend}" # requires #17
+  ports:  [ "80:80", "443:443", "8080:8080" ]
+  sync:
+    - [ "nginx/", "/etc/nginx/conf.d/" ]
+    - [ "ssl/", "/etc/ssl.d/"]
+  link:   [ "${conf.hostname_backend}:${conf.hostname_backend}" ]
