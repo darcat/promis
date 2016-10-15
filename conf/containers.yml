@@ -25,7 +25,7 @@
   ports:  [ "${conf.port_api}:${conf.port_api}", "${conf.port_web}:${conf.port_web}" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
-    - [ "ssl/", "/etc/ssl.d/"]
+    - [ "ssl/", "${conf.ssl_prefix}"]
   link:   [ "${conf.hostname_api}:${conf.hostname_api}" ]
   env:
     SERVERNAME_WEB:     ${conf.servername_web}
@@ -35,3 +35,5 @@
     PORT_API:           ${conf.port_api}
     PORT_API_INTERNAL:  ${conf.port_api_internal}
     API_URL:            ${conf.api_url}
+    PORT_KEY_WEB:       ${conf.port_key_web}
+    PORT_KEY_API:       ${conf.port_key_api}

@@ -34,6 +34,15 @@ hostname_web:       'web.promis'
 hostname_api:       'api.promis'
 hostname_db:        'db.promis'
 
+# SSL prefix
+ssl_prefix:         '/etc/ssl/private/'
+
+# Standard ssl key names (prefixed with /etc/ssl/private)
+ssl_cert_web:       'promis_fullchain.pem'
+ssl_key_web:        'promis_secretkey.pem'
+ssl_cert_api:       'promis_fullchain.pem'
+ssl_key_api:        'promis_secretkey.pem'
+
 # If set to on, prefer local checkouts over git versions
 prefer_local:       on # set to off here after #17 is fixed
 dir_web:            'repos/promis-frontend'

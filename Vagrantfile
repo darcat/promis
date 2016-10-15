@@ -37,20 +37,40 @@ $conf = YAML.load_file("conf/defaults.yml")
 
 # Overrides with user-defined options
 if File.file?("conf/conf.yml")
-  YAML.load_file("conf/conf.yml").each do |override|
+  $user_conf = YAML.load_file("conf/conf.yml")
+  $user_conf.each do |override|
     $conf[override[0]] = override[1]
   end
 end
 
 # Easy to use development version
 if $conf["development_setup"]
-  $conf["disable_ssl"] = true
-  $conf["servername_web"] = "localhost"
-  $conf["servername_api"] = "localhost"
-  $conf["port_web"] = 8081
-  $conf["port_api"] = 8083
-  $conf["prefer_local"] = true
-  $conf["expose_db"] = true
+  $conf["disable_ssl"] = true unless $user_conf.key?("disable_ssl")
+  $conf["servername_web"] = "localhost" unless $user_conf.key?("servername_web")
+  $conf["servername_api"] = "localhost" unless $user_conf.key?("servername_api")
+  $conf["port_web"] = 8081 unless $user_conf.key?("port_web")
+  $conf["port_api"] = 8083 unless $user_conf.key?("port_api")
+  $conf["prefer_local"] = true unless $user_conf.key?("prefer_local")
+  $conf["expose_db"] = true unless $user_conf.key?("expose_db")
+end
+
+# Fix ports for oblivious people
+$conf["port_web"] = 80 if $conf["port_web"] == 443 && $conf["disable_ssl"]
+$conf["port_web"] = 443 if $conf["port_web"] == 80 && !$conf["disable_ssl"]
+$conf["port_api"] = 80 if $conf["port_api"] == 443 && $conf["disable_ssl"]
+$conf["port_api"] = 443 if $conf["port_api"] == 80 && !$conf["disable_ssl"]
+
+# Compose port-key specifications
+if $conf["disable_ssl"]
+  $conf["port_key_web"] = $conf["port_web"].to_s
+  $conf["port_key_api"] = $conf["port_api"].to_s
+else
+  $conf["port_key_web"] = $conf["port_web"].to_s + " ssl;\n" +
+    "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_web"] + ";\n" +
+    "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_web"]
+  $conf["port_key_api"] = $conf["port_api"].to_s + " ssl;\n" +
+      "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_api"] + ";\n" +
+      "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_api"]
 end
 
 # Composing an API url
@@ -82,7 +102,7 @@ Vagrant.configure("2") do |config|
       # Adding custom ones
       if container["sync"]
         container["sync"].each do |sync|
-          node.vm.synced_folder sync[0], sync[1]
+          node.vm.synced_folder cfg(sync[0]), cfg(sync[1])
         end
       end
 
