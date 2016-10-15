@@ -6,9 +6,9 @@
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
 
-- name:     ${conf.hostname_backend}
+- name:     ${conf.hostname_api}
   build:    "repos/promis-backend"
-  # git_repo: "github.com/${conf.repo_backend}#${conf.version_backend}" # requires #17
+  # git_repo: "github.com/${conf.repo_api}#${conf.version_api}" # requires #17
   link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
@@ -21,9 +21,9 @@
 
 - name:   ${conf.hostname_web}
   build:  "repos/promis-frontend"
-  # git_repo: "github.com/${conf.repo_frontend}#${conf.version_frontend}" # requires #17
+  # git_repo: "github.com/${conf.repo_web}#${conf.version_web}" # requires #17
   ports:  [ "80:80", "443:443", "8080:8080" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "/etc/ssl.d/"]
-  link:   [ "${conf.hostname_backend}:${conf.hostname_backend}" ]
+  link:   [ "${conf.hostname_api}:${conf.hostname_api}" ]

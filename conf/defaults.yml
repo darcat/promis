@@ -8,18 +8,18 @@ postgres_dbname:    'promisdb'
 
 # Standard container names
 hostname_web:       'web.promis'
-hostname_backend:   'backend.promis'
+hostname_api:       'api.promis'
 hostname_db:        'db.promis'
 
 # Owners and name of the repos, override if you are working on a fork
-repo_frontend:      'IonosatMicro/promis-frontend'
-repo_backend:       'IonosatMicro/promis-backend'
+repo_web:           'IonosatMicro/promis-frontend'
+repo_api:           'IonosatMicro/promis-backend'
 repo_test:          'IonosatMicro/promis-setup' # TODO
 
 # Override to specify a version to deploy. Argument can be a sha,
 # branch or tag. Basically what you'd expect feed git checkout with.
-version_frontend:   'master'
-version_backend:    'master'
+version_web:        'master'
+version_api:        'master'
 version_test:       'master'
 
 # Override to true/on/yes in conf.yml to cause a boot2docker VM to be run
