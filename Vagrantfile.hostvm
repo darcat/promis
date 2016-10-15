@@ -53,6 +53,11 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # Expose Postgres
+  if $conf["expose_db"]
+    config.vm.network :forwarded_port, :host => $conf["port_sql"], :guest => $conf["port_sql"]
+  end
+
   # Requesting a default boot2docker machine
   config.vm.box = "hashicorp/boot2docker"
 end
