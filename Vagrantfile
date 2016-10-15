@@ -25,6 +25,10 @@ Vagrant.require_version ">= 1.8.0"
 # Prevent parallel setup, we need this for links
 ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
+# Enforce default docker provider, for some reason defaults
+# to VirtualBox on some Gentoo setups despite configuration
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
+
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
 require 'yaml'
 
