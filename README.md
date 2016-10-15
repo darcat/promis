@@ -17,10 +17,9 @@ If you set the `build` option instead of `image` for a container, it will be bui
 On non-Linux machines vagrant would spin a `boot2docker` virtual machine. It might ask you for credentials while syncing if for some reason the default vagrant's keypair does not work. The default password is `tcuser`.
 
 ### Ports for a VM
-If run under a VM, the default port mapping to the host is as follows:
-  - 80 to 8081
-  - 443 to 8082
-  - 8080 to 8083
+If run under a VM, the port mapping in case ports specified are lower than 1000 is as follows:
+  - Web to 9080
+  - API (if different) to 9081
 
 ### Force operation in a VM
 Set `force_host_vm` to `true` or `on` in `conf/conf.yml`.

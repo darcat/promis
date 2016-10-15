@@ -7,23 +7,30 @@
     POSTGRES_DB:        ${conf.postgres_dbname}
 
 - name:     ${conf.hostname_api}
-  build:    "repos/promis-backend"
-  # git_repo: "github.com/${conf.repo_api}#${conf.version_api}" # requires #17
+  build:    ${conf.dir_api}
+  git_repo: "github.com/${conf.repo_api}#${conf.version_api}" # requires #17
   link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
-    # TODO: add support to make this configurable somehow?
     POSTGRES_HOST:      ${conf.hostname_db}
     POSTGRES_PORT:      "5432"
     PYTHONUNBUFFERED:   "0"
 
 - name:   ${conf.hostname_web}
-  build:  "repos/promis-frontend"
-  # git_repo: "github.com/${conf.repo_web}#${conf.version_web}" # requires #17
-  ports:  [ "80:80", "443:443", "8080:8080" ]
+  build:  ${conf.dir_web}
+  git_repo: "github.com/${conf.repo_web}#${conf.version_web}" # requires #17
+  ports:  [ "${conf.port_api}:${conf.port_api}", "${conf.port_web}:${conf.port_web}" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "/etc/ssl.d/"]
   link:   [ "${conf.hostname_api}:${conf.hostname_api}" ]
+  env:
+    SERVERNAME_WEB:     ${conf.servername_web}
+    SERVERNAME_API:     ${conf.servername_api}
+    HOSTNAME_API:       ${conf.hostname_api}
+    PORT_WEB:           ${conf.port_web}
+    PORT_API:           ${conf.port_api}
+    PORT_API_INTERNAL:  ${conf.port_api_internal}
+    API_URL:            ${conf.api_url}

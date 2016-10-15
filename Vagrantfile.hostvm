@@ -35,9 +35,23 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   # Setting port forwarding, only useful in case we run a VM
-  config.vm.network :forwarded_port, :host => 8081, :guest => 80
-  config.vm.network :forwarded_port, :host => 8082, :guest => 443
-  config.vm.network :forwarded_port, :host => 8083, :guest => 8080
+  # Ports lower than 1000 require root, so forward some
+  if $conf["port_web"] > 1000
+    config.vm.network :forwarded_port, :host => $conf["port_web"], :guest => $conf["port_web"]
+  else
+    # TODO remove this if not from a Vm
+    puts "Web port auto-corrected to 9080"
+    config.vm.network :forwarded_port, :host => 9080, :guest => $conf["port_web"]
+  end
+  if $conf["port_web"] != $conf["port_api"]
+    if $conf["port_api"] > 1000
+      config.vm.network :forwarded_port, :host => $conf["port_api"], :guest => $conf["port_api"]
+    else
+      # TODO remove this if not from a Vm
+      puts "API port auto-corrected to 9081"
+      config.vm.network :forwarded_port, :host => 9081, :guest => $conf["port_api"]
+    end
+  end
 
   # Requesting a default boot2docker machine
   config.vm.box = "hashicorp/boot2docker"

@@ -6,13 +6,8 @@ conf/conf.yml
 
 # User written nginx configs, certificates et al
 nginx/*
-
-# Except those two, we need them
-!nginx/promis_backend.conf
-!nginx/promis_frontend.conf
+!nginx/.keep
 
 # Also SSL directory
 ssl/*
-
-# Except for the file that keeps its presence for git
-ssl/.keep
+!ssl/.keep

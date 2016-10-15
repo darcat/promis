@@ -1,15 +1,39 @@
 # Copy this file and save it as conf.yml in this folder, then edit it leaving only options you want to override
 # NOTE: use cfg() in vagrantfile when you expect the string to have a config option
 
+# Development master switch, sets:
+# disable_ssl = on
+# servername_web = servername_backend = "localhost"
+# port_web = 8081 port_api = 8083
+# prefer_local = on
+development_setup:  off
+
 # Database access
 postgres_user:      'promis'
 postgres_password:  'swordfish'
 postgres_dbname:    'promisdb'
 
+# DNS domain names and ports for frontend and API respectively
+servername_web:     'promis.ikd.kiev.ua'
+servername_backend: 'api.promis.ikd.kiev.ua'
+port_web:           443
+port_api:           443
+# Port that Backend listens on internally
+port_api_internal:  80
+
+# Set to true in conf.yml to disable SSL for local testing
+disable_ssl:        off
+
 # Standard container names
 hostname_web:       'web.promis'
 hostname_api:       'api.promis'
 hostname_db:        'db.promis'
+
+# If set to on, prefer local checkouts over git versions
+prefer_local:       on # set to off here after #17 is fixed
+dir_web:            'repos/promis-frontend'
+dir_api:            'repos/promis-backend'
+# dir_test: TODO
 
 # Owners and name of the repos, override if you are working on a fork
 repo_web:           'IonosatMicro/promis-frontend'
