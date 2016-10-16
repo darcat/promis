@@ -128,8 +128,8 @@ Vagrant.configure("2") do |config|
         elsif
           if $conf["prefer_local"] && container["build"]
             docker.build_dir = cfg(container["build"])
-          elsif !$conf["prefer_local"] && container["repo"]
-            docker.git_repo = cfg(container["repo"])
+          elsif !$conf["prefer_local"] && container["git_repo"]
+            docker.git_repo = cfg(container["git_repo"])
           end
         end
         # Forward ports if necessary
