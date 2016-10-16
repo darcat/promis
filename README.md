@@ -52,5 +52,8 @@ Override `development_setup` to `on` in `conf.yml`, it will turn SSL off, route 
   - <http://localhost:8081> for Web
   - <http://localhost:8083> for API
 
+### Generate a self-signed certificate/key pair for non-production SSL
+[Use this snippet for example](http://www.codegists.com/snippet/shell/gencsr_nickgravel_shell). Run as `./genscr <hostname>`, then `<hostname>.csr` will be your certificate ad `<hostname>.key` will be your private key. Put them to `ssl/` and `conf.yml`.
+
 ### Access the DB directly
 Override `expose_db` to `on` in `conf.yml`, which gives you access to the Postgres at `localhost:5432` (by default). This option is enabled automatically with `development_setup`.
