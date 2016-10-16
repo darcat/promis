@@ -40,7 +40,7 @@ if File.file?("conf/conf.yml")
   $user_conf = YAML.load_file("conf/conf.yml")
   $user_conf.each do |override|
     $conf[override[0]] = override[1]
-  end
+  end if $user_conf
 end
 
 # The docker build from git will hopefully be included in Vagrant 1.8.7
