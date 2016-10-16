@@ -43,6 +43,12 @@ if File.file?("conf/conf.yml")
   end
 end
 
+# The docker build from git will hopefully be included in Vagrant 1.8.7
+# TODO: bump this to 1.8.7 from 1.8.7.dev after it goes to release
+if !$conf["prefer_local"]
+  Vagrant.require_version ">= 1.8.7.dev"  
+end
+
 # Easy to use development version
 if $conf["development_setup"]
   $conf["disable_ssl"] = true unless $user_conf.key?("disable_ssl")
@@ -122,7 +128,7 @@ Vagrant.configure("2") do |config|
         elsif
           if $conf["prefer_local"] && container["build"]
             docker.build_dir = cfg(container["build"])
-          elsif !$conf["prefer_local"] && container["repo"] # Requires #17
+          elsif !$conf["prefer_local"] && container["repo"]
             docker.git_repo = cfg(container["repo"])
           end
         end

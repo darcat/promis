@@ -44,7 +44,7 @@ ssl_cert_api:       'promis_fullchain.pem'
 ssl_key_api:        'promis_secretkey.pem'
 
 # If set to on, prefer local checkouts over git versions
-prefer_local:       on # set to off here after #17 is fixed
+prefer_local:       on # TODO set to off here after vagrant 1.8.7 release
 dir_web:            'repos/promis-frontend'
 dir_api:            'repos/promis-backend'
 # dir_test: TODO

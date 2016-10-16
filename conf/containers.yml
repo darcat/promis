@@ -9,7 +9,7 @@
 
 - name:     ${conf.hostname_api}
   build:    ${conf.dir_api}
-  git_repo: "github.com/${conf.repo_api}#${conf.version_api}" # requires #17
+  git_repo: "github.com/${conf.repo_api}#${conf.version_api}"
   link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
@@ -21,7 +21,7 @@
 
 - name:   ${conf.hostname_web}
   build:  ${conf.dir_web}
-  git_repo: "github.com/${conf.repo_web}#${conf.version_web}" # requires #17
+  git_repo: "github.com/${conf.repo_web}#${conf.version_web}"
   ports:  [ "${conf.port_api}:${conf.port_api}", "${conf.port_web}:${conf.port_web}" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
