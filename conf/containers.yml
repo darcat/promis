@@ -1,7 +1,7 @@
 ---
 - name:   ${conf.hostname_db}
   image:  "mdillon/postgis:9.6"
-  ports:  [ "${conf.port_sql}:${conf.port_sql}" ]
+  ports:  [ "${conf.port_sql}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
@@ -10,7 +10,7 @@
 - name:     ${conf.hostname_api}
   build:    ${conf.dir_api}
   git_repo: "github.com/${conf.repo_api}#${conf.version_api}"
-  link:     [ "${conf.hostname_db}:${conf.hostname_db}" ]
+  depend:   [ "${conf.hostname_db}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
@@ -22,11 +22,11 @@
 - name:   ${conf.hostname_web}
   build:  ${conf.dir_web}
   git_repo: "github.com/${conf.repo_web}#${conf.version_web}"
-  ports:  [ "${conf.port_api}:${conf.port_api}", "${conf.port_web}:${conf.port_web}" ]
+  ports:  [ "${conf.port_api}", "${conf.port_web}" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "${conf.ssl_prefix}"]
-  link:   [ "${conf.hostname_api}:${conf.hostname_api}" ]
+  depend: [ "${conf.hostname_api}" ]
   env:
     SERVERNAME_WEB:     ${conf.servername_web}
     SERVERNAME_API:     ${conf.servername_api}

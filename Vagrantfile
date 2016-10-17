@@ -136,13 +136,15 @@ Vagrant.configure("2") do |config|
         if container["ports"] && (container["name"]!=$conf["hostname_db"] || $conf["expose_db"])
           container["ports"].each do |port|
             port = cfg(port)
+            port = port + ":" + port
           end
           docker.ports = container["ports"]
         end
         # Link other containers
-        if container["link"]
-          container["link"].each do |link|
-            docker.link(cfg(link))
+        if container["depend"]
+          container["depend"].each do |link|
+            linkhost = cfg(link)
+            docker.link(linkhost + ":" + linkhost)
           end
         end
         # Set up environment vars
