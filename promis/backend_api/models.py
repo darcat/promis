@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.db.models.fields import DateTimeField, IntegerField, CharField,\
-    DateField, FloatField
+    DateField, FloatField, TextField
 from django.db.models.fields.related import ForeignKey
 from jsonfield import JSONField
 
@@ -19,44 +19,44 @@ class Translations(models.Model):
     text = TextField()
 
 class Space_projects(models.Model):
-    name = ForeignKey('Translations', unique = True)
-    description = ForeignKey('Translations')
+    name = ForeignKey('Translations', unique = True, related_name = 'sp_name')
+    description = ForeignKey('Translations', related_name = 'sp_descrioption')
     date_start = DateField()
     date_end = DateField()
     
 class Devices(models.Model):
-    name = ForeignKey('Translations')
-    description = ForeignKey('Translations')
-    satellite = ForeignKey('Space_progects')
+    name = ForeignKey('Translations', related_name = 'dev_name')
+    description = ForeignKey('Translations', related_name = 'dev_description')
+    satellite = ForeignKey('Space_projects')
     
 class Functions(models.Model):
-    description = ForeignKey('Translations')
+    description = ForeignKey('Translations', related_name = 'func_description')
     django_func = TextField()
 
 class Channels(models.Model):
-    name = ForeignKey('Translations')
-    description = ForeignKey('Translations')
+    name = ForeignKey('Translations', related_name = 'ch_name')
+    description = ForeignKey('Translations', related_name = 'ch_description')
     device = ForeignKey('Devices')
     quicklook = ForeignKey('Functions')
     
 class Units(models.Model):
-    long_name = ForeignKey('Translations')
-    short_name = ForeignKey('Translations')
+    long_name = ForeignKey('Translations', related_name = 'u_lname')
+    short_name = ForeignKey('Translations', related_name = 'u_sname')
 
 class Values(models.Model):
-    name = ForeignKey('Translations')
-    description = ForeignKey('Translations')
+    name = ForeignKey('Translations', related_name = 'val_name')
+    description = ForeignKey('Translations', related_name = 'val_description')
     short_name = CharField(max_length=100)
     units = ForeignKey('Units')
 
 class Parameters(models.Model):
-    name = ForeignKey('Translations')
-    description = ForeignKey('Translations')
+    name = ForeignKey('Translations', related_name = 'par_name')
+    description = ForeignKey('Translations', related_name = 'par_description')
     value = ForeignKey('Values')
-    conversion = ForeignKey('Functions')
+    conversion = ForeignKey('Functions', related_name = 'par_conv')
     conversion_params = TextField()
     channel = ForeignKey('Channels')
-    quicklook = ForeignKey('Functions')
+    quicklook = ForeignKey('Functions', related_name = 'par_ql')
 
 class Documents(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
@@ -66,10 +66,8 @@ class Measurements(models.Model):
     session = ForeignKey('Sessions')
     parameter = ForeignKey('Parameters')
     channel = ForeignKey('Channels')
-    chn_doc_id = ForeignKey('Documents')
-    par_doc_id = ForeignKey('Documents')
+    chn_doc_id = ForeignKey('Documents', related_name = 'chn_doc_id')
+    par_doc_id = ForeignKey('Documents', related_name = 'par_doc_id')
     sampling_frequency = FloatField()
     max_frequency  = FloatField()
     min_frequency  = FloatField()
-    
-    
