@@ -16,6 +16,9 @@ vagrant up
 ² optional if you have vagrant >= 1.8.7 and #17 is fixed
 
 ## Notes for development
+### Can't run docker
+Check that your user is in the `docker` group. Alternatively force operation in VM (see below).
+
 ### Synced folders and links
 Synced folders and links persist through `vagrant down`/`vagrant up` even if you changed the config. Stop the container and remove it by docker's own means or use `vagrant destroy <container-name` to make sure you have new settings in effect if you are debugging. This also applies to inhouse containers being rebuilt because the id changes in process.
 
