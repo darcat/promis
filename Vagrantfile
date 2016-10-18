@@ -84,7 +84,7 @@ containers = YAML.load_file("conf/containers.yml")
 
 # Check if input contains a configuration variable reference, if so, substitute
 def cfg(input)
-  res = input
+  res = input.dup
   rexp_conf = /\${conf.([a-zA-Z_][a-zA-Z0-9_]*)}/
   while res.match(rexp_conf)
     res[rexp_conf] = $conf[res[rexp_conf, 1]].to_s
@@ -128,9 +128,9 @@ Vagrant.configure("2") do |config|
         end
         # Forward ports if necessary
         if container["ports"] && (container["name"]!=$conf["hostname_db"] || $conf["expose_db"])
-          container["ports"].each do |port|
-            port = cfg(port)
-            port = port + ":" + port
+          container["ports"].each_index do |k|
+            port = cfg(container["ports"][k])
+            container["ports"][k] = port + ":" + port
           end
           docker.ports = container["ports"]
         end
