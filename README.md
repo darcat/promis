@@ -8,6 +8,7 @@ Navigate to the source directory and type `vagrant up`. It just¹ works ™.
 
 ### tl;dr How do I test it quickly pls?
 ```BASH
+git submodule init # ², on first run
 git submodule update # ²
 echo "development_setup: on" > conf/conf.yml
 vagrant up
