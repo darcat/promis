@@ -128,11 +128,12 @@ Vagrant.configure("2") do |config|
         end
         # Forward ports if necessary
         if container["ports"] && (container["name"]!=$conf["hostname_db"] || $conf["expose_db"])
-          container["ports"].each_index do |k|
-            port = cfg(container["ports"][k])
-            container["ports"][k] = port + ":" + port
+          ports = container["ports"].dup
+          ports.each_index do |k|
+            port = cfg(ports[k])
+            ports[k] = port + ":" + port
           end
-          docker.ports = container["ports"]
+          docker.ports = ports
         end
         # Link other containers
         if container["depend"]
