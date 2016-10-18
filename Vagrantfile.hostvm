@@ -28,6 +28,11 @@
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
 Vagrant.require_version ">= 1.8.0"
 
+# In case of a lone start up
+if !$conf
+  load "config.rb"
+end
+
 Vagrant.configure("2") do |config|
   # Using vagrant's nonsecure keypair
   # This only matters on non-Linux machines so who cares
