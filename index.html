@@ -1,13 +1,16 @@
 <html>
+<!-- TODO: Maybe something interactive based on D3? -->
+<script src="https://github.com/mdaines/viz.js/releases/download/v1.3.0/viz.js"></script>
 <script>
-  function askTime() {
+  window.onload = function() {
     var req = new XMLHttpRequest();
-    req.open('GET', '${API_URL}', true);
+    // TODO: parametrisation
+    req.open('GET', '${SYNC_PATH}/model.dot', true);
 
     req.onreadystatechange = function(evt) {
       if (req.readyState == 4) {
-        if(req.status == 200)
-          document.body.innerHTML += "<p> Server's time: " + JSON.parse(req.responseText).time + "</p>";
+        document.write(Viz(req.responseText));
+        //options={ format="svg", engine="dot" }
       }
     };
 
@@ -16,5 +19,4 @@
 </script>
 <body>
 </body>
-  <p><a href="#" onclick="askTime()">Ask server's time</a></p>
 </html>
