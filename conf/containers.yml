@@ -11,12 +11,15 @@
   build:    ${conf.dir_api}
   git_repo: "github.com/${conf.repo_api}#${conf.version_api}"
   depend:   [ "${conf.hostname_db}" ]
+  sync:
+    - [ "sync/", "${conf.sync_api_dir}" ]
   env:
     POSTGRES_USER:      ${conf.postgres_user}
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
     POSTGRES_HOST:      ${conf.hostname_db}
     POSTGRES_PORT:      ${conf.port_sql}
+    SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
 
 - name:   ${conf.hostname_web}
@@ -26,6 +29,7 @@
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "${conf.ssl_prefix}"]
+    - [ "sync/", "${conf.sync_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
   env:
     SERVERNAME_WEB:     ${conf.servername_web}
@@ -37,3 +41,4 @@
     API_URL:            ${conf.api_url}
     PORT_KEY_WEB:       ${conf.port_key_web}
     PORT_KEY_API:       ${conf.port_key_api}
+    SYNC_PATH:          ${conf.sync_web_path}

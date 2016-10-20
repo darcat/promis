@@ -37,6 +37,11 @@ hostname_db:        'db.promis'
 # SSL prefix
 ssl_prefix:         '/etc/ssl/private/'
 
+# Backend to Frontend sync folders
+sync_api_dir:   '/usr/src/app/sync/'
+sync_web_dir:   '/var/www/promis/sync/'
+sync_web_path:  '/sync/'
+
 # Standard ssl key names (prefixed with /etc/ssl/private)
 ssl_cert_web:       'promis_fullchain.pem'
 ssl_key_web:        'promis_secretkey.pem'
