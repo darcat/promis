@@ -26,7 +26,10 @@ Synced folders and links persist through `vagrant down`/`vagrant up` even if you
 If you set the `build` option instead of `image` for a container, it will be built by vagrant itself. However, vagrant shall not automatically rebuild after the first build. To cause it to do so do `vagrant reload`.
 
 ### Default password
-On non-Linux machines vagrant would spin a `boot2docker` virtual machine. It might ask you for credentials while syncing if for some reason the default vagrant's keypair does not work. The default password is `tcuser`.
+On non-Linux machines vagrant would spin a `boot2docker` virtual machine. The default password is `tcuser`. Access the machine either through VirtualBox native means or do `vagrant global-status`, find the id of the running virtualbox machine corresponding to the docker host and do `vagrant ssh <id>`.
+
+### Folder sync
+If a host VM is requested/required, folders are synced through virtualbox filesystem module. It is supposed to be slow, at least on OSX. In production environment this slowdown is not applicable due to folders being shared directly via docker.
 
 ### Ports for a VM
 If run under a VM, the port mapping in case ports specified are lower than 1000 is as follows:
