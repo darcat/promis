@@ -1,8 +1,8 @@
 #!/bin/sh
 # Migrate data if needed
 python ./promis/manage.py makemigrations
-python ./promis/manage.py migrantion
+python ./promis/manage.py migration
 # Generate a diagram for the frontend
-#python ./promis/manage.py graph_models -a > my_project.dot
+python ./promis/manage.py graph_models -a > $SYNC_DIR/model.dot
 # Run the actual server
 python ./promis/manage.py runserver 0.0.0.0:80
