@@ -1,0 +1,7 @@
+psycopg2
+django
+djangorestframework
+django-extensions     # for graph models
+markdown
+django-filter
+jsonfield
