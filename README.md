@@ -4,7 +4,7 @@ IonosatMicro PROMIS system deployment scripts and utilities
 ## Usage
 Navigate to the source directory and type `vagrant up`. It just¹ works ™.
 
-¹ before #17 is fixed, you also need to `git submodule update` before starting vagrant, also version specifications in the config don't work yet until vagrant starts supporting building images from git directly.
+If you run vagrant below 1.8.7 you won't be able to use the build from github feature thus you'll also need to `git submodule update` before starting.
 
 ### tl;dr How do I test it quickly pls?
 ```BASH
@@ -13,7 +13,7 @@ git submodule update # ²
 echo "development_setup: on" > conf/conf.yml
 vagrant up
 ```
-² optional if you have vagrant >= 1.8.7 and #17 is fixed
+² optional, only do this if you have vagrant < 1.8.7 or you want to build from local directory, not from github
 
 ## Notes for development
 ### Can't run docker
@@ -52,7 +52,7 @@ Put your `*.conf` files in `nginx/`. They will not be picked up by Git because o
 Everything that goes in `ssl/` folder is mapped to `/etc/ssl.d/` on the nginx container.
 
 ### Specify which versions to deploy
-Set `prefer_local` to `on` in `conf.yml`, then navigate to `repos/promis-*end` which are submodules and pick the respective revision manually. Try not to commit afterwards, by the way. Before #17 is fixed the option is on by default.
+Set `prefer_local` to `on` in `conf.yml`, then navigate to `repos/promis-*end` which are submodules and pick the respective revision manually. Try not to commit afterwards, by the way. Before vagrant 1.8.7 is released the option is on by default.
 
 ### Easy development setup
 Override `development_setup` to `on` in `conf.yml`, it will turn SSL off, route hostnames to localhost and prefer local checkouts to git. The services will start as follows:

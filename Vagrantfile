@@ -31,6 +31,12 @@ ENV["VAGRANT_DEFAULT_PROVIDER"] = "docker"
 
 load "config.rb"
 
+# The docker build from git will hopefully be included in Vagrant 1.8.7
+# TODO: bump this to 1.8.7 from 1.8.7.dev after it goes to release
+if !$conf["prefer_local"]
+  Vagrant.require_version ">= 1.8.7.dev"
+end
+
 # Composing an API url
 need_ext = ($conf["disable_ssl"] && $conf["port_api"] == 80) ||
   (!$conf["disable_ssl"] && $conf["port_api"] == 443)
@@ -80,8 +86,8 @@ Vagrant.configure("2") do |config|
         elsif
           if $conf["prefer_local"] && container["build"]
             docker.build_dir = cfg(container["build"])
-          elsif !$conf["prefer_local"] && container["repo"] # Requires #17
-            docker.git_repo = cfg(container["repo"])
+          elsif !$conf["prefer_local"] && container["git_repo"]
+            docker.git_repo = cfg(container["git_repo"])
           end
         end
         # Forward ports if necessary
