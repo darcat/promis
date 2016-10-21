@@ -6,8 +6,12 @@ conf/conf.yml
 
 # User written nginx configs, certificates et al
 nginx/*
-!nginx/.keep
 
 # Also SSL directory
 ssl/*
-!ssl/.keep
+
+# Backend-generated stuff
+sync/*
+
+# Keeper files
+!.keep
