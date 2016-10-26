@@ -3,7 +3,7 @@ info:
   title: PROMIS API
   description: Development version, a subject to change
   version: "1.0.0"
-  
+
 # the domain of the service
 # (to be changed by deploy?)
 host: api.promis
@@ -22,6 +22,7 @@ produces:
   - application/json
 paths:
   /projects:
+    x-swagger-router-controller: ProjectsView
     get:
       summary: Space projects
       description: |
@@ -41,6 +42,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /devices:
+    x-swagger-router-controller: DevicesView
     get:
       summary: Satellite devices
       description: |
@@ -66,6 +68,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /sessions:
+    x-swagger-router-controller: SessionsView
     get:
       summary: Measurement sessions
       description: |
@@ -91,8 +94,9 @@ paths:
             $ref: '#/definitions/Error'
 
   # more measurement-related endpoints to be added here...
-  
+
   /quicklook:
+    x-swagger-router-controller: QuicklookView
     get:
       summary: Get a quicklook of data
       description: |
