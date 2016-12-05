@@ -156,28 +156,37 @@
             <div id="collapseTwo" class="panel-collapse collapse in">
               <div class="panel-body">
                 <form class="form-horizontal">
-                  <div class="form-group">
-                    <label for="localtime1" class="col-sm-3 control-label">From time</label>
-                    <div class="col-sm-9">
-                      <input class="form-control" type="datetime-local" value="2011-08-19T13:45:00" id="localtime1">
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-4">
+                      <label>
+                        <input type="checkbox" /><b>Bx~ (Fs = 2kHz)</b>
+                      </label>
+                    </div>
+                    <div class = "input-group col-sm-7">
+                      <input type="text" class="form-control" placeholder="Sampling rate" aria-describedby="rate-addon">
+                      <span class="input-group-addon" id="rate-addon">Hz</span>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label for="localtime2" class="col-sm-3 control-label">To time</label>
-                    <div class="col-sm-9">
-                      <input class="form-control" type="datetime-local" value="2015-08-19T13:45:00" id="localtime1">
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-4">
+                      <label>
+                        <input type="checkbox" /><b>By~ (Fs = 5kHz)</b>
+                      </label>
+                    </div>
+                    <div class = "input-group col-sm-7">
+                      <input type="text" class="form-control" placeholder="Sampling rate" aria-describedby="rate-addon">
+                      <span class="input-group-addon" id="rate-addon">Hz</span>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label for="geolat" class="col-sm-3 control-label">Latitude</label>
-                    <div class="col-sm-9">
-                      <input class="form-control" type="number" value="42" id="geolat">
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-4">
+                      <label>
+                        <input type="checkbox" /><b>Jyz~ (Fs = 1kHz)</b>
+                      </label>
                     </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="geolon" class="col-sm-3 control-label">Longtitude</label>
-                    <div class="col-sm-9">
-                      <input class="form-control" type="number" value="59" id="geolon">
+                    <div class = "input-group col-sm-7">
+                      <input type="text" class="form-control" placeholder="Sampling rate" aria-describedby="rate-addon">
+                      <span class="input-group-addon" id="rate-addon">Hz</span>
                     </div>
                   </div>
                 </form>
