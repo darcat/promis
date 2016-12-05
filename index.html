@@ -91,7 +91,7 @@
             <div class="panel-heading">
               <h4 class="panel-title">
                 <a data-toggle="collapse" data-target="#collapseOne" href="#collapseOne">
-                  Position and time windows
+                  Time and position
                 </a>
               </h4>
             </div>
@@ -199,14 +199,41 @@
 
 
   <script>
-function myMap() {
-  var mapCanvas = document.getElementById("map");
-  var mapOptions = {
-    center: new google.maps.LatLng(51.5, -0.2), zoom: 10
-  };
-  var map = new google.maps.Map(mapCanvas, mapOptions);
-}
-</script>
+  function myMap() {
+    var mapCanvas = document.getElementById("map");
+    var mapOptions = {
+      center: new google.maps.LatLng(51.5, -0.2), zoom: 10
+    };
+    var map = new google.maps.Map(mapCanvas, mapOptions);
+  }
+
+
+  function toggleParam(obj) {
+    //var l = $(obj).parent().find('b');
+    var i = $(obj).parent().parent().parent().find('.form-control');
+
+    if(obj.checked) {
+      //l.prop('disabled', false);
+      i.prop('disabled', false);
+    } else {
+      i.prop('disabled', true);
+      //l.prop('disabled', true);
+    }
+
+    
+  }
+
+  //$('.checkparam input[type=checkbox]').
+
+  $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
+    toggleParam(e.target);
+  });
+
+  $('.checkparam input[type="checkbox"]').each(function(i, e){
+    toggleParam(e);
+  });
+
+  </script>
 
   <script src="https://maps.googleapis.com/maps/api/js?callback=myMap"></script>
   </body>
