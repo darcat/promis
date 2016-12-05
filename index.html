@@ -49,6 +49,14 @@
 
           <form class="navbar-form navbar-right">
             <div class="form-group">
+              <label for="sel1">Select project:</label>
+              <select class="form-control" id="sel1">
+                <option>Project 1</option>
+                <option>Project 2</option>
+                <option>Project 3</option>
+              </select>
+            </div>
+            <div class="form-group">
               <input type="text" placeholder="Email" class="form-control">
             </div>
             <div class="form-group">
@@ -67,22 +75,6 @@
         <div class = 'well'>
           <h3>Ionosat PROMIS</h3>
           <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
-        </div>
-      </div>
-      <div class = 'row'>
-        <div class = 'well'>
-        <p>You have to select the project as a source of the data
-          <div class = 'dropdown'>
-            <button class="btn btn-default dropdown-toggle" type="button" id="projectSelector" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-              Please select a project
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="projectSelector">
-              <li><a href="#">Project A</a></li>
-              <li><a href="#">Project B</a></li>
-              <li><a href="#">Project C</a></li>
-            </ul>
-          </div>
         </div>
       </div>
       <div class = 'row panel-group' id='accordion'>
@@ -190,6 +182,23 @@
                     </div>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class='col-md-12'>
+          <div class="panel panel-default" id="panel3">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseThree" href="#collapseThree">
+                  Map
+                </a>
+              </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse out">
+              <div class="panel-body">
+                <div id='map'></div>
               </div>
             </div>
           </div>
