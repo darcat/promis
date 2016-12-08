@@ -222,6 +222,14 @@
     
   }
 
+  function processSession(number) {
+    $.getJSON('js/session' + number + '.json', function(data) {
+
+      var root = data.geometry.coordinates;
+      //https://developers.google.com/maps/documentation/javascript/examples/polyline-simple
+    });
+  }
+
   //$('.checkparam input[type=checkbox]').
 
   $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
