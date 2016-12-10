@@ -19,7 +19,7 @@ var PROMIS = {};
   }
 
   function displaySession(number) {
-    $.getJSON('js/session' + number + '.json', function(json) {
+    $.getJSON('data/session' + number + '.json', function(json) {
       var dgeo = json.geometry.coordinates;
       var poln = [];
 
