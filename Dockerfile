@@ -2,6 +2,7 @@
 # TODO: special rights on /etc/ssl.d/
 FROM nginx:1.11.5
 ADD index.html /var/www/promis/
+ADD css /var/www/promis/css/
 ADD js /var/www/promis/js/
 ADD nginx.conf /etc/nginx/
 ADD promis.conf /etc/nginx/
