@@ -57,6 +57,8 @@ var PROMIS = {};
 
   /* main func */
   $(document).ready(function(){
+    $('.logout-form').hide();
+
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
       PROMIS.toggleParam(e.target);
     });
