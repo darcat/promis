@@ -58,6 +58,15 @@ function doLogin()
 }
 
 $(document).ready(function(){
+    if (!isLoggedIn()) {
+      $('.logout-form').hide();
+      $('.loggedonly').hide();
+    } else {
+      $('.login-form').hide();
+      $('.loggedonly').show();
+    }
+
+
     $('.user-login').click(function(){
         doLogin();
 
