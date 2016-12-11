@@ -67,6 +67,13 @@ var PROMIS = {};
       alert('on the map');
     });
 
+    $('.quicklook').click(function(){
+      QUICKLOOK.data = [ { x: [0, 1, 2, 3, 4], 
+               y: [0, 1, 2, 3, Math.floor((Math.random() * 10) + 1)] } ] ;
+
+      QUICKLOOK.plot();
+    });
+
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
       PROMIS.toggleParam(e.target);
     });
