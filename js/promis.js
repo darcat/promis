@@ -64,7 +64,9 @@ var PROMIS = {};
 
   /* main func */
   $(document).ready(function(){
-    $('.logout-form').hide();
+
+    if (!isLoggedIn()) $('.logout-form').hide();
+    else $('.login-form').hide();
 
     $('.emptynotice').hide();
 
