@@ -55,6 +55,15 @@ var PROMIS = {};
     displaySession(3);
   }
 
+  PROMIS.showOnTheMap = function() {
+    var bounds = new google.maps.LatLngBounds();
+
+    bounds.extend(new google.maps.LatLng($('#geolat1').val(), $('#geolon1').val()));
+    bounds.extend(new google.maps.LatLng($('#geolat2').val(), $('#geolon2').val()));
+
+    map.fitBounds(bounds);
+  }
+
   /* main func */
   $(document).ready(function(){
     $('.logout-form').hide();
@@ -64,7 +73,7 @@ var PROMIS = {};
     $('[data-toggle="tooltip"]').tooltip();
 
     $('.showonthemap').click(function(){
-      alert('on the map');
+      PROMIS.showOnTheMap();
     });
 
     $('.quicklook').click(function(){
