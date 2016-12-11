@@ -145,6 +145,18 @@ var QUICKLOOK = {};
         return chart;   
     }
 
+    QUICKLOOK.xy_chart = QUICKLOOK.d3_xy_chart().width(900)
+        .height(500)
+        .xlabel(QUICKLOOK.xlabel)
+        .ylabel(QUICKLOOK.ylabel);
+
+    QUICKLOOK.plot = function() {
+        $('.modal-body svg').remove();
+        var svg = d3.select('.modal-body').append('svg')
+            .datum(QUICKLOOK.data)
+            .call(QUICKLOOK.xy_chart) ;
+    }
+
     QUICKLOOK.fromCSV = function(filename, large) {
         Papa.parse(filename, {
             //worker: true,
@@ -186,23 +198,14 @@ var QUICKLOOK = {};
                 });
             }
 
-            QUICKLOOK.data = [ { x : xd, y: yd } ];            
+            QUICKLOOK.data = [ { x : xd, y: yd } ];      
+            QUICKLOOK.plot();
         });
     }
 
-    QUICKLOOK.xy_chart = QUICKLOOK.d3_xy_chart().width(900)
-        .height(500)
-        .xlabel(QUICKLOOK.xlabel)
-        .ylabel(QUICKLOOK.ylabel);
 
-    QUICKLOOK.plot = function() {
-        $('.modal-body svg').remove();
-        var svg = d3.select('.modal-body').append('svg')
-            .datum(QUICKLOOK.data)
-            .call(QUICKLOOK.xy_chart) ;
-    }
     QUICKLOOK.bind = function(handle) {
-        QUICKLOOK.data = QUICKLOOK.fromJSON(DATA[handle], (handle.indexOf('mw') !== -1) );
+        QUICKLOOK.fromJSON(DATA[handle], (handle.indexOf('mw') !== -1) );
     }
 })();
 

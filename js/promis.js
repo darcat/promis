@@ -101,7 +101,7 @@ var PROMIS = {};
       }
 
       QUICKLOOK.bind(data);
-      QUICKLOOK.plot();
+      //QUICKLOOK.plot();
     });
 
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
