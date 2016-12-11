@@ -87,12 +87,20 @@ var PROMIS = {};
       }
     });
 
-    $('.quicklook').click(function(e){
-      
-      //alert($(e.target).parent().parent().attr('data-title'));
-      /*QUICKLOOK.data = [ { x: [0, 1, 2, 3, 4], 
-               y: [0, 1, 2, 3, Math.floor((Math.random() * 10) + 1)] } ] ;*/
+    $('.quicklook').click(function(e) {
+      var data = $(e.target).closest('.resultsrow').attr('data-name');
 
+      if(data.indexOf('ez') !== -1) {
+        /* ez */
+        QUICKLOOK.xlabel = 'Seconds';
+        QUICKLOOK.ylabel = 'Joules per Coulomb'
+      } else {
+        /* mwc */
+        QUICKLOOK.xlabel = '1 Hertz';
+        QUICKLOOK.ylabel = 'Teslas'
+      }
+
+      QUICKLOOK.bind(data);
       QUICKLOOK.plot();
     });
 
