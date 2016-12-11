@@ -169,6 +169,27 @@ var QUICKLOOK = {};
         });
     }
 
+    QUICKLOOK.fromJSON = function(filename, large) {
+        $.getJSON('data/' + filename, function(json) {
+            var xd = [], yd = [];
+
+            if(large) {
+                // mwc data, skip lots
+                for(var i = 0, z = 0; i < json.length; i += 200, z ++) {
+                    xd.push(z);
+                    yd.push(json[i]);
+                }
+            } else {
+                $.each(json, function(i, item){
+                    xd.push(i);
+                    yd.push(item[0]);
+                });
+            }
+
+            QUICKLOOK.data = [ { x : xd, y: yd } ];            
+        });
+    }
+
     QUICKLOOK.xy_chart = QUICKLOOK.d3_xy_chart().width(900)
         .height(500)
         .xlabel(QUICKLOOK.xlabel)
