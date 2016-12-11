@@ -61,6 +61,8 @@ var PROMIS = {};
 
     $('input[name="daterange"]').daterangepicker();
 
+    $('[data-toggle="tooltip"]').tooltip();
+
     $('.showonthemap').click(function(){
       alert('on the map');
     });
