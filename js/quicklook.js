@@ -145,6 +145,30 @@ var QUICKLOOK = {};
         return chart;   
     }
 
+    QUICKLOOK.fromCSV = function(filename, large) {
+        Papa.parse(filename, {
+            //worker: true,
+            complete: function(results) {
+                var xd = [], yd = [];
+
+                if(large) {
+                    // mwc data, skip lots
+                    for(var i = 0, z = 0; i < results.data.length; i += 200, z ++) {
+                        x.push(z);
+                        y.push(results.data[i][0]);
+                    }
+                } else {
+                    $.each(result.data, function(i, item){
+                        x.push(i);
+                        y.push(item[0]);
+                    });
+                }
+
+                QUICKLOOK.data = [ x: xd, y: yd ];
+            }
+        });
+    }
+
     QUICKLOOK.xy_chart = QUICKLOOK.d3_xy_chart().width(900)
         .height(500)
         .xlabel(QUICKLOOK.xlabel)
