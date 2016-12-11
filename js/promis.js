@@ -7,14 +7,12 @@ var PROMIS = {};
   var orbit = null;
 
   PROMIS.toggleParam = function(obj) {
-    var i = $(obj).parent().parent().parent().find('.form-control');
+    var i = $(obj).parent().parent().parent();
 
     if(obj.checked) {
-      //l.prop('disabled', false);
-      i.prop('disabled', false);
+      $(i).css('color', 'black');
     } else {
-      i.prop('disabled', true);
-      //l.prop('disabled', true);
+      $(i).css('color', 'gray');
     }
   }
 
@@ -68,12 +66,26 @@ var PROMIS = {};
   $(document).ready(function(){
     $('.logout-form').hide();
 
+    $('.emptynotice').hide();
+
     $('input[name="daterange"]').daterangepicker();
 
     $('[data-toggle="tooltip"]').tooltip();
 
     $('.showonthemap').click(function(){
       PROMIS.showOnTheMap();
+    });
+
+    $('#sel1').change(function(){
+      if($('#sel1 option:selected').val() != 'a') {
+        $('.emptynotice').show();
+        $('.searchbutton').prop('disabled', 'disabled');
+        $('.checkparam').hide();
+      } else {
+        $('.checkparam').show();
+        $('.emptynotice').hide();
+        $('.searchbutton').removeProp('disabled');
+      }
     });
 
     $('.quicklook').click(function(){
