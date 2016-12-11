@@ -59,6 +59,8 @@ var PROMIS = {};
   $(document).ready(function(){
     $('.logout-form').hide();
 
+    $('input[name="daterange"]').daterangepicker();
+
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
       PROMIS.toggleParam(e.target);
     });
