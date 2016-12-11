@@ -201,5 +201,8 @@ var QUICKLOOK = {};
             .datum(QUICKLOOK.data)
             .call(QUICKLOOK.xy_chart) ;
     }
+    QUICKLOOK.bind = function(handle) {
+        QUICKLOOK.data = QUICKLOOK.fromJSON(DATA[handle], (handle.indexOf('mw') !== -1) );
+    }
 })();
 

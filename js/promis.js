@@ -87,9 +87,11 @@ var PROMIS = {};
       }
     });
 
-    $('.quicklook').click(function(){
-      QUICKLOOK.data = [ { x: [0, 1, 2, 3, 4], 
-               y: [0, 1, 2, 3, Math.floor((Math.random() * 10) + 1)] } ] ;
+    $('.quicklook').click(function(e){
+      
+      //alert($(e.target).parent().parent().attr('data-title'));
+      /*QUICKLOOK.data = [ { x: [0, 1, 2, 3, 4], 
+               y: [0, 1, 2, 3, Math.floor((Math.random() * 10) + 1)] } ] ;*/
 
       QUICKLOOK.plot();
     });
