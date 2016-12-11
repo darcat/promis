@@ -7,6 +7,9 @@ var QUICKLOOK = {};
     QUICKLOOK.xlabel = 'X axis';
     QUICKLOOK.ylabel = 'Y axis';
 
+    QUICKLOOK.x_label = 'x axis';
+    QUICKLOOK.y_label = 'y axis';
+
     QUICKLOOK.d3_xy_chart = function() {
         var width = 640,  
         height = 480, 
@@ -145,16 +148,18 @@ var QUICKLOOK = {};
         return chart;   
     }
 
-    QUICKLOOK.xy_chart = QUICKLOOK.d3_xy_chart().width(900)
-        .height(500)
-        .xlabel(QUICKLOOK.xlabel)
-        .ylabel(QUICKLOOK.ylabel);
+    //QUICKLOOK.xy_chart = 
 
     QUICKLOOK.plot = function() {
+        var xy_chart = QUICKLOOK.d3_xy_chart().width(900)
+                        .height(500)
+                        .xlabel(QUICKLOOK.x_label)
+                        .ylabel(QUICKLOOK.y_label);
+
         $('.modal-body svg').remove();
         var svg = d3.select('.modal-body').append('svg')
             .datum(QUICKLOOK.data)
-            .call(QUICKLOOK.xy_chart) ;
+            .call(xy_chart);
     }
 
     QUICKLOOK.fromCSV = function(filename, large) {
