@@ -57,27 +57,26 @@ function doLogin()
     
 }
 
-function login()
-{
-    doLogin();
+$(document).ready(function(){
+    $('.user-login').click(function(){
+        doLogin();
 
-    if (!isLoggedIn())
-    {
-        $('.logout-form').hide();
-        $('.login-form').show()
-    }
-    else
-    {
-        $('.loggedonly').show();
-        $('.login-form').hide();
-        $('.logout-form').show();
-    }
+        if (!isLoggedIn())
+        {
+            $('.logout-form').hide();
+            $('.login-form').show()
+        }
+        else
+        {
+            $('.loggedonly').show();
+            $('.login-form').hide();
+            $('.logout-form').show();
+        }
+    });
 
-}
-
-
-function logout()
-{
-    
-}
-
+    $('.user-logout').click(function() {
+        setCookie("username", username, -1);
+        setCookie("password", password, -1);
+        document.location('/');
+    });
+});
