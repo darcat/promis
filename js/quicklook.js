@@ -164,7 +164,7 @@ var QUICKLOOK = {};
                     });
                 }
 
-                QUICKLOOK.data = [ x: xd, y: yd ];
+                QUICKLOOK.data = [ { x : xd, y: yd } ];
             }
         });
     }
