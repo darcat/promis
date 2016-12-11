@@ -27,6 +27,7 @@
     <!-- Main code -->
     <script src="js/promis.js" type="text/javascript"></script>
   </head>
+
   <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -39,8 +40,8 @@
           </button>
           <a class="navbar-brand" href="#">IONOSAT PROMIS</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
 
+        <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-right">
             <div class="form-group">
               <label for="sel1" id='pslabel'>Please select a project:</label>
@@ -63,34 +64,18 @@
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
+
     <!-- main -->
-    <div class = 'container main'>
-      <div class = 'row'>
-        <div class = 'well'>
-          <h3>Ionosat PROMIS</h3>
-          <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
-        
+    <div class = 'container main' id = 'accordion'>
+      <!-- infoblock start -->
+      <div class = 'well'>
+        <h3>Ionosat PROMIS</h3>
+        <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
       </div>
-      <div class = 'row panel-group' id='accordion'>
-        <div class='col-md-6'>
-          <div class="panel panel-default" id="panel3">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a data-toggle="collapse" data-target="#collapseThree" href="#collapseThree">
-                  Map
-                </a>
-              </h4>
-            </div>
-            <div id="collapseThree" class="panel-collapse in">
-              <div class="panel-body">
-                <div id='map'></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <div class='col-md-6'>
+      <!-- infoblock end -->
+      <div class = 'row panel-group'>
+        <!-- time & location start -->
+        <div class = 'col-md-6 col-sm-12'>
           <div class="panel panel-default" id="panel1">
             <div class="panel-heading">
               <h4 class="panel-title">
@@ -148,8 +133,9 @@
             </div>
           </div>
         </div>
-        <div class='col-md-6'>
-          <br />
+        <!-- time & location end -->
+        <!-- parameters start -->
+        <div class='col-md-6 col-sm-12'>
           <div class="panel panel-default" id="panel2">
             <div class="panel-heading">
               <h4 class="panel-title">
@@ -177,12 +163,49 @@
             </div>
           </div>
         </div>
-        <br />
+        <!-- parameters end -->
+      </div>
+      <div class = 'row panel-group'>
+        <!-- map start -->
+        <div class = 'col-md-6 col-sm-12'>
+          <div class="panel panel-default" id="panel3">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseThree" href="#collapseThree">
+                  Map
+                </a>
+              </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse in">
+              <div class="panel-body">
+                <div id='map'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- map end -->
+        <!-- results start -->
+        <div class='col-md-6 col-sm-12'>
+          <div class="panel panel-default" id="panel4">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseFour" href="#collapseFour">
+                  Search results
+                </a>
+              </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse in">
+              <div class="panel-body">
+                Search results
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- results end -->
       </div>
     </div>
-  </div>
 
-  <!-- Google maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?callback=PROMIS.setupMap"></script>
+    <!-- Google maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?callback=PROMIS.setupMap"></script>
   </body>
 </html>
