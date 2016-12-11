@@ -13,18 +13,18 @@
     <![endif]-->
 
     <!-- d3 & jQuery -->
-    <script type="text/javascript" src="//d3js.org/d3.v3.min.js"></script>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <!-- daterange picker -->
-    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     
     <!-- Style -->
     <link rel="stylesheet" href="css/promis.css" />
@@ -93,39 +93,67 @@
               <div class="panel-body">
                 <form class="form-horizontal">
                   <div class="form-group">
-                    <label for="daterange" class="col-sm-2 control-label">Interval</label>
-                    <input type="text" class="col-sm-10" name="daterange" value="01/01/2015 - 01/31/2015" />
-                  </div>
-                  <div class="form-group">
-                    <label for="geolat" class="col-sm-2 control-label">Altitude</label>
-                    <div class="col-sm-5">
-                      <input class="form-control" type="number" value="400" id="geoalt1">
+                    <div class = 'col-sm-2'>
+                      <label for="daterange" class="control-label">Interval</label>
                     </div>
-                    <div class="col-sm-5">
-                      <input class="form-control" type="number" value="440" id="geoalt2">
+                    <div class = 'col-sm-10'>
+                      <input type="text" class="form-control" name="daterange" value="01/01/2015 - 01/31/2015" />
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="geolat" class="col-sm-2 control-label">Latitude</label>
-                    <div class="col-sm-5">
-                      <input class="form-control" type="number" value="42" id="geolat1">
+                    <div class = 'col-sm-2'>
+                      <label for="geoalt" class="control-label">Altitude</label>
                     </div>
                     <div class="col-sm-5">
-                      <input class="form-control" type="number" value="44" id="geolat2">
+                      <div class = 'input-group'>
+                        <span class="input-group-addon" id="basic-addon1">From</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon1" value="400" id="geoalt1">
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class='input-group-addon' id='basic-addon2'>To</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon2" value="440" id="geoalt2">
+                      </div>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="geolon" class="col-sm-2 control-label">Longtitude</label>
-                    <div class="col-sm-5">
-                      <input class="form-control" type="number" value="59.1212" id="geolon1">
+                    <div class = 'col-sm-2'>
+                      <label for="geolat" class="control-label">Latitude</label>
                     </div>
                     <div class="col-sm-5">
-                      <input class="form-control" type="number" value="63.1313" id="geolon2">
+                      <div class = 'input-group'>
+                        <span class="input-group-addon" id="basic-addon3">From</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon3" value="54.121" id="geolat1">
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class='input-group-addon' id='basic-addon4'>To</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon4" value="56.449" id="geolat2">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class = 'col-sm-2'>
+                      <label for="geolon" class="control-label">Longtitude</label>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class="input-group-addon" id="basic-addon5">From</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon5" value="59.1212" id="geolon1">
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class='input-group-addon' id='basic-addon6'>To</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon6" value="63.1313" id="geolon2">
+                      </div>
                     </div>
                   </div>
                   <div class="form-group">
                     <div class="col-sm-5">
-                      <button class="form-control btn btn-default" type="button">Get location from the map</button>
+                      <button class="form-control btn btn-default showonthemap" type="button">Show on the map</button>
                     </div>
                   </div>
                 </form>

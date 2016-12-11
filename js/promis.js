@@ -61,6 +61,10 @@ var PROMIS = {};
 
     $('input[name="daterange"]').daterangepicker();
 
+    $('.showonthemap').click(function(){
+      alert('on the map');
+    });
+
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
       PROMIS.toggleParam(e.target);
     });
