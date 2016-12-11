@@ -171,16 +171,16 @@ var QUICKLOOK = {};
 
     QUICKLOOK.fromJSON = function(filename, large) {
         $.getJSON('data/' + filename, function(json) {
-            var xd = [], yd = [];
+            var xd = [], yd = [], jd = json;
 
             if(large) {
                 // mwc data, skip lots
-                for(var i = 0, z = 0; i < json.length; i += 200, z ++) {
+                for(var i = 0, z = 0; i < jd.length; i += 200, z ++) {
                     xd.push(z);
                     yd.push(json[i]);
                 }
             } else {
-                $.each(json, function(i, item){
+                $.each(jd.mv, function(i, item){
                     xd.push(i);
                     yd.push(item[0]);
                 });
