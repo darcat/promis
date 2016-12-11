@@ -68,6 +68,8 @@ var PROMIS = {};
     if (!isLoggedIn()) $('.logout-form').hide();
     else $('.login-form').hide();
 
+    $('.loggedonly').hide();
+
     $('.emptynotice').hide();
 
     $('input[name="daterange"]').daterangepicker();

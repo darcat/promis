@@ -23,35 +23,34 @@ function setCookie(cname, cvalue, exdays) {
 
 function isLoggedIn()
 {
-    if ((getCookieVal("username") != "") && (getCookieVal("password") != ""))
-    {
-	return true;
-    }
-    
-    else return false;
+    return ((getCookieVal("username") != "") && (getCookieVal("password") != ""))
 }
 
 function doLogin()
 {
+    $('.login-form').removeClass('has-error');
     username = $("#username").val();
     password = $("#password").val();
+
     console.log(username + "|" + password);
+
     // ADD field validation here
     if ((username == "") || (password == ""))
     {
-    // ADD empty field validation here
-
-	return false;
-    
+        // ADD empty field validation here
+        $('.login-form').addClass('has-error');
+        return false;
     }
     
     //Add username/password validation here
 
     if ((username == "test") && (password == "test"))
     {
-	setCookie("username", username, 1);
-	setCookie("password", password, 1);
-	return true;
+        setCookie("username", username, 1);
+        setCookie("password", password, 1);
+        return true;
+    } else {
+        $('.login-form').addClass('has-error');
     }
     
     return false;
@@ -63,14 +62,15 @@ function login()
     doLogin();
 
     if (!isLoggedIn())
-    {	
-	$('.logout-form').hide();
-	$('.login-form').show()
-    }
-    else 
     {
-	$('.login-form').hide();
-	$('.logout-form').show();
+        $('.logout-form').hide();
+        $('.login-form').show()
+    }
+    else
+    {
+        $('.loggedonly').show();
+        $('.login-form').hide();
+        $('.logout-form').show();
     }
 
 }
