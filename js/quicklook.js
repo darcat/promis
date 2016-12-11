@@ -182,7 +182,7 @@ var QUICKLOOK = {};
             } else {
                 $.each(jd.mv, function(i, item){
                     xd.push(i);
-                    yd.push(item[0]);
+                    yd.push(item);
                 });
             }
 
