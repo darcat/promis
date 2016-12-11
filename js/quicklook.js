@@ -154,13 +154,13 @@ var QUICKLOOK = {};
                 if(large) {
                     // mwc data, skip lots
                     for(var i = 0, z = 0; i < results.data.length; i += 200, z ++) {
-                        x.push(z);
-                        y.push(results.data[i][0]);
+                        xd.push(z);
+                        yd.push(results.data[i][0]);
                     }
                 } else {
-                    $.each(result.data, function(i, item){
-                        x.push(i);
-                        y.push(item[0]);
+                    $.each(results.data, function(i, item){
+                        xd.push(i);
+                        yd.push(item[0]);
                     });
                 }
 
