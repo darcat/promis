@@ -16,7 +16,7 @@ var DATA = {};
 function makeResult(data, date, name, size, href) {
     var r = $('.resultsrow').clone();
 
-    $(r).removeClass('.resultsrow');
+    $(r).removeClass('resultsrow');
     $(r).addClass('theresult');
     $(r).attr('data-name', data);
     $(r).find('.resultsdate').html(date);
