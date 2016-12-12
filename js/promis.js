@@ -25,7 +25,7 @@ var PROMIS = {};
 
       $.each(dgeo[0].concat(dgeo[1]), function(i, item) {
         poln.push({lat: item[1], lng: item[0]});
-        PROMIS.orbit.push([item[1], item[0]]);
+        PROMIS.orbit.push({lat: item[1], lng: item[0]});
       });
 
       // clean previous orbit
@@ -72,7 +72,13 @@ var PROMIS = {};
 
     $('.emptynotice').hide();
 
-    $('input[name="daterange"]').daterangepicker();
+    $('input[name="daterange"]').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD'
+      },
+      startDate: '2011-08-01',
+      endDate: '2011-10-31'
+    });
 
     $('[data-toggle="tooltip"]').tooltip();
 

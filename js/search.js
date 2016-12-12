@@ -15,6 +15,7 @@ var DATA = {};
 $(document).ready(function(){
     $('.mapblock').css('visibility', 'hidden');
     $('.resultsblock').hide();
+    $('.searchresults').hide();
 
     /* assume orbit is already loaded */
 
@@ -22,7 +23,7 @@ $(document).ready(function(){
         /* search by date */
         var intime = false, latlon = false, fparams = false;
         var range = $('.daterange').val().split(' - ');
-        var mrange = moment.range(moment(range[0], 'DD/MM/YYYY'), moment(range[1], 'DD/MM/YYYY'));
+        var mrange = moment.range(moment(range[0], 'YYYY-MM-DD'), moment(range[1], 'YYYY-MM-DD'));
 
         $.each(DATA.dates, function(i, d){
             var x = moment(d, 'YYYY-MM-DD');
@@ -30,14 +31,19 @@ $(document).ready(function(){
         });
 
         if(intime) {
+            var box = map.getBounds();
+
             $.each(PROMIS.orbit, function(i, ll){
-                if($('.geolat1').val() >= ll[0] && $('.geolat2').val() <= ll[0] && $('.geolon1').val() >= ll[1] && $('.geolon2').val() <= ll[2])
+                if(box.contains(ll))
                     latlon = true;
             });
 
             /* params */
             if(latlon) {
                 alert('params left');
+            } else {
+                $('.resultsblock').show();
+                $('.resultscount').html('Nothing has been found');
             }
         }
     });
