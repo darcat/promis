@@ -93,6 +93,7 @@ $(document).ready(function(){
                                     if(z.within(mrange)) {
                                         var n = 'ez' + String(i + 1);
                                         makeResult(n, d, 'Electric potential (EZ)', '1.5 KB', DATA[n]);
+                                        q++;
                                     }
                                 });
                             break;
