@@ -7,14 +7,28 @@ var DATA = {};
     DATA.ez3 = '20110914-ez-lf.json';
 
     DATA.mw1 = 'BeCsv.json';
+    //DATA.mw2 = '';
 
     DATA.dates = ['2011-08-31', '2011-09-05', '2011-09-14'];
 
 })();
 
+function makeResult(data, date, name, size, href) {
+    var r = $('.resultsrow').clone();
+
+    $(r).attr('data-name', data);
+    $(r).find('.resultsdate').html(date);
+    $(r).find('.resultssize').html(size);
+    $(r).find('.resultsname').html(name);
+    $(r).find('.download').attr('href', '/download/' + href);
+
+    $('.searchresults tbody').append(r);
+}
+
 $(document).ready(function(){
     $('.mapblock').css('visibility', 'hidden');
     $('.resultsblock').hide();
+    $('.resultsrow').hide();
     $('.searchresults').hide();
 
     /* assume orbit is already loaded */
@@ -39,7 +53,17 @@ $(document).ready(function(){
 
             /* params */
             if(latlon) {
-                alert('params left');
+                $('.checkparam input').each(function(i, objp){
+                    if($(objp).is(':checked')) {
+                        if(i == 0) {
+                            /* pick earliest ez */
+
+                        } else {
+                            /* pick mwc */
+                            makeResult('mw1', DATA.dates[0], 'Magnetic field X (MWC)', '368 KB', DATA.mw1)
+                        }
+                    }
+                });
             } else {
                 $('.resultsblock').show();
                 $('.resultscount').html('Nothing has been found');
