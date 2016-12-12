@@ -214,3 +214,20 @@ var QUICKLOOK = {};
     }
 })();
 
+$(document).ready(function(){
+    $('.quicklook').click(function(e) {
+      var data = $(e.target).closest('.resultsrow').attr('data-name');
+
+      if(data.indexOf('ez') !== -1) {
+        /* ez */
+        QUICKLOOK.x_label = 'Seconds';
+        QUICKLOOK.y_label = 'Joules per Coulomb'
+      } else {
+        /* mwc */
+        QUICKLOOK.x_label = '1 Hertz';
+        QUICKLOOK.y_label = 'Teslas'
+      }
+
+      QUICKLOOK.bind(data);
+    });
+});

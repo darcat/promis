@@ -21,8 +21,11 @@ var PROMIS = {};
       var dgeo = json.geometry.coordinates;
       var poln = [];
 
+      PROMIS.orbit = [];
+
       $.each(dgeo[0].concat(dgeo[1]), function(i, item) {
         poln.push({lat: item[1], lng: item[0]});
+        PROMIS.orbit.push([item[1], item[0]]);
       });
 
       // clean previous orbit
@@ -50,7 +53,8 @@ var PROMIS = {};
     };
     
     map = new google.maps.Map(mapCanvas, mapOptions);
-    displaySession(3);
+
+    displaySession(2);
   }
 
   PROMIS.showOnTheMap = function() {
@@ -72,6 +76,7 @@ var PROMIS = {};
     $('[data-toggle="tooltip"]').tooltip();
 
     $('.showonthemap').click(function(){
+      $('.mapblock').show();
       PROMIS.showOnTheMap();
     });
 
@@ -85,23 +90,6 @@ var PROMIS = {};
         $('.emptynotice').hide();
         $('.searchbutton').removeProp('disabled');
       }
-    });
-
-    $('.quicklook').click(function(e) {
-      var data = $(e.target).closest('.resultsrow').attr('data-name');
-
-      if(data.indexOf('ez') !== -1) {
-        /* ez */
-        QUICKLOOK.xlabel = 'Seconds';
-        QUICKLOOK.ylabel = 'Joules per Coulomb'
-      } else {
-        /* mwc */
-        QUICKLOOK.xlabel = '1 Hertz';
-        QUICKLOOK.ylabel = 'Teslas'
-      }
-
-      QUICKLOOK.bind(data);
-      //QUICKLOOK.plot();
     });
 
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
