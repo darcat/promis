@@ -31,11 +31,10 @@ $(document).ready(function(){
         });
 
         if(intime) {
-            var box = map.getBounds();
-
             $.each(PROMIS.orbit, function(i, ll){
-                if(box.contains(ll))
+                if(PROMIS.bounds.contains(ll)) {
                     latlon = true;
+                }
             });
 
             /* params */

@@ -54,6 +54,13 @@ var PROMIS = {};
     
     map = new google.maps.Map(mapCanvas, mapOptions);
 
+    google.maps.event.addListenerOnce(map, 'idle', function(){
+      PROMIS.bounds = this.getBounds();
+    });
+    google.maps.event.addListener(map, 'bounds_changed', function() {
+      PROMIS.bounds = this.getBounds();
+    });
+
     displaySession(2);
   }
 
@@ -69,6 +76,7 @@ var PROMIS = {};
 
   /* main func */
   $(document).ready(function(){
+
 
     $('.emptynotice').hide();
 
