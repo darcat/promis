@@ -7,6 +7,7 @@ ADD css /var/www/promis/css/
 ADD js /var/www/promis/js/
 ADD nginx.conf /etc/nginx/
 ADD promis.conf /etc/nginx/
+ADD download /var/www/promis/download/
 
 # EnvPlate to replace templates
 # See LICENSE.endplate for copyright information
