@@ -63,6 +63,7 @@ var PROMIS = {};
     bounds.extend(new google.maps.LatLng($('#geolat1').val(), $('#geolon1').val()));
     bounds.extend(new google.maps.LatLng($('#geolat2').val(), $('#geolon2').val()));
 
+    google.maps.event.trigger(map, 'resize');
     map.fitBounds(bounds);
   }
 
@@ -76,7 +77,7 @@ var PROMIS = {};
     $('[data-toggle="tooltip"]').tooltip();
 
     $('.showonthemap').click(function(){
-      $('.mapblock').show();
+      $('.mapblock').css('visibility','visible');
       PROMIS.showOnTheMap();
     });
 

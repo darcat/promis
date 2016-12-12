@@ -10,7 +10,7 @@ var DATA = {};
 })();
 
 $(document).ready(function(){
-    $('.mapblock').hide();
+    $('.mapblock').css('visibility', 'hidden');
     $('.resultsblock').hide();
 
     /* assume orbit is already loaded */
