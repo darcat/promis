@@ -16,12 +16,31 @@ var DATA = {};
 function makeResult(data, date, name, size, href) {
     var r = $('.resultsrow').clone();
 
+    $(r).addClass('theresult');
     $(r).attr('data-name', data);
     $(r).find('.resultsdate').html(date);
     $(r).find('.resultssize').html(size);
     $(r).find('.resultsname').html(name);
     $(r).find('.download').attr('href', '/download/' + href);
+
+    $(r).find('.quicklook').click(function(e) {
+      var data = $(e.target).closest('.theresult').attr('data-name');
+
+      if(data.indexOf('ez') !== -1) {
+        /* ez */
+        QUICKLOOK.x_label = 'Seconds';
+        QUICKLOOK.y_label = 'Joules per Coulomb'
+      } else {
+        /* mwc */
+        QUICKLOOK.x_label = '1 Hertz';
+        QUICKLOOK.y_label = 'Teslas'
+      }
+
+      QUICKLOOK.bind(data);
+    });
+
     $(r).show();
+
 
     $('.searchresults tbody').append(r);
 }
@@ -54,6 +73,9 @@ $(document).ready(function(){
 
             $('.resultsblock').show();
 
+            /* clean from old searches */
+            $('.searchresults .theresult').remove();
+
             /* params */
             if(latlon) {
                 var q = 0;
@@ -74,6 +96,7 @@ $(document).ready(function(){
                     }
                 });
                 $('.resultscount').html(q + ' result(s) has been found');
+                $('.searchresults').show();
             } else {
                 $('.resultscount').html('Nothing has been found');
             }
