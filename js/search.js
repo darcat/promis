@@ -16,6 +16,7 @@ var DATA = {};
 function makeResult(data, date, name, size, href) {
     var r = $('.resultsrow').clone();
 
+    $(r).removeClass('.resultsrow');
     $(r).addClass('theresult');
     $(r).attr('data-name', data);
     $(r).find('.resultsdate').html(date);
@@ -103,8 +104,15 @@ $(document).ready(function(){
                         }
                     }
                 });
-                $('.resultscount').html(q + ' result(s) has been found');
-                $('.searchresults').show();
+                if(q) {
+                    $('.resultscount').html(q + ' result(s) has been found');
+                    $('.searchresults').show();
+                }
+                else {
+                    /* hate duplicating code...*/
+                    $('.resultscount').html('Nothing has been found');
+                    $('.searchresults').hide();
+                }
             } else {
                 $('.resultscount').html('Nothing has been found');
                 $('.searchresults').hide();

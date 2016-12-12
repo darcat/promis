@@ -192,7 +192,7 @@ var QUICKLOOK = {};
 
             if(large) {
                 // mwc data, skip lots
-                for(var i = 0, z = 0; i < jd.length; i += 200, z ++) {
+                for(var i = 0, z = 0; i < jd.length; i += 100, z ++) {
                     xd.push(z);
                     yd.push(json[i]);
                 }
