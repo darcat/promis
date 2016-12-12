@@ -86,10 +86,18 @@ $(document).ready(function(){
 
                         switch(i) {
                             case 0: /* ez */
+                                $.each(DATA.dates, function(i, d){
+                                    var z = moment(d, 'YYYY-MM-DD');
+
+                                    if(z.within(mrange)) {
+                                        var n = 'ez' + String(i + 1);
+                                        makeResult(n, d, 'Electric potential (EZ)', '1.5 KB', DATA[n]);
+                                    }
+                                });
                             break;
 
                             case 1: /* mwc x */
-                                makeResult('mw1', DATA.dates[0], 'Magnetic field X (MWC)', '368 KB', DATA.mw1);
+                                makeResult('mw1', DATA.dates[0], 'Magnetic field X (MWC)', '386 KB', DATA.mw1);
                                 q ++;
                             break;
                         }
@@ -99,6 +107,7 @@ $(document).ready(function(){
                 $('.searchresults').show();
             } else {
                 $('.resultscount').html('Nothing has been found');
+                $('.searchresults').hide();
             }
         }
     });
