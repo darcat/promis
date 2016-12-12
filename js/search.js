@@ -22,7 +22,7 @@ $(document).ready(function(){
         /* search by date */
         var intime = false, latlon = false, fparams = false;
         var range = $('.daterange').val().split(' - ');
-        var mrange = moment.range(moment.parse(range[0], 'DD/MM/YYYY'), moment.parse(range[1], 'DD/MM/YYYY'));
+        var mrange = moment.range(moment(range[0], 'DD/MM/YYYY'), moment(range[1], 'DD/MM/YYYY'));
 
         $.each(DATA.dates, function(i, d){
             var x = moment(d, 'YYYY-MM-DD');
