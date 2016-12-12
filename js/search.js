@@ -21,6 +21,7 @@ function makeResult(data, date, name, size, href) {
     $(r).find('.resultssize').html(size);
     $(r).find('.resultsname').html(name);
     $(r).find('.download').attr('href', '/download/' + href);
+    $(r).show();
 
     $('.searchresults tbody').append(r);
 }
@@ -51,21 +52,29 @@ $(document).ready(function(){
                 }
             });
 
+            $('.resultsblock').show();
+
             /* params */
             if(latlon) {
+                var q = 0;
+
                 $('.checkparam input').each(function(i, objp){
                     if($(objp).is(':checked')) {
-                        if(i == 0) {
-                            /* pick earliest ez */
+                        /* pick earliest date */
 
-                        } else {
-                            /* pick mwc */
-                            makeResult('mw1', DATA.dates[0], 'Magnetic field X (MWC)', '368 KB', DATA.mw1)
+                        switch(i) {
+                            case 0: /* ez */
+                            break;
+
+                            case 1: /* mwc x */
+                                makeResult('mw1', DATA.dates[0], 'Magnetic field X (MWC)', '368 KB', DATA.mw1);
+                                q ++;
+                            break;
                         }
                     }
                 });
+                $('.resultscount').html(q + ' result(s) has been found');
             } else {
-                $('.resultsblock').show();
                 $('.resultscount').html('Nothing has been found');
             }
         }
