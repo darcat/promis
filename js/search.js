@@ -40,6 +40,13 @@ function makeResult(data, date, name, size, href) {
       QUICKLOOK.bind(data);
     });
 
+    /* make sure buttons are really disabled */
+    $(r).find('.maybedisabled').click(function(e){
+        if(!isLoggedIn()) {
+            e.stopPropagation();
+        }
+    });
+
     $(r).show();
 
 
@@ -52,13 +59,6 @@ $(document).ready(function(){
     $('.resultsrow').hide();
     $('.searchresults').hide();
     $('.loggednotice').hide();
-
-    /* make sure buttons are really disabled */
-    $('.maybedisabled').click(function(e){
-        if(!isLoggedIn()) {
-            e.stopPropagation();
-        }
-    });
 
     /* assume orbit is already loaded */
 

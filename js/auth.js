@@ -48,6 +48,7 @@ function doLogin()
     {
         setCookie("username", username, 1);
         setCookie("password", password, 1);
+        document.location('/');
         return true;
     } else {
         $('.login-form').addClass('has-error');
