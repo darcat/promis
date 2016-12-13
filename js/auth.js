@@ -64,6 +64,7 @@ $(document).ready(function(){
     } else {
       $('.login-form').hide();
       $('.loggedonly').show();
+      $('.welcome').html(getCookieVal('username'));
     }
 
 
@@ -80,6 +81,7 @@ $(document).ready(function(){
             $('.loggedonly').show();
             $('.login-form').hide();
             $('.logout-form').show();
+            $('.welcome').html(getCookieVal('username'));
         }
     });
 
