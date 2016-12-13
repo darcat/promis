@@ -69,6 +69,11 @@ path {
   font-weight: bold;
 }
 
+.wbar {
+  margin-left: 50px;
+  color: white;
+}
+
 .navbar-inverse .navbar-collapse, .navbar-inverse {
   background-color: #666 !important;
    background-image: -webkit-linear-gradient(top,#3c3c3c 0,#666 100%);
