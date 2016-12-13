@@ -80,6 +80,7 @@ $(document).ready(function(){
         {
             $('.maybedisabled button').prop('disabled', false);
             $('.loggedonly').show();
+            $('.loggednotice').hide();
             $('.login-form').hide();
             $('.logout-form').show();
             $('.welcome').html(getCookieVal('username'));

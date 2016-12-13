@@ -76,6 +76,7 @@ path {
 
 .loggednotice {
   display: block;
+  color: red;
 }
 
 .resultsacts form {
