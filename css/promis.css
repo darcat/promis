@@ -78,6 +78,10 @@ path {
   display: block;
 }
 
+.resultsacts form {
+  display: inline-block;
+}
+
 .navbar-inverse .navbar-collapse, .navbar-inverse {
   background-color: #666 !important;
    background-image: -webkit-linear-gradient(top,#3c3c3c 0,#666 100%);

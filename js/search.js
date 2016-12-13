@@ -112,8 +112,10 @@ $(document).ready(function(){
 
                     if(!isLoggedIn()) {
                         $('.loggednotice').show();
+                        $('.maybedisabled button').prop('disabled', true);
                     } else {
                         $('.loggednotice').hide();
+                        $('.maybedisabled button').prop('disabled', false);
                     }
                 }
                 else {
