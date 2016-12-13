@@ -53,6 +53,13 @@ $(document).ready(function(){
     $('.searchresults').hide();
     $('.loggednotice').hide();
 
+    /* make sure buttons are really disabled */
+    $('.maybedisabled').click(function(e){
+        if(!isLoggedIn()) {
+            e.stopPropagation();
+        }
+    });
+
     /* assume orbit is already loaded */
 
     $('.searchbutton').click(function(){
