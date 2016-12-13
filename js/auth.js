@@ -74,7 +74,7 @@ $(document).ready(function(){
         if (!isLoggedIn())
         {
             $('.logout-form').hide();
-            $('.login-form').show()
+            $('.login-form').show();
         }
         else
         {

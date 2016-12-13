@@ -290,19 +290,22 @@
                       <td class = 'resultsdate'>2015/23/10</td>
                       <td class = 'resultsname'>MWC X</td>
                       <td class = 'resultssize'>50 KB</td>
-                      <td class = 'resultsacts loggedonly'>
+                      <td class = 'resultsacts maybedisabled'>
                         <span data-toggle="modal" data-target="#quicklookModal">
                           <button type="button" class="btn btn-default btn-sm quicklook" data-toggle="tooltip" data-placement="top" title="Quicklook">
                             <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
                           </button>
                         </span>
-                        <a target = '_blank' href = '/download/session2.json' class="btn btn-default btn-sm download" data-toggle="tooltip" data-placement="top" title="Download">
-                          <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-                        </a>
+                        <form method="get" action="/download/session2.json">
+                          <button type="submit" class="btn btn-default btn-sm download" data-toggle="tooltip" data-placement="top" title="Download">
+                            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                          </button>
+                        </form>
                       </td>
                     </tr>
                   </tbody>
                 </table>
+                <span class = 'loggednotice'>To view or download data, please, sign in</span>
               </div>
             </div>
           </div>

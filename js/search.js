@@ -22,7 +22,7 @@ function makeResult(data, date, name, size, href) {
     $(r).find('.resultsdate').html(date);
     $(r).find('.resultssize').html(size);
     $(r).find('.resultsname').html(name);
-    $(r).find('.download').attr('href', '/download/' + href);
+    $(r).find('.download').closest('form').attr('action', '/download/' + href);
 
     $(r).find('.quicklook').click(function(e) {
       var data = $(e.target).closest('.theresult').attr('data-name');
@@ -51,6 +51,7 @@ $(document).ready(function(){
     $('.resultsblock').hide();
     $('.resultsrow').hide();
     $('.searchresults').hide();
+    $('.loggednotice').hide();
 
     /* assume orbit is already loaded */
 
@@ -108,6 +109,12 @@ $(document).ready(function(){
                 if(q) {
                     $('.resultscount').html(q + ' result(s) has been found');
                     $('.searchresults').show();
+
+                    if(!isLoggedIn()) {
+                        $('.loggednotice').show();
+                    } else {
+                        $('.loggednotice').hide();
+                    }
                 }
                 else {
                     /* hate duplicating code...*/
