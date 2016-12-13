@@ -48,7 +48,6 @@ function doLogin()
     {
         setCookie("username", username, 1);
         setCookie("password", password, 1);
-        document.location('/');
         return true;
     } else {
         $('.login-form').addClass('has-error');
@@ -79,6 +78,7 @@ $(document).ready(function(){
         }
         else
         {
+            $('.maybedisabled button').prop('disabled', false);
             $('.loggedonly').show();
             $('.login-form').hide();
             $('.logout-form').show();
