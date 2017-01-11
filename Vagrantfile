@@ -91,7 +91,7 @@ Vagrant.configure("2") do |config|
           end
         end
         # Forward ports if necessary
-        if container["ports"] && (container["name"]!=$conf["hostname_db"] || $conf["expose_db"])
+        if container["ports"] && (cfg(container["name"])!=$conf["hostname_db"] || $conf["expose_db"])
           ports = container["ports"].dup
           ports.each_index do |k|
             port = cfg(ports[k])
