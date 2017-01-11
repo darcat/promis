@@ -6,7 +6,7 @@
 	path = repos/promis-backend
 	url = https://github.com/IonosatMicro/promis-backend.git
 	ignore = all
-[submodule "repos/promis-testing"]
+[submodule "promis-testing"]
 	path = repos/promis-testing
-	url = https://github.com/IonosatMicro/promis-testing
+	url = https://github.com/IonosatMicro/promis-testing.git
 	ignore = all
