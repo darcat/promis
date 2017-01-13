@@ -7,10 +7,15 @@ addons:
     packages:
       - vagrant
       - python-pyftpdlib
+
+# Making sure Selenium knows where to pick up Gecko from
+env:
+  - PATH=$PATH:$TRAVIS_BUILD_DIR
+
 before_script:
   - .travis/setup.sh
 script:
-  - uname -a # TODO replace this with PyTest call
+  - which geckodriver # TODO replace this with PyTest call
 
 notifications:
   slack:
