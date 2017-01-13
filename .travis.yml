@@ -10,7 +10,7 @@ addons:
 
 # Making sure Selenium knows where to pick up Gecko from
 env:
-  - PATH=$TRAVIS_BUILD_DIR
+  - PATH=$PATH:$TRAVIS_BUILD_DIR
 
 before_script:
   - .travis/setup.sh
