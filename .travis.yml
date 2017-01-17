@@ -7,10 +7,13 @@ addons:
     packages:
       - vagrant
       - python-pyftpdlib
+      - python-pytest
+      - python-selenium
 before_script:
   - .travis/setup.sh
 script:
-  - uname -a # TODO replace this with PyTest call
+  - cd repos/promis-testing
+  - pytest
 
 notifications:
   slack:
