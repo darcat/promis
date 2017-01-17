@@ -4,16 +4,17 @@ addons:
   apt:
     sources:
       - sourceline: deb http://vagrant-deb.linestarve.com/ any main
+      - sourceline: deb http://ftp.debian.org/debian jessie-backports main
     packages:
       - vagrant
       - python-pyftpdlib
-      - python-pytest
-      - python-selenium
+      - python3-pytest
+      - python3-selenium
 before_script:
   - .travis/setup.sh
 script:
   - cd repos/promis-testing
-  - py.test
+  - py.test-3
 
 notifications:
   slack:
