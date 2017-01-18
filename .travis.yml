@@ -6,6 +6,8 @@ env:
 
 services:
   - docker
+python:
+  - "3.4"
 addons:
   firefox: "49.0"
   apt:
@@ -14,11 +16,12 @@ addons:
     packages:
       - vagrant
       - python-pyftpdlib
+install: "pip install --user -r ./repos/promis-testing/requirements.txt"
 before_script:
   - .travis/setup.sh
 script:
   - cd repos/promis-testing
-  - py.test-3
+  - py.test
 
 notifications:
   slack:

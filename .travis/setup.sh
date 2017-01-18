@@ -22,6 +22,3 @@ vagrant up
 # TODO: any chance to apt-get so we can put this to travis.yml?
 wget https://github.com/mozilla/geckodriver/releases/download/v0.13.0/geckodriver-v0.13.0-linux64.tar.gz
 tar -xf geckodriver-v0.13.0-linux64.tar.gz
-
-# Pip requirements
-pip3 install -r repos/promis-testing/requirements.txt
