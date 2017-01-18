@@ -1,6 +1,7 @@
 services:
   - docker
 addons:
+  firefox: "49.0"
   apt:
     sources:
       - sourceline: deb http://vagrant-deb.linestarve.com/ any main
