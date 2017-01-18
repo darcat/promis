@@ -6,22 +6,22 @@ env:
 
 services:
   - docker
+python:
+  - "3.4"
 addons:
   firefox: "49.0"
   apt:
     sources:
       - sourceline: deb http://vagrant-deb.linestarve.com/ any main
-      - sourceline: deb http://ftp.debian.org/debian jessie-backports main
     packages:
       - vagrant
       - python-pyftpdlib
-      - python3-pytest
-      - python3-selenium
+install: "pip install --user -r ./repos/promis-testing/requirements.txt"
 before_script:
   - .travis/setup.sh
 script:
   - cd repos/promis-testing
-  - py.test-3
+  - py.test
 
 notifications:
   slack:
