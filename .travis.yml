@@ -1,3 +1,7 @@
+# Making sure Selenium knows where to pick up Gecko from
+env:
+  - PATH=$PATH:$TRAVIS_BUILD_DIR
+
 services:
   - docker
 addons:
