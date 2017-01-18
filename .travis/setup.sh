@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Starting a virtual display
+sh -e /etc/init.d/xvfb start
+
 # FTP server
 /usr/bin/python2.7 -m pyftpdlib &
 
-# Waiting to split the output
-sleep 2
+# Waiting to split the output and start up X
+sleep 3
 
 # Setting up a minimal viable config
 echo "development_setup: yes" > conf/conf.yml
