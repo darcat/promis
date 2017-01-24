@@ -40,8 +40,10 @@
 
         var intersects = rayCaster.intersectObjects(sphere.children, true);
 
+
         if (intersects.length > 0)
-            return intersects[0].point;
+            info(intersects[0].point);
+        else info('fail')
     });
 
     controls.minDistance = 5;
