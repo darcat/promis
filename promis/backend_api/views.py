@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import json
-from blueman.Sdp import VIDEO_CONF_GW_SVCLASS_ID
+
 
 class SessionsViewSet(viewsets.ModelViewSet):
     queryset = models.Sessions.objects.all()
