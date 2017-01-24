@@ -54,7 +54,7 @@ class DocumentsSerializer(serializers.ModelSerializer):
         fields = ('__all__')
         model = models.Documents
 
-class MeasurementsSerializers(serializers.ModelSerializer):
+class MeasurementsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
         model = models.Measurements

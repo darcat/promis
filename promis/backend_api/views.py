@@ -15,14 +15,13 @@ from rest_framework.views import APIView
 
 import json
 
-
 class SessionsViewSet(viewsets.ModelViewSet):
     queryset = models.Sessions.objects.all()
-    serializer_class = serializer.SesionsSerializer
+    serializer_class = serializer.SessionsSerializer
     
 class TranslationsViewSet(viewsets.ModelViewSet):
     queryset = models.Translations.objects.all()
-    serializer_class = serializer.TranslationSerializer
+    serializer_class = serializer.TranslationsSerializer
     
 class SpaceProjectsViewSet(viewsets.ModelViewSet):
     queryset = models.Space_projects.objects.all()
@@ -36,7 +35,7 @@ class FunctionsViewSet(viewsets.ModelViewSet):
     queryset = models.Functions.objects.all()
     serializer_class = serializer.FunctionsSerializer
     
-class CnannelsViewSet(viewsets.ModelViewSet):
+class ChannelsViewSet(viewsets.ModelViewSet):
     queryset = models.Channels.objects.all()
     serializer_class = serializer.ChannelsSerializer
     

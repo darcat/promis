@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'backend_api'
+    'backend_api',
+    'rest_framework'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -81,7 +82,7 @@ DATABASES = {
         'NAME': 'promisdb',
         'USER': 'promis',
         'PASSWORD': 'swordfish',
-        'HOST': 'localhost',
+        'HOST': 'db.promis',
         'PORT': '5432',
     }
 }
