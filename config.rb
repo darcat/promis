@@ -42,6 +42,8 @@ if $conf["development_setup"]
   $conf["port_api"] = 8083 unless $user_conf.key?("port_api")
   $conf["prefer_local"] = true unless $user_conf.key?("prefer_local")
   $conf["expose_db"] = true unless $user_conf.key?("expose_db")
+  $conf["django_debug"] = true unless $user_conf.key?("django_debug")
+  $conf["django_key"] = "8f3@*c8-gz!h(fm_4n$-tc-@9!32#bn5m9mmxj$k38or1&y&%x" unless $user_conf.key?("django_key")
 end
 
 # Fix ports for oblivious people
@@ -61,4 +63,12 @@ else
   $conf["port_key_api"] = $conf["port_api"].to_s + " ssl;\n" +
       "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_api"] + ";\n" +
       "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_api"]
+end
+
+# Generate Django key if it's still empty
+if $conf["django_key"].to_s == ""
+  # Adapted from: http://stackoverflow.com/questions/88311/how-best-to-generate-a-random-string-in-ruby
+  # NOTE: Pseudo-random
+  o = [('a'..'z'), ('0'..'9'), ('!'..')')].map(&:to_a).flatten
+  $conf["django_key"] = (0...50).map { o[rand(o.length)] }.join
 end

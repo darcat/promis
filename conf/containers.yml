@@ -19,6 +19,8 @@
     POSTGRES_DB:        ${conf.postgres_dbname}
     POSTGRES_HOST:      ${conf.hostname_db}
     POSTGRES_PORT:      ${conf.port_sql}
+    DJANGO_DEBUG:       ${conf.django_debug}
+    DJANGO_KEY:         ${conf.django_key}
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
 
