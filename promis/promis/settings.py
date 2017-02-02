@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.gis',
+    'world',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -78,7 +80,7 @@ WSGI_APPLICATION = 'promis.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': os.environ['POSTGRES_DB'],
         'USER': os.environ['POSTGRES_USER'],
         'PASSWORD': os.environ['POSTGRES_PASSWORD'],
