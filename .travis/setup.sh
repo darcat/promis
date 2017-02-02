@@ -12,8 +12,9 @@ sleep 3
 # Setting up a minimal viable config
 echo "development_setup: yes" > conf/conf.yml
 
-# Not exposing postgres though
-echo "expose_db: no" >> conf/conf.yml
+# Non-standard Postgres port so it won't clash with Travis machine
+# TODO: maaybe just make it expose a different one on the host?
+echo "port_sql: 4242" >> conf/conf.yml
 
 # Ready, steady, go
 vagrant up
