@@ -1,12 +1,12 @@
 [submodule "repos/promis-frontend"]
 	path = repos/promis-frontend
 	url = https://github.com/IonosatMicro/promis-frontend.git
-	ignore = all
+	ignore = dirty
 [submodule "repos/promis-backend"]
 	path = repos/promis-backend
 	url = https://github.com/IonosatMicro/promis-backend.git
-	ignore = all
+	ignore = dirty
 [submodule "promis-testing"]
 	path = repos/promis-testing
 	url = https://github.com/IonosatMicro/promis-testing.git
-	ignore = all
+	ignore = dirty
