@@ -1,6 +1,6 @@
 #!/bin/sh
 # Migrate data if needed
-python ./promis/manage.py makemigrations
+python ./promis/manage.py makemigrations backend_api
 python ./promis/manage.py migration
 # Generate a diagram for the frontend
 python ./promis/manage.py graph_models -a > $SYNC_DIR/model.dot

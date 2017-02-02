@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.gis',
-    'world',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
