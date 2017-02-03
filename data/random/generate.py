@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 from math import pi, atan, exp, sin, cos
+from time import strftime, localtime
 
 ### Globals are bad
 ### Call the cops, I don't care
+
+def ctime(u):
+    return strftime("%Y-%m-%d %H:%M:%S", localtime(u)) # Might be timezone-dependent
 
 # Points per orbit segment
 orbit_pts = 20
@@ -27,7 +31,7 @@ heart_start = 0
 peace_start = 3600
 lines_start = 3600*2
 utick_start = 3600*3
-round_start = 0
+round_start = 3600*4  # TODO: currently sessions are not tied to spacecraft, it's wrong, so I'm avoiding the overlap
 
 # TODO: make a proper satellite orbit
 # TODO: really rewrite this mess
@@ -75,3 +79,27 @@ def roundabout():
     return [ [ clamp180(round_shift*17*t/pi), 80*sin(t) ]
         for t in ((2*round_turns*pi*i/round_pts)
             for i in range(round_pts))]
+
+# Thx, stackoverflow
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+### Inserting data generated
+def insert_orbit(start_time, gen_function):
+    time = start_time
+    for v in chunks(gen_function(), orbit_pts):
+        new_time = time + orbit_pts * orbit_sec
+        # TODO: MultiLineString vs LinesString
+        # TODO: orbit_code is defaulted to NULL
+        # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
+        print("insert into backend_api_sessions (time_begin, time_end, geo_line) values ('%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (ctime(time), ctime(new_time),
+              ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
+        time = new_time
+
+
+insert_orbit(heart_start, heart)
+insert_orbit(peace_start, circle)
+insert_orbit(lines_start, vline)
+insert_orbit(utick_start, uptick)
+insert_orbit(round_start, roundabout)
