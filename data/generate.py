@@ -44,17 +44,18 @@ round_start = utick_start + 3600  # TODO: currently sessions are not tied to spa
 # TODO: sql injection prevention (not that it's a concern for tests, but ..)
 
 # Lazy implementation of a successive number generator
-# NOTE: makes ids globally unique, not per-table, keep that in mind
 # NOTE: you may want to reuse this later:
 #   insert ... returning id;
 #   drop table if exists _var;
 #   select lastval() into _var;
 #   ...
 #   somefunc(..., (select * from _var), ...)
-def getid():
-    getid.id += 1
-    return getid.id - 1
-getid.id = 0
+def getid(table):
+    if not table in getid.ids:
+        getid.ids[table] = 0
+    getid.ids[table] += 1
+    return getid.ids[table] - 1
+getid.ids = {}
 
 # Fake mercator considering Earth is a sphere
 def cord_conv(x,y):
@@ -118,14 +119,14 @@ def insert_orbit(start_time, gen_function):
 
 # TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
 def trans(s):
-    id = getid()
+    id = getid("trans")
     print("insert into backend_api_translations (id, langcode, text) values (%d, 'en', '%s');" % (id, s))
     return id
 
 def insert_satellite(time_begin, time_end, name, description): # TODO: name-'s', plural
     name_id = trans(name)
     desc_id = trans(description)
-    id = getid()
+    id = getid("sat")
     print("insert into backend_api_space_projects (id, date_start, date_end, name_id, description_id) values (%d, '%s', '%s', %d, %d);" % (id, dtime(time_begin), dtime(time_end), name_id, desc_id))
     return id
     # TODO: newly created id unused before sessions get the spacecraft id column
@@ -133,46 +134,46 @@ def insert_satellite(time_begin, time_end, name, description): # TODO: name-'s',
 def insert_device(name, description, sat_id):
     name_id = trans(name)
     desc_id = trans(description)
-    id = getid()
+    id = getid("dev")
     print("insert into backend_api_devices (id, name_id, description_id, satellite_id) values (%d, %d, %d, %d);" % (id, name_id, desc_id, sat_id ))
     return id
 
 def insert_function(description, func):
     desc_id = trans(description)
-    id = getid()
+    id = getid("func")
     print("insert into backend_api_functions (id, description_id, django_func) values (%d, %d, '%s');" % (id, desc_id, func ))
     return id
 
 def insert_channel(name, description, dev_id, func_id):
     name_id = trans(name)
     desc_id = trans(description)
-    id = getid()
+    id = getid("chan")
     print("insert into backend_api_channels (id, name_id, description_id, device_id, quicklook_id) values (%d, %d, %d, %d, %d);" % (id, name_id, desc_id, dev_id, func_id))
     return id
 
 def insert_unit(symbol, description):
     sym_id = trans(symbol)
     desc_id = trans(description)
-    id = getid()
+    id = getid("unit")
     print("insert into backend_api_units (id, long_name_id, short_name_id) values (%d, %d, %d);" % (id, desc_id, sym_id))
     return id
 
 def insert_value(name, description, short_name, unit_id):
     name_id = trans(name)
     desc_id = trans(description)
-    id = getid()
+    id = getid("val")
     print("insert into backend_api_values (id, name_id, description_id, short_name, units_id) values (%d, %d, %d, '%s', %d);" % (id, name_id, desc_id, short_name, unit_id))
     return id
 
 def insert_param(name, description, val_id, conv_id, conv_par, chan_id, func_id):
     name_id = trans(name)
     desc_id = trans(description)
-    id = getid()
+    id = getid("param")
     print("insert into backend_api_parameters (id, name_id, description_id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, %d, %d, '%s', %d, %d);" % (id, name_id, desc_id, val_id, conv_id, conv_par, chan_id, func_id))
     return id
 
 def insert_doc(last_mod, payload):
-    id = getid()
+    id = getid("doc")
     print("insert into backend_api_documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
     return id
 
