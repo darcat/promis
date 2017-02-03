@@ -39,6 +39,7 @@ round_start = utick_start + 3600  # TODO: currently sessions are not tied to spa
 # TODO: make a proper satellite orbit
 # TODO: really rewrite this mess
 # TODO: ask why we have 2 lines on the original orbit (MultiLineString)
+# TODO: sql injection prevention (not that it's a concern for tests, but ..)
 
 # Fake mercator considering Earth is a sphere
 def cord_conv(x,y):
@@ -100,19 +101,71 @@ def insert_orbit(start_time, gen_function):
               ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
         time = new_time
 
-# TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
+# NOTE: this is heavy black magic, because of the lack of variables in normal SQL
+# we are saving the query results in ephemeral tables. Normally the insert_x() function
+# would store the id of the new item in the _x which can be accessed as var("_x")
 # TODO: can we make this more elegant maybe?
-def trans(s, var):
+def cap(v):
     # Poor man's variables
-    print("drop table if exists %s;" % var)
+    print("drop table if exists %s;" % v)
+    print("select lastval() into %s;" % v)
+
+def var(v):
+    return "(select * from %s)" % v
+
+# TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
+def trans(s, v):
     print("insert into backend_api_translations (langcode, text) values ('en', '%s') returning id;" % s)
-    print("select lastval() into %s;" % var)
+    cap(v)
 
 def insert_satellite(time_begin, time_end, name, description): # TODO: name-'s', plural
     trans(name, "_name")
     trans(description, "_desc")
-    print("insert into backend_api_space_projects (date_start, date_end, name_id, description_id) values ('%s', '%s', (select * from _name), (select * from _desc));" % (dtime(time_begin), dtime(time_end)))
+    print("insert into backend_api_space_projects (date_start, date_end, name_id, description_id) values ('%s', '%s', %s, %s) returning id;" % (dtime(time_begin), dtime(time_end), var("_name"), var("_desc")))
+    cap("_satellite");
     # TODO: newly created id unused before sessions get the spacecraft id column
+
+# NOTE: sticks to the last added satellite, see cap/var comments for explanation
+def insert_device(name, description):
+    trans(name, "_name")
+    trans(description, "_desc")
+    print("insert into backend_api_devices (name_id, description_id, satellite_id) values (%s, %s, %s) returning id;" % (var("_name"), var("_desc"), var("_satellite") ))
+    cap("_device")
+
+def insert_function(description, func):
+    trans(description, "_desc")
+    print("insert into backend_api_functions (description_id, django_func) values (%s, '%s') returning id;" % (var("_desc"), func ))
+    cap("_function")
+
+# NOTE: sticks to last added device, also function
+def insert_channel(name, description):
+    trans(name, "_name")
+    trans(description, "_desc")
+    print("insert into backend_api_channels (name_id, description_id, device_id, quicklook_id) values (%s, %s, %s, %s) returning id;" % (var("_name"),var("_desc"),var("_device"),var("_function")))
+    cap("_channel")
+
+def insert_unit(symbol, description):
+    trans(symbol, "_sym")
+    trans(description, "_desc")
+    print("insert into backend_api_units (long_name, short_name) values (%s, %s) returning id;" % (var("_desc"), var("_sym")))
+    cap("_unit")
+
+# NOTE: sticks to last unit added
+def insert_value(name, description, short_name):
+    trans(name, "_name")
+    trans(description, "_desc")
+    print("insert into backend_api_channels (name_id, description_id, short_name, unit_id) values (%s, %s, '%s', %s) returning id;" % (var("_name"),var("_desc"),short_name,var("_unit")))
+    cap("_value")
+
+# NOTE: sticks to last added: value, channel, function
+def insert_param(name, description):
+    trans(name, "_name")
+    trans(description, "_desc")
+    print("insert into backend_api_parameters (name_id, description_id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%s, %s, %s, %s, '', %s, %s) returning id;" % (var("_name"),var("_desc"),var("_value"),var("_function"),var("_channel"),var("_function")))
+    cap("_param")
+
+# TODO: Currently only one is inserted, and assmed to exist
+insert_function("Dummy function","nothing()")
 
 insert_satellite(heart_start, heart_start + (heart_pts+peace_pts+lines_pts*2)/orbit_sec, "Peace&Love","A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.")
 insert_orbit(heart_start, heart)
@@ -122,3 +175,9 @@ insert_orbit(utick_start, uptick)
 
 insert_satellite(round_start, round_start + (round_pts)/orbit_sec, "Roundabout","A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.")
 insert_orbit(round_start, roundabout)
+
+# Yes I know space doesn't work like that
+insert_device("Space Termometer", "Fictional device to measure random things.")
+insert_channel("U","Termometer reading")
+insert_unit("°K", "degrees Kelvin")
+insert_value("Space Temperature", "Average temperature of something near the satellite for testing purpose.", "T")
