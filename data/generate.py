@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from math import pi, atan, exp, sin, cos
 from time import strftime, localtime
+from json import dumps
 
 # WARNING: this removes your database!
 
@@ -168,6 +169,11 @@ def insert_param(name, description, val_id, conv_id, conv_par, chan_id, func_id)
     desc_id = trans(description)
     id = getid()
     print("insert into backend_api_parameters (id, name_id, description_id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, %d, %d, '%s', %d, %d);" % (id, name_id, desc_id, val_id, conv_id, conv_par, chan_id, func_id))
+    return id
+
+def insert_doc(last_mod, payload):
+    id = getid()
+    print("insert into backend_api_documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
     return id
 
 # Remove everything from premises, order is important not to break key constraints
