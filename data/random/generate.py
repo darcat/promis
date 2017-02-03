@@ -103,7 +103,8 @@ def insert_orbit(start_time, gen_function):
 # TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
 # TODO: can we make this more elegant maybe?
 def trans(s, var):
-    print("drop table %s;" % var)
+    # Poor man's variables
+    print("drop table if exists %s;" % var)
     print("insert into backend_api_translations (langcode, text) values ('en', '%s') returning id;" % s)
     print("select lastval() into %s;" % var)
 
