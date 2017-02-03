@@ -9,12 +9,13 @@ lines_pts = 2000
 round_pts = 100000
 
 # TODO: make a proper satellite orbit
+# TODO: really rewrite this mess
 
 # Number of times "Roundabout" turns around Earth
 round_turns = 20
 
-# How much is longitudal movement lagging behind latitude
-round_delay = 100
+# Meridian speed, something like degrees per latitudal revolution
+round_shift = 5
 
 # Points per orbit segment
 orbit_pts = 20
@@ -26,13 +27,17 @@ orbit_sec = 20
 def cord_conv(x,y):
     return [ float(x),180.0/pi*(2.0*atan(exp(y*pi/180.0))-pi/2.0) ]
 
+# Ensures the number doesn't exceed 180
+def clamp180(x):
+    return x > 180 and (x+180)%360-180 or x
+
 # TODO: aspect ratio maaaybe?
 
 ### Satellite "Love&Peace" somehow flies an orbit that is projected as a heart and pacific sign
 
 # Heart shape
 def heart():
-    return [ cord_conv(-4*16*sin(t)**3, 3*13*cos(t)-3*5*cos(2*t)-3*2*cos(3*t)-3*cos(4*t))
+    return [ cord_conv(-90+4*16*sin(t)**3, 3*13*cos(t)-3*5*cos(2*t)-3*2*cos(3*t)-3*cos(4*t))
         for t in ((i-heart_pts/2)/(heart_pts*0.165)
             for i in range(heart_pts))]
 # Circle
@@ -41,22 +46,22 @@ def circle():
         for t in ((2*pi*i/peace_pts)
             for i in range(peace_pts))]
 
-# Vertical line [-35;35]
+# Vertical line [-45;45]
 def vline():
-    return [ coord_conv(90, t*35)
-        for t in (((i-lines_pts/2)/lines_pts)
+    return [ cord_conv(90, t*35)
+        for t in (2*(float(i)/lines_pts-0.5)
             for i in range(lines_pts))]
 
 # Upwards tick
 def uptick():
-    return [ coord_conv(90+t*60,-10-abs(t*30))
-        for t in (((i-lines_pts/2)/lines_pts)
-            for i in range(lines_pts))]]
+    return [ cord_conv(90+t*50,-5-abs(t*30))
+        for t in (2*(float(i)/lines_pts-0.5)
+            for i in range(lines_pts))]
 
 ### Satellite "Roundabout" starts at equator on longitude 0 slowly changes meridians
 
 # Yes I know this is not how satellites work
 def roundabout():
-    return [ [ sin(t), sin(t/round_delay) ]
+    return [ [ clamp180(round_shift*17*t/pi), 80*sin(t) ]
         for t in ((2*round_turns*pi*i/round_pts)
             for i in range(round_pts))]
