@@ -1,27 +1,37 @@
 #!/usr/bin/env python3
 from math import pi, atan, exp, sin, cos
 
-# Globals are bad
-# Call the cops, I don't care
-heart_pts = 10000
-peace_pts = 10000
-lines_pts = 2000
-round_pts = 100000
-
-# TODO: make a proper satellite orbit
-# TODO: really rewrite this mess
-
-# Number of times "Roundabout" turns around Earth
-round_turns = 20
-
-# Meridian speed, something like degrees per latitudal revolution
-round_shift = 5
+### Globals are bad
+### Call the cops, I don't care
 
 # Points per orbit segment
 orbit_pts = 20
 
-# Time slice (seconds) per orbit segment
-orbit_sec = 20
+# Time slice (seconds) between two point
+orbit_sec = 1
+
+# Number of times "Roundabout" turns around Earth
+round_turns = 40
+
+# Meridian speed, something like degrees per latitudal revolution
+round_shift = 5
+
+# Amount of points per specific orbit
+heart_pts = int(4*60/orbit_sec)                     # 4 mins
+peace_pts = int(2*60/orbit_sec)                     # 2 mins
+lines_pts = int(1*60/orbit_sec)                     # 1 mins
+round_pts = int(round_turns*2*60/orbit_sec)         # 2 mins for 1 revolution
+
+# Times at the start of the orbit, UNIX seconds
+heart_start = 0
+peace_start = 3600
+lines_start = 3600*2
+utick_start = 3600*3
+round_start = 0
+
+# TODO: make a proper satellite orbit
+# TODO: really rewrite this mess
+# TODO: ask why we have 2 lines on the original orbit (MultiLineString)
 
 # Fake mercator considering Earth is a sphere
 def cord_conv(x,y):
