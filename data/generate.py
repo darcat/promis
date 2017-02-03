@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-from math import pi, atan, exp, sin, cos
-from time import strftime, localtime
-from json import dumps
+from math   import pi, atan, exp, sin, cos
+from time   import strftime, localtime
+from json   import dumps
+from random import seed, randint
 
 # WARNING: this removes your database!
 
 ### Globals are bad
 ### Call the cops, I don't care
+random_seed = 42
 
 def ctime(u):
     return strftime("%Y-%m-%d %H:%M:%S", localtime(u)) # Might be timezone-dependent
@@ -106,15 +108,21 @@ def chunks(l, n):
         yield l[i:i + n]
 
 ### Inserting data generated
-def insert_orbit(start_time, gen_function):
+def insert_orbit(start_time, gen_func, data_func=None):
     time = start_time
-    for v in chunks(gen_function(), orbit_pts):
+    for v in chunks(gen_func(), orbit_pts):
         new_time = time + orbit_pts * orbit_sec
         # TODO: MultiLineString vs LinesString
         # TODO: orbit_code is defaulted to NULL
         # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
         print("insert into backend_api_sessions (time_begin, time_end, geo_line) values ('%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (ctime(time), ctime(new_time),
               ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
+
+        # Generate some data
+        if data_func:
+            freq = 100
+            insert_doc(time, data_func(freq)) # Hz
+
         time = new_time
 
 # TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
@@ -177,6 +185,9 @@ def insert_doc(last_mod, payload):
     print("insert into backend_api_documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
     return id
 
+# Seed the PRNG
+seed(random_seed)
+
 # Remove everything from premises, order is important not to break key constraints
 for i in [ "measurements", "parameters", "documents", "sessions", "channels", "values", "devices", "space_projects", "units", "functions", "translations" ]:
     print("delete from backend_api_%s;" % i)
@@ -185,13 +196,7 @@ for i in [ "measurements", "parameters", "documents", "sessions", "channels", "v
 dummy_id = insert_function("Dummy function","nothing()")
 
 love_peace_id = insert_satellite(heart_start, heart_start + (heart_pts+peace_pts+lines_pts*2)/orbit_sec, "Peace&Love","A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.")
-insert_orbit(heart_start, heart)
-insert_orbit(peace_start, circle)
-insert_orbit(lines_start, vline)
-insert_orbit(utick_start, uptick)
-
 roundabout_id = insert_satellite(round_start, round_start + (round_pts)/orbit_sec, "Roundabout","A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.")
-insert_orbit(round_start, roundabout)
 
 # Yes I know space doesn't work like that
 termometer_id = insert_device("Space Termometer", "Fictional device to measure random things.", roundabout_id)
@@ -199,3 +204,16 @@ term_read_id = insert_channel("U","Termometer reading", termometer_id, dummy_id)
 kelvin_id = insert_unit("°K", "degrees Kelvin")
 space_temp_id = insert_value("Space Temperature", "Average temperature of something near the satellite for testing purpose.", "T", kelvin_id)
 space_temp_param_id = insert_param("Measured Space Temperature", "What our satellite thinks the temperature is.", space_temp_id, dummy_id, "", term_read_id, dummy_id)
+
+# Ready, steady, go!
+insert_orbit(heart_start, heart)
+insert_orbit(peace_start, circle)
+insert_orbit(lines_start, vline)
+insert_orbit(utick_start, uptick)
+
+def gen_space_temp(freq):
+    return { "mV": [ randint(50,100)*sin(t)
+        for t in ((4*2*pi*i/(freq*orbit_sec))
+            for i in range(freq*orbit_sec)) ] }
+
+insert_orbit(round_start, roundabout, gen_space_temp)
