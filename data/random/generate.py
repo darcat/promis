@@ -8,6 +8,9 @@ from time import strftime, localtime
 def ctime(u):
     return strftime("%Y-%m-%d %H:%M:%S", localtime(u)) # Might be timezone-dependent
 
+def dtime(u):
+    return strftime("%Y-%m-%d", localtime(u)) # Might be timezone-dependent
+
 # Points per orbit segment
 orbit_pts = 20
 
@@ -28,10 +31,10 @@ round_pts = int(round_turns*2*60/orbit_sec)         # 2 mins for 1 revolution
 
 # Times at the start of the orbit, UNIX seconds
 heart_start = 0
-peace_start = 3600
-lines_start = 3600*2
-utick_start = 3600*3
-round_start = 3600*4  # TODO: currently sessions are not tied to spacecraft, it's wrong, so I'm avoiding the overlap
+peace_start = heart_start + 3600
+lines_start = peace_start + 3600
+utick_start = lines_start + 3600
+round_start = utick_start + 3600  # TODO: currently sessions are not tied to spacecraft, it's wrong, so I'm avoiding the overlap
 
 # TODO: make a proper satellite orbit
 # TODO: really rewrite this mess
@@ -97,9 +100,24 @@ def insert_orbit(start_time, gen_function):
               ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
         time = new_time
 
+# TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
+# TODO: can we make this more elegant maybe?
+def trans(s, var):
+    print("drop table %s;" % var)
+    print("insert into backend_api_translations (langcode, text) values ('en', '%s') returning id;" % s)
+    print("select lastval() into %s;" % var)
 
+def insert_satellite(time_begin, time_end, name, description): # TODO: name-'s', plural
+    trans(name, "_name")
+    trans(description, "_desc")
+    print("insert into backend_api_space_projects (date_start, date_end, name_id, description_id) values ('%s', '%s', (select * from _name), (select * from _desc));" % (dtime(time_begin), dtime(time_end)))
+    # TODO: newly created id unused before sessions get the spacecraft id column
+
+insert_satellite(heart_start, heart_start + (heart_pts+peace_pts+lines_pts*2)/orbit_sec, "Peace&Love","A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.")
 insert_orbit(heart_start, heart)
 insert_orbit(peace_start, circle)
 insert_orbit(lines_start, vline)
 insert_orbit(utick_start, uptick)
+
+insert_satellite(round_start, round_start + (round_pts)/orbit_sec, "Roundabout","A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.")
 insert_orbit(round_start, roundabout)
