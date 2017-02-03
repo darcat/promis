@@ -28,6 +28,7 @@ disable_ssl:        off
 # Whether to expose the SQL server to the development host
 expose_db:          off
 port_sql:           5432
+port_sql_host:      5432
 
 # Standard container names
 hostname_web:       'web.promis'

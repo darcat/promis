@@ -15,7 +15,7 @@ echo "development_setup: yes" > conf/conf.yml
 # Non-standard Postgres port so it won't clash with Travis machine
 # TODO: maaybe just make it expose a different one on the host?
 POSTGIS_PORT=4242
-echo "port_sql: $POSTGIS_PORT" >> conf/conf.yml
+echo "port_sql_host: $POSTGIS_PORT" >> conf/conf.yml
 
 # Ready, steady, go
 vagrant up
@@ -26,5 +26,5 @@ wget https://github.com/mozilla/geckodriver/releases/download/v0.13.0/geckodrive
 tar -xf geckodriver-v0.13.0-linux64.tar.gz
 
 # Populate with artificial data
-PGPASSWORD="swordfish"
+export PGPASSWORD="swordfish"
 repos/promis-testing/data/random/generate.py | psql -h localhost -p $POSTGIS_PORT -U promis promisdb >> /tmp/sql.log

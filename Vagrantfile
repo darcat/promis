@@ -95,7 +95,11 @@ Vagrant.configure("2") do |config|
           ports = container["ports"].dup
           ports.each_index do |k|
             port = cfg(ports[k])
-            ports[k] = port + ":" + port
+            if ! port.include? ":"
+              ports[k] = port + ":" + port
+            else
+              ports[k] = port
+            end
           end
           docker.ports = ports
         end
