@@ -115,13 +115,17 @@ def insert_orbit(start_time, gen_func, data_func=None):
         # TODO: MultiLineString vs LinesString
         # TODO: orbit_code is defaulted to NULL
         # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
-        print("insert into backend_api_sessions (time_begin, time_end, geo_line) values ('%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (ctime(time), ctime(new_time),
+        id = getid("ses")
+        print("insert into backend_api_sessions (id, time_begin, time_end, geo_line) values (%d, '%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (id, ctime(time), ctime(new_time),
               ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
 
         # Generate some data
         if data_func:
-            freq = 100
-            insert_doc(time, data_func(freq)) # Hz
+            # TODO: parametrise the call somehow?
+            par_id, chan_id, freq, min_freq, max_freq, payload = data_func()
+            doc_id = insert_doc(time, payload)
+            # TODO: same doc twice
+            insert_measure(id, par_id, chan_id, doc_id, doc_id, freq, min_freq, max_freq)
 
         time = new_time
 
@@ -185,6 +189,11 @@ def insert_doc(last_mod, payload):
     print("insert into backend_api_documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
     return id
 
+def insert_measure(ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq):
+    id = getid("measure")
+    print("insert into backend_api_measurements (id, session_id, parameter_id, channel_id, chn_doc_id, par_doc_id, sampling_frequency, min_frequency, max_frequency) values (%d, %d, %d, %d, %d, %d, %f, %f, %f); " % (id, ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq))
+    return id
+
 # Seed the PRNG
 seed(random_seed)
 
@@ -211,9 +220,10 @@ insert_orbit(peace_start, circle)
 insert_orbit(lines_start, vline)
 insert_orbit(utick_start, uptick)
 
-def gen_space_temp(freq):
-    return { "mV": [ randint(50,100)*sin(t)
-        for t in ((4*2*pi*i/(freq*orbit_sec))
-            for i in range(freq*orbit_sec)) ] }
+def gen_space_temp():
+    freq = 100
+    return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ randint(50,100)*sin(t)
+            for t in ((4*2*pi*i/(freq*orbit_sec))
+                for i in range(freq*orbit_sec)) ] }
 
 insert_orbit(round_start, roundabout, gen_space_temp)
