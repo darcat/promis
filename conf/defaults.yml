@@ -7,6 +7,8 @@
 # port_web = 8081 port_api = 8083
 # prefer_local = on
 # expose_db = on
+# django_debug = on
+# django_key set to known value (consult config.rb for details)
 development_setup:  off
 
 # Database access
@@ -28,6 +30,13 @@ disable_ssl:        off
 # Whether to expose the SQL server to the development host
 expose_db:          off
 port_sql:           5432
+port_sql_host:      5432
+
+# Django debugging
+django_debug:       off
+
+# Django secret key, auto-generated if empty
+django_key:         ''
 
 # Standard container names
 hostname_web:       'web.promis'
