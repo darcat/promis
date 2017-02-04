@@ -5,6 +5,7 @@ from django.db.models.fields import DateTimeField, IntegerField, CharField,\
     DateField, FloatField, TextField
 from django.db.models.fields.related import ForeignKey
 from jsonfield import JSONField
+from django.contrib.gis.db.models import LineStringField
 
 # Create your models here.
 
@@ -12,7 +13,7 @@ class Sessions(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
     orbit_code = IntegerField(null=True)
-    geo_line = TextField()
+    geo_line = LineStringField()
 
 class Translations(models.Model):
     langcode = CharField(max_length = 2)
@@ -23,12 +24,12 @@ class Space_projects(models.Model):
     description = ForeignKey('Translations', related_name = 'sp_descrioption')
     date_start = DateField()
     date_end = DateField()
-    
+
 class Devices(models.Model):
     name = ForeignKey('Translations', related_name = 'dev_name')
     description = ForeignKey('Translations', related_name = 'dev_description')
     satellite = ForeignKey('Space_projects')
-    
+
 class Functions(models.Model):
     description = ForeignKey('Translations', related_name = 'func_description')
     django_func = TextField()
@@ -38,7 +39,7 @@ class Channels(models.Model):
     description = ForeignKey('Translations', related_name = 'ch_description')
     device = ForeignKey('Devices')
     quicklook = ForeignKey('Functions')
-    
+
 class Units(models.Model):
     long_name = ForeignKey('Translations', related_name = 'u_lname')
     short_name = ForeignKey('Translations', related_name = 'u_sname')
@@ -61,13 +62,13 @@ class Parameters(models.Model):
 class Documents(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
     json_data = JSONField()
-    
+
 class Measurements(models.Model):
     session = ForeignKey('Sessions')
     parameter = ForeignKey('Parameters')
     channel = ForeignKey('Channels')
-    chn_doc_id = ForeignKey('Documents', related_name = 'chn_doc_id')
-    par_doc_id = ForeignKey('Documents', related_name = 'par_doc_id')
+    chn_doc = ForeignKey('Documents', related_name = 'chn_doc_id')
+    par_doc = ForeignKey('Documents', related_name = 'par_doc_id')
     sampling_frequency = FloatField()
     max_frequency  = FloatField()
     min_frequency  = FloatField()
