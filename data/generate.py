@@ -122,10 +122,11 @@ def insert_orbit(start_time, gen_func, data_func=None):
         # Generate some data
         if data_func:
             # TODO: parametrise the call somehow?
-            par_id, chan_id, freq, min_freq, max_freq, payload = data_func()
-            doc_id = insert_doc(time, payload)
+            par_id, chan_id, freq, min_freq, max_freq, raw_doc, end_doc = data_func()
+            raw_doc_id = insert_doc(time, raw_doc)
+            end_doc_id = insert_doc(time, end_doc)
             # TODO: same doc twice
-            insert_measure(id, par_id, chan_id, doc_id, doc_id, freq, min_freq, max_freq)
+            insert_measure(id, par_id, chan_id, raw_doc_id, end_doc_id, freq, min_freq, max_freq)
 
         time = new_time
 
@@ -222,8 +223,8 @@ insert_orbit(utick_start, uptick)
 
 def gen_space_temp():
     freq = 100
-    return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ randint(50,100)*sin(t)
-            for t in ((4*2*pi*i/(freq*orbit_sec))
-                for i in range(freq*orbit_sec)) ] }
+    amps = [ randint(50,100) for i in range(freq*orbit_sec) ]
+    return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often 
+        for i in range(freq*orbit_sec) ] }, { "T": amps }
 
 insert_orbit(round_start, roundabout, gen_space_temp)
