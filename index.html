@@ -1,22 +1,337 @@
-<html>
-<!-- TODO: Maybe something interactive based on D3? -->
-<script src="https://github.com/mdaines/viz.js/releases/download/v1.3.0/viz.js"></script>
-<script>
-  window.onload = function() {
-    var req = new XMLHttpRequest();
-    // TODO: parametrisation
-    req.open('GET', '${SYNC_PATH}/model.dot', true);
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PROMIS</title>
 
-    req.onreadystatechange = function(evt) {
-      if (req.readyState == 4) {
-        document.write(Viz(req.responseText));
-        //options={ format="svg", engine="dot" }
-      }
-    };
+    <!-- IE quirks -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+      <script src="js/respond.min.js"></script>
+    <![endif]-->
 
-    req.send();
-  }
-</script>
-<body>
-</body>
+    <!-- d3 & jQuery -->
+    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript" src="js/moment-range.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+    <!-- daterange picker -->
+    <script type="text/javascript" src="js/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/daterangepicker.css" />
+
+    <!-- csv parser -->
+    <script src="js/papaparse.min.js" type="text/javascript"></script>
+
+    <!-- Style -->
+    <link rel="stylesheet" href="css/promis.css" />
+
+    <!-- Code -->
+    <script src="js/auth.js" type="text/javascript"></script>
+    <script src="js/promis.js" type="text/javascript"></script>
+    <script src="js/quicklook.js" type="text/javascript"></script>
+    <script src="js/search.js" type="text/javascript"></script>
+
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">IONOSAT PROMIS</a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right">
+            <div class="form-group">
+              <label for="sel1" id='pslabel'>Please select a project:</label>
+              <select class="form-control" id="sel1">
+                <option value = 'a'>Ionosat_test</option>
+                <option value = 'b'>Potential</option>
+                <option value = 'c'>Ionosat-Micro</option>
+              </select>
+            </div>
+            <div class="form-group login-form">
+              <input type="text" placeholder="Username" class="form-control" id="username">
+              <input type="password" placeholder="Password" class="form-control" id="password">
+              <button type="button" class="btn btn-success user-login">Sign in</button>
+              <!-- button type="submit" class="btn btn-primary user-register">Register</button -->
+            </div>
+            <div class="form-group logout-form">
+              <span class = 'wbar'>Hello, <span class='welcome'>user</span></span><span>&nbsp;&nbsp;</span>
+              <button type="submit" class="btn btn-warning user-logout">Sign out</button>
+            </div>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- main -->
+    <div class = 'container main' id = 'accordion'>
+      <!-- infoblock start -->
+      <div class = 'well'>
+        <h3>Ionosat PROMIS</h3>
+        <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
+      </div>
+      <!-- infoblock end -->
+      <div class = 'row panel-group'>
+        <!-- time & location start -->
+        <div class = 'col-md-6 col-sm-12'>
+          <div class="panel panel-default" id="panel1">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseOne" href="#collapseOne">
+                  Time and position
+                </a>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+              <div class="panel-body">
+                <form class="form-horizontal">
+                  <div class="form-group">
+                    <div class = 'col-sm-2'>
+                      <label for="daterange" class="control-label">Interval</label>
+                    </div>
+                    <div class = 'col-sm-10'>
+                      <input type="text" class="form-control daterange" name="daterange" value="08/01/2011 - 09/30/2011" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class = 'col-sm-2'>
+                      <label for="geoalt" class="control-label">Altitude</label>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class="input-group-addon" id="basic-addon1">From</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon1" value="400" id="geoalt1">
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class='input-group-addon' id='basic-addon2'>To</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon2" value="440" id="geoalt2">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class = 'col-sm-2'>
+                      <label for="geolat" class="control-label">Latitude</label>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class="input-group-addon" id="basic-addon3">From</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon3" value="8.407168" id="geolat1">
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class='input-group-addon' id='basic-addon4'>To</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon4" value="5.441022" id="geolat2">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class = 'col-sm-2'>
+                      <label for="geolon" class="control-label">Longtitude</label>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class="input-group-addon" id="basic-addon5">From</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon5" value="-65.214844" id="geolon1">
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                      <div class = 'input-group'>
+                        <span class='input-group-addon' id='basic-addon6'>To</span>
+                        <input class="form-control" type="number" aria-describedby="basic-addon6" value="-61.171875" id="geolon2">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-5">
+                      <button class="form-control btn btn-default showonthemap" type="button">
+                        <span class = 'glyphicon glyphicon-screenshot'></span> Show on the map
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- time & location end -->
+        <!-- parameters start -->
+        <div class='col-md-6 col-sm-12'>
+          <div class="panel panel-default" id="panel2">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseTwo" href="#collapseTwo">
+                  Parameters
+                </a>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse in">
+              <div class="panel-body">
+                <div class = 'emptynotice col-sm-12'>
+                  <p>You have selected a project with no data, so no parameters are available for search.</p>
+                </div>
+                <form class="form-horizontal">
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-5">
+                      <label>
+                        <input type="checkbox" checked/>Electric potential <b>(EZ)</b>
+                      </label>
+                    </div>
+                    <div class = "col-sm-7 samplingrate">
+                      <span>1 Hz</span>
+                    </div>
+                  </div>
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-5">
+                      <label>
+                        <input type="checkbox" />Magnetic field X <b>(MWC)</b>
+                      </label>
+                    </div>
+                    <div class = "col-sm-7 samplingrate">
+                      <span>50 kHz</span>
+                    </div>
+                  </div>
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-5">
+                      <label>
+                        <input type="checkbox" />Magnetic field Y <b>(MWC)</b>
+                      </label>
+                    </div>
+                    <div class = "col-sm-7 samplingrate">
+                      <span>50 kHz</span>
+                    </div>
+                  </div>
+                  <div class = 'form-group checkparam'>
+                    <div class="checkbox col-sm-5">
+                      <label>
+                        <input type="checkbox" />Magnetic field Z <b>(MWC)</b>
+                      </label>
+                    </div>
+                    <div class = "col-sm-7 samplingrate">
+                      <span>50 kHz</span>
+                    </div>
+                  </div>
+                  <div class = 'form-group'>
+                    <div class = 'col-sm-12'>
+                      <br />
+                      <button type = 'button' class = 'btn btn-default col-sm-12 searchbutton'>
+                        <span class = 'glyphicon glyphicon-search'></span> Search
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- parameters end -->
+      </div>
+      <div class = 'row panel-group'>
+        <!-- map start -->
+        <div class = 'col-md-6 col-sm-12 mapblock'>
+          <div class="panel panel-default" id="panel3">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseThree" href="#collapseThree">
+                  Map
+                </a>
+              </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse in">
+              <div class="panel-body">
+                <div id='map'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- map end -->
+        <!-- results start -->
+        <div class='col-md-6 col-sm-12 resultsblock'>
+          <div class="panel panel-default" id="panel4">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseFour" href="#collapseFour">
+                  Search results
+                </a>
+              </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse in">
+              <div class="panel-body">
+                <span class = 'resultscount'>Found 1 result(s)</span>
+                <table class = 'table table-hover searchresults'>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Parameter name</th>
+                      <th>Data size</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class = 'resultsrow' data-name = 'mw1'>
+                      <td class = 'resultsdate'>2015/23/10</td>
+                      <td class = 'resultsname'>MWC X</td>
+                      <td class = 'resultssize'>50 KB</td>
+                      <td class = 'resultsacts maybedisabled'>
+                        <form method="get" action="/download/session2.json">
+                          <span data-toggle="modal" data-target="#quicklookModal">
+                            <button type="button" class="btn btn-default btn-sm quicklook" data-toggle="tooltip" data-placement="top" title="Quicklook">
+                              <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                            </button>
+                          </span>
+                          <button type="submit" class="btn btn-default btn-sm download" data-toggle="tooltip" data-placement="top" title="Download">
+                            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <span class = 'loggednotice'>To view or download data, please, sign in</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- results end -->
+      </div>
+    </div>
+
+    <!-- Quicklook modal -->
+    <div class="modal fade" id="quicklookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Quicklook</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Google maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?callback=PROMIS.setupMap"></script>
+  </body>
 </html>
