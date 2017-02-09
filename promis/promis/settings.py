@@ -23,11 +23,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '8f3@*c8-gz!h(fm_4n$-tc-@9!32#bn5m9mmxj$k38or1&y&%x'
 
+if 'DJANGO_KEY' in os.environ:
+    SECRET_KEY = os.environ['DJANGO_KEY']
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+if 'DJANGO_DEBUG' in os.environ:
+    if os.environ['DJANGO_DEBUG'].upper() == 'FALSE':
+        DEBUG = False
 
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
