@@ -1,7 +1,4 @@
-FROM python:3.6-onbuild
-
-# Pull GDAL
-RUN apt-get update -y
-RUN apt-get -y install binutils libproj-dev gdal-bin
-
+FROM promis_backend_django_deps
+ADD run_promis.sh /usr/src/app
+ADD promis /usr/src/app/promis
 CMD [ "./run_promis.sh" ]
