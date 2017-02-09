@@ -7,6 +7,13 @@
     POSTGRES_PASSWORD:  ${conf.postgres_password}
     POSTGRES_DB:        ${conf.postgres_dbname}
 
+# TODO: NOTE: TEMPORARY MEASURE
+# Better solution: make our own image for geodjango and friends
+- name:       promis_backend_django_deps    # TODO: parametrise the name
+  build:      ${conf.dir_api}/deps          # TODO: check how this plays out with git_repo
+  build_args: [ "-t", "promis_backend_django_deps" ]
+  temporary:  true
+
 - name:     ${conf.hostname_api}
   build:    ${conf.dir_api}
   git_repo: "github.com/${conf.repo_api}#${conf.version_api}"
