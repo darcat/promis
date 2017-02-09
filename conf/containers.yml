@@ -9,9 +9,9 @@
 
 # TODO: NOTE: TEMPORARY MEASURE
 # Better solution: make our own image for geodjango and friends
-- name:       promis_backend_django_deps    # TODO: parametrise the name
-  build:      ${conf.dir_api}/deps          # TODO: check how this plays out with git_repo
-  build_args: [ "-t", "promis_backend_django_deps" ]
+- name:       dep.promis            # TODO: parametrise the name
+  build:      ${conf.dir_api}/deps  # TODO: check how this plays out with git_repo
+  build_args: [ "-t", "dep.promis" ]
   temporary:  true
 
 - name:     ${conf.hostname_api}
@@ -24,13 +24,6 @@
     # NOTE: libpq docu says it's 'posgresql://': https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
     # TODO: echo special chars in the password maybe? low priority
     DATABASE_URL:       "postgres://${conf.postgres_user}:${conf.postgres_password}@${conf.hostname_db}:${conf.port_sql}/${conf.postgres_dbname}"
-    # Schedule removal after IonosatMicro/promis-backend#9
-    POSTGRES_USER:      ${conf.postgres_user}
-    POSTGRES_PASSWORD:  ${conf.postgres_password}
-    POSTGRES_DB:        ${conf.postgres_dbname}
-    POSTGRES_HOST:      ${conf.hostname_db}
-    POSTGRES_PORT:      ${conf.port_sql}
-    # end of removal zone
     DJANGO_DEBUG:       ${conf.django_debug}
     DJANGO_KEY:         ${conf.django_key}
     SYNC_DIR:           ${conf.sync_api_dir}
