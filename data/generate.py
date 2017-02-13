@@ -65,7 +65,7 @@ def cord_conv(x,y):
 
 # Ensures the number doesn't exceed 180
 def clamp180(x):
-    return x > 180 and (x+180)%360-180 or x
+    return (x+180)%360-180 if x > 180 else x
 
 # TODO: aspect ratio maaaybe?
 
@@ -224,7 +224,7 @@ insert_orbit(utick_start, uptick)
 def gen_space_temp():
     freq = 100
     amps = [ randint(50,100) for i in range(freq*orbit_sec) ]
-    return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often 
+    return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often
         for i in range(freq*orbit_sec) ] }, { "T": amps }
 
 insert_orbit(round_start, roundabout, gen_space_temp)
