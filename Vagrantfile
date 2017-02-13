@@ -110,12 +110,6 @@ Vagrant.configure("2") do |config|
             docker.link(linkhost + ":" + linkhost)
           end
         end
-        if container["temporary"]
-          docker.remains_running = false
-        end
-        if container["build_args"]
-          docker.build_args = container["build_args"]
-        end
         # Set up environment vars
         if container["env"]
           container["env"].each do |env|
