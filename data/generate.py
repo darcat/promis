@@ -116,7 +116,7 @@ def insert_orbit(start_time, gen_func, data_func=None):
         # TODO: orbit_code is defaulted to NULL
         # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
         id = getid("ses")
-        print("insert into backend_api_sessions (id, time_begin, time_end, geo_line) values (%d, '%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (id, ctime(time), ctime(new_time),
+        print("insert into sessions (id, time_begin, time_end, geo_line) values (%d, '%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (id, ctime(time), ctime(new_time),
               ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
 
         # Generate some data
@@ -133,14 +133,14 @@ def insert_orbit(start_time, gen_func, data_func=None):
 # TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
 def trans(s):
     id = getid("trans")
-    print("insert into backend_api_translations (id, langcode, text) values (%d, 'en', '%s');" % (id, s))
+    print("insert into translations (id, langcode, text) values (%d, 'en', '%s');" % (id, s))
     return id
 
 def insert_satellite(time_begin, time_end, name, description): # TODO: name-'s', plural
     name_id = trans(name)
     desc_id = trans(description)
     id = getid("sat")
-    print("insert into backend_api_space_projects (id, date_start, date_end, name_id, description_id) values (%d, '%s', '%s', %d, %d);" % (id, dtime(time_begin), dtime(time_end), name_id, desc_id))
+    print("insert into space_projects (id, date_start, date_end, name_id, description_id) values (%d, '%s', '%s', %d, %d);" % (id, dtime(time_begin), dtime(time_end), name_id, desc_id))
     return id
     # TODO: newly created id unused before sessions get the spacecraft id column
 
@@ -148,51 +148,51 @@ def insert_device(name, description, sat_id):
     name_id = trans(name)
     desc_id = trans(description)
     id = getid("dev")
-    print("insert into backend_api_devices (id, name_id, description_id, satellite_id) values (%d, %d, %d, %d);" % (id, name_id, desc_id, sat_id ))
+    print("insert into devices (id, name_id, description_id, satellite_id) values (%d, %d, %d, %d);" % (id, name_id, desc_id, sat_id ))
     return id
 
 def insert_function(description, func):
     desc_id = trans(description)
     id = getid("func")
-    print("insert into backend_api_functions (id, description_id, django_func) values (%d, %d, '%s');" % (id, desc_id, func ))
+    print("insert into functions (id, description_id, django_func) values (%d, %d, '%s');" % (id, desc_id, func ))
     return id
 
 def insert_channel(name, description, dev_id, func_id):
     name_id = trans(name)
     desc_id = trans(description)
     id = getid("chan")
-    print("insert into backend_api_channels (id, name_id, description_id, device_id, quicklook_id) values (%d, %d, %d, %d, %d);" % (id, name_id, desc_id, dev_id, func_id))
+    print("insert into channels (id, name_id, description_id, device_id, quicklook_id) values (%d, %d, %d, %d, %d);" % (id, name_id, desc_id, dev_id, func_id))
     return id
 
 def insert_unit(symbol, description):
     sym_id = trans(symbol)
     desc_id = trans(description)
     id = getid("unit")
-    print("insert into backend_api_units (id, long_name_id, short_name_id) values (%d, %d, %d);" % (id, desc_id, sym_id))
+    print("insert into units (id, long_name_id, short_name_id) values (%d, %d, %d);" % (id, desc_id, sym_id))
     return id
 
 def insert_value(name, description, short_name, unit_id):
     name_id = trans(name)
     desc_id = trans(description)
     id = getid("val")
-    print("insert into backend_api_values (id, name_id, description_id, short_name, units_id) values (%d, %d, %d, '%s', %d);" % (id, name_id, desc_id, short_name, unit_id))
+    print("insert into values (id, name_id, description_id, short_name, units_id) values (%d, %d, %d, '%s', %d);" % (id, name_id, desc_id, short_name, unit_id))
     return id
 
 def insert_param(name, description, val_id, conv_id, conv_par, chan_id, func_id):
     name_id = trans(name)
     desc_id = trans(description)
     id = getid("param")
-    print("insert into backend_api_parameters (id, name_id, description_id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, %d, %d, '%s', %d, %d);" % (id, name_id, desc_id, val_id, conv_id, conv_par, chan_id, func_id))
+    print("insert into parameters (id, name_id, description_id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, %d, %d, '%s', %d, %d);" % (id, name_id, desc_id, val_id, conv_id, conv_par, chan_id, func_id))
     return id
 
 def insert_doc(last_mod, payload):
     id = getid("doc")
-    print("insert into backend_api_documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
+    print("insert into documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
     return id
 
 def insert_measure(ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq):
     id = getid("measure")
-    print("insert into backend_api_measurements (id, session_id, parameter_id, channel_id, chn_doc_id, par_doc_id, sampling_frequency, min_frequency, max_frequency) values (%d, %d, %d, %d, %d, %d, %f, %f, %f); " % (id, ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq))
+    print("insert into measurements (id, session_id, parameter_id, channel_id, chn_doc_id, par_doc_id, sampling_frequency, min_frequency, max_frequency) values (%d, %d, %d, %d, %d, %d, %f, %f, %f); " % (id, ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq))
     return id
 
 # Seed the PRNG
@@ -200,7 +200,7 @@ seed(random_seed)
 
 # Remove everything from premises, order is important not to break key constraints
 for i in [ "measurements", "parameters", "documents", "sessions", "channels", "values", "devices", "space_projects", "units", "functions", "translations" ]:
-    print("delete from backend_api_%s;" % i)
+    print("delete from %s;" % i)
 
 # TODO: Currently only one is inserted, and assmed to exist
 dummy_id = insert_function("Dummy function","nothing()")
