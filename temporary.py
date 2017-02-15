@@ -40,7 +40,9 @@ def file_catalog(fp):
             # Yielding the section title and the generator for data acquisition
             yield ( m.group(1), get_data() )
 
-# with open("/tmp/tm200542.135.txt") as fp:
-#     for sect in file_catalog(fp):
-#         print("Section: " + sect[0])
-#         print([x for x in sect[1]])
+with open("/tmp/tm200542.135.txt") as fp:
+    for sect in file_catalog(fp):
+        print("Section: " + sect[0])
+        v = [x for x in sect[1]]
+        print([x[0] for x in v])
+        print([x[1] for x in v])
