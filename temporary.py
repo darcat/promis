@@ -108,8 +108,12 @@ def orbit_fill_linear(pts):
     timestart = pts[0][0]
     for i in range(1, len(pts)-1):
         dt = pts[i][0] - timestart
+        # TODO: temporary countermeasure against duplicates at the samee second
+        if dt == 0:
+            pts[i] = (*(pts[i][j] for j in range(4)), -1)
         # NOTE: Floating point division in Python3
-        pts[i] = (pts[i][0], *(pts[0][j]+dt*delta[j]/delta[0] for j in range(1,4)), 1)
+        else:
+            pts[i] = (pts[i][0], *(pts[0][j]+dt*delta[j]/delta[0] for j in range(1,4)), 1)
 
     # TODO: rtfm, why the slice is a copy
     return pts
