@@ -48,7 +48,7 @@ def file_catalog(fp):
     # Checking if we found all the sections
     if any((pos < 0 for _,pos in sections_index.items())):
         raise ValueError("Some sections missing from input")
-        
+
     def scan_sect(sect):
         while True:
             # Come back to the saved position
@@ -80,7 +80,7 @@ def file_catalog(fp):
                 nextpoint = [next(g) for g in sect_gens]
                 timemark = nextpoint[0][1][0] # may throw an exception if len(nextpoint) == 0 for some reason
 
-                if len(nextpoint) <= 0 or any(( pt[1][0] != timemark for pt in nextpoint )):
+                if any(( pt[1][0] != timemark for pt in nextpoint )):
                     raise ValueError("Timemarks not consistent across sections evaluated")
 
                 # Convert to dictionary and remove redundant timemarks
