@@ -132,6 +132,6 @@ for i in range(1,len(datapoints)):
         last_idx = i
         last_seen = v
 
-print("t, r, lon, lat")
+print("t, r, lon, lat, is.estimated")
 for pt in datapoints:
     print(",".join(str(i) for i in pt))
