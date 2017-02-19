@@ -119,6 +119,10 @@ datapoints = None
 with open("/tmp/tm200542.135.txt") as fp:
     datapoints = [ pt for pt in file_catalog(fp)]
 
+# Sort by time because first item in tuple
+# TODO: can we do it without intermediate list?
+datapoints = sorted(datapoints)
+
 # Really lazy code here, sorry
 last_seen = (datapoints[0][2], datapoints[0][3])
 last_idx = 0
