@@ -4,6 +4,8 @@ import re
 
 # TODO: comments and descriptions
 # TODO: maybe standard library methods to do this?
+# TODO: replace ValueErrors with meaningful exception classes when integrating
+# or make something like DataImportError(), whatever
 
 def sign(x):
     return 1 if x>=0 else -1
@@ -40,13 +42,13 @@ def file_catalog(fp):
         if m:
             sect = m.group(1)
             if sections_index[sect] > 0:
-                pass # TODO throw exception: duplicate section
+                raise ValueError("Duplicate section detected")
             sections_index[sect] = fp.tell()
 
     # Checking if we found all the sections
     if any((pos < 0 for _,pos in sections_index.items())):
-        pass # TODO throw exception: not all sections found
-
+        raise ValueError("Some sections missing from input")
+        
     def scan_sect(sect):
         while True:
             # Come back to the saved position
@@ -67,7 +69,7 @@ def file_catalog(fp):
                 # Yielding a nested tuple e.g. ( "RX", (1, 432.0) ), will be converted to dict
                 yield ( sect, (int(m.group(1)), float(m.group(2))) )
             else:
-                pass # TODO throw exception: inconsistent input
+                raise ValueError("Input inconsistency detected")
 
     def scan_point():
         # Generator objects for all the sections
@@ -79,7 +81,7 @@ def file_catalog(fp):
                 timemark = nextpoint[0][1][0] # may throw an exception if len(nextpoint) == 0 for some reason
 
                 if len(nextpoint) <= 0 or any(( pt[1][0] != timemark for pt in nextpoint )):
-                    pass # TODO throw exception: temporal inconsistency
+                    raise ValueError("Timemarks not consistent across sections evaluated")
 
                 # Convert to dictionary and remove redundant timemarks
                 nextpoint = dict(nextpoint)
