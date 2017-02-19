@@ -11,11 +11,12 @@ def sign(x):
 def rad2deg(x):
     return 180*x/pi
 
-def cord_conv(t, rx, ry, rz):
-    r   = sqrt(rx**2 + ry**2 + rz**2)
-    phi = pi/2 - acos(rz/r)
-    rho = acos(rx/(r*sin(pi/2 - phi))) * sign(ry)
+def cord_conv(t, RX, RY, RZ):
+    r   = sqrt(RX**2 + RY**2 + RZ**2)
+    phi = pi/2 - acos(RZ/r)
+    rho = acos(RX/(r*sin(pi/2 - phi))) * sign(RY)
     # TODO: do we need to save rx,ry,rz too?
+    # TODO: do we need a dictionary/named tuple here?
     return ( t, r, rad2deg(rho), rad2deg(phi) ) # radius-vector length, longitude, latitude
 
 def file_catalog(fp):
@@ -75,22 +76,30 @@ def file_catalog(fp):
             while True:
                 # Try reading the next point into a list, check if times are consistent
                 nextpoint = [next(g) for g in sect_gens]
-                if len(nextpoint) <= 0 or any(( pt[1][0] != nextpoint[0][1][0] for pt in nextpoint )):
+                timemark = nextpoint[0][1][0] # may throw an exception if len(nextpoint) == 0 for some reason
+
+                if len(nextpoint) <= 0 or any(( pt[1][0] != timemark for pt in nextpoint )):
                     pass # TODO throw exception: temporal inconsistency
 
-                yield dict(nextpoint)
+                # Convert to dictionary and remove redundant timemarks
+                nextpoint = dict(nextpoint)
+                for k,v in nextpoint.items():
+                    nextpoint[k] = v[1]
+                nextpoint["t"] = timemark
+
+                yield cord_conv(**nextpoint)
         except StopIteration:
             pass
 
         # TODO: for super consistency, try advacing the rest of generators and
         # make sure all of them raise StopIteration or something?
 
-    print([x for x in scan_point()])
+    # Call the machinery above
+    for pt in scan_point():
+        yield pt
 
+# Testing code below, will be removed
 with open("/tmp/tm200542.135.txt") as fp:
-    file_catalog(fp)
-    # for sect in file_catalog(fp):
-    #     print("Section: " + sect[0])
-    #     v = [x for x in sect[1]]
-    #     print([x[0] for x in v])
-    #     print([x[1] for x in v])
+    print("t, r, lon, lat")
+    for pt in file_catalog(fp):
+        print(",".join(str(i) for i in pt))
