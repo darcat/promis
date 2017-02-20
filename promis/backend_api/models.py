@@ -24,6 +24,9 @@ class Translations(models.Model):
 
     class Meta:
         db_table = "translations"
+        
+    def __str__(self):
+        return self.text.encode('utf-8')
 
 class Space_projects(models.Model):
     name = ForeignKey('Translations', unique = True, related_name = 'sp_name'   )
@@ -34,6 +37,9 @@ class Space_projects(models.Model):
     class Meta:
         db_table = "space_projects"
 
+    def __str__(self):
+        return self.description.text.encode('utf-8')
+
 class Devices(models.Model):
     name = ForeignKey('Translations', related_name = 'dev_name')
     description = ForeignKey('Translations', related_name = 'dev_description')
@@ -42,12 +48,19 @@ class Devices(models.Model):
     class Meta:
         db_table = "devices"
 
+    def __str__(self):
+        return self.name.text.encode('utf-8')
+
+
 class Functions(models.Model):
     description = ForeignKey('Translations', related_name = 'func_description')
     django_func = TextField()
     
     class Meta:
         db_table = "functions"
+
+    def __str__(self):
+        return self.description.text.encode('utf-8')
 
 class Channels(models.Model):
     name = ForeignKey('Translations', related_name = 'ch_name')
@@ -58,6 +71,10 @@ class Channels(models.Model):
     
     class Meta:
         db_table = "channels"
+
+    def __str__(self):
+        return self.description.text.encode('utf-8')
+
 
 class Units(models.Model):
     long_name = ForeignKey('Translations', related_name = 'u_lname')
@@ -74,6 +91,10 @@ class Values(models.Model):
     
     class Meta:
         db_table = "values"
+        
+    def __str__(self):
+        return self.description.text.encode('utf-8')
+
 
 class Parameters(models.Model):
     name = ForeignKey('Translations', related_name = 'par_name')
@@ -86,6 +107,9 @@ class Parameters(models.Model):
     
     class Meta:
         db_table = "parameters"    
+
+    def __str__(self):
+        return self.description.text.encode('utf-8')
 
 class Documents(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
