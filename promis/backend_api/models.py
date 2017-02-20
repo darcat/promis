@@ -20,14 +20,14 @@ class Sessions(models.Model):
 
 class Translations(models.Model):
     langcode = CharField(max_length = 2)
-    text = TextField()
+    text = TextField(default = "")
 
     class Meta:
         db_table = "translations"
 
 class Space_projects(models.Model):
-    name = ForeignKey('Translations', unique = True, related_name = 'sp_name')
-    description = ForeignKey('Translations', related_name = 'sp_descrioption')
+    name = ForeignKey('Translations', unique = True, related_name = 'sp_name'   )
+    description = ForeignKey('Translations', related_name = 'sp_description')
     date_start = DateField()
     date_end = DateField()
 
@@ -53,7 +53,8 @@ class Channels(models.Model):
     name = ForeignKey('Translations', related_name = 'ch_name')
     description = ForeignKey('Translations', related_name = 'ch_description')
     device = ForeignKey('Devices')
-    quicklook = ForeignKey('Functions')
+    quicklook = ForeignKey('Functions', null = True)
+    parser_func = ForeignKey('Functions', related_name = 'parser_func', null = True)
     
     class Meta:
         db_table = "channels"
