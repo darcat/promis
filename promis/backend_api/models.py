@@ -89,6 +89,7 @@ class Value(models.Model):
     short_name = CharField(max_length=100)
     units = ForeignKey('Unit')
     
+    
     class Meta:
         db_table = "values"
         
