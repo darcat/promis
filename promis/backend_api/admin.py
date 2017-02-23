@@ -2,6 +2,6 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Space_projects, Devices, Channels, Parameters
+from .models import Space_project, Device, Channel, Parameter
 
-admin.site.register([Space_projects, Devices, Channels, Parameters])
+admin.site.register([Space_project, Device, Channel, Parameter])

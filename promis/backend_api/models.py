@@ -9,7 +9,7 @@ from django.contrib.gis.db.models import LineStringField
 
 # Create your models here.
 
-class Sessions(models.Model):
+class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
     orbit_code = IntegerField(null=True)
@@ -18,7 +18,7 @@ class Sessions(models.Model):
     class Meta:
         db_table = "sessions" 
 
-class Translations(models.Model):
+class Translation(models.Model):
     langcode = CharField(max_length = 2)
     text = TextField(default = "")
 
@@ -28,9 +28,9 @@ class Translations(models.Model):
     def __str__(self):
         return self.text.encode('utf-8')
 
-class Space_projects(models.Model):
-    name = ForeignKey('Translations', unique = True, related_name = 'sp_name'   )
-    description = ForeignKey('Translations', related_name = 'sp_description')
+class Space_project(models.Model):
+    name = ForeignKey('Translation', unique = True, related_name = 'sp_name'   )
+    description = ForeignKey('Translation', related_name = 'sp_description')
     date_start = DateField()
     date_end = DateField()
 
@@ -40,10 +40,10 @@ class Space_projects(models.Model):
     def __str__(self):
         return self.description.text.encode('utf-8')
 
-class Devices(models.Model):
-    name = ForeignKey('Translations', related_name = 'dev_name')
-    description = ForeignKey('Translations', related_name = 'dev_description')
-    satellite = ForeignKey('Space_projects')
+class Device(models.Model):
+    name = ForeignKey('Translation', related_name = 'dev_name')
+    description = ForeignKey('Translation', related_name = 'dev_description')
+    satellite = ForeignKey('Space_project')
     
     class Meta:
         db_table = "devices"
@@ -52,8 +52,8 @@ class Devices(models.Model):
         return self.name.text.encode('utf-8')
 
 
-class Functions(models.Model):
-    description = ForeignKey('Translations', related_name = 'func_description')
+class Function(models.Model):
+    description = ForeignKey('Translation', related_name = 'func_description')
     django_func = TextField()
     
     class Meta:
@@ -62,12 +62,12 @@ class Functions(models.Model):
     def __str__(self):
         return self.description.text.encode('utf-8')
 
-class Channels(models.Model):
-    name = ForeignKey('Translations', related_name = 'ch_name')
-    description = ForeignKey('Translations', related_name = 'ch_description')
-    device = ForeignKey('Devices')
-    quicklook = ForeignKey('Functions', null = True)
-    parser_func = ForeignKey('Functions', related_name = 'parser_func', null = True)
+class Channel(models.Model):
+    name = ForeignKey('Translation', related_name = 'ch_name')
+    description = ForeignKey('Translation', related_name = 'ch_description')
+    device = ForeignKey('Device')
+    quicklook = ForeignKey('Function', null = True)
+    parser_func = ForeignKey('Function', related_name = 'parser_func', null = True)
     
     class Meta:
         db_table = "channels"
@@ -76,18 +76,18 @@ class Channels(models.Model):
         return self.description.text.encode('utf-8')
 
 
-class Units(models.Model):
-    long_name = ForeignKey('Translations', related_name = 'u_lname')
-    short_name = ForeignKey('Translations', related_name = 'u_sname')
+class Unit(models.Model):
+    long_name = ForeignKey('Translation', related_name = 'u_lname')
+    short_name = ForeignKey('Translation', related_name = 'u_sname')
     
     class Meta:
         db_table = "units"
 
-class Values(models.Model):
-    name = ForeignKey('Translations', related_name = 'val_name')
-    description = ForeignKey('Translations', related_name = 'val_description')
+class Value(models.Model):
+    name = ForeignKey('Translation', related_name = 'val_name')
+    description = ForeignKey('Translation', related_name = 'val_description')
     short_name = CharField(max_length=100)
-    units = ForeignKey('Units')
+    units = ForeignKey('Unit')
     
     class Meta:
         db_table = "values"
@@ -96,14 +96,14 @@ class Values(models.Model):
         return self.description.text.encode('utf-8')
 
 
-class Parameters(models.Model):
-    name = ForeignKey('Translations', related_name = 'par_name')
-    description = ForeignKey('Translations', related_name = 'par_description')
-    value = ForeignKey('Values')
-    conversion = ForeignKey('Functions', related_name = 'par_conv')
+class Parameter(models.Model):
+    name = ForeignKey('Translation', related_name = 'par_name')
+    description = ForeignKey('Translation', related_name = 'par_description')
+    value = ForeignKey('Value')
+    conversion = ForeignKey('Function', related_name = 'par_conv')
     conversion_params = TextField()
-    channel = ForeignKey('Channels')
-    quicklook = ForeignKey('Functions', related_name = 'par_ql')
+    channel = ForeignKey('Channel')
+    quicklook = ForeignKey('Function', related_name = 'par_ql')
     
     class Meta:
         db_table = "parameters"    
@@ -111,19 +111,19 @@ class Parameters(models.Model):
     def __str__(self):
         return self.description.text.encode('utf-8')
 
-class Documents(models.Model):
+class Document(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
     json_data = JSONField()
     
     class Meta:
         db_table = "documents"
 
-class Measurements(models.Model):
-    session = ForeignKey('Sessions')
-    parameter = ForeignKey('Parameters')
-    channel = ForeignKey('Channels')
-    chn_doc = ForeignKey('Documents', related_name = 'chn_doc_id')
-    par_doc = ForeignKey('Documents', related_name = 'par_doc_id')
+class Measurement(models.Model):
+    session = ForeignKey('Session')
+    parameter = ForeignKey('Parameter')
+    channel = ForeignKey('Channel')
+    chn_doc = ForeignKey('Document', related_name = 'chn_doc_id')
+    par_doc = ForeignKey('Document', related_name = 'par_doc_id')
     sampling_frequency = FloatField()
     max_frequency  = FloatField()
     min_frequency  = FloatField()

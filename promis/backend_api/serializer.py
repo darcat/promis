@@ -6,55 +6,55 @@ from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
 
 class SessionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Sessions
+        model = models.Session
         fields = ('__all__')
         
 class TranslationsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Translations
+        model = models.Translation
         fields = ('__all__')
 
 class SpaceProjectsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Space_projects
+        model = models.Space_project
         fields = ('__all__')
         
 class DevicesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Devices
+        model = models.Device
         fields = ('__all__')
         
 class FunctionsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Functions
+        model = models.Function
         
 class ChannelsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Channels
+        model = models.Channel
         
 class UnitsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Units
+        model = models.Unit
         
 class ValuesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Values
+        model = models.Value
         
 class ParametersSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Parameters
+        model = models.Parameter
         
 class DocumentsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Documents
+        model = models.Document
 
 class MeasurementsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Measurements
+        model = models.Measurement
