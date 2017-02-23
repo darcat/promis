@@ -7,6 +7,9 @@ import re
 # TODO: replace ValueErrors with meaningful exception classes when integrating
 # or make something like DataImportError(), whatever
 
+def lat(x):
+    return (x + 180) % 360 - 180
+
 def sign(x):
     return 1 if x>=0 else -1
 
@@ -112,8 +115,6 @@ def generate_orbit(datapoints):
 
     # Time at which the current interpolation starts and ends
     linear_start, linear_end = None, None
-    if linear_start:
-        pass
 
     # Generate a point at time t, assuming we don't have such a point in first place
     # TODO: Currently linear interpolation between two adjacent points
@@ -137,12 +138,22 @@ def generate_orbit(datapoints):
                     raise ValueError("Can not find the gap edge, check your code.")
 
             # Estimating parameters, automatic cast to float in Python3
-            linear_k = tuple((datapoints[linear_end][i] - datapoints[linear_start][i]) / (linear_end - linear_start) for i in range(4))
-            linear_b = tuple(datapoints[linear_start][i] - linear_k[i] * linear_start for i in range(4))
+            print("Delta t " + str((linear_end - linear_start)))
+            print("Delta lat " + str((datapoints[linear_end][2] - datapoints[linear_start][2]))) 
+            print("Delta lat2 " + str(lat(datapoints[linear_end][2] - datapoints[linear_start][2]))) 
+            linear_k = [ (datapoints[linear_end][i] - datapoints[linear_start][i]) / (linear_end - linear_start) for i in range(4) ]
+            linear_b = [ datapoints[linear_start][i] - linear_k[i] * linear_start for i in range(4) ]
+            print(linear_k)
+            print(linear_b)
+            # Correcting latitude overflows
+            linear_k[2] = lat(linear_k[2])
+            linear_b[2] = lat(linear_b[2])
+            print(linear_k)
+            print(linear_b)
 
         # Calculate the point in question
         # TODO: magic number
-        result = tuple(linear_k[i] * t + linear_b[i] for i in range(4))
+        result = tuple(linear_k[i] * t + linear_b[i] if i!=2 else lat(linear_k[i] * t + linear_b[i]) for i in range(4))
 
         # Erase data if the next point is the end of interpolation
         if t + 1 == linear_end:
