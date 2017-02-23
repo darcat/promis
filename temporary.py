@@ -7,7 +7,7 @@ import re
 # TODO: replace ValueErrors with meaningful exception classes when integrating
 # or make something like DataImportError(), whatever
 
-def lat(x):
+def lon(x):
     return (x + 180) % 360 - 180
 
 def sign(x):
@@ -138,22 +138,18 @@ def generate_orbit(datapoints):
                     raise ValueError("Can not find the gap edge, check your code.")
 
             # Estimating parameters, automatic cast to float in Python3
-            print("Delta t " + str((linear_end - linear_start)))
-            print("Delta lat " + str((datapoints[linear_end][2] - datapoints[linear_start][2]))) 
-            print("Delta lat2 " + str(lat(datapoints[linear_end][2] - datapoints[linear_start][2]))) 
-            linear_k = [ (datapoints[linear_end][i] - datapoints[linear_start][i]) / (linear_end - linear_start) for i in range(4) ]
+            delta_y = [ (datapoints[linear_end][i] - datapoints[linear_start][i]) for i in range(4) ]
+            # Correcting longitude overflows
+            delta_y[2] = lon(delta_y[2])
+            delta_x = linear_end - linear_start
+
+            linear_k = [ delta_y[i] / delta_x for i in range(4) ]
             linear_b = [ datapoints[linear_start][i] - linear_k[i] * linear_start for i in range(4) ]
-            print(linear_k)
-            print(linear_b)
-            # Correcting latitude overflows
-            linear_k[2] = lat(linear_k[2])
-            linear_b[2] = lat(linear_b[2])
-            print(linear_k)
-            print(linear_b)
+            linear_b[2] = lon(linear_b[2]) # TODO: verify if we need this
 
         # Calculate the point in question
         # TODO: magic number
-        result = tuple(linear_k[i] * t + linear_b[i] if i!=2 else lat(linear_k[i] * t + linear_b[i]) for i in range(4))
+        result = tuple(linear_k[i] * t + linear_b[i] if i!=2 else lon(linear_k[i] * t + linear_b[i]) for i in range(4))
 
         # Erase data if the next point is the end of interpolation
         if t + 1 == linear_end:
