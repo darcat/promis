@@ -32,6 +32,11 @@ expose_db:          off
 port_sql:           5432
 port_sql_host:      5432
 
+# Django superuser configuration
+django_superuser:   'promis'
+django_superpass:   'swordfish'
+django_superemail:  'promis@ikd.kiev.ua'
+
 # Django debugging
 django_debug:       off
 
