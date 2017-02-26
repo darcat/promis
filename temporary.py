@@ -104,64 +104,7 @@ def file_catalog(fp):
     # Call the machinery above
     for pt in scan_point():
         yield pt
-
-# Generating an orbit point every 1 second, discarding extra point and filling the gaps
-# TODO: cut the oribit into multiple sections depending on the actual data
-# (i.e. no track when no device was on in first place)
-def generate_orbit(datapoints):
-    time_start, time_end = min(datapoints.keys()), max(datapoints.keys())
-
-    # Linear interpolation parameters since last point where the gap began
-    linear_k, linear_b = None, None
-
-    # Time at which the current interpolation starts and ends
-    linear_start, linear_end = None, None
-
-    # Generate a point at time t, assuming we don't have such a point in first place
-    # TODO: Currently linear interpolation between two adjacent points
-    # TODO: Has side effects tied to iteration below
-    def orbit_predict(t):
-        nonlocal linear_k, linear_b, linear_start, linear_end
-        if t < time_start or t > time_end:
-            raise ValueError("Something is wrong with iteration, check your code.")
-
-        # Okay, this has to be the first point of interpolation
-        if not linear_start:
-            if t - 1 not in datapoints:
-                raise ValueError("Found a gap, but previous point unavailab, check your code.")
-            linear_start = t - 1
-
-            # Looking for the next known point
-            linear_end = t + 1
-            while linear_end not in datapoints:
-                linear_end += 1
-                if linear_end > time_end:
-                    raise ValueError("Can not find the gap edge, check your code.")
-
-            # Estimating parameters, automatic cast to float in Python3
-            delta_y = [ (datapoints[linear_end][i] - datapoints[linear_start][i]) for i in range(4) ]
-            # Correcting longitude overflows
-            delta_y[2] = lon(delta_y[2])
-            delta_x = linear_end - linear_start
-
-            linear_k = [ delta_y[i] / delta_x for i in range(4) ]
-            linear_b = [ datapoints[linear_start][i] - linear_k[i] * linear_start for i in range(4) ]
-            linear_b[2] = lon(linear_b[2]) # TODO: verify if we need this
-
-        # Calculate the point in question
-        # TODO: magic number
-        result = tuple(linear_k[i] * t + linear_b[i] if i!=2 else lon(linear_k[i] * t + linear_b[i]) for i in range(4))
-
-        # Erase data if the next point is the end of interpolation
-        if t + 1 == linear_end:
-            linear_k, linear_b, linear_start, linear_end = None, None, None, None
-
-        return result
-
-    for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
-        yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
-  
-
+        
 # TODO: any more standard way?
 # Matrix representation:
 # - Input data in a big list
@@ -196,7 +139,7 @@ def det4(m, idx):
 
 
 # Deduce coefs of a cubic spline of the form ax^3 + bx^2 + cx + d = y(x)
-def cubic_spline(pts):
+def cubic_fit(pts):
   def extdet(i):
     newidx = idx[:i] + [ [ 16 + i for i in range(4) ] ] + idx[i+1:]
     return det4(m, newidx)    
@@ -208,21 +151,109 @@ def cubic_spline(pts):
   if D==0:
     raise ValueError("Can not solve the equation")
   return [ extdet(i)/D for i in range(4) ]
-  
-#seed(42)
-pts = [ ( i, randint(0,100)) for i in range(4) ]
-print("x<-c(0,1,2,3);")
-print("y<-c(%d,%d,%d,%d);" % (pts[0][1], pts[1][1], pts[2][1], pts[3][1]))
 
-ks = cubic_spline(pts)
-print("f<-function(t) { return ( (%f)*t^3 + (%f)* t^2 + (%f) * t + %f); }" % (ks[0], ks[1], ks[2], ks[3]))
+# Generating an orbit point every 1 second, discarding extra point and filling the gaps
+# TODO: cut the oribit into multiple sections depending on the actual data
+# (i.e. no track when no device was on in first place)
+def generate_orbit(datapoints):
+    time_start, time_end = min(datapoints.keys()), max(datapoints.keys())
+      
+    # Anchor points from which the curve is deduced
+    # anchor[t][0] returns the 2 known points before t, anchor[t][1] does same to points after t
+    anchor = [ [ None for _ in range(2) ] for _ in range(time_end - time_start + 1 ) ] 
+    for k in range(2):
+      lastpts = []
+      for i in range(time_end - time_start + 1 ):
+        t = (time_start + i) if k == 0 else (time_end - i)
+        l = i if k == 0 else time_end - time_start - i
+        if t in datapoints:
+          anchor[l][k] = None
+          if len(lastpts)==2:
+            lastpts=lastpts[1:]
+          lastpts.append(l)
+        else:
+          # TODO: we assume that for every gap we do have points before and after to estimate the curve
+          # TODO: fix this
+    #      assert(len(lastpts)==2)
+          anchor[l][k] = tuple(lastpts)
+    
+    # Currently estimated cubic function coeffs 
+    K = None
+    
+    # Point set the estimate was done for
+    last_pts = None
+
+    # Generate a point at time t, assuming we don't have such a point in first place
+    # TODO: Has side effects
+    def orbit_predict(t):
+        # Cubic function
+        def cube_fun(j,t):
+            return sum(K[j][i]*(t**(3-i)) for i in range(4))
+        
+        
+        nonlocal K, anchor
+        if t < time_start or t > time_end:
+            raise ValueError("Something is wrong with iteration, check your code.")
+        
+        l = t - time_start
+        
+        if any(len(anchor[l][i]) < 2 for i in range(2)):
+            return (t, 0, 0.0, 0.0) # TODO broken range, need an extra point for estimation
+        
+        if not K:
+            K = [ None for _ in range(3) ]
+            
+        # TODO add cache
+        pts = (anchor[l][0][0], anchor[l][0][1], anchor[l][1][1], anchor[l][1][0]) # TODO: replace with generator expression
+        last_pts = pts
+        for j in range(1,4):
+            vals = [ datapoints[time_start + i][j] for i in pts ]
+            K[j-1] = cubic_fit([x for x in zip(pts,vals)])
+                
+        return tuple(t if i ==0 else cube_fun(i-1,l) for i in range(4))
+
+        ## Okay, this has to be the first point of interpolation
+        #if not anchor:
+            #if t - 1 not in datapoints:
+                #raise ValueError("Found a gap, but previous point unavailab, check your code.")
+            #linear_start = t - 1
+
+            ## Looking for the next known point
+            #linear_end = t + 1
+            #while linear_end not in datapoints:
+                #linear_end += 1
+                #if linear_end > time_end:
+                    #raise ValueError("Can not find the gap edge, check your code.")
+
+            ## Estimating parameters, automatic cast to float in Python3
+            #delta_y = [ (datapoints[linear_end][i] - datapoints[linear_start][i]) for i in range(4) ]
+            ## Correcting longitude overflows
+            #delta_y[2] = lon(delta_y[2])
+            #delta_x = linear_end - linear_start
+
+            #linear_k = [ delta_y[i] / delta_x for i in range(4) ]
+            #linear_b = [ datapoints[linear_start][i] - linear_k[i] * linear_start for i in range(4) ]
+            #linear_b[2] = lon(linear_b[2]) # TODO: verify if we need this
+
+        ## Calculate the point in question
+        ## TODO: magic number
+        #result = tuple(linear_k[i] * t + linear_b[i] if i!=2 else lon(linear_k[i] * t + linear_b[i]) for i in range(4))
+
+        ## Erase data if the next point is the end of interpolation
+        #if t + 1 == linear_end:
+            #linear_k, linear_b, linear_start, linear_end = None, None, None, None
+
+        #return result
+
+    for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
+        yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
   
 
 # Testing code below, will be removed
-#datapoints = None
-#with open("/tmp/tm200542.135.txt") as fp:
-    #datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
+datapoints = None
+with open("/tmp/tm200542.135.txt") as fp:
+    datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
 
-#print("t, r, lon, lat, is.estimated")
-#for pt in generate_orbit(datapoints):
-    #print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
+print("t, r, lon, lat, is.estimated")
+for pt in generate_orbit(datapoints):
+    print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
