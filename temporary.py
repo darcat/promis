@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from math import ( pi, sin, cos, asin, acos, sqrt)
 import re
+from random import seed, randint
 
 # TODO: comments and descriptions
 # TODO: maybe standard library methods to do this?
@@ -159,12 +160,41 @@ def generate_orbit(datapoints):
 
     for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
         yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
+  
+
+# TODO: any more standard way?
+# Matrix representation:
+# - Input data in a big list
+# - list of lists which represent rows, elements are indices in the original big list
+
+# Determinant of a 3x3 matrix
+def det3(m, idx):
+  def A(i,j):
+    return m[idx[i][j]]
+  
+  return A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) - A(0,1)*( A(1,0)*A(2,2) - A(1,2)*A(2,0) ) + A(0,2)*( A(1,0)*A(2,1) - A(1,1)*A(2,0) )
+
+
+m = [ 1, 2, 3, 0, -4, 1, 0, 3, -1 ]
+idx = [ [ 0, 1, 2], [ 3, 4, 5], [ 6, 7, 8] ]
+
+print(det3(m, idx))
+
+# Determinant of a 4x4 matrix
+def det4(m):
+  pass
+
+# Deduce coefs of a cubic spline of the form ax^3 + bx^2 + cx + d = y(x)
+def cubic_spline(pts):
+  pass
+  
+  
 
 # Testing code below, will be removed
-datapoints = None
-with open("/tmp/tm200542.135.txt") as fp:
-    datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
+#datapoints = None
+#with open("/tmp/tm200542.135.txt") as fp:
+    #datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
 
-print("t, r, lon, lat, is.estimated")
-for pt in generate_orbit(datapoints):
-    print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
+#print("t, r, lon, lat, is.estimated")
+#for pt in generate_orbit(datapoints):
+    #print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
