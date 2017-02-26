@@ -167,13 +167,10 @@ def generate_orbit(datapoints):
 # - Input data in a big list
 # - list of lists which represent columns, elements are indices in the original big list
 
-m = [ 2, -2, 1, -1, 5, -3, 3, -6, -3, 2, -2, 4, -2, -5, 0, 0 ]
-idx = [ [ 0, 1, 2, 3 ], [ 4, 5, 6, 7], [ 8, 9, 10, 11], [ 12, 13, 14, 15 ] ]
-
 # Determinant of a 4x4 matrix
 def det4(m, idx):
   def mat(a,b,idx):
-    return m[idx[a][b]]
+    return m[idx[b][a]]
   def A(a,b):
     return mat(a,b,idx)
   
@@ -188,21 +185,37 @@ def det4(m, idx):
     result = idx[:i] + idx[i+1:]
     for k, col in enumerate(result):
       result[k] = col[:j] + col[j+1:]
-    return result
+    return result  
 
   result = 0
   sign = -1
   for i in range(4):
-    result += sign * A(0, i) * det3(m, minor(0, i, idx))
     sign *= -1 
+    result += sign * A(0, i) * det3(m, minor(0, i, idx))
   return result
 
-print(det4(m, idx))
 
 # Deduce coefs of a cubic spline of the form ax^3 + bx^2 + cx + d = y(x)
 def cubic_spline(pts):
-  pass
+  def extdet(i):
+    newidx = idx[:i] + [ [ 16 + i for i in range(4) ] ] + idx[i+1:]
+    return det4(m, newidx)    
   
+  m = [ pts[j % 4][0]**((15-j)//4) for j in range(16) ]
+  idx =  [ [ i+4*j for i in range(4)] for j in range(4) ]
+  m += [ pts[j][1] for j in range(4) ]
+  D = det4(m, idx) 
+  if D==0:
+    raise ValueError("Can not solve the equation")
+  return [ extdet(i)/D for i in range(4) ]
+  
+#seed(42)
+pts = [ ( i, randint(0,100)) for i in range(4) ]
+print("x<-c(0,1,2,3);")
+print("y<-c(%d,%d,%d,%d);" % (pts[0][1], pts[1][1], pts[2][1], pts[3][1]))
+
+ks = cubic_spline(pts)
+print("f<-function(t) { return ( (%f)*t^3 + (%f)* t^2 + (%f) * t + %f); }" % (ks[0], ks[1], ks[2], ks[3]))
   
 
 # Testing code below, will be removed
