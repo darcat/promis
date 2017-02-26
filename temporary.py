@@ -165,24 +165,39 @@ def generate_orbit(datapoints):
 # TODO: any more standard way?
 # Matrix representation:
 # - Input data in a big list
-# - list of lists which represent rows, elements are indices in the original big list
+# - list of lists which represent columns, elements are indices in the original big list
 
-# Determinant of a 3x3 matrix
-def det3(m, idx):
-  def A(i,j):
-    return m[idx[i][j]]
-  
-  return A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) - A(0,1)*( A(1,0)*A(2,2) - A(1,2)*A(2,0) ) + A(0,2)*( A(1,0)*A(2,1) - A(1,1)*A(2,0) )
-
-
-m = [ 1, 2, 3, 0, -4, 1, 0, 3, -1 ]
-idx = [ [ 0, 1, 2], [ 3, 4, 5], [ 6, 7, 8] ]
-
-print(det3(m, idx))
+m = [ 2, -2, 1, -1, 5, -3, 3, -6, -3, 2, -2, 4, -2, -5, 0, 0 ]
+idx = [ [ 0, 1, 2, 3 ], [ 4, 5, 6, 7], [ 8, 9, 10, 11], [ 12, 13, 14, 15 ] ]
 
 # Determinant of a 4x4 matrix
-def det4(m):
-  pass
+def det4(m, idx):
+  def mat(a,b,idx):
+    return m[idx[a][b]]
+  def A(a,b):
+    return mat(a,b,idx)
+  
+  # Determinant of a 3x3 matrix
+  def det3(m, idx):
+    def A(a,b):
+      return mat(a,b,idx)
+    return A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) - A(0,1)*( A(1,0)*A(2,2) - A(1,2)*A(2,0) ) + A(0,2)*( A(1,0)*A(2,1) - A(1,1)*A(2,0) )
+  
+  # Returns a i-th, j-th minor of index 4x4 matrix idx
+  def minor(j, i, idx):
+    result = idx[:i] + idx[i+1:]
+    for k, col in enumerate(result):
+      result[k] = col[:j] + col[j+1:]
+    return result
+
+  result = 0
+  sign = -1
+  for i in range(4):
+    result += sign * A(0, i) * det3(m, minor(0, i, idx))
+    sign *= -1 
+  return result
+
+print(det4(m, idx))
 
 # Deduce coefs of a cubic spline of the form ax^3 + bx^2 + cx + d = y(x)
 def cubic_spline(pts):
