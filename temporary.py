@@ -206,7 +206,7 @@ def generate_orbit(datapoints):
             K = [ None for _ in range(3) ]
 
         # Picking the points to construct the curve from
-        pts = (anchor[l][0][0], anchor[l][0][1], anchor[l][1][1], anchor[l][1][0]) # TODO: replace with generator expression
+        pts = tuple(anchor[l][x][y] for x in range(2) for y in range(2))
 
         # Check if we calculated the parameters for the curve before, if not, do it
         if not last_pts == pts:
@@ -219,39 +219,7 @@ def generate_orbit(datapoints):
         # Everything is set up, we can calculate the curve now
         return tuple(t if i ==0 else cube_fun(i-1,l) for i in range(4))
 
-        ## Okay, this has to be the first point of interpolation
-        #if not anchor:
-            #if t - 1 not in datapoints:
-                #raise ValueError("Found a gap, but previous point unavailab, check your code.")
-            #linear_start = t - 1
-
-            ## Looking for the next known point
-            #linear_end = t + 1
-            #while linear_end not in datapoints:
-                #linear_end += 1
-                #if linear_end > time_end:
-                    #raise ValueError("Can not find the gap edge, check your code.")
-
-            ## Estimating parameters, automatic cast to float in Python3
-            #delta_y = [ (datapoints[linear_end][i] - datapoints[linear_start][i]) for i in range(4) ]
-            ## Correcting longitude overflows
-            #delta_y[2] = lon(delta_y[2])
-            #delta_x = linear_end - linear_start
-
-            #linear_k = [ delta_y[i] / delta_x for i in range(4) ]
-            #linear_b = [ datapoints[linear_start][i] - linear_k[i] * linear_start for i in range(4) ]
-            #linear_b[2] = lon(linear_b[2]) # TODO: verify if we need this
-
-        ## Calculate the point in question
-        ## TODO: magic number
-        #result = tuple(linear_k[i] * t + linear_b[i] if i!=2 else lon(linear_k[i] * t + linear_b[i]) for i in range(4))
-
-        ## Erase data if the next point is the end of interpolation
-        #if t + 1 == linear_end:
-            #linear_k, linear_b, linear_start, linear_end = None, None, None, None
-
-        #return result
-
+    # Iterate over all the time period and yield the values stored or the estimates if they are missing
     for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
         yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
 
