@@ -104,7 +104,7 @@ def file_catalog(fp):
     # Call the machinery above
     for pt in scan_point():
         yield pt
-        
+
 # TODO: any more standard way?
 # Matrix representation:
 # - Input data in a big list
@@ -116,24 +116,24 @@ def det4(m, idx):
     return m[idx[b][a]]
   def A(a,b):
     return mat(a,b,idx)
-  
+
   # Determinant of a 3x3 matrix
   def det3(m, idx):
     def A(a,b):
       return mat(a,b,idx)
     return A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) - A(0,1)*( A(1,0)*A(2,2) - A(1,2)*A(2,0) ) + A(0,2)*( A(1,0)*A(2,1) - A(1,1)*A(2,0) )
-  
+
   # Returns a i-th, j-th minor of index 4x4 matrix idx
   def minor(j, i, idx):
     result = idx[:i] + idx[i+1:]
     for k, col in enumerate(result):
       result[k] = col[:j] + col[j+1:]
-    return result  
+    return result
 
   result = 0
   sign = -1
   for i in range(4):
-    sign *= -1 
+    sign *= -1
     result += sign * A(0, i) * det3(m, minor(0, i, idx))
   return result
 
@@ -142,12 +142,12 @@ def det4(m, idx):
 def cubic_fit(pts):
   def extdet(i):
     newidx = idx[:i] + [ [ 16 + i for i in range(4) ] ] + idx[i+1:]
-    return det4(m, newidx)    
-  
+    return det4(m, newidx)
+
   m = [ pts[j % 4][0]**((15-j)//4) for j in range(16) ]
   idx =  [ [ i+4*j for i in range(4)] for j in range(4) ]
   m += [ pts[j][1] for j in range(4) ]
-  D = det4(m, idx) 
+  D = det4(m, idx)
   if D==0:
     raise ValueError("Can not solve the equation")
   return [ extdet(i)/D for i in range(4) ]
@@ -157,10 +157,10 @@ def cubic_fit(pts):
 # (i.e. no track when no device was on in first place)
 def generate_orbit(datapoints):
     time_start, time_end = min(datapoints.keys()), max(datapoints.keys())
-      
+
     # Anchor points from which the curve is deduced
     # anchor[t][0] returns the 2 known points before t, anchor[t][1] does same to points after t
-    anchor = [ [ None for _ in range(2) ] for _ in range(time_end - time_start + 1 ) ] 
+    anchor = [ [ None for _ in range(2) ] for _ in range(time_end - time_start + 1 ) ]
     for k in range(2):
       lastpts = []
       for i in range(time_end - time_start + 1 ):
@@ -176,40 +176,47 @@ def generate_orbit(datapoints):
           # TODO: fix this
     #      assert(len(lastpts)==2)
           anchor[l][k] = tuple(lastpts)
-    
-    # Currently estimated cubic function coeffs 
+
+    # Currently estimated cubic function coeffs
     K = None
-    
+
     # Point set the estimate was done for
     last_pts = None
 
     # Generate a point at time t, assuming we don't have such a point in first place
     # TODO: Has side effects
     def orbit_predict(t):
-        # Cubic function
+        nonlocal last_pts, K, anchor
+
+        # Cubic function for the j-th compontent of the tuple at time t
         def cube_fun(j,t):
             return sum(K[j][i]*(t**(3-i)) for i in range(4))
-        
-        
-        nonlocal K, anchor
+
+        # Sanity checks
         if t < time_start or t > time_end:
             raise ValueError("Something is wrong with iteration, check your code.")
-        
         l = t - time_start
-        
+
+        # Check for ranges not having enough points
         if any(len(anchor[l][i]) < 2 for i in range(2)):
             return (t, 0, 0.0, 0.0) # TODO broken range, need an extra point for estimation
-        
+
+        # Initialising K if necessary
         if not K:
             K = [ None for _ in range(3) ]
-            
-        # TODO add cache
+
+        # Picking the points to construct the curve from
         pts = (anchor[l][0][0], anchor[l][0][1], anchor[l][1][1], anchor[l][1][0]) # TODO: replace with generator expression
-        last_pts = pts
-        for j in range(1,4):
-            vals = [ datapoints[time_start + i][j] for i in pts ]
-            K[j-1] = cubic_fit([x for x in zip(pts,vals)])
-                
+
+        # Check if we calculated the parameters for the curve before, if not, do it
+        if not last_pts == pts:
+            last_pts = pts
+            for j in range(1,4):
+                # Combinig t with component values
+                vals = [ datapoints[time_start + i][j] for i in pts ]
+                K[j-1] = cubic_fit([x for x in zip(pts,vals)])
+
+        # Everything is set up, we can calculate the curve now
         return tuple(t if i ==0 else cube_fun(i-1,l) for i in range(4))
 
         ## Okay, this has to be the first point of interpolation
@@ -247,7 +254,7 @@ def generate_orbit(datapoints):
 
     for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
         yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
-  
+
 
 # Testing code below, will be removed
 datapoints = None
