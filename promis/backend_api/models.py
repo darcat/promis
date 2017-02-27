@@ -26,7 +26,7 @@ class Translation(models.Model):
         db_table = "translations"
         
     def __str__(self):
-        return self.text.encode('utf-8')
+        return self.text
 
 class Space_project(models.Model):
     name = ForeignKey('Translation', unique = True, related_name = 'sp_name'   )
@@ -38,7 +38,7 @@ class Space_project(models.Model):
         db_table = "space_projects"
 
     def __str__(self):
-        return self.description.text.encode('utf-8')
+        return self.description.text
 
 class Device(models.Model):
     name = ForeignKey('Translation', related_name = 'dev_name')
@@ -49,7 +49,7 @@ class Device(models.Model):
         db_table = "devices"
 
     def __str__(self):
-        return self.name.text.encode('utf-8')
+        return self.name.text
 
 
 class Function(models.Model):
@@ -60,7 +60,7 @@ class Function(models.Model):
         db_table = "functions"
 
     def __str__(self):
-        return self.description.text.encode('utf-8')
+        return self.description.text
 
 class Channel(models.Model):
     name = ForeignKey('Translation', related_name = 'ch_name')
@@ -73,7 +73,7 @@ class Channel(models.Model):
         db_table = "channels"
 
     def __str__(self):
-        return self.description.text.encode('utf-8')
+        return self.description.text
 
 
 class Unit(models.Model):
@@ -94,7 +94,7 @@ class Value(models.Model):
         db_table = "values"
         
     def __str__(self):
-        return self.description.text.encode('utf-8')
+        return self.description.text
 
 
 class Parameter(models.Model):
@@ -110,7 +110,7 @@ class Parameter(models.Model):
         db_table = "parameters"    
 
     def __str__(self):
-        return self.description.text.encode('utf-8')
+        return self.description.text
 
 class Document(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
