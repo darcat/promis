@@ -214,6 +214,8 @@ def generate_orbit(datapoints):
             for j in range(1,4):
                 # Combinig t with component values
                 vals = [ datapoints[time_start + i][j] for i in pts ]
+                if j == 2:
+                    print(vals)
                 K[j-1] = cubic_fit([x for x in zip(pts,vals)])
 
         # Everything is set up, we can calculate the curve now
@@ -223,12 +225,58 @@ def generate_orbit(datapoints):
     for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
         yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
 
+class Longitude:
+    _value = None
+
+    def __init__(self, value = 0.0):
+        self._value = self.clamp(value)
+
+    # Make sure the result stays in [-180;180] range
+    def clamp(self, x):
+        return (x + 180) % 360 - 180
+
+    # Ensure the argument is a number
+    def num(self, arg):
+        return arg.value() if type(arg) == type(self) else arg
+
+    # TODO: __radd__ ?
+    def __add__(self, arg):
+        return Longitude(self._value + self.num(arg))
+
+    def __div__(self, arg):
+        return Longitude(self._value / self.num(arg))
+
+    def __mul__(self, arg):
+        return Longitude(self._value * self.num(arg))
+
+    def __sub__(self, arg):
+        return Longitude(self._value - self.num(arg))
+
+    def __neg__(self):
+        return Longitude(-self._value)
+
+    def __str__(self):
+        return str(self._value)
+
+    # NOTE: Please don't modify _value outside, or add self.clamp() call here
+    def value(self):
+        return self._value
+
+print(Longitude(0))
+print(Longitude(45))
+print(Longitude(-45))
+print(Longitude(190))
+print(-Longitude(10))
+print(Longitude(-190))
+print(Longitude(365))
+print(Longitude(91)*4)
+print(Longitude(170) + Longitude(30))
 
 # Testing code below, will be removed
-datapoints = None
-with open("/tmp/tm200542.135.txt") as fp:
-    datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
+# datapoints = None
+#with open("/tmp/tm200542.135.txt") as fp:
+#    datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
 
-print("t, r, lon, lat, is.estimated")
-for pt in generate_orbit(datapoints):
-    print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
+#print("t, r, lon, lat, is.estimated")
+#for pt in generate_orbit(datapoints):
+#    print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
