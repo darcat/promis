@@ -6,6 +6,7 @@ from random import seed, randint
 # TODO: comments and descriptions
 # TODO: maybe standard library methods to do this?
 # TODO: replace ValueErrors with meaningful exception classes when integrating
+# TODO: prettify the code at times
 # or make something like DataImportError(), whatever
 
 def sign(x):
@@ -154,15 +155,17 @@ def cubic_fit(pts):
 # (i.e. no track when no device was on in first place)
 def generate_orbit(datapoints):
     time_start, time_end = min(datapoints.keys()), max(datapoints.keys())
+    time_dur = time_end - time_start
 
     # Anchor points from which the curve is deduced
     # anchor[t][0] returns the 2 known points before t, anchor[t][1] does same to points after t
-    anchor = [ [ None for _ in range(2) ] for _ in range(time_end - time_start + 1 ) ]
+    # TODO: more elegant iteration
+    anchor = [ [ None for _ in range(2) ] for _ in range(time_dur + 1 ) ]
     for k in range(2):
       lastpts = []
-      for i in range(time_end - time_start + 1 ):
+      for i in range(time_dur + 1 ):
         t = (time_start + i) if k == 0 else (time_end - i)
-        l = i if k == 0 else time_end - time_start - i
+        l = i if k == 0 else time_dur - i
         if t in datapoints:
           anchor[l][k] = None
           if len(lastpts)==2:
@@ -171,8 +174,19 @@ def generate_orbit(datapoints):
         else:
           # TODO: we assume that for every gap we do have points before and after to estimate the curve
           # TODO: fix this
-    #      assert(len(lastpts)==2)
           anchor[l][k] = tuple(lastpts)
+
+    # Second pass, trying to fill the gaps at the end
+    for k in [-1, 1]:
+        start = 0 if k == 1 else time_dur
+        first = start
+        # Searching for the first good point
+        while any(not anchor[first][z] for z in range(2)) or sum(len(anchor[first][z]) for z in range(2)) < 4:
+            first += k
+        goodpt = anchor[first]
+        for i in range(start, first, k):
+            if all(anchor[i][z] for z in range(2)): # If this is not [None,None]
+                anchor[i] = goodpt
 
     # Currently estimated cubic function coeffs
     K = None
@@ -195,8 +209,7 @@ def generate_orbit(datapoints):
         l = t - time_start
 
         # Check for ranges not having enough points
-        if any(len(anchor[l][i]) < 2 for i in range(2)):
-            return (t, 0, 0.0, 0.0) # TODO broken range, need an extra point for estimation
+        assert(all(len(anchor[l][i]) >= 2 for i in range(2)))
 
         # Initialising K if necessary
         if not K:
