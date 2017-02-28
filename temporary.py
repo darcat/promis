@@ -8,54 +8,6 @@ from random import seed, randint
 # TODO: replace ValueErrors with meaningful exception classes when integrating
 # or make something like DataImportError(), whatever
 
-class Longitude:
-    _value = None
-
-    def __init__(self, value = 0.0):
-        self._value = self.clamp(value)
-
-    # Make sure the result stays in [-180;180] range
-    def clamp(self, x):
-        return (x + 180) % 360 - 180
-
-    # Ensure the argument is a number
-    def num(self, arg):
-        return arg.value() if type(arg) == type(self) else arg
-
-    def __add__(self, arg):
-        return Longitude(self._value + self.num(arg))
-
-    def __radd__(self, arg):
-        return self.__add__(arg)
-
-    def __div__(self, arg):
-        return Longitude(self._value / self.num(arg))
-
-    def __truediv__(self, arg):
-        return self.__div__(arg)
-
-    def __mul__(self, arg):
-        return Longitude(self._value * self.num(arg))
-
-    def __rmul__(self, arg):
-        return self.__mul__(arg)
-
-    def __sub__(self, arg):
-        return Longitude(self._value - self.num(arg))
-
-    def __neg__(self):
-        return Longitude(-self._value)
-
-    def __str__(self):
-        return str(self._value)
-
-    def __repr__(self):
-        return "Lon: " + self.__str__()
-
-    # NOTE: Please don't modify _value outside, or add self.clamp() call here
-    def value(self):
-        return self._value
-
 def sign(x):
     return 1 if x>=0 else -1
 
@@ -69,7 +21,7 @@ def cord_conv(t, RX, RY, RZ):
     # TODO: do we need to save rx,ry,rz too?
     # TODO: do we need a dict/named tuple here?
     # Time(Key), (Time, Vector from origin, Longitude, Latitude)
-    return ( t, (t, r, Longitude(rad2deg(rho)), rad2deg(phi) ))
+    return ( t, (t, r, rad2deg(rho), rad2deg(phi) ))
 
 def file_catalog(fp):
     # We have a bit of a decision here:
@@ -259,10 +211,16 @@ def generate_orbit(datapoints):
             for j in range(1,4):
                 # Combinig t with component values
                 vals = [ datapoints[time_start + i][j] for i in pts ]
+                # If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
+                if j==2:
+                    if any(180 < abs(vals[x] - vals[y]) for x in range(4) for y in range(4) if x<y):
+                        vals = [ v + 360 if v < 0 else v for v in vals ]
                 K[j-1] = cubic_fit([x for x in zip(pts,vals)])
 
         # Everything is set up, we can calculate the curve now
-        return tuple(t if i ==0 else cube_fun(i-1,l) for i in range(4))
+        return tuple(t if i == 0 else # Pass t unchanged
+                        cube_fun(i-1,l) if i != 2 else (cube_fun(i-1,l) + 180) % 360 - 180 # Making sure longitude fits
+                            for i in range(4))
 
     # Iterate over all the time period and yield the values stored or the estimates if they are missing
     for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
