@@ -248,18 +248,15 @@ with FTP("promis.ikd.kiev.ua") as ftp:
     ftp.cwd("Potential/DECODED/")
     ftp.cwd("20110923/pdata20110923")
     # Fetching orbit telemetry data
+    orbits = []
     for fname in (fname for fname in ftp.nlst() if re.search("^tm.*\.txt$", fname)):
         with StringIO() as fp:
+            # Retrieving and processing the raw file
             ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
             fp.seek(0)
-            datapoints = dict(pt for pt in file_catalog(fp))
-            print(datapoints)
+            rawdata = dict(pt for pt in file_catalog(fp))
 
-
-# datapoints = None
-# with open("/tmp/tm200542.135.txt") as fp:
-#    datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
-#
-# print("t, r, lon, lat, is.estimated")
-# for pt in generate_orbit(datapoints):
-#    print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
+            # Converting the orbit to 1 point per second format
+            orbits.append([ pt for pt in generate_orbit(rawdata) ])
+    print(orbits)
+    print(len(orbits))
