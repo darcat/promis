@@ -2,6 +2,8 @@
 from math import ( pi, sin, cos, asin, acos, sqrt)
 import re
 from random import seed, randint
+from ftplib import FTP
+from io import StringIO
 
 # TODO: comments and descriptions
 # TODO: maybe standard library methods to do this?
@@ -240,10 +242,24 @@ def generate_orbit(datapoints):
         yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
 
 # Testing code below, will be removed
-datapoints = None
-with open("/tmp/tm200542.135.txt") as fp:
-   datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
+# TODO: split to functions
+with FTP("promis.ikd.kiev.ua") as ftp:
+    ftp.login()
+    ftp.cwd("Potential/DECODED/")
+    ftp.cwd("20110923/pdata20110923")
+    # Fetching orbit telemetry data
+    for fname in (fname for fname in ftp.nlst() if re.search("^tm.*\.txt$", fname)):
+        with StringIO() as fp:
+            ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
+            fp.seek(0)
+            datapoints = dict(pt for pt in file_catalog(fp))
+            print(datapoints)
 
-print("t, r, lon, lat, is.estimated")
-for pt in generate_orbit(datapoints):
-   print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
+
+# datapoints = None
+# with open("/tmp/tm200542.135.txt") as fp:
+#    datapoints = dict(pt for pt in file_catalog(fp)) # NOTE: duplicate time values overwrite each other
+#
+# print("t, r, lon, lat, is.estimated")
+# for pt in generate_orbit(datapoints):
+#    print(",".join(str(i) for i in pt[0]) + "," + str(pt[1]))
