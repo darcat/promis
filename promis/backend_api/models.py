@@ -14,6 +14,7 @@ class Session(models.Model):
     time_end = DateTimeField()
     orbit_code = IntegerField(null=True)
     geo_line = LineStringField()
+    satellite = ForeignKey('Space_project', null = True)
 
     class Meta:
         db_table = "sessions" 
@@ -36,9 +37,11 @@ class Space_project(models.Model):
 
     class Meta:
         db_table = "space_projects"
+        verbose_name = "Space project"
+        verbose_name_plural = "Space projects"
 
     def __str__(self):
-        return self.description.text
+        return self.name.text
 
 class Device(models.Model):
     name = ForeignKey('Translation', related_name = 'dev_name')
@@ -73,7 +76,7 @@ class Channel(models.Model):
         db_table = "channels"
 
     def __str__(self):
-        return self.description.text
+        return self.name.text
 
 
 class Unit(models.Model):
@@ -94,7 +97,7 @@ class Value(models.Model):
         db_table = "values"
         
     def __str__(self):
-        return self.description.text
+        return self.name.text
 
 
 class Parameter(models.Model):
@@ -110,7 +113,7 @@ class Parameter(models.Model):
         db_table = "parameters"    
 
     def __str__(self):
-        return self.description.text
+        return self.name.text
 
 class Document(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
