@@ -50,8 +50,8 @@ class Migration(migrations.Migration):
                 ('max_frequency', models.FloatField()),
                 ('min_frequency', models.FloatField()),
                 ('channel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='backend_api.Channels')),
-                ('chn_doc_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='chn_doc_id', to='backend_api.Documents')),
-                ('par_doc_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='par_doc_id', to='backend_api.Documents')),
+                ('chn_doc', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='chn_doc_id', to='backend_api.Documents')),
+                ('par_doc', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='par_doc_id', to='backend_api.Documents')),
             ],
         ),
         migrations.CreateModel(
