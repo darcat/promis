@@ -4,6 +4,7 @@ import re
 from random import seed, randint
 from ftplib import FTP
 from io import StringIO
+from operator import xor
 
 # TODO: comments and descriptions
 # TODO: maybe standard library methods to do this?
@@ -243,20 +244,46 @@ def generate_orbit(datapoints):
 
 # Testing code below, will be removed
 # TODO: split to functions
-with FTP("promis.ikd.kiev.ua") as ftp:
-    ftp.login()
-    ftp.cwd("Potential/DECODED/")
-    ftp.cwd("20110923/pdata20110923")
-    # Fetching orbit telemetry data
-    orbits = []
-    for fname in (fname for fname in ftp.nlst() if re.search("^tm.*\.txt$", fname)):
-        with StringIO() as fp:
-            # Retrieving and processing the raw file
-            ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
-            fp.seek(0)
-            rawdata = dict(pt for pt in file_catalog(fp))
+#with FTP("promis.ikd.kiev.ua") as ftp:
+    #ftp.login()
+    #ftp.cwd("Potential/DECODED/")
+    #ftp.cwd("20110923/pdata20110923")
+    ## Fetching orbit telemetry data
+    #orbits = []
+    #for fname in (fname for fname in ftp.nlst() if re.search("^tm.*\.txt$", fname)):
+        #with StringIO() as fp:
+            ## Retrieving and processing the raw file
+            #ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
+            #fp.seek(0)
+            #rawdata = dict(pt for pt in file_catalog(fp))
 
-            # Converting the orbit to 1 point per second format
-            orbits.append([ pt for pt in generate_orbit(rawdata) ])
-    print(orbits)
-    print(len(orbits))
+            ## Converting the orbit to 1 point per second format
+            #orbits.append([ pt for pt in generate_orbit(rawdata) ])
+    #print(orbits)
+    #print(len(orbits))
+    
+def orbit_slice(orbit, start, duration=None, end=None):
+    """Cut a part of the orbit corresponding to the given time interval.
+    
+    Orbit is assumed to have 1 Hz discretization and continous.
+    
+    Arguments:
+    orbit       -- the list of (t, y) tuples where t is time and y is an aggregate type of actual positional values.
+    start       -- the lower bound of the time interval requested, sec.
+    end         -- the upper bound of the time interval requested, sec; mutually exclusive with duration.
+    duration    -- the duration of the time interval requested, sec; mutually exclusive with end.
+    
+    """
+    assert(xor(bool(end), bool(duration))
+           
+    if not end:
+        end = start + duration
+    else:
+        duration = start - end
+        
+    if orbit[0][0] > start or orbit[-1][0] < end:
+        raise ValueError("Time interval requested is outside of the orbit given")
+    
+    offset = start - orbit[0][0]
+    return orbit[offset, offset + duration]
+        
