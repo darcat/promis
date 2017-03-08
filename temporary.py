@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from math import ( pi, sin, cos, asin, acos, sqrt)
 import re
 from random import seed, randint
 from ftplib import FTP
@@ -11,21 +10,6 @@ from operator import xor
 # TODO: replace ValueErrors with meaningful exception classes when integrating
 # TODO: prettify the code at times
 # or make something like DataImportError(), whatever
-
-def sign(x):
-    return 1 if x>=0 else -1
-
-def rad2deg(x):
-    return 180*x/pi
-
-def cord_conv(t, RX, RY, RZ):
-    r   = sqrt(RX**2 + RY**2 + RZ**2)
-    phi = pi/2 - acos(RZ/r)
-    rho = acos(RX/(r*sin(pi/2 - phi))) * sign(RY)
-    # TODO: do we need to save rx,ry,rz too?
-    # TODO: do we need a dict/named tuple here?
-    # Time(Key), (Time, Vector from origin, Longitude, Latitude)
-    return ( t, (t, r, rad2deg(rho), rad2deg(phi) ))
 
 def file_catalog(fp):
     # We have a bit of a decision here:
@@ -105,53 +89,6 @@ def file_catalog(fp):
     # Call the machinery above
     for pt in scan_point():
         yield pt
-
-# TODO: any more standard way?
-# Matrix representation:
-# - Input data in a big list
-# - list of lists which represent columns, elements are indices in the original big list
-
-# Determinant of a 4x4 matrix
-def det4(m, idx):
-  def mat(a,b,idx):
-    return m[idx[b][a]]
-  def A(a,b):
-    return mat(a,b,idx)
-
-  # Determinant of a 3x3 matrix
-  def det3(m, idx):
-    def A(a,b):
-      return mat(a,b,idx)
-    return A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) - A(0,1)*( A(1,0)*A(2,2) - A(1,2)*A(2,0) ) + A(0,2)*( A(1,0)*A(2,1) - A(1,1)*A(2,0) )
-
-  # Returns a i-th, j-th minor of index 4x4 matrix idx
-  def minor(j, i, idx):
-    result = idx[:i] + idx[i+1:]
-    for k, col in enumerate(result):
-      result[k] = col[:j] + col[j+1:]
-    return result
-
-  result = 0
-  sign = -1
-  for i in range(4):
-    sign *= -1
-    result += sign * A(0, i) * det3(m, minor(0, i, idx))
-  return result
-
-
-# Deduce coefs of a cubic spline of the form ax^3 + bx^2 + cx + d = y(x)
-def cubic_fit(pts):
-  def extdet(i):
-    newidx = idx[:i] + [ [ 16 + i for i in range(4) ] ] + idx[i+1:]
-    return det4(m, newidx)
-
-  m = [ pts[j % 4][0]**((15-j)//4) for j in range(16) ]
-  idx =  [ [ i+4*j for i in range(4)] for j in range(4) ]
-  m += [ pts[j][1] for j in range(4) ]
-  D = det4(m, idx)
-  if D==0:
-    raise ValueError("Can not solve the equation")
-  return [ extdet(i)/D for i in range(4) ]
 
 # Generating an orbit point every 1 second, discarding extra point and filling the gaps
 # TODO: cut the oribit into multiple sections depending on the actual data
