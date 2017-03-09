@@ -122,6 +122,39 @@ with FTP("promis.ikd.kiev.ua") as ftp:
                 orbit.update(rawdata)
                 
                 # TODO: check if orbit is continous at all
+                # ANSWER: it sort of is, but not necessarily
+                
+        # TODO: Hypothesis: there is no overlap across differing devices
+        for dev in ftp_list(ftp, "^(ez|pd)$"):
+            # TODO: I don't know nkp/ekp frequency so, ignoring them atm
+            if dev == "pd":
+                continue
+            
+            # TODO: working code so far
+            freqs = { "lf": 1, "hf": 1000 }
+            dirs = { "lf": "0", "hf": "00" }
+            
+            ftp.cwd(dev)
+            
+            # Checking for the valid directory
+            for freq in ftp_list(ftp, "^(%s)$" % "|".join(freqs.keys())):
+                ftp.cwd(freq)
+                
+                # TODO: Some folders have "test" data instead "0"/"00", not sure what to do about them
+                try:
+                    ftp.cwd(dirs[freq])
+                    
+                    # Checking for -mv file, should be exactly one
+                    mvfile = [ fname for fname in ftp_list(ftp, "^%s[0-9-]*mv.set$" % freq) ]
+                    assert(len(mvfile) == 1)
+                    
+                    ftp.cwd("..")
+                except ftplib.error_perm:
+                    pass
+                    
+                ftp.cwd("..")
+                
+            ftp.cwd("..")
             
         # Converting the orbit to 1 point per second format
         #orbits.append([ pt for pt in generate_orbit(rawdata) ])
