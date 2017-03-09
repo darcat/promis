@@ -3,14 +3,10 @@ import re
 from random import seed, randint
 from ftplib import FTP
 from io import StringIO
-from operator import xor
 
 import util.orbit
 
-# TODO: comments and descriptions
-# TODO: maybe standard library methods to do this?
 # TODO: replace ValueErrors with meaningful exception classes when integrating
-# TODO: prettify the code at times
 # or make something like DataImportError(), whatever
 
 def file_catalog(fp):
@@ -91,26 +87,47 @@ def file_catalog(fp):
     for t, pt in scan_point():
         yield (t, pt)
 
+def ftp_list(ftp, regex):
+    """Generator returning filenames in current FTP directory matching a regular expression"""
+    return (fname for fname in ftp.nlst() if re.search(regex, fname))
+
 # Testing code below, will be removed
 # TODO: split to functions
 with FTP("promis.ikd.kiev.ua") as ftp:
     ftp.login()
     ftp.cwd("Potential/DECODED/")
-    ftp.cwd("20110923/pdata20110923")
-    # Fetching orbit telemetry data
-    orbits = []
-    for fname in (fname for fname in ftp.nlst() if re.search("^tm.*\.txt$", fname)):
-        with StringIO() as fp:
-            # Retrieving and processing the raw file
-            ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
-            fp.seek(0)
-            rawdata = dict(pt for pt in file_catalog(fp))
-            print(rawdata)
-
-            # Converting the orbit to 1 point per second format
-            #orbits.append([ pt for pt in generate_orbit(rawdata) ])
-    print(orbits)
-    print(len(orbits))
-    
+    # TODO: very lazy regex, not universal enough
+    for daydir in ftp_list(ftp, "^20"):
+        # TODO: workaround, ignorning unprepared dirs
+        if daydir == "20111118":
+            continue
+        # TODO: check that directory exists properly
+        ftp.cwd("{0}/pdata{0}".format(daydir))
+        # Fetching orbit telemetry data
+        orbit = {}
+        for fname in ftp_list(ftp, "^tm.*\.txt$"):
+            with StringIO() as fp:
+                # Retrieving and processing the raw file
+                ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
+                fp.seek(0)
+                rawdata = dict(pt for pt in file_catalog(fp))
+            
+                # TODO: maybe check for overlaps or unusually high gaps
+                if orbit:
+                    dics = [ rawdata, orbit ]
+                    mindist=min(abs(min(dics[i].keys()) - max(dics[1-i].keys())) for i in range(len(dics)))
+                    print(mindist)
+            
+                # Append the data
+                orbit.update(rawdata)
+                
+                # TODO: check if orbit is continous at all
+            
+        # Converting the orbit to 1 point per second format
+        #orbits.append([ pt for pt in generate_orbit(rawdata) ])
+        
+        # Back to the top dir
+        ftp.cwd("../..")
+        
 
         

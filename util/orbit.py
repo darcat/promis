@@ -22,6 +22,7 @@
 
 import math
 import collections
+import operator
 
 def sign(x):
     """Returns 1 for non-negative arguments and -1 otherwise."""
@@ -145,7 +146,7 @@ def orbit_slice(orbit, start, duration=None, end=None):
     duration    -- the duration of the time interval requested, sec; mutually exclusive with end.
     
     """
-    assert(xor(bool(end), bool(duration)))
+    assert(operator.xor(bool(end), bool(duration)))
            
     if not end:
         end = start + duration
