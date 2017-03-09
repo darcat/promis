@@ -101,6 +101,12 @@ with FTP("promis.ikd.kiev.ua") as ftp:
         # TODO: workaround, ignorning unprepared dirs
         if daydir == "20111118":
             continue
+        
+        # TODO: workaround, why the hell this overlaps with 20110901?
+        # TODO: study actual data of both in spare time
+        if daydir == "20110831_2":
+            continue
+        
         # TODO: check that directory exists properly
         ftp.cwd("{0}/pdata{0}".format(daydir))
         # Fetching orbit telemetry data
@@ -111,14 +117,8 @@ with FTP("promis.ikd.kiev.ua") as ftp:
                 ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
                 fp.seek(0)
                 rawdata = dict(pt for pt in file_catalog(fp))
-            
-                # TODO: maybe check for overlaps or unusually high gaps
-                if orbit:
-                    dics = [ rawdata, orbit ]
-                    mindist=min(abs(min(dics[i].keys()) - max(dics[1-i].keys())) for i in range(len(dics)))
-                    print(mindist)
-            
-                # Append the data
+                            
+                # Append the data, assuming no repetitions can happen
                 orbit.update(rawdata)
                 
                 # TODO: check if orbit is continous at all
