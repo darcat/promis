@@ -100,8 +100,9 @@ def setfile_vars(fp, keys=None):
     """
     keys_found = set()
     keys_left = -1 if not keys else len(keys)
+    # TODO: currently only integers, see regex below and yield statement
 
-    for m in re.finditer("([a-zA-Z_]+)=([0-9.]+)", fp.getvalue()): # TODO: matches " = ", shouldn't ideally
+    for m in re.finditer("([a-zA-Z_]+)=([0-9]+)", fp.getvalue()): # TODO: matches " = ", shouldn't ideally
         key = m.group(1)
         value = m.group(2)
 
@@ -115,13 +116,24 @@ def setfile_vars(fp, keys=None):
         keys_found.add(key)
 
         # Yield the data
-        yield key, value
+        yield key, int(value)
 
         # Reduce the counter of keys to look for and break if necessary
         if keys_left > 0:
             keys_left -= 1
             if keys_left == 0:
                 break
+
+def guess_duration(n, freq):
+    """
+    Guess the duration of sampling based on number of samples and expected frequency.
+
+    Assumes that the actual duration should be an integer number of minutes close to what
+    dividing samples by frequency would suggest. Returns time in seconds.
+    n       -- amount of samples.
+    freq    -- reported frequency.
+    """
+    return 60*round(n/(freq*60))
 
 # Testing code below, will be removed
 # TODO: split to functions
@@ -184,8 +196,8 @@ with FTP("promis.ikd.kiev.ua") as ftp:
                     with StringIO() as fp:
                         ftp.retrlines("RETR " + mvfile[0], lambda x: fp.write(x + "\n"))
                         fp.seek(0)
-                        for k,v in setfile_vars(fp, {"t", "samp"}):
-                            print(k,v)
+                        data = { k:v for k,v in setfile_vars(fp, {"t", "samp"}) }
+                        print(data["t"], data["t"] + guess_duration(data["samp"], freqs[freq]), guess_duration(data["samp"], freqs[freq]))
 
                     ftp.cwd("..")
                 except ftplib.error_perm:
