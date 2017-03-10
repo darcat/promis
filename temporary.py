@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re
 from random import seed, randint
-from ftplib import FTP
+from ftplib import FTP, error_perm
 from io import StringIO
 
 import util.orbit
@@ -151,6 +151,19 @@ with FTP("promis.ikd.kiev.ua") as ftp:
         if daydir == "20110831_2":
             continue
 
+        # TODO: end of session outside of available telemetry data
+        if daydir == "20110905" or daydir == "20111204":
+            continue
+
+        # TODO: no telemetry at all?
+        if ( daydir == "20111211" or daydir == "20120123" or daydir == "20120208" or
+            daydir == "20120328" or daydir == "20120507" or daydir == "20120508" or daydir == "20120614" ):
+            continue
+
+        # TODO: range completely outside of available telemetry
+        if daydir == "20120130":
+            continue
+
         # TODO: check that directory exists properly
         ftp.cwd("{0}/pdata{0}".format(daydir))
         # Fetching orbit telemetry data
@@ -197,10 +210,15 @@ with FTP("promis.ikd.kiev.ua") as ftp:
                         ftp.retrlines("RETR " + mvfile[0], lambda x: fp.write(x + "\n"))
                         fp.seek(0)
                         data = { k:v for k,v in setfile_vars(fp, {"t", "samp"}) }
-                        print(data["t"], data["t"] + guess_duration(data["samp"], freqs[freq]), guess_duration(data["samp"], freqs[freq]))
+                        # print(daydir)
+                        # print(data["t"], data["t"] + guess_duration(data["samp"], freqs[freq]), guess_duration(data["samp"], freqs[freq]))
+                        # print(min(orbit.keys()), max(orbit.keys()))
+                        # print(min(orbit.keys()) <= data["t"] <= max(orbit.keys()))
+                        # print(min(orbit.keys()) <=(  data["t"] +  guess_duration(data["samp"], freqs[freq]) )<= max(orbit.keys()))
+                        # print("===")
 
                     ftp.cwd("..")
-                except ftplib.error_perm:
+                except error_perm:
                     pass
 
                 ftp.cwd("..")
