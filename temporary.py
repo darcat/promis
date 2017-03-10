@@ -75,7 +75,7 @@ def file_catalog(fp):
                 nextpoint = dict(nextpoint)
                 for k,v in nextpoint.items():
                     nextpoint[k] = v[1]
-                    
+
                 yield timemark, util.orbit.cord_conv(**nextpoint)
         except StopIteration:
             pass
@@ -91,6 +91,38 @@ def ftp_list(ftp, regex):
     """Generator returning filenames in current FTP directory matching a regular expression"""
     return (fname for fname in ftp.nlst() if re.search(regex, fname))
 
+def setfile_vars(fp, keys=None):
+    """
+    Look up key=value pairs in a file.
+
+    Value is assumed to be a number. If the key appears multiple times, only the first occurrence is returned.
+    If keys is set to a set of strings, only yield keys from it.
+    """
+    keys_found = set()
+    keys_left = -1 if not keys else len(keys)
+
+    for m in re.finditer("([a-zA-Z_]+)=([0-9.]+)", fp.getvalue()): # TODO: matches " = ", shouldn't ideally
+        key = m.group(1)
+        value = m.group(2)
+
+        # Skip entries we've seen before
+        # Skip entries we do not want
+        # Temporary measure: skip empty entries
+        if key in keys_found or (keys and key not in keys) or len(key) == 0 or len(value) == 0:
+            continue
+
+        # Register the key as found
+        keys_found.add(key)
+
+        # Yield the data
+        yield key, value
+
+        # Reduce the counter of keys to look for and break if necessary
+        if keys_left > 0:
+            keys_left -= 1
+            if keys_left == 0:
+                break
+
 # Testing code below, will be removed
 # TODO: split to functions
 with FTP("promis.ikd.kiev.ua") as ftp:
@@ -101,12 +133,12 @@ with FTP("promis.ikd.kiev.ua") as ftp:
         # TODO: workaround, ignorning unprepared dirs
         if daydir == "20111118":
             continue
-        
+
         # TODO: workaround, why the hell this overlaps with 20110901?
         # TODO: study actual data of both in spare time
         if daydir == "20110831_2":
             continue
-        
+
         # TODO: check that directory exists properly
         ftp.cwd("{0}/pdata{0}".format(daydir))
         # Fetching orbit telemetry data
@@ -117,50 +149,54 @@ with FTP("promis.ikd.kiev.ua") as ftp:
                 ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
                 fp.seek(0)
                 rawdata = dict(pt for pt in file_catalog(fp))
-                            
+
                 # Append the data, assuming no repetitions can happen
                 orbit.update(rawdata)
-                
+
                 # TODO: check if orbit is continous at all
                 # ANSWER: it sort of is, but not necessarily
-                
+
         # TODO: Hypothesis: there is no overlap across differing devices
         for dev in ftp_list(ftp, "^(ez|pd)$"):
             # TODO: I don't know nkp/ekp frequency so, ignoring them atm
             if dev == "pd":
                 continue
-            
+
             # TODO: working code so far
             freqs = { "lf": 1, "hf": 1000 }
             dirs = { "lf": "0", "hf": "00" }
-            
+
             ftp.cwd(dev)
-            
+
             # Checking for the valid directory
             for freq in ftp_list(ftp, "^(%s)$" % "|".join(freqs.keys())):
                 ftp.cwd(freq)
-                
+
                 # TODO: Some folders have "test" data instead "0"/"00", not sure what to do about them
                 try:
                     ftp.cwd(dirs[freq])
-                    
+
                     # Checking for -mv file, should be exactly one
                     mvfile = [ fname for fname in ftp_list(ftp, "^%s[0-9-]*mv.set$" % freq) ]
                     assert(len(mvfile) == 1)
-                    
+
+                    # TODO: generalise with the earlier call
+                    with StringIO() as fp:
+                        ftp.retrlines("RETR " + mvfile[0], lambda x: fp.write(x + "\n"))
+                        fp.seek(0)
+                        for k,v in setfile_vars(fp, {"t", "samp"}):
+                            print(k,v)
+
                     ftp.cwd("..")
                 except ftplib.error_perm:
                     pass
-                    
+
                 ftp.cwd("..")
-                
+
             ftp.cwd("..")
-            
+
         # Converting the orbit to 1 point per second format
         #orbits.append([ pt for pt in generate_orbit(rawdata) ])
-        
+
         # Back to the top dir
         ftp.cwd("../..")
-        
-
-        
