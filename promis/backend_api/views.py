@@ -19,10 +19,6 @@ class SessionsViewSet(viewsets.ModelViewSet):
     queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer
     
-class TranslationsViewSet(viewsets.ModelViewSet):
-    queryset = models.Translation.objects.all()
-    serializer_class = serializer.TranslationsSerializer
-    
 class SpaceProjectsViewSet(viewsets.ModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer

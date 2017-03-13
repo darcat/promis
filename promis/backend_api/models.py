@@ -6,6 +6,7 @@ from django.db.models.fields import DateTimeField, IntegerField, CharField,\
 from django.db.models.fields.related import ForeignKey
 from jsonfield import JSONField
 from django.contrib.gis.db.models import LineStringField
+from hvad.models import TranslatableModel, TranslatedFields
 
 # Create your models here.
 
@@ -19,34 +20,32 @@ class Session(models.Model):
     class Meta:
         db_table = "sessions" 
 
-class Translation(models.Model):
-    langcode = CharField(max_length = 2)
-    text = TextField(default = "")
-
-    class Meta:
-        db_table = "translations"
-        
-    def __str__(self):
-        return self.text
-
-class Space_project(models.Model):
-    name = ForeignKey('Translation', unique = True, related_name = 'sp_name'   )
-    description = ForeignKey('Translation', related_name = 'sp_description')
+class Space_project(TranslatableModel):
     date_start = DateField()
     date_end = DateField()
+
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField()
+        )
 
     class Meta:
         db_table = "space_projects"
         verbose_name = "Space project"
         verbose_name_plural = "Space projects"
 
+
+
     def __str__(self):
         return self.name.text
 
-class Device(models.Model):
-    name = ForeignKey('Translation', related_name = 'dev_name')
-    description = ForeignKey('Translation', related_name = 'dev_description')
+class Device(TranslatableModel):
     satellite = ForeignKey('Space_project')
+
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField()
+        )
     
     class Meta:
         db_table = "devices"
@@ -55,9 +54,12 @@ class Device(models.Model):
         return self.name.text
 
 
-class Function(models.Model):
-    description = ForeignKey('Translation', related_name = 'func_description')
+class Function(TranslatableModel):
     django_func = TextField()
+
+    translations = TranslatedFields(
+        description = TextField()
+        )
     
     class Meta:
         db_table = "functions"
@@ -65,12 +67,15 @@ class Function(models.Model):
     def __str__(self):
         return self.description.text
 
-class Channel(models.Model):
-    name = ForeignKey('Translation', related_name = 'ch_name')
-    description = ForeignKey('Translation', related_name = 'ch_description')
+class Channel(TranslatableModel):
     device = ForeignKey('Device')
     quicklook = ForeignKey('Function', null = True)
     parser_func = ForeignKey('Function', related_name = 'parser_func', null = True)
+
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField()
+        )
     
     class Meta:
         db_table = "channels"
@@ -79,19 +84,23 @@ class Channel(models.Model):
         return self.name.text
 
 
-class Unit(models.Model):
-    long_name = ForeignKey('Translation', related_name = 'u_lname')
-    short_name = ForeignKey('Translation', related_name = 'u_sname')
+class Unit(TranslatableModel):
+    translations = TranslatedFields(
+        short_name = TextField(),
+        long_name = TextField()
+        )
     
     class Meta:
         db_table = "units"
 
-class Value(models.Model):
-    name = ForeignKey('Translation', related_name = 'val_name')
-    description = ForeignKey('Translation', related_name = 'val_description')
+class Value(TranslatableModel):
     short_name = CharField(max_length=100)
     units = ForeignKey('Unit')
     
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField()
+        )
     
     class Meta:
         db_table = "values"
@@ -100,14 +109,17 @@ class Value(models.Model):
         return self.name.text
 
 
-class Parameter(models.Model):
-    name = ForeignKey('Translation', related_name = 'par_name')
-    description = ForeignKey('Translation', related_name = 'par_description')
+class Parameter(TranslatableModel):
     value = ForeignKey('Value')
     conversion = ForeignKey('Function', related_name = 'par_conv')
     conversion_params = TextField()
     channel = ForeignKey('Channel')
     quicklook = ForeignKey('Function', related_name = 'par_ql')
+
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField()
+        )
     
     class Meta:
         db_table = "parameters"    
