@@ -58,13 +58,16 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
 
     # Pass 1: Picking up 2 the closest points before the start of the orbit
     # and 2 after the start
-    # TODO: corner case "no points before"
     # TODO: corner case "no points after" (yes, here too)
     i = orbit_start
-    while len(anchor[0]) < 2:
+    future_pts = 0
+    while len(anchor[0]) + future_pts < 2:
         if i in datakeys:
             anchor[0].insert(0, i)
         i -= 1
+        # If we stepped outside of available points, stop
+        if i < time_start:
+            future_pts += 1
 
     i = orbit_start + 1
     while len(anchor[0]) < 4:
@@ -74,35 +77,38 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
 
     # Pass 2: Copying the anchor over as long as no new points are encountered
     # If we do encounter a new point, shift the list to the left and add it
-    # TODO: corner case "no points after"
-    # TODO: corner case "no points before" (counter decrement)
     last_anchor = 0
+    no_pts_after = False
     for j in range(orbit_start, orbit_end + 1):
-        if anchor[last_anchor][1] < j < anchor[last_anchor][2]:
+        # We are inside the gap, fill with last good value
+        # If the left bound wasn't filled, skip the shift too
+        if (anchor[last_anchor][1] <= j < anchor[last_anchor][2]) or no_pts_after or future_pts > 0:
             anchor[j - orbit_start] = anchor[last_anchor]
+            if future_pts > 0:
+                future_pts -= 1
         else:
             while i not in datapoints:
                 i += 1
-            anchor[j - orbit_start] = anchor[last_anchor][1:4] + [i]
-            last_anchor = j - orbit_start
-            i += 1
-
-    #for k in range(2):
-      #lastpts = []
-      #for i in range(time_dur + 1 ):
-        #t = (time_start + i) if k == 0 else (time_end - i)
-        #l = i if k == 0 else time_dur - i
-        #if t in datapoints:
-          #anchor[l][k] = None
-          #if len(lastpts)==2:
-            #lastpts=lastpts[1:]
-          #lastpts.append(l)
-        #else:
-          ## TODO: we assume that for every gap we do have points before and after to estimate the curve
-          ## TODO: fix this
-          #anchor[l][k] = tuple(lastpts)
+                # If we stepped out of datapoints, just reuse the last curve
+                if i > time_end:
+                    no_pts_after = True
+                    anchor[j - orbit_start] = anchor[last_anchor]
+                    break
+            else:
+                anchor[j - orbit_start] = anchor[last_anchor][1:4] + [i]
+                last_anchor = j - orbit_start
+                i += 1
 
     return anchor
+
+    # Pass 3: Yielding values we know and generating values we don't
+    # for j in range(orbit_start, orbit_end + 1):
+    #     def predict(t):
+    #         # TODO pre-compute
+    #         f =
+    #
+    #     yield datapoints[j] if j in datapoints else predict(j)
+
 
     ## Second pass, trying to fill the gaps at the end
     #for k in [-1, 1]:
@@ -198,9 +204,8 @@ if __name__ == "__main__":
     # TODO: completely open ends
     data = { 5: -0.448589841, 8: 0.005068112, 11:0.386954047,  12:0.390755277, 13: 1.468537330, 15: 0.214829568, 19:-0.7266196521 }
     tests = [ [9, 14],  # Good
-              [8, 15],  # Risky
+              [9, 16],  # No pts after
               [7, 14],  # No pts before
-              [9, 16] ] # No pts after
+              [8, 15] ] # Risky
     for test in tests:
         print(generate_orbit(data, *test))
-        break
