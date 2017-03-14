@@ -104,12 +104,18 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
 
     # Pass 3: Yielding values we know and generating values we don't
     for j in range(orbit_start, orbit_end + 1):
+        f, lastpts = None, None
+
+        # NOTE: has side effects
         def predict(t):
-            # TODO: pre-compute
+            nonlocal f, lastpts
+            # Check if we need the same points that we computed before
             l = j - orbit_start
-            # Shifting all the time values by orbit_start to prevent overflows
-            v = [ pt for pt in map(lambda x: x - orbit_start, anchor[l]) ]
-            f = cubefit.cubic_fit(v, [datapoints[z] for z in anchor[l]])
+            if lastpts != anchor[l]:
+                lastpts = anchor[l]
+                # Shifting all the time values by orbit_start to prevent overflows
+                v = [ pt for pt in map(lambda x: x - orbit_start, anchor[l]) ]
+                f = cubefit.cubic_fit(v, [datapoints[z] for z in anchor[l]])
             return f(t - orbit_start)
 
         yield j, datapoints[j] if j in datapoints else predict(j)
