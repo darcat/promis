@@ -55,7 +55,7 @@ paths:
           in: query
           description: Project ID to query its satellite devices for
           required: true
-          type: number
+          type: integer
       responses:
         200:
           description: An array of available devices
@@ -80,7 +80,7 @@ paths:
           in: query
           description: Project ID to query its sessions for
           required: true
-          type: number
+          type: integer
       responses:
         200:
           description: An array of available sessions
@@ -95,7 +95,7 @@ paths:
 
   # more measurement-related endpoints to be added here...
 
-  /quicklook:
+  /quicklook/{hash}:
     x-swagger-router-controller: QuicklookView
     get:
       summary: Get a quicklook of data
@@ -103,6 +103,12 @@ paths:
         This endpoint allows to get a quicklook of certain data measurement.
       tags:
         - Measurements
+      parameters:
+        - name: hash
+          in: path
+          type: string
+          required: true
+
       responses:
         200:
           description: Quicklook data
@@ -112,6 +118,27 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+
+  /download/{hash}:
+    x-swagger-router-controller: DownloadData
+    get:
+      summary: Download data
+      description: Get data by id
+      tags:
+        - Measurements
+      parameters:
+        - name: hash
+          in: path
+          type: string
+          required: true
+
+    responses:
+      200:
+        description: JSON data
+      default:
+        description: Error
+        schema:
+          $ref: '#/definitions/Error'
 
 definitions:
   Project:
