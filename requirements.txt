@@ -9,3 +9,7 @@ djsw_wrapper
 drf-nested-routers
 dj-database-url
 django-hvad
+
+# remove after ErintLabs/django-openapi-gen#10 is fixed
+jinja2
+flex # really?
