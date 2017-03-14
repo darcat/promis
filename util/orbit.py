@@ -23,6 +23,7 @@
 import math
 import collections
 import operator
+import cubefit
 
 def sign(x):
     """Returns 1 for non-negative arguments and -1 otherwise."""
@@ -81,34 +82,36 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
     no_pts_after = False
     for j in range(orbit_start, orbit_end + 1):
         # We are inside the gap, fill with last good value
-        # If the left bound wasn't filled, skip the shift too
-        if (anchor[last_anchor][1] <= j < anchor[last_anchor][2]) or no_pts_after or future_pts > 0:
+        if (anchor[last_anchor][1 - future_pts] <= j < anchor[last_anchor][2 - future_pts]) or no_pts_after:
             anchor[j - orbit_start] = anchor[last_anchor]
-            if future_pts > 0:
-                future_pts -= 1
         else:
-            while i not in datapoints:
-                i += 1
-                # If we stepped out of datapoints, just reuse the last curve
-                if i > time_end:
-                    no_pts_after = True
-                    anchor[j - orbit_start] = anchor[last_anchor]
-                    break
+            # If the left bound wasn't filled, skip the shift too
+            if future_pts > 0:
+                anchor[j - orbit_start] = anchor[last_anchor]
+                future_pts -= 1
             else:
-                anchor[j - orbit_start] = anchor[last_anchor][1:4] + [i]
-                last_anchor = j - orbit_start
-                i += 1
-
-    return anchor
+                while i not in datapoints:
+                    i += 1
+                    # If we stepped out of datapoints, just reuse the last curve
+                    if i > time_end:
+                        no_pts_after = True
+                        anchor[j - orbit_start] = anchor[last_anchor]
+                        break
+                else:
+                    anchor[j - orbit_start] = anchor[last_anchor][1:4] + [i]
+                    last_anchor = j - orbit_start
+                    i += 1
 
     # Pass 3: Yielding values we know and generating values we don't
-    # for j in range(orbit_start, orbit_end + 1):
-    #     def predict(t):
-    #         # TODO pre-compute
-    #         f =
-    #
-    #     yield datapoints[j] if j in datapoints else predict(j)
+    for j in range(orbit_start, orbit_end + 1):
+        def predict(t):
+            # TODO: pre-compute
+            # TODO: substract orbit_start
+            l = j - orbit_start
+            f = cubefit.cubic_fit(anchor[l], [datapoints[z] for z in anchor[l]])
+            return f(t)
 
+        yield j, datapoints[j] if j in datapoints else predict(j)
 
     ## Second pass, trying to fill the gaps at the end
     #for k in [-1, 1]:
@@ -202,10 +205,14 @@ def orbit_slice(orbit, start, duration=None, end=None):
 # Self-testing
 if __name__ == "__main__":
     # TODO: completely open ends
-    data = { 5: -0.448589841, 8: 0.005068112, 11:0.386954047,  12:0.390755277, 13: 1.468537330, 15: 0.214829568, 19:-0.7266196521 }
-    tests = [ [9, 14],  # Good
-              [9, 16],  # No pts after
-              [7, 14],  # No pts before
-              [8, 15] ] # Risky
+    # TODO: curve is not completely smooth, should we take care of it?
+#    data = { 5: 1, 11: 1, 13: 11, 15: 1, 19:1 }
+#    tests = [ [7, 14] ]
+    data = { 50: -0.448589841, 80: 0.005068112, 110:0.386954047, 120:0.390755277, 130: 1.468537330, 150: 0.214829568, 190:-0.7266196521 }
+    tests = [ [90, 140],  # Good
+              [90, 160],  # No pts after
+              [70, 140],  # No pts before
+              [80, 150] ] # Risky
     for test in tests:
-        print(generate_orbit(data, *test))
+        for x,y in generate_orbit(data, *test):
+            print(x,y)
