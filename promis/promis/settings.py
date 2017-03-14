@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'promis.wsgi.application'
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
-    
+
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -140,5 +140,5 @@ LOCALE_PATHS = (
 )
 
 # Swagger stuff
-SWAGGER_SCHEMA = '../promis.yml'
+SWAGGER_SCHEMA = os.environ['YML_PATH']+'/promis_api.yaml'
 SWAGGER_CONTROLLER = 'backend_api.promis'
