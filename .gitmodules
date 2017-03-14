@@ -10,3 +10,6 @@
 	path = repos/promis-testing
 	url = https://github.com/IonosatMicro/promis-testing.git
 	ignore = dirty
+[submodule "repos/ionosat-docs"]
+	path = repos/ionosat-docs
+	url = https://github.com/IonosatMicro/ionosat-docs.git
