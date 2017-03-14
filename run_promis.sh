@@ -15,7 +15,7 @@ if User.objects.filter(username=username).count()==0:
 else:
     print('Superuser creation skipped.');
 "
-printf "$script" | python manage.py shell
+printf "$script" | python $PROMIS_DIR/promis/manage.py shell
 
 # Migrate data if needed
 python $PROMIS_DIR/promis/manage.py makemigrations backend_api
