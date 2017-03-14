@@ -25,6 +25,7 @@
     DJANGO_SUPEREMAIL:  ${conf.django_superemail}
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
+    YML_PATH:           ${conf.yml_api_dir}
 
 - name:   ${conf.hostname_web}
   build:  ${conf.dir_web}
