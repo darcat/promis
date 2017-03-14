@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'backend_api',
-    'rest_framework'
+    'rest_framework',
+    'djsw_wrapper.apps.djswconfig'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -138,3 +139,6 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
+# Swagger stuff
+SWAGGER_SCHEMA = '../promis.yml'
+SWAGGER_CONTROLLER = 'promis'
