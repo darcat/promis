@@ -141,4 +141,4 @@ LOCALE_PATHS = (
 
 # Swagger stuff
 SWAGGER_SCHEMA = '../promis.yml'
-SWAGGER_CONTROLLER = 'promis'
+SWAGGER_CONTROLLER = 'backend_api.promis'
