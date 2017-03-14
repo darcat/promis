@@ -114,23 +114,21 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
             if last_pts != anchor[l]:
                 last_pts = anchor[l]
                 # Shifting all the time values by orbit_start to prevent overflows
-                v = [ pt for pt in map(lambda x: x - orbit_start, anchor[l]) ]
+                v = [ pt for pt in (x - orbit_start for x in anchor[l]) ]
                 # Source points and components
                 src_cmps = [ [ pt[i] for pt in (datapoints[z] for z in anchor[l]) ] for i in range(2) ] # NOTE: hardcode
+                # If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
+                if any(180 < abs(src_cmps[0][x] - src_cmps[0][y]) for x in range(4) for y in range(4) if x<y):
+                    src_cmps[0] = [ v + 360 if v < 0 else v for v in src_cmps[0] ]
                 # Generating the cubic functions
                 f = [ util.cubefit.cubic_fit(v, cmp) for cmp in src_cmps ]
-            res_pts = OrbitPoint(*( f[i](t - orbit_start) for i in range(2) ))
-            return res_pts
+
+            res_vals = [ f[i](t - orbit_start) for i in range(2) ]
+            # Making sure longitude fits
+            res_vals[0] = ( res_vals[0] + 180 ) % 360 - 180
+            return OrbitPoint(*res_vals)
 
         yield j, datapoints[j] if j in datapoints else predict(j), False if j in datapoints else True
-
-        ## If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
-        #if j==2:
-            #if any(180 < abs(vals[x] - vals[y]) for x in range(4) for y in range(4) if x<y):
-                #vals = [ v + 360 if v < 0 else v for v in vals ]
-
-                        #cube_fun(i-1,l) if i != 2 else (cube_fun(i-1,l) + 180) % 360 - 180 # Making sure longitude fits
-        
 
 
     ## Second pass, trying to fill the gaps at the end
