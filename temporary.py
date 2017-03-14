@@ -135,6 +135,8 @@ def guess_duration(n, freq):
     """
     return 60*round(n/(freq*60))
 
+print("daydir, t, lon, lat, est")
+
 # Testing code below, will be removed
 # TODO: split to functions
 with FTP("promis.ikd.kiev.ua") as ftp:
@@ -210,12 +212,8 @@ with FTP("promis.ikd.kiev.ua") as ftp:
                         ftp.retrlines("RETR " + mvfile[0], lambda x: fp.write(x + "\n"))
                         fp.seek(0)
                         data = { k:v for k,v in setfile_vars(fp, {"t", "samp"}) }
-                        # print(daydir)
-                        # print(data["t"], data["t"] + guess_duration(data["samp"], freqs[freq]), guess_duration(data["samp"], freqs[freq]))
-                        # print(min(orbit.keys()), max(orbit.keys()))
-                        # print(min(orbit.keys()) <= data["t"] <= max(orbit.keys()))
-                        # print(min(orbit.keys()) <=(  data["t"] +  guess_duration(data["samp"], freqs[freq]) )<= max(orbit.keys()))
-                        # print("===")
+                        for x,y, est in util.orbit.generate_orbit(orbit, data["t"], data["t"] + guess_duration(data["samp"], freqs[freq])):
+                            print("%s, %d, %f, %f, %d" % (daydir, x, y.lon, y.lat, int(est)))
 
                     ftp.cwd("..")
                 except error_perm:

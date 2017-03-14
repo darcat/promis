@@ -23,7 +23,7 @@
 import math
 import collections
 import operator
-import cubefit
+import util.cubefit
 
 def sign(x):
     """Returns 1 for non-negative arguments and -1 otherwise."""
@@ -104,21 +104,34 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
 
     # Pass 3: Yielding values we know and generating values we don't
     for j in range(orbit_start, orbit_end + 1):
-        f, lastpts = None, None
+        f, last_pts = None, None
 
         # NOTE: has side effects
         def predict(t):
-            nonlocal f, lastpts
+            nonlocal f, last_pts
             # Check if we need the same points that we computed before
             l = j - orbit_start
-            if lastpts != anchor[l]:
-                lastpts = anchor[l]
+            if last_pts != anchor[l]:
+                last_pts = anchor[l]
                 # Shifting all the time values by orbit_start to prevent overflows
                 v = [ pt for pt in map(lambda x: x - orbit_start, anchor[l]) ]
-                f = cubefit.cubic_fit(v, [datapoints[z] for z in anchor[l]])
-            return f(t - orbit_start)
+                # Source points and components
+                src_cmps = [ [ pt[i] for pt in (datapoints[z] for z in anchor[l]) ] for i in range(2) ] # NOTE: hardcode
+                # Generating the cubic functions
+                f = [ util.cubefit.cubic_fit(v, cmp) for cmp in src_cmps ]
+            res_pts = OrbitPoint(*( f[i](t - orbit_start) for i in range(2) ))
+            return res_pts
 
-        yield j, datapoints[j] if j in datapoints else predict(j)
+        yield j, datapoints[j] if j in datapoints else predict(j), False if j in datapoints else True
+
+        ## If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
+        #if j==2:
+            #if any(180 < abs(vals[x] - vals[y]) for x in range(4) for y in range(4) if x<y):
+                #vals = [ v + 360 if v < 0 else v for v in vals ]
+
+                        #cube_fun(i-1,l) if i != 2 else (cube_fun(i-1,l) + 180) % 360 - 180 # Making sure longitude fits
+        
+
 
     ## Second pass, trying to fill the gaps at the end
     #for k in [-1, 1]:
@@ -168,21 +181,15 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
             #for j in range(1,4):
                 ## Combinig t with component values
                 #vals = [ datapoints[time_start + i][j] for i in pts ]
-                ## If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
-                #if j==2:
-                    #if any(180 < abs(vals[x] - vals[y]) for x in range(4) for y in range(4) if x<y):
-                        #vals = [ v + 360 if v < 0 else v for v in vals ]
                 #K[j-1] = cubic_fit([x for x in zip(pts,vals)])
 
         ## Everything is set up, we can calculate the curve now
         #return tuple(t if i == 0 else # Pass t unchanged
-                        #cube_fun(i-1,l) if i != 2 else (cube_fun(i-1,l) + 180) % 360 - 180 # Making sure longitude fits
                             #for i in range(4))
 
     ## Iterate over all the time period and yield the values stored or the estimates if they are missing
     #for t in range(time_start, time_end + 1): # TODO: remove tuple nesting if we don't care which points are estimated
         #yield (datapoints[t], 0) if t in datapoints else (orbit_predict(t), 1)
-
 
 def orbit_slice(orbit, start, duration=None, end=None):
     """Cut a part of the orbit corresponding to the given time interval.
@@ -210,16 +217,14 @@ def orbit_slice(orbit, start, duration=None, end=None):
     return orbit[offset, offset + duration]
 
 # Self-testing
-if __name__ == "__main__":
-    # TODO: completely open ends
-    # TODO: curve is not completely smooth, should we take care of it?
-#    data = { 5: 1, 11: 1, 13: 11, 15: 1, 19:1 }
-#    tests = [ [7, 14] ]
-    data = { 50: -0.448589841, 80: 0.005068112, 110:0.386954047, 120:0.390755277, 130: 1.468537330, 150: 0.214829568, 190:-0.7266196521 }
-    tests = [ [90, 140],  # Good
-              [90, 160],  # No pts after
-              [70, 140],  # No pts before
-              [80, 150] ] # Risky
-    for test in tests:
-        for x,y in generate_orbit(data, *test):
-            print(x,y)
+# if __name__ == "__main__":
+#     # TODO: completely open ends
+#     # TODO: curve is not completely smooth, should we take care of it?
+#     data = { 50: -0.448589841, 80: 0.005068112, 110:0.386954047, 120:0.390755277, 130: 1.468537330, 150: 0.214829568, 190:-0.7266196521 }
+#     tests = [ [90, 140],  # Good
+#               [90, 160],  # No pts after
+#               [70, 140],  # No pts before
+#               [80, 150] ] # Risky
+#     for test in tests:
+#         for x,y in generate_orbit(data, *test):
+#             print(x,y)
