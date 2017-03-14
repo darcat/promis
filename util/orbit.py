@@ -45,16 +45,48 @@ def cord_conv(RX, RY, RZ, **kwargs):
     return OrbitPoint(rad2deg(rho), rad2deg(phi))
 
 # Generating an orbit point every 1 second, discarding extra point and filling the gaps
-# TODO: cut the oribit into multiple sections depending on the actual data
-# (i.e. no track when no device was on in first place)
-#def generate_orbit(datapoints):
-    #time_start, time_end = min(datapoints.keys()), max(datapoints.keys())
-    #time_dur = time_end - time_start
+def generate_orbit(datapoints, orbit_start, orbit_end):
+    datakeys = datapoints.keys()
+    time_start, time_end = min(datakeys), max(datakeys)
+    orbit_len = orbit_end - orbit_start
 
-    ## Anchor points from which the curve is deduced
-    ## anchor[t][0] returns the 2 known points before t, anchor[t][1] does same to points after t
-    ## TODO: more elegant iteration
-    #anchor = [ [ None for _ in range(2) ] for _ in range(time_dur + 1 ) ]
+    assert(orbit_end <= time_end and orbit_start >= time_start)
+
+    # Anchor points from which the curve is deduced
+    # anchor[t] is a list of 4 known timepoints: 2 before t + 2 after t if possible
+    anchor =  [ [] ] * (orbit_len + 1)
+
+    # Pass 1: Picking up 2 the closest points before the start of the orbit
+    # and 2 after the start
+    # TODO: corner case "no points before"
+    # TODO: corner case "no points after" (yes, here too)
+    i = orbit_start
+    while len(anchor[0]) < 2:
+        if i in datakeys:
+            anchor[0].insert(0, i)
+        i -= 1
+
+    i = orbit_start + 1
+    while len(anchor[0]) < 4:
+        if i in datakeys:
+            anchor[0].append(i)
+        i += 1
+
+    # Pass 2: Copying the anchor over as long as no new points are encountered
+    # If we do encounter a new point, shift the list to the left and add it
+    # TODO: corner case "no points after"
+    # TODO: corner case "no points before" (counter decrement)
+    last_anchor = 0
+    for j in range(orbit_start, orbit_end + 1):
+        if anchor[last_anchor][1] < j < anchor[last_anchor][2]:
+            anchor[j - orbit_start] = anchor[last_anchor]
+        else:
+            while i not in datapoints:
+                i += 1
+            anchor[j - orbit_start] = anchor[last_anchor][1:4] + [i]
+            last_anchor = j - orbit_start
+            i += 1
+
     #for k in range(2):
       #lastpts = []
       #for i in range(time_dur + 1 ):
@@ -69,6 +101,8 @@ def cord_conv(RX, RY, RZ, **kwargs):
           ## TODO: we assume that for every gap we do have points before and after to estimate the curve
           ## TODO: fix this
           #anchor[l][k] = tuple(lastpts)
+
+    return anchor
 
     ## Second pass, trying to fill the gaps at the end
     #for k in [-1, 1]:
@@ -136,25 +170,37 @@ def cord_conv(RX, RY, RZ, **kwargs):
 
 def orbit_slice(orbit, start, duration=None, end=None):
     """Cut a part of the orbit corresponding to the given time interval.
-    
+
     Orbit is assumed to have 1 Hz discretization and continous.
-    
+
     Arguments:
     orbit       -- the list of (t, y) tuples where t is time and y is an aggregate type of actual positional values.
     start       -- the lower bound of the time interval requested, sec.
     end         -- the upper bound of the time interval requested, sec; mutually exclusive with duration.
     duration    -- the duration of the time interval requested, sec; mutually exclusive with end.
-    
+
     """
     assert(operator.xor(bool(end), bool(duration)))
-           
+
     if not end:
         end = start + duration
     else:
         duration = start - end
-        
+
     if orbit[0][0] > start or orbit[-1][0] < end:
         raise ValueError("Time interval requested is outside of the orbit given")
-    
+
     offset = start - orbit[0][0]
     return orbit[offset, offset + duration]
+
+# Self-testing
+if __name__ == "__main__":
+    # TODO: completely open ends
+    data = { 5: -0.448589841, 8: 0.005068112, 11:0.386954047,  12:0.390755277, 13: 1.468537330, 15: 0.214829568, 19:-0.7266196521 }
+    tests = [ [9, 14],  # Good
+              [8, 15],  # Risky
+              [7, 14],  # No pts before
+              [9, 16] ] # No pts after
+    for test in tests:
+        print(generate_orbit(data, *test))
+        break
