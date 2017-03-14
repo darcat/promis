@@ -8,7 +8,6 @@ from jsonfield import JSONField
 from django.contrib.gis.db.models import LineStringField
 from hvad.models import TranslatableModel, TranslatedFields
 
-# Create your models here.
 
 class Session(models.Model):
     time_begin = DateTimeField()
@@ -19,6 +18,7 @@ class Session(models.Model):
 
     class Meta:
         db_table = "sessions" 
+
 
 class Space_project(TranslatableModel):
     date_start = DateField()
@@ -34,10 +34,9 @@ class Space_project(TranslatableModel):
         verbose_name = "Space project"
         verbose_name_plural = "Space projects"
 
-
-
     def __str__(self):
-        return self.name.text
+        return self.name
+
 
 class Device(TranslatableModel):
     satellite = ForeignKey('Space_project')
@@ -51,7 +50,7 @@ class Device(TranslatableModel):
         db_table = "devices"
 
     def __str__(self):
-        return self.name.text
+        return self.name
 
 
 class Function(TranslatableModel):
@@ -65,7 +64,8 @@ class Function(TranslatableModel):
         db_table = "functions"
 
     def __str__(self):
-        return self.description.text
+        return self.description
+
 
 class Channel(TranslatableModel):
     device = ForeignKey('Device')
@@ -81,7 +81,7 @@ class Channel(TranslatableModel):
         db_table = "channels"
 
     def __str__(self):
-        return self.name.text
+        return self.name
 
 
 class Unit(TranslatableModel):
@@ -92,6 +92,7 @@ class Unit(TranslatableModel):
     
     class Meta:
         db_table = "units"
+
 
 class Value(TranslatableModel):
     short_name = CharField(max_length=100)
@@ -106,7 +107,7 @@ class Value(TranslatableModel):
         db_table = "values"
         
     def __str__(self):
-        return self.name.text
+        return self.name
 
 
 class Parameter(TranslatableModel):
@@ -125,7 +126,8 @@ class Parameter(TranslatableModel):
         db_table = "parameters"    
 
     def __str__(self):
-        return self.name.text
+        return self.name
+
 
 class Document(models.Model):
     last_mod = DateTimeField(auto_now_add = True)
@@ -133,6 +135,7 @@ class Document(models.Model):
     
     class Meta:
         db_table = "documents"
+
 
 class Measurement(models.Model):
     session = ForeignKey('Session')
