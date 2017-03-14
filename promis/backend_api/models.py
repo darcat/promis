@@ -93,6 +93,9 @@ class Unit(TranslatableModel):
     class Meta:
         db_table = "units"
 
+    def __str__(self):
+        return self.long_name
+
 
 class Value(TranslatableModel):
     short_name = CharField(max_length=100)
