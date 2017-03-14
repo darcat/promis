@@ -166,6 +166,10 @@ with FTP("promis.ikd.kiev.ua") as ftp:
         if daydir == "20120130":
             continue
 
+        # TODO: shizo orbit, very large gap at the end of measurement
+        if daydir == "20120715":
+            continue
+
         # TODO: check that directory exists properly
         ftp.cwd("{0}/pdata{0}".format(daydir))
         # Fetching orbit telemetry data
