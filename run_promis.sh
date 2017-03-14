@@ -6,7 +6,7 @@ python $PROMIS_DIR/promis/manage.py makemigrations backend_api
 python $PROMIS_DIR/promis/manage.py migrate
 
 # Create superuser if needed
-cat $PROMIS_DIR/promis/create_superuser.py | python $PROMIS_DIR/promis/manage.py shell
+python $PROMIS_DIR/promis/manage.py batch_create_superuser
 
 # Generate a diagram for the frontend
 python $PROMIS_DIR/promis/manage.py graph_models -a > $SYNC_DIR/model.dot
