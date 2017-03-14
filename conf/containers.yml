@@ -13,6 +13,7 @@
   depend:   [ "${conf.hostname_db}" ]
   sync:
     - [ "sync/", "${conf.sync_api_dir}" ]
+    - [ "repos/ionosat-docs", "${conf.yml_api_dir}" ]
   env:
     # NOTE: libpq docu says it's 'posgresql://': https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
     # TODO: echo special chars in the password maybe? low priority
@@ -33,6 +34,7 @@
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "${conf.ssl_prefix}"]
     - [ "sync/", "${conf.sync_web_dir}" ]
+    - [ "repos/ionosat-docs", "${conf.yml_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
   env:
     SERVERNAME_WEB:     ${conf.servername_web}
