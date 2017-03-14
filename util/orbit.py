@@ -106,10 +106,11 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
     for j in range(orbit_start, orbit_end + 1):
         def predict(t):
             # TODO: pre-compute
-            # TODO: substract orbit_start
             l = j - orbit_start
-            f = cubefit.cubic_fit(anchor[l], [datapoints[z] for z in anchor[l]])
-            return f(t)
+            # Shifting all the time values by orbit_start to prevent overflows
+            v = [ pt for pt in map(lambda x: x - orbit_start, anchor[l]) ]
+            f = cubefit.cubic_fit(v, [datapoints[z] for z in anchor[l]])
+            return f(t - orbit_start)
 
         yield j, datapoints[j] if j in datapoints else predict(j)
 
