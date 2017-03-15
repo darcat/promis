@@ -108,7 +108,7 @@ def chunks(l, n):
         yield l[i:i + n]
 
 ### Inserting data generated
-def insert_orbit(start_time, gen_func, data_func=None):
+def insert_orbit(satellite_id, start_time, gen_func, data_func=None):
     time = start_time
     for v in chunks(gen_func(), orbit_pts):
         new_time = time + orbit_pts * orbit_sec
@@ -116,7 +116,7 @@ def insert_orbit(start_time, gen_func, data_func=None):
         # TODO: orbit_code is defaulted to NULL
         # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
         id = getid("ses")
-        print("insert into sessions (id, time_begin, time_end, geo_line) values (%d, '%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (id, ctime(time), ctime(new_time),
+        print("insert into sessions (id, satellite_id, time_begin, time_end, geo_line) values (%d, %d, '%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (id, satellite_id,  ctime(time), ctime(new_time),
               ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
 
         # Generate some data
@@ -138,7 +138,6 @@ def insert_satellite(time_begin, time_end, names, descriptions):
     for i in range(2):
         print("insert into space_projects_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
     return id
-    # TODO: newly created id unused before sessions get the spacecraft id column
 
 def insert_device(names, descriptions, sat_id):
     id = getid("dev")
@@ -214,10 +213,10 @@ space_temp_id = insert_value([ "Space Temperature", "Космічна Темпе
 space_temp_param_id = insert_param( [ "Measured Space Temperature", "Виміри Космічної Температури" ], [ "What our satellite thinks the temperature is.", "Що наш супутник думає з приводу температури" ], space_temp_id, dummy_id, "", term_read_id, dummy_id)
 
 # Ready, steady, go!
-insert_orbit(heart_start, heart)
-insert_orbit(peace_start, circle)
-insert_orbit(lines_start, vline)
-insert_orbit(utick_start, uptick)
+insert_orbit(love_peace_id, heart_start, heart)
+insert_orbit(love_peace_id, peace_start, circle)
+insert_orbit(love_peace_id, lines_start, vline)
+insert_orbit(love_peace_id, utick_start, uptick)
 
 def gen_space_temp():
     freq = 100
@@ -225,4 +224,4 @@ def gen_space_temp():
     return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often
         for i in range(freq*orbit_sec) ] }, { "T": amps }
 
-insert_orbit(round_start, roundabout, gen_space_temp)
+insert_orbit(roundabout_id, round_start, roundabout, gen_space_temp)
