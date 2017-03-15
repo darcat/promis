@@ -5,11 +5,7 @@ django-extensions     # for graph models
 markdown
 django-filter
 jsonfield
-djsw_wrapper
+djsw_wrapper>=0.1.4
 drf-nested-routers
 dj-database-url
 django-hvad
-
-# remove after ErintLabs/django-openapi-gen#10 is fixed
-jinja2
-flex # really?
