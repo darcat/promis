@@ -19,9 +19,25 @@
 # permissions and limitations under the Licence.
 #
 from django.core.management.base import BaseCommand
+
 import functions
+import backend_api.models as model
+
+from pkgutil import walk_packages
+from importlib import import_module
+from inspect import getmembers, isfunction
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        print("test")
-        print(dir(functions))
+        # Iterating over the modules in "functions" package
+        for _, modname, _ in walk_packages(path=functions.__path__, prefix=functions.__name__+'.'):
+            # Picking up functions which have docstrings from the module
+            for f in (o for o in getmembers(import_module(modname)) if isfunction(o[1]) and o[1].__doc__):
+                fname = "%s.%s" % (modname, f[0])
+                descs = [ desc.strip() for desc in f[1].__doc__.split("===") ]
+                
+                # Creating an English version
+                obj = model.Function.objects.language('en').create(django_func = fname, description = descs[0])
+                obj.translate('uk')
+                obj.description = descs[1]
+                obj.save()
