@@ -132,13 +132,13 @@ paths:
           type: string
           required: true
 
-    responses:
-      200:
-        description: JSON data
-      default:
-        description: Error
-        schema:
-          $ref: '#/definitions/Error'
+      responses:
+        200:
+          description: JSON data
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/Error'
 
 definitions:
   Project:
