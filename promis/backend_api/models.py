@@ -26,7 +26,7 @@ class Space_project(TranslatableModel):
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
 
     class Meta:
@@ -43,7 +43,7 @@ class Device(TranslatableModel):
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -57,7 +57,7 @@ class Function(TranslatableModel):
     django_func = TextField()
 
     translations = TranslatedFields(
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -74,7 +74,7 @@ class Channel(TranslatableModel):
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -103,7 +103,7 @@ class Value(TranslatableModel):
     
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -122,7 +122,7 @@ class Parameter(TranslatableModel):
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
