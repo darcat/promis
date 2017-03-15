@@ -129,60 +129,58 @@ def insert_orbit(start_time, gen_func, data_func=None):
             insert_measure(id, par_id, chan_id, raw_doc_id, end_doc_id, freq, min_freq, max_freq)
 
         time = new_time
+        
+langs = ( 'en', 'uk' )
 
-# TODO: Translations table should to be constrained by ID, but rather by id-langcode pair
-def trans(s):
-    id = getid("trans")
-    print("insert into translations (id, langcode, text) values (%d, 'en', '%s');" % (id, s))
-    return id
-
-def insert_satellite(time_begin, time_end, name, description): # TODO: name-'s', plural
-    name_id = trans(name)
-    desc_id = trans(description)
+def insert_satellite(time_begin, time_end, names, descriptions):
     id = getid("sat")
-    print("insert into space_projects (id, date_start, date_end, name_id, description_id) values (%d, '%s', '%s', %d, %d);" % (id, dtime(time_begin), dtime(time_end), name_id, desc_id))
+    print("insert into space_projects (id, date_start, date_end) values (%d, '%s', '%s');" % (id, dtime(time_begin), dtime(time_end)))
+    for i in range(2):
+        print("insert into space_projects_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
     return id
     # TODO: newly created id unused before sessions get the spacecraft id column
 
-def insert_device(name, description, sat_id):
-    name_id = trans(name)
-    desc_id = trans(description)
+def insert_device(names, descriptions, sat_id):
     id = getid("dev")
-    print("insert into devices (id, name_id, description_id, satellite_id) values (%d, %d, %d, %d);" % (id, name_id, desc_id, sat_id ))
+    print("insert into devices (id, satellite_id) values (%d, %d);" % (id, sat_id ))
+    for i in range(2):
+        print("insert into devices_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
     return id
 
-def insert_function(description, func):
-    desc_id = trans(description)
+def insert_function(descriptions, func):
     id = getid("func")
-    print("insert into functions (id, description_id, django_func) values (%d, %d, '%s');" % (id, desc_id, func ))
+    print("insert into functions (id, django_func) values (%d, '%s');" % (id, func ))
+    for i in range(2):
+        print("insert into functions_translation (description, language_code, master_id) values ('%s', '%s', %d);" % (descriptions[i], langs[i], id))
     return id
 
-def insert_channel(name, description, dev_id, func_id):
-    name_id = trans(name)
-    desc_id = trans(description)
+def insert_channel(names, descriptions, dev_id, func_id):
     id = getid("chan")
-    print("insert into channels (id, name_id, description_id, device_id, quicklook_id) values (%d, %d, %d, %d, %d);" % (id, name_id, desc_id, dev_id, func_id))
+    print("insert into channels (id, device_id, quicklook_id) values (%d, %d, %d);" % (id, dev_id, func_id))
+    for i in range(2):
+        print("insert into channels_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
     return id
 
-def insert_unit(symbol, description):
-    sym_id = trans(symbol)
-    desc_id = trans(description)
+def insert_unit(symbols, descriptions):
     id = getid("unit")
-    print("insert into units (id, long_name_id, short_name_id) values (%d, %d, %d);" % (id, desc_id, sym_id))
+    print("insert into units (id) values (%d);" % (id))
+    for i in range(2):
+        print("insert into units_translation (short_name, long_name, language_code, master_id) values ('%s', '%s', '%s', %d);" % (symbols[i], descriptions[i], langs[i], id))
     return id
 
-def insert_value(name, description, short_name, unit_id):
-    name_id = trans(name)
-    desc_id = trans(description)
+def insert_value(names, descriptions, short_name, unit_id):
     id = getid("val")
-    print("insert into values (id, name_id, description_id, short_name, units_id) values (%d, %d, %d, '%s', %d);" % (id, name_id, desc_id, short_name, unit_id))
+    print("insert into values (id, short_name, units_id) values (%d, '%s', %d);" % (id, short_name, unit_id))
+    for i in range(2):
+        print("insert into values_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
     return id
 
-def insert_param(name, description, val_id, conv_id, conv_par, chan_id, func_id):
-    name_id = trans(name)
-    desc_id = trans(description)
+def insert_param(names, descriptions, val_id, conv_id, conv_par, chan_id, func_id):
     id = getid("param")
-    print("insert into parameters (id, name_id, description_id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, %d, %d, '%s', %d, %d);" % (id, name_id, desc_id, val_id, conv_id, conv_par, chan_id, func_id))
+    print("insert into parameters (id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, '%s', %d, %d);" % (id, val_id, conv_id, conv_par, chan_id, func_id))
+    for i in range(2):
+        print("insert into parameters_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
+
     return id
 
 def insert_doc(last_mod, payload):
@@ -199,21 +197,21 @@ def insert_measure(ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, 
 seed(random_seed)
 
 # Remove everything from premises, order is important not to break key constraints
-for i in [ "measurements", "parameters", "documents", "sessions", "channels", "values", "devices", "space_projects", "units", "functions", "translations" ]:
+for i in [ "measurements", "parameters_translation", "parameters", "documents", "sessions", "channels_translation", "channels", "values_translation", "values", "devices_translation", "devices", "space_projects_translation", "space_projects", "units_translation", "units", "functions_translation", "functions" ]:
     print("delete from %s;" % i)
 
 # TODO: Currently only one is inserted, and assmed to exist
-dummy_id = insert_function("Dummy function","nothing()")
+dummy_id = insert_function(["Dummy function","Порожня функція"],"none")
 
-love_peace_id = insert_satellite(heart_start, heart_start + (heart_pts+peace_pts+lines_pts*2)/orbit_sec, "Peace&Love","A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.")
-roundabout_id = insert_satellite(round_start, round_start + (round_pts)/orbit_sec, "Roundabout","A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.")
+love_peace_id = insert_satellite(heart_start, heart_start + (heart_pts+peace_pts+lines_pts*2)/orbit_sec, ["Peace&Love","Мир та Любов"],["A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.", "Супутник із вишуканою орбітою, що відтворює малюнки, які повернуть вам віру у людство."])
+roundabout_id = insert_satellite(round_start, round_start + (round_pts)/orbit_sec, [ "Roundabout", "Колобіг" ], [ "A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.", "Супутник, який з усих сил витворяє щось подібне до реальних супутників багато хвилин." ] )
 
 # Yes I know space doesn't work like that
-termometer_id = insert_device("Space Termometer", "Fictional device to measure random things.", roundabout_id)
-term_read_id = insert_channel("U","Termometer reading", termometer_id, dummy_id)
-kelvin_id = insert_unit("°K", "degrees Kelvin")
-space_temp_id = insert_value("Space Temperature", "Average temperature of something near the satellite for testing purpose.", "T", kelvin_id)
-space_temp_param_id = insert_param("Measured Space Temperature", "What our satellite thinks the temperature is.", space_temp_id, dummy_id, "", term_read_id, dummy_id)
+termometer_id = insert_device([ "Space Termometer", "Космічний Термометр" ], [ "Fictional device to measure random things.", "Видуманий пристрій який міряє випадкові речі" ], roundabout_id)
+term_read_id = insert_channel(["U","U"], [ "Termometer reading", "Покази термометру" ], termometer_id, dummy_id)
+kelvin_id = insert_unit(["°K", "°K"], [ "degrees Kelvin", "градуси Келвіна"])
+space_temp_id = insert_value([ "Space Temperature", "Космічна Температура" ], [ "Average temperature of something near the satellite for testing purpose.", "Середня температура чогось біля супутнику задля перевірки" ], "T", kelvin_id)
+space_temp_param_id = insert_param( [ "Measured Space Temperature", "Виміри Космічної Температури" ], [ "What our satellite thinks the temperature is.", "Що наш супутник думає з приводу температури" ], space_temp_id, dummy_id, "", term_read_id, dummy_id)
 
 # Ready, steady, go!
 insert_orbit(heart_start, heart)
