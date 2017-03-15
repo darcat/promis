@@ -5,6 +5,9 @@ PROMIS_DIR=`dirname $0`
 python $PROMIS_DIR/promis/manage.py makemigrations --no-input
 python $PROMIS_DIR/promis/manage.py migrate
 
+# Record the available functions
+python $PROMIS_DIR/promis/manage.py collect_functions
+
 # Create superuser if needed
 python $PROMIS_DIR/promis/manage.py batch_create_superuser
 

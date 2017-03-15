@@ -34,10 +34,17 @@ class Command(BaseCommand):
             # Picking up functions which have docstrings from the module
             for f in (o for o in getmembers(import_module(modname)) if isfunction(o[1]) and o[1].__doc__):
                 fname = "%s.%s" % (modname, f[0])
-                descs = [ desc.strip() for desc in f[1].__doc__.split("===") ]
                 
-                # Creating an English version
-                obj = model.Function.objects.language('en').create(django_func = fname, description = descs[0])
-                obj.translate('uk')
-                obj.description = descs[1]
-                obj.save()
+                # Only adding a new object if there is nothing like that in the database
+                if model.Function.objects.filter(django_func=fname).count() == 0:
+                    print("=> New function: '%s'" % fname)
+                    # TODO: better flexibility at the division between the languages
+                    # i.e. smth like """en: English description uk: Український опис"""
+                    descs = [ desc.strip() for desc in f[1].__doc__.split("===") ]
+                    
+                    # Creating an English version
+                    obj = model.Function.objects.language('en').create(django_func = fname, description = descs[0])
+                    # Adding an Ukrainian translation
+                    obj.translate('uk')
+                    obj.description = descs[1]
+                    obj.save()
