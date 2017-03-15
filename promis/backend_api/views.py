@@ -16,47 +16,42 @@ from rest_framework.views import APIView
 import json
 
 class SessionsViewSet(viewsets.ModelViewSet):
-    queryset = models.Sessions.objects.all()
+    queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer
     
-class TranslationsViewSet(viewsets.ModelViewSet):
-    queryset = models.Translations.objects.all()
-    serializer_class = serializer.TranslationsSerializer
-    
 class SpaceProjectsViewSet(viewsets.ModelViewSet):
-    queryset = models.Space_projects.objects.all()
+    queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
     
 class DevicesViewSet(viewsets.ModelViewSet):
-    queryset = models.Devices.objects.all()
+    queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
     
 class FunctionsViewSet(viewsets.ModelViewSet):
-    queryset = models.Functions.objects.all()
+    queryset = models.Function.objects.all()
     serializer_class = serializer.FunctionsSerializer
     
 class ChannelsViewSet(viewsets.ModelViewSet):
-    queryset = models.Channels.objects.all()
+    queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
     
 class UnitsViewSet(viewsets.ModelViewSet):
-    queryset = models.Units.objects.all()
+    queryset = models.Unit.objects.all()
     serializer_class = serializer.UnitsSerializer
     
 class ValuesViewSet(viewsets.ModelViewSet):
-    queryset = models.Values.objects.all()
+    queryset = models.Value.objects.all()
     serializer_class = serializer.ValuesSerializer
     
 class ParametersViewSet(viewsets.ModelViewSet):
-    queryset = models.Parameters.objects.all()
+    queryset = models.Parameter.objects.all()
     serializer_class = serializer.ParametersSerializer
     
 class DocumentsViewSet(viewsets.ModelViewSet):
-    queryset = models.Documents.objects.all()
+    queryset = models.Document.objects.all()
     serializer_class = serializer.DocumentsSerializer
     
 class MeasurementsViewSet(viewsets.ModelViewSet):
-    queryset = models.Measurements.objects.all()
+    queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-
     

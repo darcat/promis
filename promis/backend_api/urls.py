@@ -7,7 +7,6 @@ from rest_framework_nested import routers
 router = DefaultRouter()
 
 router.register(r'Session', views.SessionsViewSet)
-router.register(r'Translations', views.TranslationsViewSet)
 router.register(r'Project', views.SpaceProjectsViewSet)
 router.register(r'Device', views.DevicesViewSet)
 router.register(r'Functions', views.FunctionsViewSet)

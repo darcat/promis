@@ -3,58 +3,54 @@ from backend_api import models
 
 from rest_framework.fields import ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
+from hvad.contrib.restframework import TranslatableModelSerializer
 
 class SessionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Sessions
-        fields = ('__all__')
-        
-class TranslationsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Translations
+        model = models.Session
         fields = ('__all__')
 
-class SpaceProjectsSerializer(serializers.ModelSerializer):
+class SpaceProjectsSerializer(TranslatableModelSerializer):
     class Meta:
-        model = models.Space_projects
+        model = models.Space_project
         fields = ('__all__')
         
-class DevicesSerializer(serializers.ModelSerializer):
+class DevicesSerializer(TranslatableModelSerializer):
     class Meta:
-        model = models.Devices
+        model = models.Device
         fields = ('__all__')
         
-class FunctionsSerializer(serializers.ModelSerializer):
+class FunctionsSerializer(TranslatableModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Functions
+        model = models.Function
         
-class ChannelsSerializer(serializers.ModelSerializer):
+class ChannelsSerializer(TranslatableModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Channels
+        model = models.Channel
         
-class UnitsSerializer(serializers.ModelSerializer):
+class UnitsSerializer(TranslatableModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Units
+        model = models.Unit
         
-class ValuesSerializer(serializers.ModelSerializer):
+class ValuesSerializer(TranslatableModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Values
+        model = models.Value
         
-class ParametersSerializer(serializers.ModelSerializer):
+class ParametersSerializer(TranslatableModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Parameters
+        model = models.Parameter
         
 class DocumentsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Documents
+        model = models.Document
 
 class MeasurementsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('__all__')
-        model = models.Measurements
+        model = models.Measurement
