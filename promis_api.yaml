@@ -75,12 +75,29 @@ paths:
         This endpoint allows to get info about available sessions of a satellite (when it was able to gather the data)
       tags:
         - Measurements
+        - Sessions
       parameters:
         - name: project_id
           in: query
           description: Project ID to query its sessions for
           required: true
           type: integer
+        - name: fromtime
+          in: query
+          description: From time
+          type: string
+          required: true
+        - name: totime
+          in: query
+          description: To time
+          type: string
+          required: true
+        - name: polygon
+          description: Geo polygon with desired search area
+          in: query
+          type: string
+          required: true
+
       responses:
         200:
           description: An array of available sessions
@@ -94,6 +111,46 @@ paths:
             $ref: '#/definitions/Error'
 
   # more measurement-related endpoints to be added here...
+  /measurements/:
+    x-swagger-router-controller: MeasurementsView
+    get:
+      summary: Measurements
+      description: |
+        Get all measurements
+      tags:
+        - Measurements
+      parameters:
+        - name: session
+          description: Desired session ID
+          in: query
+          type: integer
+          required: false
+        - name: parameter
+          description: Desired parameter IDs
+          type: array
+          in: query
+          items:
+            type: integer
+        - name: channel
+          description: Desired channel IDs
+          type: array
+          in: query
+          items:
+            type: integer
+        - name: minfreq
+          type: integer
+          in: query
+        - name: maxfreq
+          type: integer
+          in: query
+
+      responses:
+        200:
+          description: An array of measurements
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Measurement'
 
   /quicklook/{hash}:
     x-swagger-router-controller: QuicklookView
@@ -173,13 +230,31 @@ definitions:
     type: object
     properties:
       id:
-        type: number
+        type: integer
         description: Unique session ID
+      project:
+        type: integer
+        description: Related project ID
       orbit:
         type: number
         description: Orbit representation
+      geoline:
+        type: string
+        description: Where data has been measured
+      measurements:
+        type: array # api links to measurement instances
+        description: Available measurements for this session
+        items:
+          type: string
       time:
         $ref: '#/definitions/Time'
+
+  Measurement:
+    type: object
+    properties:
+      url:
+        description: API URL to certain Measurement
+        type: string
 
   Quicklook:
     type: object
