@@ -26,7 +26,7 @@ class Space_project(TranslatableModel):
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
 
     class Meta:
@@ -43,7 +43,7 @@ class Device(TranslatableModel):
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -57,7 +57,7 @@ class Function(TranslatableModel):
     django_func = TextField()
 
     translations = TranslatedFields(
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -69,12 +69,12 @@ class Function(TranslatableModel):
 
 class Channel(TranslatableModel):
     device = ForeignKey('Device')
-    quicklook = ForeignKey('Function', null = True)
-    parser_func = ForeignKey('Function', related_name = 'parser_func', null = True)
+    quicklook = ForeignKey('Function', blank=True, null=True)
+    parser_func = ForeignKey('Function', related_name = 'parser_func', blank=True, null=True)
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -103,7 +103,7 @@ class Value(TranslatableModel):
     
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
@@ -115,14 +115,14 @@ class Value(TranslatableModel):
 
 class Parameter(TranslatableModel):
     value = ForeignKey('Value')
-    conversion = ForeignKey('Function', related_name = 'par_conv')
-    conversion_params = TextField()
+    conversion = ForeignKey('Function', related_name = 'par_conv', blank=True, null=True)
+    conversion_params = TextField(blank = True)
     channel = ForeignKey('Channel')
-    quicklook = ForeignKey('Function', related_name = 'par_ql')
+    quicklook = ForeignKey('Function', related_name = 'par_ql', blank=True, null=True)
 
     translations = TranslatedFields(
         name = TextField(),
-        description = TextField()
+        description = TextField(blank = True)
         )
     
     class Meta:
