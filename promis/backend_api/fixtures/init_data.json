@@ -1,0 +1,284 @@
+[
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Potential",
+        "description": "Space scientific ionospheric experiment on board Ukrainian satellite Sich-2",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u041f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b",
+        "description": "\u041d\u0430\u0443\u043a\u043e\u0432\u0438\u0439 \u0456\u043e\u043d\u043e\u0441\u0444\u0435\u0440\u043d\u0438\u0439 \u043a\u043e\u0441\u043c\u0456\u0447\u043d\u0438\u0439 \u0435\u043a\u0441\u043f\u0435\u0440\u0438\u043c\u0435\u043d\u0442 \u043d\u0430 \u0431\u043e\u0440\u0442\u0443 \u0443\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u043e\u0433\u043e \u043c\u0456\u043a\u0440\u043e\u0441\u0443\u043f\u0443\u0442\u043d\u0438\u043a\u0430 \"\u0421\u0456\u0447-2\"",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.space_project",
+    "pk": 1,
+    "fields": {
+        "date_start": "2011-08-30",
+        "date_end": "2012-11-01"
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Electric probe EZ",
+        "description": "",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u0415\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u0438\u0439 \u0437\u043e\u043d\u0434 EZ",
+        "description": "",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 3,
+    "fields": {
+        "name": "Neutral gase parameters sensor NCP",
+        "description": "This device has as output the current-voltage characteristics from which ITM team can obtain a neutral gas density and a pressure",
+        "language_code": "en",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 4,
+    "fields": {
+        "name": "\u0414\u0430\u0442\u0447\u0438\u043a \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0456\u0432 \u043d\u0435\u0439\u0442\u0440\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u0433\u0430\u0437\u0443 \u041d\u041a\u041f",
+        "description": "",
+        "language_code": "uk",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 5,
+    "fields": {
+        "name": "Plasma parameters sensor ECP",
+        "description": "This device has as output the current-voltage characteristics from which ITM team can obtain a plasma density and an electron temperature",
+        "language_code": "en",
+        "master": 3
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 6,
+    "fields": {
+        "name": "\u0414\u0430\u0442\u0447\u0438\u043a \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0456\u0432 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u043e\u0457 \u043a\u043e\u043c\u043f\u043e\u043d\u0435\u043d\u0442\u0438 \u043f\u043b\u0430\u0437\u043c\u0438 \u0415\u041a\u041f",
+        "description": "",
+        "language_code": "uk",
+        "master": 3
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 1,
+    "fields": {
+        "satellite": 1
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 2,
+    "fields": {
+        "satellite": 1
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 3,
+    "fields": {
+        "satellite": 1
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 1,
+    "fields": {
+        "name": "EZ low-frequency channel",
+        "description": "Low-frequency channel of electric potential measurement (1Hz)",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 2,
+    "fields": {
+        "name": "EZ \u043d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b",
+        "description": "\u041d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f  (1 \u0413\u0446)",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 3,
+    "fields": {
+        "name": "EZ High-frequency channel",
+        "description": "High-frequency channel of electric potential measurement (1kHz)",
+        "language_code": "en",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 4,
+    "fields": {
+        "name": "EZ \u0432\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b",
+        "description": "\u0412\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f  (1 \u043a\u0413\u0446)",
+        "language_code": "uk",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.channel",
+    "pk": 1,
+    "fields": {
+        "device": 1,
+        "quicklook": null,
+        "parser_func": null
+    }
+},
+{
+    "model": "backend_api.channel",
+    "pk": 2,
+    "fields": {
+        "device": 1,
+        "quicklook": null,
+        "parser_func": null
+    }
+},
+{
+    "model": "backend_api.unittranslation",
+    "pk": 1,
+    "fields": {
+        "short_name": "V",
+        "long_name": "Volts",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.unittranslation",
+    "pk": 2,
+    "fields": {
+        "short_name": "\u0412",
+        "long_name": "\u0412\u043e\u043b\u044c\u0442\u0438",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.unit",
+    "pk": 1,
+    "fields": {}
+},
+{
+    "model": "backend_api.valuetranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Electric potential",
+        "description": "Electric field potential",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.valuetranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u041f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f",
+        "description": "",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.value",
+    "pk": 1,
+    "fields": {
+        "short_name": "Ve",
+        "units": 1
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Electric potential low-frequency",
+        "description": "Electric potential low-frequency (Fs = 1Hz)",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u041d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443",
+        "description": "\u041d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 (Fs = 1 \u0413\u0446)",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 3,
+    "fields": {
+        "name": "\u0412\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443",
+        "description": "\u0412\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 (Fs = 1 \u043a\u0413\u0446)",
+        "language_code": "uk",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 4,
+    "fields": {
+        "name": "Electric potential high-frequency",
+        "description": "Electric potential high-frequency (Fs = 1 kHz)",
+        "language_code": "en",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.parameter",
+    "pk": 1,
+    "fields": {
+        "value": 1,
+        "conversion": null,
+        "conversion_params": "",
+        "channel": 1,
+        "quicklook": null
+    }
+},
+{
+    "model": "backend_api.parameter",
+    "pk": 2,
+    "fields": {
+        "value": 1,
+        "conversion": null,
+        "conversion_params": "",
+        "channel": 2,
+        "quicklook": null
+    }
+}
+]
