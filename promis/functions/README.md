@@ -4,6 +4,8 @@ Every function from `functions.` package with a docstring will be recorded into 
 
 ## Syntax reference
 
+**TODO** should we rather have one function instead which returns 2 function objects?
+
 ### Checking for updates
 
 `def check(satellite_object)`
