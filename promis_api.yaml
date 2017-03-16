@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: PROMIS API
   description: Development version, a subject to change
-  version: "1.0.0"
+  version: "0.1.0"
 
 # the domain of the service
 # (to be changed by deploy?)
@@ -41,6 +41,7 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+
   /devices:
     x-swagger-router-controller: DevicesView
     get:
@@ -49,7 +50,7 @@ paths:
         The Sattelite Devices endpoint returns a list of available devices
         installed on the specific satellite (used in particular space project).
       tags:
-        - Projects
+        - Devices
       parameters:
         - name: project_id
           in: query
@@ -67,6 +68,41 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+
+  /channels:
+    x-swagger-router-controller: ChannelsView
+    get:
+      summary: Satellite channels
+      description: |
+        The Sattelite Channels endpoint returns a list of available channels
+        related to some specific parameters
+      tags:
+        - Channels
+      parameters:
+        - name: project_id
+          in: query
+          description: Project ID to query its satellite channels for
+          required: true
+          type: integer
+      responses:
+        200:
+          description: An array of available channels
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Channel'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+
+  #/parameters:
+    #x-swagger-router-controller: ParametersView
+    #get:
+     # summary: Measurement parameters
+      #description: 
+      
   /sessions:
     x-swagger-router-controller: SessionsView
     get:
@@ -152,7 +188,7 @@ paths:
             items:
               $ref: '#/definitions/Measurement'
 
-  /quicklook/{hash}:
+  /quicklook/{id}:
     x-swagger-router-controller: QuicklookView
     get:
       summary: Get a quicklook of data
@@ -161,7 +197,7 @@ paths:
       tags:
         - Measurements
       parameters:
-        - name: hash
+        - name: id
           in: path
           type: string
           required: true
@@ -176,7 +212,32 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  /download/{hash}:
+  /download/{id}:
+    x-swagger-router-controller: DownloadView
+    get:
+      summary: Download data
+      description: |
+        This endpoint allows to get a quicklook of certain data measurement.
+      tags:
+        - Measurements
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: Quicklook data
+          schema:
+            $ref: '#/definitions/Quicklook'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  # testing
+  /data/{id}/{action}:
     x-swagger-router-controller: DownloadData
     get:
       summary: Download data
@@ -184,10 +245,17 @@ paths:
       tags:
         - Measurements
       parameters:
-        - name: hash
+        - name: id
           in: path
           type: string
           required: true
+        - name: action
+          in: path
+          type: string
+          required: true
+          enum:
+            - download
+            - quicklook
 
       responses:
         200:
@@ -197,6 +265,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+# return objects
 definitions:
   Project:
     type: object
@@ -225,6 +294,30 @@ definitions:
       desc:
         type: string
         description: Detailed info about the device
+      channels:
+        type: array
+        items:
+          type: string
+
+  Channel:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Unique channel ID
+      name:
+        type: string
+        description: Short name of the channel
+
+  Parameter:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Unique parameter ID
+      name:
+        type: string
+        description: Short name of the parameter
 
   Session:
     type: object
