@@ -20,16 +20,14 @@
 #
 def check(satellite_object):
     """
-    POTENTIAL update check
-    ===
-    Перевірка оновлень ПОТЕНЦІАЛу
+    [en]: POTENTIAL update check
+    [uk]: Перевірка оновлень ПОТЕНЦІАЛу
     """
     pass
 
 def fetch(satellite_object, data_identifier):
     """
-    POTENTIAL data fetch
-    ===
-    Отримання даних ПОТЕНЦІАЛу
+    [en]: POTENTIAL data fetch
+    [uk]: Отримання даних ПОТЕНЦІАЛу
     """
     pass

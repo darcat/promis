@@ -21,6 +21,7 @@
 from django.core.management.base import BaseCommand
 
 import functions
+import re
 import backend_api.models as model
 
 from pkgutil import walk_packages
@@ -34,17 +35,25 @@ class Command(BaseCommand):
             # Picking up functions which have docstrings from the module
             for f in (o for o in getmembers(import_module(modname)) if isfunction(o[1]) and o[1].__doc__):
                 fname = "%s.%s" % (modname, f[0])
-                
+
                 # Only adding a new object if there is nothing like that in the database
                 if model.Function.objects.filter(django_func=fname).count() == 0:
+                    rexp = r"\[([a-z]{2})\]:(.*?)(?=(\s\[[a-z]{2}\]:|$))"
+
+                    # Trying to find the first language
+                    m = re.search(rexp, f[1].__doc__, flags = re.S)
+                    if not m:
+                        continue
                     print("=> New function: '%s'" % fname)
-                    # TODO: better flexibility at the division between the languages
-                    # i.e. smth like """en: English description uk: Український опис"""
-                    descs = [ desc.strip() for desc in f[1].__doc__.split("===") ]
-                    
-                    # Creating an English version
-                    obj = model.Function.objects.language('en').create(django_func = fname, description = descs[0])
-                    # Adding an Ukrainian translation
-                    obj.translate('uk')
-                    obj.description = descs[1]
+
+                    # Creating a first language (usually English) version
+                    obj = model.Function.objects.language(m.group(1)).create(django_func = fname, description = m.group(2).strip())
+
+                    # Adding the rest of the translations
+                    for mm in re.finditer(rexp, f[1].__doc__[ m.end(): ], flags = re.S):
+                        obj.translate(mm.group(1))
+                        obj.description = mm.group(2).strip()
+
+                    # Committing to the DB
+                    # TODO: verify that translate() doesn't discard unsaved changes
                     obj.save()

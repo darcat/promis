@@ -1,13 +1,12 @@
 def parrot():
     """
-    Multi line description
-    ===
-    Багато рядків опису
+    [en]: Multi line description
+    [uk]: Багато рядків опису
     """
     pass
 
 def spam():
-    """One liner===Одним рядком"""
+    """[en]: One liner [uk]: Одним рядком"""
     pass
 
 def eggs():
