@@ -1,17 +1,21 @@
-## Defining functions
+# Defining functions
 
 Every function from `functions.` package with a docstring will be recorded into the database. Docstrings are parsed for the `[lang]:` tags which define translations. If the parser fails to find any, the function is not recorded. Language codes are 2 letter, lowercase.
 
-## Syntax reference
+# Syntax reference
 
-**TODO** should we rather have one function instead which returns 2 function objects?
+## Data collection
+
+`def data_func(satellite_object)`
+
+Returns 2 functions below. Satellite reference stored as a closure.
 
 ### Checking for updates
 
-`def check(satellite_object)`
+`def check()`
 
 Yields successive data identifiers.
 
 ### Fetch and import an update
 
-`def fetch(satellite_object, data_identifier)`
+`def fetch(data_identifier)`

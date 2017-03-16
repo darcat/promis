@@ -18,16 +18,16 @@
 # See the Licence for the specific language governing
 # permissions and limitations under the Licence.
 #
-def check(satellite_object):
+def data_func(satellite_object):
     """
-    [en]: POTENTIAL update check
-    [uk]: Перевірка оновлень ПОТЕНЦІАЛу
+    [en]: POTENTIAL data service
+    [uk]: Служба данних ПОТЕНЦІАЛу
     """
-    pass
 
-def fetch(satellite_object, data_identifier):
-    """
-    [en]: POTENTIAL data fetch
-    [uk]: Отримання даних ПОТЕНЦІАЛу
-    """
-    pass
+    def check():
+        pass
+
+    def fetch(data_id):
+        pass
+
+    return check, fetch

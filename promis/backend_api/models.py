@@ -43,12 +43,9 @@ class Space_project(TranslatableModel):
         description = TextField()
         )
 
-    # Function to check for updates
-    data_check = ForeignKey('Function', null = True, related_name = 'par_dt_check')
-
-    # Function to fetch updates
-    data_fetch = ForeignKey('Function', null = True, related_name = 'par_dt_fetch')
-
+    # Function that returns functions to check for updates and fetch them
+    data_func = ForeignKey('Function', null = True, related_name = 'par_dt_func')
+    
     class Meta:
         db_table = "space_projects"
         verbose_name = "Space project"

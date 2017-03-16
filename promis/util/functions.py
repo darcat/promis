@@ -18,18 +18,25 @@
 # See the Licence for the specific language governing
 # permissions and limitations under the Licence.
 #
-from django.core.management.base import BaseCommand
-import backend_api.models as model
-from util.functions import func_by_path
+import re
+from importlib import import_module
 
-class Command(BaseCommand):
-    def handle(self, *args, **options):
-        # TODO: pick up the language from locale
-        for sat in model.Space_project.objects.language('en'):
-            if sat.data_func:
-                print("=> Checking data for satellite: %s." % sat.name)
-                check, fetch = func_by_path(sat.data_func.django_func)(sat)
+def func_by_path(path):
+    """Returns the function identified by its fully qualified path string"""
+    # Breaking down to components
+    rexp = r"((?:[a-zA-Z_][a-zA-Z0-9_]*\.)*)([a-zA-Z_][a-zA-Z0-9_]*)"
+    m = re.search(rexp, path)
+    if not m:
+        raise ValueError("Invalid function path: %s." % path)
 
-                for data_id in check():
-                    print("=> Fetching data by id: %s." % data_id)
-                    fetch(data_id)
+    # Importing the module
+    module = import_module(m.group(1)[:-1])
+    if not module:
+        raise ValueError("Can not import the module: %s" % m.group(1))
+
+    # Looking for the function
+    f = getattr(module, m.group(2))
+    if not f:
+        raise ValueError("Can not locate the function: %s." % m.group(2))
+
+    return f

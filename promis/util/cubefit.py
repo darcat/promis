@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # Copyright 2016 Space Research Institute of NASU and SSAU (Ukraine)
 #
@@ -29,7 +28,7 @@
 def det4(m, idx):
     """
     Determinant of a 4x4 matrix.
-    
+
     m   -- list of values.
     idx -- list of lists indices to form matrix from, arranged by column.
     """
@@ -41,13 +40,13 @@ def det4(m, idx):
     def det3(m, idx):
         """
         Determinant of a 4x4 matrix.
-    
+
         m   -- list of values.
         idx -- list of lists indices to form matrix from, arranged by column.
         """
         def A(a,b):
             return mat(a,b,idx)
-        return ( A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) - 
+        return ( A(0,0)*( A(1,1)*A(2,2) - A(1,2)*A(2,1) ) -
                  A(0,1)*( A(1,0)*A(2,2) - A(1,2)*A(2,0) ) + A(0,2)*( A(1,0)*A(2,1) - A(1,1)*A(2,0) ) )
 
     def minor(j, i, idx):
@@ -66,8 +65,8 @@ def det4(m, idx):
 
 def cubic_fit(x, y):
     """
-    Deduce coefs of and construct a cubic function of the form ax^3 + bx^2 + cx + d = y(x) 
-    
+    Deduce coefs of and construct a cubic function of the form ax^3 + bx^2 + cx + d = y(x)
+
     x, y -- list of input points
     """
     def extdet(i):
@@ -83,4 +82,3 @@ def cubic_fit(x, y):
         raise ValueError("Can not solve the equation")
     k = [ extdet(i)/D for i in range(4) ]
     return lambda x: sum(k[i]*(x**(3-i)) for i in range(4))
-
