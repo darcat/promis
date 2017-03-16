@@ -235,16 +235,29 @@ def data_func(satellite_object):
                 freqs = { "lf": 1, "hf": 1000 }
                 dirs = { "lf": "0", "hf": "00" }
 
+                # Device, Channel and Parameter discovery
+                # TODO: delenda est, see #51
+                # TODO: maybe do this before everything?
+                # TODO: really bad code here
+                ez_dev_txt = "EZ electric probe"
+                ez_chan_txt = { "lf": "EZ low-frequency channel" , "hf": "EZ high-frequency channel" }
+                ez_par_txt = { "lf": "Low-frequency potential reading", "hf": "High-frequency potential reading" }
+
+                # TODO: check for existence etc, etc
+                ez_dev = model.Device.objects.language('en').filter(name = ez_dev_txt)[0]
+                ez_chan = { k: model.Channel.objects.language('en').filter(name = v)[0] for k,v in ez_chan_txt.items() }
+                ez_par = { k: model.Parameter.objects.language('en').filter(name = v)[0] for k,v in ez_par_txt.items() }
+
                 ftp.cwd(dev)
+
+                # Both EZ channels should start at the same time and measure for the same duration
+                # TODO: maybe we need to conduct a more sophisticated comparison?
+                ez_time_start = None
+                ez_time_end   = None
+                ez_sess_obj   = None
 
                 # Checking for the valid directory
                 for freq in ftp_list(ftp, "^(%s)$" % "|".join(freqs.keys())):
-                    # TODO: this HAS to be the same session object
-                    # workaround: only processing lf
-                    # real solution: fetch both and compare data, fire an error if something mismatches
-                    if freq == "hf":
-                        continue
-
                     ftp.cwd(freq)
 
                     # TODO: Some folders have "test" data instead "0"/"00", not sure what to do about them
@@ -263,21 +276,31 @@ def data_func(satellite_object):
                             time_start = data["t"]
                             time_end = data["t"] + guess_duration(data["samp"], freqs[freq])
 
-                            # Generator for the orbit
-                            line_gen = ( (y.lon, y.lat) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
+                            # Check if we were the first
+                            if not ez_time_start and not ez_time_end:
+                                # Record the duration of the session for the next channel
+                                ez_time_start = time_start
+                                ez_time_end = time_end
 
-                            # Converting time to python objects for convenience
-                            time_start = fromtimestamp(time_start)
-                            time_end = fromtimestamp(time_end)
-                            time_dur = time_end - time_start
-                            print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
+                                # Generator for the orbit
+                                line_gen = ( (y.lon, y.lat) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
 
-                            # Creating a session object
-                            # TODO: make it more readable
-                            sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4326), satellite = satellite_object )
+                                # Converting time to python objects for convenience
+                                time_start = fromtimestamp(time_start)
+                                time_end = fromtimestamp(time_end)
+                                time_dur = time_end - time_start
+                                print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
 
-                            # TODO: record data_id in the object
-                            # TODO: somehow generalise this process maybe
+                                # Creating a session object
+                                # TODO: make it more readable
+                                ez_sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4326), satellite = satellite_object )
+
+                                # TODO: record data_id in the object
+                                # TODO: somehow generalise this process maybe
+                            else:
+                                # Check if the time values are the same
+                                if ez_time_start != time_start or ez_time_end != time_end:
+                                    raise ValueError("Temporal inconsistency between EZ channels.")
 
                         ftp.cwd("..")
                     except error_perm:
