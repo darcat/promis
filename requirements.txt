@@ -8,3 +8,4 @@ jsonfield
 drf-nested-routers
 dj-database-url
 django-hvad
+pytz                  # for datetime conversions
