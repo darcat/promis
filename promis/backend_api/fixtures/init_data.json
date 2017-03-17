@@ -31,7 +31,7 @@
     "model": "backend_api.devicetranslation",
     "pk": 1,
     "fields": {
-        "name": "EZ electric probe",
+        "name": "Electric probe (EZ)",
         "description": "",
         "language_code": "en",
         "master": 1
@@ -51,7 +51,7 @@
     "model": "backend_api.devicetranslation",
     "pk": 3,
     "fields": {
-        "name": "NCP neutral gase parameter sensor",
+        "name": "Neutral gase parameters sensor (NCP)",
         "description": "The device to produce the i/v characteristics from which the ITM team is to obtain the neutral gas density and pressure",
         "language_code": "en",
         "master": 2
@@ -71,7 +71,7 @@
     "model": "backend_api.devicetranslation",
     "pk": 5,
     "fields": {
-        "name": "ECP plasma parameters sensor",
+        "name": "Plasma parameters sensor (ECP)",
         "description": "The device to produce the i/v characteristics from which the ITM team is to obtain the plasma density and the electron temperature",
         "language_code": "en",
         "master": 3
@@ -223,7 +223,7 @@
     "model": "backend_api.parametertranslation",
     "pk": 1,
     "fields": {
-        "name": "Low-frequency potential reading",
+        "name": "Low-frequency potential measurement",
         "description": "Electric potential measured in low frequency (Fs = 1 Hz)",
         "language_code": "en",
         "master": 1
@@ -253,7 +253,7 @@
     "model": "backend_api.parametertranslation",
     "pk": 4,
     "fields": {
-        "name": "High-frequency potential reading",
+        "name": "High-frequency potential measurement",
         "description": "Electric potential measured in high frequency (Fs = 1 kHz)",
         "language_code": "en",
         "master": 2
