@@ -22,6 +22,7 @@
 # TODO: maintain 1 continuous FTP object
 # TODO: split to ftp utils so that it can be reused
 # TODO: onboard time is NOT unix timestamp!
+# TODO: generalise the with StringIO() .. seek(0) call
 
 from django.contrib.gis.geos import LineString
 from ftplib import FTP, error_perm
@@ -149,6 +150,32 @@ def setfile_vars(fp, keys=None):
             if keys_left == 0:
                 break
 
+# TODO: generalise!
+def csvfile_1st_column(fp, as_type=int):
+    """
+    Skips comments in a .csv file and yields values of the first column.
+
+    fp      -- file descriptor.
+    as_type -- type to convert to.
+    """
+    rexp_comment = r"^#"
+    rexp_values  = r"^([0-9-.])*," # NOTE: numbers only
+
+    while True:
+        ln = fp.readline()
+        if ln.rstrip() == "":
+            break
+
+        # Skipping the comments
+        # TODO: anything of value here?
+        if re.search(rexp_comment, ln):
+            continue
+
+        # Trying to extract the value
+        m = re.search(rexp_values, ln)
+        if m:
+            yield as_type(m.group(1))
+
 def guess_duration(n, freq):
     """
     Guess the duration of sampling based on number of samples and expected frequency.
@@ -266,7 +293,8 @@ def data_func(satellite_object):
 
                         # Checking for -mv file, should be exactly one
                         mvfile = [ fname for fname in ftp_list(ftp, "^%s[0-9-]*mv.set$" % freq) ]
-                        assert(len(mvfile) == 1)
+                        csvfile = [ fname for fname in ftp_list(ftp, "^%s[0-9-]*mv.csv$" % freq) ]
+                        assert(len(mvfile) == 1 and len(csvfile) == 1)
 
                         # TODO: generalise with the earlier call
                         with StringIO() as fp:
@@ -301,6 +329,13 @@ def data_func(satellite_object):
                                 # Check if the time values are the same
                                 if ez_time_start != time_start or ez_time_end != time_end:
                                     raise ValueError("Temporal inconsistency between EZ channels.")
+
+                        # Parse the actual datafile
+                        with StringIO() as fp:
+                            ftp.retrlines("RETR " + csvfile[0], lambda x: fp.write(x + "\n"))
+                            fp.seek(0)
+
+                            v = [ i for i in csvfile_1st_column(fp) ]
 
                         ftp.cwd("..")
                     except error_perm:
