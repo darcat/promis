@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'djsw_wrapper',
     'hvad',
     'django.contrib.gis',
     'django.contrib.admin',
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'backend_api',
     'rest_framework',
-    'djsw_wrapper.apps.djswconfig'
+    
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -142,4 +143,4 @@ LOCALE_PATHS = (
 
 # Swagger stuff
 SWAGGER_SCHEMA = os.environ['YML_PATH']+'/promis_api.yaml'
-SWAGGER_CONTROLLER = 'backend_api.promis'
+SWAGGER_MODULE = 'backend_api.views'

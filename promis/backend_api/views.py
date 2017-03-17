@@ -1,57 +1,98 @@
-from django.shortcuts import render
-
-# Create your views here.
+# -*- coding: utf-8 -*-
+from rest_framework.views import APIView
+from rest_framework.generics import  GenericAPIView, ListAPIView
+from rest_framework.response import Response
+from rest_framework import viewsets
+from rest_framework import status
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
 from backend_api import models
 from backend_api import serializer
-from django.conf import settings
 
-from rest_framework import generics, filters, viewsets, mixins
-from rest_framework.decorators import detail_route, list_route, parser_classes
-from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.response import Response
-
-from rest_framework.views import APIView
-
-import json
-
-class SessionsViewSet(viewsets.ModelViewSet):
-    queryset = models.Session.objects.all()
-    serializer_class = serializer.SessionsSerializer
-    
-class SpaceProjectsViewSet(viewsets.ModelViewSet):
+class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
+
+
+'''    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+        resp = {'id': None, 'name': None, 'desc': None, 'timelapse': None}
+
+        return Response(resp, status = status.HTTP_200_OK)
+''' 
+
+
+class DevicesView(APIView):
     
-class DevicesViewSet(viewsets.ModelViewSet):
-    queryset = models.Device.objects.all()
-    serializer_class = serializer.DevicesSerializer
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+        resp = {'id': None, 'name': None, 'desc': None, 'channels': None}
+
+        return Response(resp, status = status.HTTP_200_OK)
     
-class FunctionsViewSet(viewsets.ModelViewSet):
-    queryset = models.Function.objects.all()
-    serializer_class = serializer.FunctionsSerializer
+
+
+class ChannelsView(APIView):
     
-class ChannelsViewSet(viewsets.ModelViewSet):
-    queryset = models.Channel.objects.all()
-    serializer_class = serializer.ChannelsSerializer
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+        resp = {'id': None, 'name': None}
+
+        return Response(resp, status = status.HTTP_200_OK)
     
-class UnitsViewSet(viewsets.ModelViewSet):
-    queryset = models.Unit.objects.all()
-    serializer_class = serializer.UnitsSerializer
+
+
+class SessionsView(APIView):
     
-class ValuesViewSet(viewsets.ModelViewSet):
-    queryset = models.Value.objects.all()
-    serializer_class = serializer.ValuesSerializer
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+        resp = {'id': None, 'project': None, 'orbit': None, 'geoline': None, 'measurements': None, 'time': None}
+
+        return Response(resp, status = status.HTTP_200_OK)
     
-class ParametersViewSet(viewsets.ModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
+
+
+class MeasurementsView(APIView):
     
-class DocumentsViewSet(viewsets.ModelViewSet):
-    queryset = models.Document.objects.all()
-    serializer_class = serializer.DocumentsSerializer
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+        resp = {'url': None}
+
+        return Response(resp, status = status.HTTP_200_OK)
     
-class MeasurementsViewSet(viewsets.ModelViewSet):
-    queryset = models.Measurement.objects.all()
-    serializer_class = serializer.MeasurementsSerializer
+
+
+class QuicklookView(APIView):
     
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+
+        return Response(status = status.HTTP_200_OK)
+    
+
+
+class DownloadView(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+
+        return Response(status = status.HTTP_200_OK)
+    
+
+
+class DownloadData(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+
+        return Response(status = status.HTTP_200_OK)
+    
+

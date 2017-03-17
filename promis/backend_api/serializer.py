@@ -11,9 +11,18 @@ class SessionsSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 class SpaceProjectsSerializer(TranslatableModelSerializer):
+    timelapse = serializers.SerializerMethodField()
+        
+    def get_timelapse(self, obj):
+        ret_val = {}
+        ret_val['begin'] = str(obj.date_start.isoformat())
+        ret_val['end'] = str(obj.date_end.isoformat())
+            
+        return ret_val
+    
     class Meta:
         model = models.Space_project
-        fields = ('__all__')
+        fields = ('id', 'name', 'description', 'timelapse')
         
 class DevicesSerializer(TranslatableModelSerializer):
     class Meta:
