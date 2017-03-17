@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'backend_api',
     'rest_framework',
     
+    
 ]
 
 MIDDLEWARE_CLASSES = [

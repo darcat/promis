@@ -27,7 +27,7 @@ class SpaceProjectsSerializer(TranslatableModelSerializer):
 class DevicesSerializer(TranslatableModelSerializer):
     class Meta:
         model = models.Device
-        fields = ('__all__')
+        fields = ('id', 'name', 'description')
         
 class FunctionsSerializer(TranslatableModelSerializer):
     class Meta:

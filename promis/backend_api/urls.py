@@ -9,6 +9,7 @@ router = SwaggerRouter()
 
 sr = SimpleRouter()
 sr.register(r'SpaceProject', views.ProjectsView)
+sr.register(r'Device', views.DevicesView)
 
 print ('Simple Routers: ') 
 print (sr.urls)

@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+
 from rest_framework.views import APIView
 from rest_framework.generics import  GenericAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import status
+from rest_framework import filters
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
 from backend_api import models
 from backend_api import serializer
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
@@ -23,16 +27,12 @@ class ProjectsView(viewsets.ReadOnlyModelViewSet):
 ''' 
 
 
-class DevicesView(APIView):
+class DevicesView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Device.objects.all()
+    serializer_class = serializer.DevicesSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('satellite',)
     
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-        resp = {'id': None, 'name': None, 'desc': None, 'channels': None}
-
-        return Response(resp, status = status.HTTP_200_OK)
-    
-
 
 class ChannelsView(APIView):
     
