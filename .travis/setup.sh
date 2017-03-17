@@ -35,8 +35,8 @@ done
 docker logs api.promis
 
 # Populate with artificial data
-export PGPASSWORD="swordfish"
-repos/promis-testing/data/generate.py | psql -h localhost -p $POSTGIS_PORT -U promis promisdb >> /tmp/sql.log
+# export PGPASSWORD="swordfish"
+# repos/promis-testing/data/generate.py | psql -h localhost -p $POSTGIS_PORT -U promis promisdb >> /tmp/sql.log
 
 # Import POTENTIAL
 # NOTE: this may slow things down
