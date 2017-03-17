@@ -25,7 +25,7 @@
     "fields": {
         "date_start": "2011-08-30",
         "date_end": "2012-11-01",
-        "data_func":  [ "functions.potential.data_func" ]
+        "data_func":  [ "functions.potential.data_func"]
     }
 },
 {

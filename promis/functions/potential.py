@@ -266,12 +266,10 @@ def data_func(satellite_object):
                 # TODO: delenda est, see #51
                 # TODO: maybe do this before everything?
                 # TODO: really bad code here
-                ez_dev_txt = "EZ electric probe"
                 ez_chan_txt = { "lf": "EZ low-frequency channel" , "hf": "EZ high-frequency channel" }
                 ez_par_txt = { "lf": "Low-frequency potential measurement", "hf": "High-frequency potential measurement" }
 
                 # TODO: check for existence etc, etc
-                ez_dev = model.Device.objects.language('en').filter(name = ez_dev_txt)[0]
                 ez_chan = { k: model.Channel.objects.language('en').filter(name = v)[0] for k,v in ez_chan_txt.items() }
                 ez_par = { k: model.Parameter.objects.language('en').filter(name = v)[0] for k,v in ez_par_txt.items() }
 
@@ -334,8 +332,15 @@ def data_func(satellite_object):
                         with StringIO() as fp:
                             ftp.retrlines("RETR " + csvfile[0], lambda x: fp.write(x + "\n"))
                             fp.seek(0)
-
-                            v = [ i for i in csvfile_1st_column(fp) ]
+                            
+                            # Creating the JSON document
+                            mv = [ i for i in csvfile_1st_column(fp) ]
+                            # TODO: discuss the meaning of last_mod in details
+                            doc_obj = model.Document.objects.create(json_data = { "mv": mv } )
+                            
+                            # Creating a measurement instance
+                            # TODO: same doc right now
+                            model.Measurement.objects.create(session = ez_sess_obj, parameter = ez_par[freq], channel = ez_chan[freq], chn_doc = doc_obj, par_doc = doc_obj, sampling_frequency = freqs[freq], max_frequency = freqs[freq], min_frequency = freqs[freq])
 
                         ftp.cwd("..")
                     except error_perm:
