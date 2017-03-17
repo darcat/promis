@@ -1,0 +1,284 @@
+[
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Potential",
+        "description": "The space scientific experiment on the ionosphere aboard the Ukrainian Sich-2 micro-satellite",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u041f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b",
+        "description": "\u041d\u0430\u0443\u043a\u043e\u0432\u0438\u0439 \u0456\u043e\u043d\u043e\u0441\u0444\u0435\u0440\u043d\u0438\u0439 \u043a\u043e\u0441\u043c\u0456\u0447\u043d\u0438\u0439 \u0435\u043a\u0441\u043f\u0435\u0440\u0438\u043c\u0435\u043d\u0442 \u043d\u0430 \u0431\u043e\u0440\u0442\u0443 \u0443\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u043e\u0433\u043e \u043c\u0456\u043a\u0440\u043e\u0441\u0443\u043f\u0443\u0442\u043d\u0438\u043a\u0430 \"\u0421\u0456\u0447-2\"",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.space_project",
+    "pk": 1,
+    "fields": {
+        "date_start": "2011-08-30",
+        "date_end": "2012-11-01"
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Electric probe (EP)",
+        "description": "Electric probes are intended for the measurement of electric field intensity in space plasma with the help of two similar probes placed at a known distance. Potential project used a single probe setup that can be used to measure the spacecraft's own electric potential.",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u0415\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u0438\u0439 \u0437\u043e\u043d\u0434 (EP)",
+        "description": "\u0414\u0430\u0432\u0430\u0447 \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 \u043f\u0440\u0438\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0439 \u0434\u043b\u044f \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u043d\u0430\u043f\u0440\u0443\u0436\u0435\u043d\u043e\u0441\u0442\u0456 \u0437\u043c\u0456\u043d\u043d\u043e\u0433\u043e \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f \u0443 \u043a\u043e\u0441\u043c\u0456\u0447\u043d\u0456\u0439 \u043f\u043b\u0430\u0437\u043c\u0456 \u0437\u0430 \u0434\u043e\u043f\u043e\u043c\u043e\u0433\u043e\u044e \u0434\u0432\u043e\u0445 \u043f\u043e\u0434\u0456\u0431\u043d\u0438\u0445 \u0434\u0430\u0432\u0430\u0447\u0456\u0432, \u0440\u043e\u0437\u043d\u0435\u0441\u0435\u043d\u0438\u0445 \u043d\u0430 \u0432\u0456\u0434\u043e\u043c\u0443 \u0432\u0456\u0434\u0441\u0442\u0430\u043d\u044c. \u0410\u043b\u0435 \u0432 \u043a\u043e\u0441\u043c\u0456\u0447\u043d\u043e\u043c\u0443 \u0435\u043a\u0441\u043f\u0435\u0440\u0438\u043c\u0435\u043d\u0442\u0456 \u041f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b \u0432\u0456\u043d \u0431\u0443\u0432 \u043e\u0434\u0438\u043d :(",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 3,
+    "fields": {
+        "name": "Neutral gase parameters sensor (NCP)",
+        "description": "A system of two pressure probes using an inverse-magnetron converter as a sensor. (The device to produce the i/v characteristics from which the ITM team is to obtain the neutral gas density and pressure.)",
+        "language_code": "en",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 4,
+    "fields": {
+        "name": "\u0414\u0430\u0442\u0447\u0438\u043a \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0456\u0432 \u043d\u0435\u0439\u0442\u0440\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u0433\u0430\u0437\u0443 \u041d\u041a\u041f",
+        "description": "\u041d\u041a\u041f \u0441\u043a\u043b\u0430\u0434\u0430\u0454\u0442\u044c\u0441\u044f \u0437 \u0434\u0432\u043e\u0445 \u0437\u043e\u043d\u0434\u0456\u0432 \u0442\u0438\u0441\u043a\u0443 \u0437 \u0456\u043d\u0432\u0435\u0440\u0441\u043d\u043e-\u043c\u0430\u0433\u043d\u0435\u0442\u0440\u043e\u043d\u043d\u0438\u043c \u043f\u0435\u0440\u0435\u0442\u0432\u043e\u0440\u044e\u0432\u0430\u0447\u0435\u043c \u0432 \u044f\u043a\u043e\u0441\u0442\u0456 \u0447\u0443\u0442\u043b\u0438\u0432\u043e\u0433\u043e \u0435\u043b\u0435\u043c\u0435\u043d\u0442\u0443",
+        "language_code": "uk",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 5,
+    "fields": {
+        "name": "Plasma parameters sensor (ECP)",
+        "description": "A single cylindrical Langmiur probe measuring 0.05 cm in radius with 12 cm in length along with a protective electrode measuring 0.2 cm in radius and 12.5 cm in length. (The device to produce the i/v characteristics from which the ITM team is to obtain the plasma density and the electron temperature)",
+        "language_code": "en",
+        "master": 3
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 6,
+    "fields": {
+        "name": "\u0414\u0430\u0442\u0447\u0438\u043a \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0456\u0432 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u043e\u0457 \u043a\u043e\u043c\u043f\u043e\u043d\u0435\u043d\u0442\u0438 \u043f\u043b\u0430\u0437\u043c\u0438 (\u0415\u041a\u041f)",
+        "description": "\u041e\u0434\u0438\u043d\u0438\u0447\u043d\u0438\u0439 \u0446\u0438\u043b\u0456\u043d\u0434\u0440\u0438\u0447\u043d\u0438\u0439 \u0437\u043e\u043d\u0434 \u041b\u0435\u043d\u0433\u043c\u044e\u0440\u0430 \u0440\u0430\u0434\u0456\u0443\u043e\u043c 0,05 \u0441\u043c \u0456 \u0434\u043e\u0432\u0436\u0438\u043d\u043e\u044e 12 \u0441\u043c \u0437 \u043e\u0445\u043e\u0440\u043e\u043d\u043d\u0438\u043c \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u043e\u043c \u0440\u0430\u0434\u0456\u0443\u0441\u043e\u043c 0,2 \u0441\u043c \u0434\u043e\u0432\u0436\u0438\u043d\u043e\u044e 12,5 \u0441\u043c",
+        "language_code": "uk",
+        "master": 3
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 1,
+    "fields": {
+        "satellite": 1
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 2,
+    "fields": {
+        "satellite": 1
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 3,
+    "fields": {
+        "satellite": 1
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 1,
+    "fields": {
+        "name": "EZ low-frequency channel",
+        "description": "Low-frequency channel of the electric potential measurement (1Hz)",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 2,
+    "fields": {
+        "name": "EZ \u043d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b",
+        "description": "\u041d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f  (1 \u0413\u0446)",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 3,
+    "fields": {
+        "name": "EZ high-frequency channel",
+        "description": "High-frequency channel of the electric potential measurement (1kHz)",
+        "language_code": "en",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 4,
+    "fields": {
+        "name": "EZ \u0432\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b",
+        "description": "\u0412\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0438\u0439 \u043a\u0430\u043d\u0430\u043b \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f  (1 \u043a\u0413\u0446)",
+        "language_code": "uk",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.channel",
+    "pk": 1,
+    "fields": {
+        "device": 1,
+        "quicklook": null,
+        "parser_func": null
+    }
+},
+{
+    "model": "backend_api.channel",
+    "pk": 2,
+    "fields": {
+        "device": 1,
+        "quicklook": null,
+        "parser_func": null
+    }
+},
+{
+    "model": "backend_api.unittranslation",
+    "pk": 1,
+    "fields": {
+        "short_name": "V",
+        "long_name": "Volts",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.unittranslation",
+    "pk": 2,
+    "fields": {
+        "short_name": "\u0412",
+        "long_name": "\u0412\u043e\u043b\u044c\u0442\u0438",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.unit",
+    "pk": 1,
+    "fields": {}
+},
+{
+    "model": "backend_api.valuetranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Electric potential",
+        "description": "Electric field potential",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.valuetranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u041f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f",
+        "description": "\u041f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b \u0435\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u043b\u044f (\u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0441\u0442\u0430\u0442\u0438\u0447\u043d\u0438\u0439 \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b)",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.value",
+    "pk": 1,
+    "fields": {
+        "short_name": "Ve",
+        "units": 1
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 1,
+    "fields": {
+        "name": "Low-frequency potential measurement",
+        "description": "Electric potential measured in low frequency (Fs = 1 Hz)",
+        "language_code": "en",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 2,
+    "fields": {
+        "name": "\u041d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443",
+        "description": "\u041d\u0438\u0437\u044c\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 (Fs = 1 \u0413\u0446)",
+        "language_code": "uk",
+        "master": 1
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 3,
+    "fields": {
+        "name": "\u0412\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443",
+        "description": "\u0412\u0438\u0441\u043e\u043a\u043e\u0447\u0430\u0441\u0442\u043e\u0442\u043d\u0456 \u0432\u0438\u043c\u0456\u0440\u044e\u0432\u0430\u043d\u043d\u044f \u0435\u043b\u0435\u043a\u0442\u0438\u0447\u043d\u043e\u0433\u043e \u043f\u043e\u0442\u0435\u043d\u0446\u0456\u0430\u043b\u0443 (Fs = 1 \u043a\u0413\u0446)",
+        "language_code": "uk",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 4,
+    "fields": {
+        "name": "High-frequency potential measurement",
+        "description": "Electric potential measured in high frequency (Fs = 1 kHz)",
+        "language_code": "en",
+        "master": 2
+    }
+},
+{
+    "model": "backend_api.parameter",
+    "pk": 1,
+    "fields": {
+        "value": 1,
+        "conversion": null,
+        "conversion_params": "",
+        "channel": 1,
+        "quicklook": null
+    }
+},
+{
+    "model": "backend_api.parameter",
+    "pk": 2,
+    "fields": {
+        "value": 1,
+        "conversion": null,
+        "conversion_params": "",
+        "channel": 2,
+        "quicklook": null
+    }
+}
+]
