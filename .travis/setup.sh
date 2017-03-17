@@ -28,3 +28,7 @@ tar -xf geckodriver-v0.13.0-linux64.tar.gz
 # Populate with artificial data
 export PGPASSWORD="swordfish"
 repos/promis-testing/data/generate.py | psql -h localhost -p $POSTGIS_PORT -U promis promisdb >> /tmp/sql.log
+
+# Import POTENTIAL
+# NOTE: this may slow things down
+repos/promis-testing/api_command check_data_updates
