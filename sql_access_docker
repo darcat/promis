@@ -23,7 +23,7 @@ case `basename $0` in
     ;;
     
     api_command)
-    docker exec -it api.promis python promis/manage.py $1
+    docker exec -it api.promis python promis/manage.py $*
     ;;
     
     api_bash)
