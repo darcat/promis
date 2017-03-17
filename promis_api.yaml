@@ -23,11 +23,11 @@ produces:
 paths:
   /projects:
     x-swagger-router-controller: ProjectsView
+    description: |
+      This endpoint returns information about available space projects
+      and their duration.
     get:
       summary: Space projects
-      description: |
-        This endpoint returns information about available space projects
-        and their duration.
       tags:
         - Projects
       responses:
@@ -44,11 +44,11 @@ paths:
 
   /devices:
     x-swagger-router-controller: DevicesView
-    get:
-      summary: Satellite devices
-      description: |
+    description: |
         The Sattelite Devices endpoint returns a list of available devices
         installed on the specific satellite (used in particular space project).
+    get:
+      summary: Satellite devices
       tags:
         - Devices
       parameters:
@@ -71,11 +71,11 @@ paths:
 
   /channels:
     x-swagger-router-controller: ChannelsView
+    description: |
+      The Sattelite Channels endpoint returns a list of available channels
+      related to some specific parameters
     get:
       summary: Satellite channels
-      description: |
-        The Sattelite Channels endpoint returns a list of available channels
-        related to some specific parameters
       tags:
         - Channels
       parameters:
@@ -105,10 +105,10 @@ paths:
       
   /sessions:
     x-swagger-router-controller: SessionsView
+    description: |
+      This endpoint allows to get info about available sessions of a satellite (when it was able to gather the data)
     get:
       summary: Measurement sessions
-      description: |
-        This endpoint allows to get info about available sessions of a satellite (when it was able to gather the data)
       tags:
         - Measurements
         - Sessions
@@ -149,10 +149,10 @@ paths:
   # more measurement-related endpoints to be added here...
   /measurements/:
     x-swagger-router-controller: MeasurementsView
+    description: |
+        Get all measurements
     get:
       summary: Measurements
-      description: |
-        Get all measurements
       tags:
         - Measurements
       parameters:
@@ -190,10 +190,10 @@ paths:
 
   /quicklook/{id}:
     x-swagger-router-controller: QuicklookView
+    description: |
+      This endpoint allows to get a quicklook of certain data measurement.
     get:
       summary: Get a quicklook of data
-      description: |
-        This endpoint allows to get a quicklook of certain data measurement.
       tags:
         - Measurements
       parameters:
@@ -214,10 +214,10 @@ paths:
 
   /download/{id}:
     x-swagger-router-controller: DownloadView
+    description: |
+      This endpoint allows to get a quicklook of certain data measurement.
     get:
       summary: Download data
-      description: |
-        This endpoint allows to get a quicklook of certain data measurement.
       tags:
         - Measurements
       parameters:
@@ -239,9 +239,9 @@ paths:
   # testing
   /data/{id}/{action}:
     x-swagger-router-controller: DownloadData
+    description: Single endpoint for two actions. Untested!
     get:
       summary: Download data
-      description: Get data by id
       tags:
         - Measurements
       parameters:
