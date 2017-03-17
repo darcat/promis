@@ -25,6 +25,15 @@ vagrant up
 wget https://github.com/mozilla/geckodriver/releases/download/v0.13.0/geckodriver-v0.13.0-linux64.tar.gz
 tar -xf geckodriver-v0.13.0-linux64.tar.gz
 
+# Wait for the backend to start up
+while ! docker logs api.promis | grep 'Starting development server at http://0.0.0.0:80/' > /dev/null; do
+    echo "Backend not ready, sleeping 10 secs"
+    sleep 10
+done
+
+# Display backend logs just for kicks
+docker logs api.promis
+
 # Populate with artificial data
 export PGPASSWORD="swordfish"
 repos/promis-testing/data/generate.py | psql -h localhost -p $POSTGIS_PORT -U promis promisdb >> /tmp/sql.log
