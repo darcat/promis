@@ -1,22 +1,29 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.db.models.fields import DateTimeField, IntegerField, CharField,\
-    DateField, FloatField, TextField
+from django.db.models.fields import ( DateTimeField, IntegerField, CharField,
+    DateField, FloatField, TextField )
 from django.db.models.fields.related import ForeignKey
 from jsonfield import JSONField
 from django.contrib.gis.db.models import LineStringField
-from hvad.models import TranslatableModel, TranslatedFields
+from hvad.models import TranslatableModel, TranslatedFields, TranslationManager
+
+# TODO: is this class necessary?
+class FunctionManager(TranslationManager):
+    def get_by_natural_key(self, django_func):
+        return self.get(django_func = django_func)
 
 class Function(TranslatableModel):
     django_func = TextField()
+    
+    objects = FunctionManager()
 
     translations = TranslatedFields(
         description = TextField()
         )
 
     def natural_key(self):
-        return self.django_func
+        return (self.django_func,)
 
     class Meta:
         db_table = "functions"

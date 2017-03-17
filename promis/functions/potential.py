@@ -268,7 +268,7 @@ def data_func(satellite_object):
                 # TODO: really bad code here
                 ez_dev_txt = "EZ electric probe"
                 ez_chan_txt = { "lf": "EZ low-frequency channel" , "hf": "EZ high-frequency channel" }
-                ez_par_txt = { "lf": "Low-frequency potential reading", "hf": "High-frequency potential reading" }
+                ez_par_txt = { "lf": "Low-frequency potential measurement", "hf": "High-frequency potential measurement" }
 
                 # TODO: check for existence etc, etc
                 ez_dev = model.Device.objects.language('en').filter(name = ez_dev_txt)[0]
