@@ -9,3 +9,4 @@ drf-nested-routers
 dj-database-url
 django-hvad
 pytz                  # for datetime conversions
+django_loaddata_stdin # for loading test data from the host

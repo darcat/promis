@@ -19,7 +19,23 @@
 # permissions and limitations under the Licence.
 #
 
-def data_func(satellite_object):
+def roundabout(satellite_object):
+    """
+    [en]: Test set FTP data collection service
+    [uk]: Сервіс забору тестових даних з FTP
+    """
+    def check():
+        pass
+    
+    def fetch(data_id):
+        pass
+
+
+def peace_love(satellite_object):
+    """
+    [en]: Test set FTP data collection service
+    [uk]: Сервіс забору тестових даних з FTP
+    """
     def check():
         pass
     

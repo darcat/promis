@@ -1,6 +1,9 @@
 #!/bin/sh
 PROMIS_DIR=`dirname $0`
 
+# Wait until the database is up
+python $PROMIS_DIR/promis/wait_for_database.py
+
 # Migrate data if needed
 python $PROMIS_DIR/promis/manage.py makemigrations --no-input
 python $PROMIS_DIR/promis/manage.py migrate
