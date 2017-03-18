@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
 from math   import pi, atan, exp, sin, cos
-from time   import strftime, localtime
 from json   import dumps
 from random import seed, randint
-
-# WARNING: this removes your database!
+from os     import path, makedirs
 
 ### Globals are bad
 ### Call the cops, I don't care
 random_seed = 42
-
-def ctime(u):
-    return strftime("%Y-%m-%d %H:%M:%S", localtime(u)) # Might be timezone-dependent
-
-def dtime(u):
-    return strftime("%Y-%m-%d", localtime(u)) # Might be timezone-dependent
 
 # Points per orbit segment
 orbit_pts = 20
@@ -44,20 +36,6 @@ round_start = utick_start + 3600  # TODO: currently sessions are not tied to spa
 # TODO: make a proper satellite orbit
 # TODO: ask why we have 2 lines on the original orbit (MultiLineString)
 # TODO: sql injection prevention (not that it's a concern for tests, but ..)
-
-# Lazy implementation of a successive number generator
-# NOTE: you may want to reuse this later:
-#   insert ... returning id;
-#   drop table if exists _var;
-#   select lastval() into _var;
-#   ...
-#   somefunc(..., (select * from _var), ...)
-def getid(table):
-    if not table in getid.ids:
-        getid.ids[table] = 0
-    getid.ids[table] += 1
-    return getid.ids[table] - 1
-getid.ids = {}
 
 # Fake mercator considering Earth is a sphere
 def cord_conv(x,y):
@@ -106,122 +84,57 @@ def roundabout():
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
+        
+def ensuredir(folder):
+    if not path.exists(folder):
+        makedirs(folder)
 
 ### Inserting data generated
-def insert_orbit(satellite_id, start_time, gen_func, data_func=None):
+def insert_orbit(folder, start_time, gen_func, data_func=None):
+    ensuredir(folder)
+    
     time = start_time
+    
     for v in chunks(gen_func(), orbit_pts):
         new_time = time + orbit_pts * orbit_sec
-        # TODO: MultiLineString vs LinesString
         # TODO: orbit_code is defaulted to NULL
         # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
-        id = getid("ses")
-        print("insert into sessions (id, satellite_id, time_begin, time_end, geo_line) values (%d, %d, '%s', '%s', ST_GeomFromText('LINESTRING(%s)', 4326));" % (id, satellite_id,  ctime(time), ctime(new_time),
-              ", ".join((str(i[0])+" "+str(i[1]) for i in v))))
-
+        sessfolder = "%s/%010d/" % (folder, time)
+        
+        ensuredir(sessfolder)
+        
+        with open("%s/orbit.csv" % sessfolder, "w") as fp:
+            for pt in v:
+                print(str(pt[0]) + "," + str(pt[1]), file=fp)
+        
         # Generate some data
         if data_func:
             # TODO: parametrise the call somehow?
-            par_id, chan_id, freq, min_freq, max_freq, raw_doc, end_doc = data_func()
-            raw_doc_id = insert_doc(time, raw_doc)
-            end_doc_id = insert_doc(time, end_doc)
-            # TODO: same doc twice
-            insert_measure(id, par_id, chan_id, raw_doc_id, end_doc_id, freq, min_freq, max_freq)
+            docs = data_func()
+            docnames = ( "channel", "parameter" )
+            
+            for i in range(2):
+                with open("%s/%s.json" % (sessfolder, docnames[i]), "w") as fp:
+                    print(dumps(docs[i]), file=fp)
 
         time = new_time
-        
-langs = ( 'en', 'uk' )
-
-def insert_satellite(time_begin, time_end, names, descriptions):
-    id = getid("sat")
-    print("insert into space_projects (id, date_start, date_end) values (%d, '%s', '%s');" % (id, dtime(time_begin), dtime(time_end)))
-    for i in range(2):
-        print("insert into space_projects_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
-    return id
-
-def insert_device(names, descriptions, sat_id):
-    id = getid("dev")
-    print("insert into devices (id, satellite_id) values (%d, %d);" % (id, sat_id ))
-    for i in range(2):
-        print("insert into devices_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
-    return id
-
-def insert_function(descriptions, func):
-    id = getid("func")
-    print("insert into functions (id, django_func) values (%d, '%s');" % (id, func ))
-    for i in range(2):
-        print("insert into functions_translation (description, language_code, master_id) values ('%s', '%s', %d);" % (descriptions[i], langs[i], id))
-    return id
-
-def insert_channel(names, descriptions, dev_id, func_id):
-    id = getid("chan")
-    print("insert into channels (id, device_id, quicklook_id) values (%d, %d, %d);" % (id, dev_id, func_id))
-    for i in range(2):
-        print("insert into channels_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
-    return id
-
-def insert_unit(symbols, descriptions):
-    id = getid("unit")
-    print("insert into units (id) values (%d);" % (id))
-    for i in range(2):
-        print("insert into units_translation (short_name, long_name, language_code, master_id) values ('%s', '%s', '%s', %d);" % (symbols[i], descriptions[i], langs[i], id))
-    return id
-
-def insert_value(names, descriptions, short_name, unit_id):
-    id = getid("val")
-    print("insert into values (id, short_name, units_id) values (%d, '%s', %d);" % (id, short_name, unit_id))
-    for i in range(2):
-        print("insert into values_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
-    return id
-
-def insert_param(names, descriptions, val_id, conv_id, conv_par, chan_id, func_id):
-    id = getid("param")
-    print("insert into parameters (id, value_id, conversion_id, conversion_params, channel_id, quicklook_id) values (%d, %d, %d, '%s', %d, %d);" % (id, val_id, conv_id, conv_par, chan_id, func_id))
-    for i in range(2):
-        print("insert into parameters_translation (name, description, language_code, master_id) values ('%s', '%s', '%s', %d);" % (names[i], descriptions[i], langs[i], id))
-
-    return id
-
-def insert_doc(last_mod, payload):
-    id = getid("doc")
-    print("insert into documents (id, last_mod, json_data) values (%d, '%s', '%s');" % (id, ctime(last_mod), dumps(payload)))
-    return id
-
-def insert_measure(ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq):
-    id = getid("measure")
-    print("insert into measurements (id, session_id, parameter_id, channel_id, chn_doc_id, par_doc_id, sampling_frequency, min_frequency, max_frequency) values (%d, %d, %d, %d, %d, %d, %f, %f, %f); " % (id, ses_id, param_id, chan_id, pdoc_id, cdoc_id, freq, min_freq, max_freq))
-    return id
-
+       
 # Seed the PRNG
 seed(random_seed)
 
-# Remove everything from premises, order is important not to break key constraints
-for i in [ "measurements", "parameters_translation", "parameters", "documents", "sessions", "channels_translation", "channels", "values_translation", "values", "devices_translation", "devices", "space_projects_translation", "space_projects", "units_translation", "units", "functions_translation", "functions" ]:
-    print("delete from %s;" % i)
-
-# TODO: Currently only one is inserted, and assmed to exist
-dummy_id = insert_function(["Dummy function","Порожня функція"],"none")
-
-love_peace_id = insert_satellite(heart_start, heart_start + (heart_pts+peace_pts+lines_pts*2)/orbit_sec, ["Peace&Love","Мир та Любов"],["A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.", "Супутник із вишуканою орбітою, що відтворює малюнки, які повернуть вам віру у людство."])
-roundabout_id = insert_satellite(round_start, round_start + (round_pts)/orbit_sec, [ "Roundabout", "Колобіг" ], [ "A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.", "Супутник, який з усих сил витворяє щось подібне до реальних супутників багато хвилин." ] )
-
-# Yes I know space doesn't work like that
-termometer_id = insert_device([ "Space Termometer", "Космічний Термометр" ], [ "Fictional device to measure random things.", "Видуманий пристрій який міряє випадкові речі" ], roundabout_id)
-term_read_id = insert_channel(["U","U"], [ "Termometer reading", "Покази термометру" ], termometer_id, dummy_id)
-kelvin_id = insert_unit(["°K", "°K"], [ "degrees Kelvin", "градуси Келвіна"])
-space_temp_id = insert_value([ "Space Temperature", "Космічна Температура" ], [ "Average temperature of something near the satellite for testing purpose.", "Середня температура чогось біля супутнику задля перевірки" ], "T", kelvin_id)
-space_temp_param_id = insert_param( [ "Measured Space Temperature", "Виміри Космічної Температури" ], [ "What our satellite thinks the temperature is.", "Що наш супутник думає з приводу температури" ], space_temp_id, dummy_id, "", term_read_id, dummy_id)
-
 # Ready, steady, go!
-insert_orbit(love_peace_id, heart_start, heart)
-insert_orbit(love_peace_id, peace_start, circle)
-insert_orbit(love_peace_id, lines_start, vline)
-insert_orbit(love_peace_id, utick_start, uptick)
+insert_orbit("peace_love/heart", heart_start, heart)
+insert_orbit("peace_love/circle", peace_start, circle)
+insert_orbit("peace_love/vline", lines_start, vline)
+insert_orbit("peace_love/uptick", utick_start, uptick)
 
 def gen_space_temp():
     freq = 100
     amps = [ randint(50,100) for i in range(freq*orbit_sec) ]
-    return space_temp_param_id, term_read_id, freq, freq, freq, { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often
+    return { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often
         for i in range(freq*orbit_sec) ] }, { "T": amps }
 
-insert_orbit(roundabout_id, round_start, roundabout, gen_space_temp)
+# TODO: break into several datapoints ("days")
+# TODO: make short and long sessions
+# TODO: variable frequencies et al
+insert_orbit("roundabout/wholeproject", round_start, roundabout, gen_space_temp)

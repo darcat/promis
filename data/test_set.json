@@ -45,7 +45,7 @@
     "fields": {
         "date_start": "1970-01-01",
         "date_end": "1970-01-01",
-        "data_func":  [ "functions.dummy.bacon" ]
+        "data_func":  [ "functions.test_set.peace_love" ]
     }
 },
 {
@@ -54,7 +54,7 @@
     "fields": {
         "date_start": "1970-01-01",
         "date_end": "1970-01-01",
-        "data_func": [ "functions.test_set.data_func" ]
+        "data_func": [ "functions.test_set.roundabout" ]
     }
 },
 {
