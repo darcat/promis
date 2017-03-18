@@ -4,7 +4,13 @@
 sh -e /etc/init.d/xvfb start
 
 # FTP server
+mkdir ftproot
+cd ftproot 
 /usr/bin/python2.7 -m pyftpdlib &
+
+# Generate data for FTP
+../repos/promis-testing/data/generate.py
+cd -
 
 # Waiting to split the output and start up X
 sleep 3
@@ -35,8 +41,7 @@ done
 docker logs api.promis
 
 # Populate with artificial data
-# export PGPASSWORD="swordfish"
-# repos/promis-testing/data/generate.py | psql -h localhost -p $POSTGIS_PORT -U promis promisdb >> /tmp/sql.log
+repos/promis-testing/api_command loaddata --format json - < repos/promis-testing/data/test_set.json
 
 # Import POTENTIAL
 # NOTE: this may slow things down
