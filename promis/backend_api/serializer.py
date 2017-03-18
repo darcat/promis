@@ -3,12 +3,17 @@ from backend_api import models
 
 from rest_framework.fields import ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
+from rest_framework.relations import HyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer
 
 class SessionsSerializer(serializers.ModelSerializer):
+    measurements = serializers.HyperlinkedRelatedField(many = True,
+                                                       view_name = 'measurements-detail',
+                                                       read_only = True)
+    
     class Meta:
         model = models.Session
-        fields = ('__all__')
+        fields = ('id', 'satellite', 'orbit_code', 'geo_line', 'measurements')
 
 class SpaceProjectsSerializer(TranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
@@ -24,20 +29,24 @@ class SpaceProjectsSerializer(TranslatableModelSerializer):
         model = models.Space_project
         fields = ('id', 'name', 'description', 'timelapse')
         
+class ChannelsSerializer(TranslatableModelSerializer):
+    class Meta:
+        fields = ('id', 'name', 'description',)
+        model = models.Channel
+
 class DevicesSerializer(TranslatableModelSerializer):
+    satellite = SpaceProjectsSerializer(many = False)
+    channels = ChannelsSerializer(many = True)
+    
     class Meta:
         model = models.Device
-        fields = ('id', 'name', 'description')
+        fields = ('id', 'name', 'description', 'satellite', 'channels')
         
 class FunctionsSerializer(TranslatableModelSerializer):
     class Meta:
         fields = ('__all__')
         model = models.Function
         
-class ChannelsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Channel
         
 class UnitsSerializer(TranslatableModelSerializer):
     class Meta:

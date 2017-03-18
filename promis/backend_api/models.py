@@ -68,7 +68,7 @@ class Function(TranslatableModel):
 
 
 class Channel(TranslatableModel):
-    device = ForeignKey('Device')
+    device = ForeignKey('Device', related_name = 'channels')
     quicklook = ForeignKey('Function', null = True)
     parser_func = ForeignKey('Function', related_name = 'parser_func', null = True)
 
@@ -141,7 +141,7 @@ class Document(models.Model):
 
 
 class Measurement(models.Model):
-    session = ForeignKey('Session')
+    session = ForeignKey('Session', related_name = 'measurements')
     parameter = ForeignKey('Parameter')
     channel = ForeignKey('Channel')
     chn_doc = ForeignKey('Document', related_name = 'chn_doc_id')

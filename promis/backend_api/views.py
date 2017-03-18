@@ -17,53 +17,23 @@ class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
 
-
-'''    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-        resp = {'id': None, 'name': None, 'desc': None, 'timelapse': None}
-
-        return Response(resp, status = status.HTTP_200_OK)
-''' 
-
-
 class DevicesView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('satellite',)
     
-
-class ChannelsView(APIView):
+class ChannelsView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Channel.objects.all()
+    serializer_class = serializer.ChannelsSerializer
     
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-        resp = {'id': None, 'name': None}
+class SessionsView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Session.objects.all()
+    serializer_class = serializer.SessionsSerializer    
 
-        return Response(resp, status = status.HTTP_200_OK)
-    
-
-
-class SessionsView(APIView):
-    
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-        resp = {'id': None, 'project': None, 'orbit': None, 'geoline': None, 'measurements': None, 'time': None}
-
-        return Response(resp, status = status.HTTP_200_OK)
-    
-
-
-class MeasurementsView(APIView):
-    
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-        resp = {'url': None}
-
-        return Response(resp, status = status.HTTP_200_OK)
+class MeasurementsView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Measurement.objects.all()
+    serializer_class = serializer.MeasurementsSerializer    
     
 
 
