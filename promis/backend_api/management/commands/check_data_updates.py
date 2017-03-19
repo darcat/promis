@@ -30,6 +30,8 @@ class Command(BaseCommand):
                 print("=> Checking data for satellite: %s." % sat.name)
                 check, fetch = func_by_path(sat.data_func.django_func)(sat)
 
-                for data_id in check():
-                    print("=> Fetching data by id: %s." % data_id)
-                    fetch(data_id)
+                # if check() returns None, iterate an empty tuple i.e. don't do anything
+                for data_id in check() or ():
+                    if data_id:
+                        print("=> Fetching data by id: %s." % data_id)
+                        fetch(data_id)

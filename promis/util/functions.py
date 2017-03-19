@@ -35,6 +35,7 @@ def func_by_path(path):
         raise ValueError("Can not import the module: %s" % m.group(1))
 
     # Looking for the function
+    # TODO: this raises an exception if not found see #56
     f = getattr(module, m.group(2))
     if not f:
         raise ValueError("Can not locate the function: %s." % m.group(2))

@@ -29,6 +29,8 @@ def roundabout(satellite_object):
     
     def fetch(data_id):
         pass
+    
+    return check, fetch
 
 
 def peace_love(satellite_object):
@@ -41,3 +43,5 @@ def peace_love(satellite_object):
     
     def fetch(data_id):
         pass
+    
+    return check, fetch
