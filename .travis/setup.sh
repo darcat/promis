@@ -42,7 +42,3 @@ docker logs api.promis
 
 # Populate with artificial data
 repos/promis-testing/api_command loaddata --format json - < repos/promis-testing/data/test_set.json
-
-# Import POTENTIAL
-# NOTE: this may slow things down
-repos/promis-testing/api_command check_data_updates
