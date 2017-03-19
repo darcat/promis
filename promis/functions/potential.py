@@ -25,12 +25,16 @@
 # TODO: generalise the with StringIO() .. seek(0) call
 
 from django.contrib.gis.geos import LineString
+import util.orbit, util.ftp, util.files
+import backend_api.models as model
+
+# TODO: schedule removal
 from ftplib import FTP, error_perm
 import re
 from io import StringIO
-import util.orbit
-import backend_api.models as model
-import util.files
+def ftp_list(ftp, regex):
+    """Generator returning filenames in current FTP directory matching a regular expression"""
+    return (fname for fname in ftp.nlst() if re.search(regex, fname))
 
 # TODO: move somewhre?
 import datetime, pytz
@@ -48,10 +52,6 @@ def guess_duration(n, freq):
     """
     return 60*round(n/(freq*60))
 
-def ftp_list(ftp, regex):
-    """Generator returning filenames in current FTP directory matching a regular expression"""
-    return (fname for fname in ftp.nlst() if re.search(regex, fname))
-
 def data_func(satellite_object):
     """
     [en]: POTENTIAL data service
@@ -59,39 +59,27 @@ def data_func(satellite_object):
     """
 
     def check():
-        with FTP("promis.ikd.kiev.ua") as ftp:
-            ftp.login()
-            ftp.cwd("Potential/DECODED/")
-            # TODO: very lazy regex, not universal enough
-            for daydir in ftp_list(ftp, "^20"):
-                # TODO: workaround, ignorning unprepared dirs
-                if daydir == "20111118":
-                    continue
-
-                # TODO: workaround, why the hell this overlaps with 20110901?
-                # TODO: study actual data of both in spare time
-                if daydir == "20110831_2":
-                    continue
-
-                # TODO: end of session outside of available telemetry data
-                if daydir == "20110905" or daydir == "20111204":
-                    continue
-
-                # TODO: no telemetry at all?
-                if ( daydir == "20111211" or daydir == "20120123" or daydir == "20120208" or
-                    daydir == "20120328" or daydir == "20120507" or daydir == "20120508" or daydir == "20120614" ):
-                    continue
-
-                # TODO: range completely outside of available telemetry
-                if daydir == "20120130":
-                    continue
-
-                # TODO: shizo orbit, very large gap at the end of measurement
-                if daydir == "20120715":
-                    continue
-
+        exceptions = {  "20111118",     # TODO: workaround, ignorning unprepared dirs
+                        "20110831_2",   # TODO: workaround, why the hell this overlaps with 20110901?
+                        "20110905",     # TODO: end of session outside of available telemetry data
+                        "20111204",
+                        "20111211",     # TODO: no telemetry at all?
+                        "20120123",
+                        "20120208",
+                        "20120328",
+                        "20120507",
+                        "20120508",
+                        "20120614",
+                        "20120130",     # TODO: range completely outside of available telemetry
+                        "20120715",     # TODO: shizo orbit, very large gap at the end of measurement
+                        "knap20120130.rar" 
+                        }
+            
+        with util.ftp.FTPChecker("Potential/DECODED/", exceptions, "promis.ikd.kiev.ua") as ftp:
                 # TODO: check that directory exists properly
-                yield daydir
+                # TODO: any more elegant way? re-yield or smth
+                for v in ftp.check():
+                    yield v
 
     def fetch(daydir):
         # TODO: create an FTP object ahead of time and reuse
