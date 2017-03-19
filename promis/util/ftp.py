@@ -26,21 +26,24 @@ import re, io
 # TODO: class-oriented approach instead of functions? See: #52
 # TODO: currently both high-level check and fetch must instantiate their own object
 # TODO: make "list only files" and "list only dirs" stuff
+# TODO: elegant way to dance around exceptions?
+# TODO: more abstractions?
 
 class FTPChecker(ftplib.FTP):
     """
     Advanced version of ftplib.FTP class with bells and whistles
     """
     
-    def __init__(self, rootdir, exceptions=None, *args, **kwargs):
+    def __init__(self, rootdir, *args, **kwargs):
         """
         Note usual FTP parameters should go AFTER the custom ones.
         
         rootdir     -- root directory where the project folders (data_ids) reside.
         exceptions  -- searchable object containing folders which should not be seen as data_ids.
+        ^-- should be set in the ftp object after creation to avoid mixup of parameters
         """
         self.rootdir = rootdir
-        self.exceptions = exceptions
+        self.exceptions = None
         super().__init__(*args, **kwargs)
         
     def __enter__(self):
@@ -48,18 +51,30 @@ class FTPChecker(ftplib.FTP):
         self.login()
         self.cwd(self.rootdir)
         return self
+    
+    # TODO: is it pythonic to have .list() and .open() methods instead?
            
-    def list(self, regex):
+    def xlist(self, regex):
         """Generator returning filenames in current FTP directory matching a regular expression"""
         return (fname for fname in self.nlst() if re.search(regex, fname))
         
+    
+    def xopen(ftpself, filename):
+        """Downloads the file from FTP and presents it as a file StringIO in memory object. "with" interface supported"""
+        class _ftp_open(io.StringIO):
+            def __init__(self, filename):
+                self.filename = filename
+                super().__init__()
+            
+            def __enter__(self):
+                ftpself.retrlines("RETR " + self.filename, lambda x: self.write(x + "\n"))
+                self.seek(0)
+                return super().__enter__()
+            
+        return _ftp_open(filename)
+
     def check(self):
         """Yields entries in the current directory as data_ids. Skips ones listed in exceptions."""
         for data_id in self.nlst():
             if not self.exceptions or data_id not in self.exceptions:
                 yield data_id
-
-        
-    
-    
-    

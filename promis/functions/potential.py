@@ -20,21 +20,14 @@
 #
 
 # TODO: maintain 1 continuous FTP object
-# TODO: split to ftp utils so that it can be reused
 # TODO: onboard time is NOT unix timestamp!
-# TODO: generalise the with StringIO() .. seek(0) call
 
 from django.contrib.gis.geos import LineString
 import util.orbit, util.ftp, util.files
 import backend_api.models as model
 
-# TODO: schedule removal
-from ftplib import FTP, error_perm
-import re
-from io import StringIO
-def ftp_list(ftp, regex):
-    """Generator returning filenames in current FTP directory matching a regular expression"""
-    return (fname for fname in ftp.nlst() if re.search(regex, fname))
+# TODO: integrate into ftp.py somehow
+from ftplib import error_perm
 
 # TODO: move somewhre?
 import datetime, pytz
@@ -62,20 +55,22 @@ def data_func(satellite_object):
         exceptions = {  "20111118",     # TODO: workaround, ignorning unprepared dirs
                         "20110831_2",   # TODO: workaround, why the hell this overlaps with 20110901?
                         "20110905",     # TODO: end of session outside of available telemetry data
-                        "20111204",
+                        "20111204",     # -//-
                         "20111211",     # TODO: no telemetry at all?
-                        "20120123",
-                        "20120208",
-                        "20120328",
-                        "20120507",
-                        "20120508",
-                        "20120614",
+                        "20120123",     # -//-
+                        "20120208",     # -//-
+                        "20120328",     # -//-
+                        "20120507",     # -//-
+                        "20120508",     # -//-
+                        "20120614",     # -//-
                         "20120130",     # TODO: range completely outside of available telemetry
                         "20120715",     # TODO: shizo orbit, very large gap at the end of measurement
                         "knap20120130.rar" 
                         }
             
-        with util.ftp.FTPChecker("Potential/DECODED/", exceptions, "promis.ikd.kiev.ua") as ftp:
+        with util.ftp.FTPChecker("Potential/DECODED/", "promis.ikd.kiev.ua") as ftp:
+                ftp.exceptions = exceptions
+                
                 # TODO: check that directory exists properly
                 # TODO: any more elegant way? re-yield or smth
                 for v in ftp.check():
@@ -83,16 +78,12 @@ def data_func(satellite_object):
 
     def fetch(daydir):
         # TODO: create an FTP object ahead of time and reuse
-        with FTP("promis.ikd.kiev.ua") as ftp:
-            ftp.login()
-            ftp.cwd("Potential/DECODED/{0}/pdata{0}".format(daydir))
+        with util.ftp.FTPChecker("Potential/DECODED/{0}/pdata{0}".format(daydir), "promis.ikd.kiev.ua") as ftp:
             # Fetching orbit telemetry data
             orbit = {}
-            for fname in ftp_list(ftp, "^tm.*\.txt$"):
-                with StringIO() as fp:
+            for fname in ftp.xlist("^tm.*\.txt$"):
+                with ftp.xopen(fname) as fp:
                     # Retrieving and processing the raw file
-                    ftp.retrlines("RETR " + fname, lambda x: fp.write(x + "\n"))
-                    fp.seek(0)
                     rawdata = { t:pt for t, pt in util.files.telemetry(fp) }
 
                     # Append the data, assuming no repetitions can happen
@@ -102,7 +93,7 @@ def data_func(satellite_object):
                     # ANSWER: it sort of is, but not necessarily
 
             # TODO: Hypothesis: there is no overlap across differing devices
-            for dev in ftp_list(ftp, "^(ez|pd)$"):
+            for dev in ftp.xlist("^(ez|pd)$"):
                 # TODO: I don't know nkp/ekp frequency so, ignoring them atm
                 if dev == "pd":
                     continue
@@ -131,7 +122,7 @@ def data_func(satellite_object):
                 ez_sess_obj   = None
 
                 # Checking for the valid directory
-                for freq in ftp_list(ftp, "^(%s)$" % "|".join(freqs.keys())):
+                for freq in ftp.xlist("^(%s)$" % "|".join(freqs.keys())):
                     ftp.cwd(freq)
 
                     # TODO: Some folders have "test" data instead "0"/"00", not sure what to do about them
@@ -139,14 +130,12 @@ def data_func(satellite_object):
                         ftp.cwd(dirs[freq])
 
                         # Checking for -mv file, should be exactly one
-                        mvfile = [ fname for fname in ftp_list(ftp, "^%s[0-9-]*mv.set$" % freq) ]
-                        csvfile = [ fname for fname in ftp_list(ftp, "^%s[0-9-]*mv.csv$" % freq) ]
+                        mvfile = [ fname for fname in ftp.xlist("^%s[0-9-]*mv.set$" % freq) ]
+                        csvfile = [ fname for fname in ftp.xlist("^%s[0-9-]*mv.csv$" % freq) ]
                         assert(len(mvfile) == 1 and len(csvfile) == 1)
 
                         # TODO: generalise with the earlier call
-                        with StringIO() as fp:
-                            ftp.retrlines("RETR " + mvfile[0], lambda x: fp.write(x + "\n"))
-                            fp.seek(0)
+                        with ftp.xopen(mvfile[0]) as fp:
                             data = { k:v for k,v in util.files.sets(fp, {"t", "samp"}) }
                             time_start = data["t"]
                             time_end = data["t"] + guess_duration(data["samp"], freqs[freq])
@@ -178,10 +167,7 @@ def data_func(satellite_object):
                                     raise ValueError("Temporal inconsistency between EZ channels.")
 
                         # Parse the actual datafile
-                        with StringIO() as fp:
-                            ftp.retrlines("RETR " + csvfile[0], lambda x: fp.write(x + "\n"))
-                            fp.seek(0)
-                            
+                        with ftp.xopen(csvfile[0]) as fp:
                             # Creating the JSON document
                             mv = [ i for i in util.files.csv(fp) ]
                             # TODO: discuss the meaning of last_mod in details
