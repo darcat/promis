@@ -21,8 +21,8 @@
 
 def roundabout(satellite_object):
     """
-    [en]: Test set FTP data collection service
-    [uk]: Сервіс забору тестових даних з FTP
+    [en]: Test set FTP data collection service (roundabout)
+    [uk]: Сервіс забору тестових даних з FTP (roundabout)
     """
     def check():
         pass
@@ -35,8 +35,8 @@ def roundabout(satellite_object):
 
 def peace_love(satellite_object):
     """
-    [en]: Test set FTP data collection service
-    [uk]: Сервіс забору тестових даних з FTP
+    [en]: Test set FTP data collection service (peace & love)
+    [uk]: Сервіс забору тестових даних з FTP (peace & love)
     """
     def check():
         pass
