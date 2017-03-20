@@ -146,7 +146,7 @@ def sets(fp, keys=None):
             if keys_left == 0:
                 break
 
-def csv(fp, as_type=int):
+def csv(fp, as_type=float):
     """
     Skips comments in a .csv file and yields values of the first column.
 
