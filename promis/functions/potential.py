@@ -69,12 +69,12 @@ def data_func(satellite_object):
                         }
             
         with util.ftp.FTPChecker("Potential/DECODED/", "promis.ikd.kiev.ua") as ftp:
-                ftp.exceptions = exceptions
+            ftp.exceptions = exceptions
                 
-                # TODO: check that directory exists properly
-                # TODO: any more elegant way? re-yield or smth
-                for v in ftp.check():
-                    yield v
+            # TODO: check that directory exists properly
+            # TODO: any more elegant way? re-yield or smth
+            for v in ftp.check():
+                yield v
 
     def fetch(daydir):
         # TODO: create an FTP object ahead of time and reuse

@@ -19,13 +19,18 @@
 # permissions and limitations under the Licence.
 #
 
+import util.ftp, util.files
+# TODO: yield/with problem, see potential.py for details
+
 def roundabout(satellite_object):
     """
     [en]: Test set FTP data collection service (roundabout)
     [uk]: Сервіс забору тестових даних з FTP (roundabout)
     """
     def check():
-        pass
+        with util.ftp.FTPChecker("roundabout/", "localhost", 2121) as ftp:
+            for v in ftp.check():
+                yield v
     
     def fetch(data_id):
         pass
@@ -39,7 +44,9 @@ def peace_love(satellite_object):
     [uk]: Сервіс забору тестових даних з FTP (peace & love)
     """
     def check():
-        pass
+        with util.ftp.FTPChecker("peace_love/", "localhost", 2121) as ftp:
+            for v in ftp.check():
+                yield v
     
     def fetch(data_id):
         pass

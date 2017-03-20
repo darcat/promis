@@ -34,7 +34,7 @@ class FTPChecker(ftplib.FTP):
     Advanced version of ftplib.FTP class with bells and whistles
     """
     
-    def __init__(self, rootdir, *args, **kwargs):
+    def __init__(self, rootdir, host, port=0):
         """
         Note usual FTP parameters should go AFTER the custom ones.
         
@@ -44,7 +44,9 @@ class FTPChecker(ftplib.FTP):
         """
         self.rootdir = rootdir
         self.exceptions = None
-        super().__init__(*args, **kwargs)
+        # TODO: support for authentication
+        super().__init__()
+        self.connect(host, port)
         
     def __enter__(self):
         super().__enter__()
