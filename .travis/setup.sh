@@ -5,8 +5,9 @@ sh -e /etc/init.d/xvfb start
 
 # FTP server
 mkdir ftproot
-cd ftproot 
-/usr/bin/python2.7 -m pyftpdlib &
+cd ftproot
+/usr/bin/python2.7 -m pyftpdlib > /tmp/ftp.log 2>&1 &
+echo "=> FTP service started"
 
 # Generate data for FTP
 ../repos/promis-testing/data/generate.py
