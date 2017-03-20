@@ -18,26 +18,22 @@
 # See the Licence for the specific language governing
 # permissions and limitations under the Licence.
 #
-import re
 from importlib import import_module
 
-def func_by_path(path):
+def get_func_by_name(path):
     """Returns the function identified by its fully qualified path string"""
     # Breaking down to components
-    rexp = r"((?:[a-zA-Z_][a-zA-Z0-9_]*\.)*)([a-zA-Z_][a-zA-Z0-9_]*)"
-    m = re.search(rexp, path)
-    if not m:
-        raise ValueError("Invalid function path: %s." % path)
+    path_comp = path.rsplit(sep=".", maxsplit=1)
 
     # Importing the module
-    module = import_module(m.group(1)[:-1])
+    module = import_module(path_comp[0])
     if not module:
-        raise ValueError("Can not import the module: %s" % m.group(1))
+        raise ValueError("Can not import the module: %s." % path_comp[0])
 
     # Looking for the function
     # TODO: this raises an exception if not found see #56
-    f = getattr(module, m.group(2))
+    f = getattr(module, path_comp[1])
     if not f:
-        raise ValueError("Can not locate the function: %s." % m.group(2))
+        raise ValueError("Can not locate the function: %s." % path_comp[1])
 
     return f

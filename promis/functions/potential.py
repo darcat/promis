@@ -23,7 +23,7 @@
 # TODO: onboard time is NOT unix timestamp!
 
 from django.contrib.gis.geos import LineString
-import util.orbit, util.ftp, util.files
+import util.orbit, util.ftp, util.parsers
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow
@@ -79,7 +79,7 @@ def data_func(satellite_object):
             for fname in ftp.xlist("^tm.*\.txt$"):
                 with ftp.xopen(fname) as fp:
                     # Retrieving and processing the raw file
-                    rawdata = { t:pt for t, pt in util.files.telemetry(fp) }
+                    rawdata = { t:pt for t, pt in util.parsers.telemetry(fp) }
 
                     # Append the data, assuming no repetitions can happen
                     orbit.update(rawdata)
@@ -131,7 +131,7 @@ def data_func(satellite_object):
 
                         # TODO: generalise with the earlier call
                         with ftp.xopen(mvfile[0]) as fp:
-                            data = { k:v for k,v in util.files.sets(fp, {"t", "samp"}) }
+                            data = { k:v for k,v in util.parsers.sets(fp, {"t", "samp"}) }
                             time_start = data["t"]
                             time_end = data["t"] + guess_duration(data["samp"], freqs[freq])
 
@@ -164,7 +164,7 @@ def data_func(satellite_object):
                         # Parse the actual datafile
                         with ftp.xopen(csvfile[0]) as fp:
                             # Creating the JSON document
-                            mv = [ i[0] for i in util.files.csv(fp) ]
+                            mv = [ i[0] for i in util.parsers.csv(fp) ]
                             # TODO: discuss the meaning of last_mod in details
                             doc_obj = model.Document.objects.create(json_data = { "mv": mv } )
 

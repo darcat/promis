@@ -19,7 +19,7 @@
 # permissions and limitations under the Licence.
 #
 
-import util.ftp, util.files, util.orbit
+import util.ftp, util.parsers, util.orbit
 from django.contrib.gis.geos import LineString
 import backend_api.models as model
 
@@ -33,7 +33,7 @@ def general_fetch(path, satellite_object, add_measurement=False):
             timemark = int(sess_name)
             ftp.cwd(sess_name)
             with ftp.xopen("orbit.csv") as fp:
-                line_gen = [ pt for pt in util.files.csv(fp, float) ]
+                line_gen = [ pt for pt in util.parsers.csv(fp, float) ]
                 time_start = util.orbit.maketime(timemark)
                 time_end = util.orbit.maketime(timemark + len(line_gen)) # Orbit points are 1 per second
                 time_dur = time_end - time_start

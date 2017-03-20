@@ -15,7 +15,7 @@ class FunctionManager(TranslationManager):
 
 class Function(TranslatableModel):
     django_func = TextField()
-    
+
     objects = FunctionManager()
 
     translations = TranslatedFields(
@@ -51,8 +51,8 @@ class Space_project(TranslatableModel):
         )
 
     # Function that returns functions to check for updates and fetch them
-    data_func = ForeignKey('Function', null = True, related_name = 'par_dt_func')
-    
+    data_func = ForeignKey('Function', null = True)
+
     class Meta:
         db_table = "space_projects"
         verbose_name = "Space project"

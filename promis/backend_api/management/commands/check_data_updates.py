@@ -20,7 +20,7 @@
 #
 from django.core.management.base import BaseCommand
 import backend_api.models as model
-from util.functions import func_by_path
+from util.functions import get_func_by_name
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         for sat in model.Space_project.objects.language('en'):
             if sat.data_func:
                 print("=> Checking data for satellite: %s." % sat.name)
-                check, fetch = func_by_path(sat.data_func.django_func)(sat)
+                check, fetch = get_func_by_name(sat.data_func.django_func)(sat)
 
                 # if check() returns None, iterate an empty tuple i.e. don't do anything
                 for data_id in check() or ():
