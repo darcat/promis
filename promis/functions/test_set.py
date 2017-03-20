@@ -20,7 +20,9 @@
 #
 
 import util.ftp, util.files
+
 # TODO: yield/with problem, see potential.py for details
+# TODO: make deploy figure out Docker's bridge IP dynamically
 
 def roundabout(satellite_object):
     """
@@ -28,13 +30,13 @@ def roundabout(satellite_object):
     [uk]: Сервіс забору тестових даних з FTP (roundabout)
     """
     def check():
-        with util.ftp.FTPChecker("roundabout/", "localhost", 2121) as ftp:
+        with util.ftp.FTPChecker("roundabout/", "172.17.0.1", 2121) as ftp:
             for v in ftp.check():
                 yield v
-    
+
     def fetch(data_id):
         pass
-    
+
     return check, fetch
 
 
@@ -44,11 +46,11 @@ def peace_love(satellite_object):
     [uk]: Сервіс забору тестових даних з FTP (peace & love)
     """
     def check():
-        with util.ftp.FTPChecker("peace_love/", "localhost", 2121) as ftp:
+        with util.ftp.FTPChecker("peace_love/", "172.17.0.1", 2121) as ftp:
             for v in ftp.check():
                 yield v
-    
+
     def fetch(data_id):
         pass
-    
+
     return check, fetch
