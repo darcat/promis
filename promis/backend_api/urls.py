@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from rest_framework_nested import routers
 from rest_framework.routers import SimpleRouter 
 
-router = SwaggerRouter()
+#router = SwaggerRouter()
 
 sr = SimpleRouter()
 sr.register(r'SpaceProject', views.ProjectsView)
@@ -18,5 +18,5 @@ print ('Simple Routers: ')
 print (sr.urls)
 
 print ('Swagger Routers: ') 
-print (router.get_urls())
-urlpatterns = router.get_urls() + sr.urls
+'''print (router.get_urls()) router.get_urls() + '''
+urlpatterns = sr.urls
