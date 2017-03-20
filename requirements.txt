@@ -5,7 +5,8 @@ django-extensions     # for graph models
 markdown
 django-filter
 jsonfield
-djsw_wrapper>=0.1.4
+djsw_wrapper==1.8.0
 drf-nested-routers
 dj-database-url
 django-hvad
+djangorestframework-gis
