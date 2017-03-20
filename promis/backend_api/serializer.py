@@ -5,14 +5,16 @@ from rest_framework.fields import ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
 from rest_framework.relations import HyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer
+from rest_framework_gis.serializers import GeoModelSerializer
 
-class SessionsSerializer(serializers.ModelSerializer):
+
+class SessionsSerializer(GeoModelSerializer):
     measurements = serializers.HyperlinkedRelatedField(many = True,
                                                        view_name = 'measurement-detail',
                                                        read_only = True)
     
     time = serializers.SerializerMethodField()
-        
+           
     def get_time(self, obj):
         ret_val = {}
         ret_val['begin'] = str(obj.time_begin.isoformat())
@@ -24,6 +26,7 @@ class SessionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Session
         fields = ('id', 'satellite', 'orbit_code', 'geo_line', 'time', 'measurements')
+        geo_field = 'geo_line'
 
 class SpaceProjectsSerializer(TranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
@@ -69,8 +72,12 @@ class ValuesSerializer(TranslatableModelSerializer):
         model = models.Value
         
 class ParametersSerializer(TranslatableModelSerializer):
+    channel = serializers.HyperlinkedRelatedField(many = False,
+                                                       view_name = 'channel-detail',
+                                                       read_only = True)
+        
     class Meta:
-        fields = ('__all__')
+        fields = ('id', 'name', 'description', 'channel')
         model = models.Parameter
         
 class DocumentsSerializer(serializers.ModelSerializer):
@@ -79,6 +86,17 @@ class DocumentsSerializer(serializers.ModelSerializer):
         model = models.Document
 
 class MeasurementsSerializer(serializers.ModelSerializer):
+    session = serializers.HyperlinkedRelatedField(many = False,
+                                                       view_name = 'session-detail',
+                                                       read_only = True)
+    
+    parameter = serializers.HyperlinkedRelatedField(many = False,
+                                                       view_name = 'parameter-detail',
+                                                       read_only = True)
+    
+    channel = serializers.HyperlinkedRelatedField(many = False,
+                                                       view_name = 'channel-detail',
+                                                       read_only = True)
     
     
     class Meta:

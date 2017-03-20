@@ -52,10 +52,15 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
         
         return queryset
 
+class ParametersView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Parameter.objects.all()
+    serializer_class = serializer.ParametersSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('channel',)
+
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer    
-
 
 class QuicklookView(APIView):
     
