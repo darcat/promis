@@ -8,12 +8,22 @@ from hvad.contrib.restframework import TranslatableModelSerializer
 
 class SessionsSerializer(serializers.ModelSerializer):
     measurements = serializers.HyperlinkedRelatedField(many = True,
-                                                       view_name = 'measurements-detail',
+                                                       view_name = 'measurement-detail',
                                                        read_only = True)
+    
+    time = serializers.SerializerMethodField()
+        
+    def get_time(self, obj):
+        ret_val = {}
+        ret_val['begin'] = str(obj.time_begin.isoformat())
+        ret_val['end'] = str(obj.time_end.isoformat())
+            
+        return ret_val
+    
     
     class Meta:
         model = models.Session
-        fields = ('id', 'satellite', 'orbit_code', 'geo_line', 'measurements')
+        fields = ('id', 'satellite', 'orbit_code', 'geo_line', 'time', 'measurements')
 
 class SpaceProjectsSerializer(TranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
@@ -69,6 +79,8 @@ class DocumentsSerializer(serializers.ModelSerializer):
         model = models.Document
 
 class MeasurementsSerializer(serializers.ModelSerializer):
+    
+    
     class Meta:
-        fields = ('__all__')
+        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency')
         model = models.Measurement

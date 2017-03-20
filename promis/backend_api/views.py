@@ -10,9 +10,19 @@ from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
 from backend_api import models
 from backend_api import serializer
+import django_filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+class SessionFilter(django_filters.rest_framework.FilterSet):
+    time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
+    time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
+    
+    class Meta:
+        model = models.Session
+        fields = ['satellite', 'time_begin', 'time_end']
+
+    
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
@@ -30,11 +40,21 @@ class ChannelsView(viewsets.ReadOnlyModelViewSet):
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer    
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = SessionFilter
+
+    def get_queryset(self):
+        queryset = models.Session.objects.all()
+        polygon = self.request.query_params.get('polygon', None)
+        if polygon is not None:
+            '''TODO: define polygon filter here'''
+            pass
+        
+        return queryset
 
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer    
-    
 
 
 class QuicklookView(APIView):
