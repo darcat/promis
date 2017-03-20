@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# NOTE: uses standard container names/ports et all
+# TODO: use env vars or something
+
+if [ -t 0 ] ; then 
+        TERM_FLAG="-it"
+    else
+        TERM_FLAG="-i"
+    fi
+
+case `basename $0` in
+    sql_access_docker)
+    
+    docker run $TERM_FLAG --link db.promis -e "PGPASSWORD=swordfish" --rm postgres sh -c "exec psql -h db.promis -p 5432 -U promis promisdb"
+    ;;
+    
+    sql_access_psql)
+    psql -h localhost -p 5432 -U promis promisdb # TODO: what if port is different?
+    ;;
+    
+    api_shell)
+    docker exec $TERM_FLAG api.promis python promis/manage.py shell 
+    ;;
+    
+    api_command)
+    docker exec $TERM_FLAG api.promis python promis/manage.py $*
+    ;;
+    
+    api_bash)
+    docker exec $TERM_FLAG api.promis bash
+    ;;
+esac
