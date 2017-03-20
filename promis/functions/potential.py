@@ -29,11 +29,6 @@ import backend_api.models as model
 # TODO: integrate into ftp.py somehow
 from ftplib import error_perm
 
-# TODO: move somewhre?
-import datetime, pytz
-def fromtimestamp(u):
-    return datetime.datetime.fromtimestamp(u, tz=pytz.utc)
-
 def guess_duration(n, freq):
     """
     Guess the duration of sampling based on number of samples and expected frequency.
@@ -65,12 +60,12 @@ def data_func(satellite_object):
                         "20120614",     # -//-
                         "20120130",     # TODO: range completely outside of available telemetry
                         "20120715",     # TODO: shizo orbit, very large gap at the end of measurement
-                        "knap20120130.rar" 
+                        "knap20120130.rar"
                         }
-            
+
         with util.ftp.FTPChecker("Potential/DECODED/", "promis.ikd.kiev.ua") as ftp:
             ftp.exceptions = exceptions
-                
+
             # TODO: check that directory exists properly
             # TODO: any more elegant way? re-yield or smth
             for v in ftp.check():
@@ -150,8 +145,8 @@ def data_func(satellite_object):
                                 line_gen = ( (y.lon, y.lat) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
 
                                 # Converting time to python objects for convenience
-                                time_start = fromtimestamp(time_start)
-                                time_end = fromtimestamp(time_end)
+                                time_start = util.orbit.maketime(time_start)
+                                time_end = util.orbit.maketime(time_end)
                                 time_dur = time_end - time_start
                                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
 
@@ -169,10 +164,10 @@ def data_func(satellite_object):
                         # Parse the actual datafile
                         with ftp.xopen(csvfile[0]) as fp:
                             # Creating the JSON document
-                            mv = [ i for i in util.files.csv(fp) ]
+                            mv = [ i[0] for i in util.files.csv(fp) ]
                             # TODO: discuss the meaning of last_mod in details
                             doc_obj = model.Document.objects.create(json_data = { "mv": mv } )
-                            
+
                             # Creating a measurement instance
                             # TODO: same doc right now
                             model.Measurement.objects.create(session = ez_sess_obj, parameter = ez_par[freq], channel = ez_chan[freq], chn_doc = doc_obj, par_doc = doc_obj, sampling_frequency = freqs[freq], max_frequency = freqs[freq], min_frequency = freqs[freq])

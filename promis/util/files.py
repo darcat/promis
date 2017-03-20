@@ -30,9 +30,9 @@ import util.orbit
 def telemetry(fp):
     """
     Parses the telemetry .txt file used in Potential and possibly some other satellites.
-    
+
     Yields time, (time, lon, lat) pairs.
-    """    
+    """
     # We have a bit of a decision here:
     # 1. Read the file in one try reading each compontent into an in memory list
     # 2. Read one point per time, but seek all over the file
@@ -116,7 +116,7 @@ def sets(fp, keys=None):
 
     Value is assumed to be a number. If the key appears multiple times, only the first occurrence is returned.
     If keys is set to a set of strings, only yield keys from it.
-    
+
     Yields key, value pairs.
     """
     # TODO: currently value is limited to integers, provide floats functionality of needed
@@ -145,20 +145,20 @@ def sets(fp, keys=None):
             keys_left -= 1
             if keys_left == 0:
                 break
-            
+
 def csv(fp, as_type=int):
     """
     Skips comments in a .csv file and yields values of the first column.
 
     fp      -- file descriptor.
     as_type -- type to convert to.
-    
-    Yields rows of values.
+
+    Yields n-tuples of values.
     """
     # TODO: generalise for multiple columns
-    # TODO: list/tuple option for as_type 
+    # TODO: list/tuple option for as_type
     rexp_comment = r"^#"
-    rexp_values  = r"^([0-9-.])*," # NOTE: numbers only
+    rexp_values  = r"([0-9-.e]+),?" # NOTE: numbers only
 
     while True:
         ln = fp.readline()
@@ -171,6 +171,8 @@ def csv(fp, as_type=int):
             continue
 
         # Trying to extract the value
-        m = re.search(rexp_values, ln)
-        if m:
-            yield as_type(m.group(1))
+        values = []
+        for m in re.finditer(rexp_values, ln):
+            values.append(as_type(m.group(1)))
+        if values:
+            yield tuple(values)

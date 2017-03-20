@@ -23,6 +23,11 @@ import math
 import collections
 import operator
 import util.cubefit
+import datetime, pytz
+
+# TODO: onboard time shift
+def maketime(u):
+    return datetime.datetime.fromtimestamp(u, tz=pytz.utc)
 
 def sign(x):
     """Returns 1 for non-negative arguments and -1 otherwise."""
