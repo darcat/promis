@@ -3,7 +3,7 @@ IonosatMicro PROMIS system integrated test setup environment
 
 ## Utility commands
 
-`./sql_access_docker` 
+`./sql_access_docker`
 
 Runs a Postgres container that connects to the database and drops into the Postgres prompt. Can accept pipes and redirections to take SQL input. Must be run on a docker host obviously.
 
@@ -25,4 +25,6 @@ Runs the Django command `<command>` in the backend container.
 
 ## How to insert test data?
 
-`./data/generate.py | ./sql_access_docker` does the job. Note it removes everything before inserting!
+`./repos/promis-testing/api_command loaddata --format json - < repos/promis-testing/data/test_set.json`
+
+This does the job.
