@@ -15,8 +15,7 @@ addons:
       - sourceline: deb http://vagrant-deb.linestarve.com/ any main
     packages:
       - vagrant
-      - python-pyftpdlib
-install: "pip install --user -r ./repos/promis-testing/requirements.txt"
+install: "pip3 install --user -r ./repos/promis-testing/requirements.txt"
 before_script:
   - .travis/setup.sh
 script:
