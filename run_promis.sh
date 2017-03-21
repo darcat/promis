@@ -1,9 +1,15 @@
 #!/bin/sh
 PROMIS_DIR=`dirname $0`
 
+# Wait until the database is up
+python $PROMIS_DIR/promis/wait_for_database.py
+
 # Migrate data if needed
-python $PROMIS_DIR/promis/manage.py makemigrations backend_api
+python $PROMIS_DIR/promis/manage.py makemigrations --no-input
 python $PROMIS_DIR/promis/manage.py migrate
+
+# Record the available functions
+python $PROMIS_DIR/promis/manage.py collect_functions
 
 # Create superuser if needed
 python $PROMIS_DIR/promis/manage.py batch_create_superuser

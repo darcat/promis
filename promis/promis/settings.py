@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django_loaddata_stdin', # for loading test data from the host
     'backend_api',
     'rest_framework'
 ]
