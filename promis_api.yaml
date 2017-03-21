@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: PROMIS API
   description: Development version, a subject to change
-  version: "0.1.0"
+  version: "0.1.1"
 
 # the domain of the service
 # (to be changed by deploy?)
@@ -18,18 +18,20 @@ basePath: /api
 consumes:
   - application/json
   - application/x-www-form-urlencoded
+
 produces:
   - application/json
+
 paths:
+  # Space projects
   /projects:
     x-swagger-router-controller: ProjectsView
-    description: |
-      This endpoint returns information about available space projects
-      and their duration.
     get:
       summary: Space projects
       tags:
         - Projects
+      description: |
+        This endpoint returns information about available space projects and their duration.
       responses:
         200:
           description: An array of projects
@@ -42,20 +44,44 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /projects/{id}:
+    x-swagger-router-controller: ProjectsView
+    get:
+      summary: Space project
+      tags:
+        - Projects
+      description: |
+        Retrieve particular space project
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Project ID
+      responses:
+        200:
+          description: Space project
+          schema:
+            $ref: '#/definitions/Project'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  # Satellite devices
   /devices:
     x-swagger-router-controller: DevicesView
-    description: |
-        The Sattelite Devices endpoint returns a list of available devices
-        installed on the specific satellite (used in particular space project).
     get:
       summary: Satellite devices
       tags:
         - Devices
+      description: |
+        The Sattelite Devices endpoint returns a list of available devices
+        installed on the specific satellite (used in particular space project).
       parameters:
-        - name: project_id
+        - name: project
           in: query
           description: Project ID to query its satellite devices for
-          required: true
           type: integer
       responses:
         200:
@@ -69,20 +95,44 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /devices/{id}:
+    x-swagger-router-controller: DevicesView
+    get:
+      summary: Satellite device
+      tags:
+        - Devices
+      description: |
+        Get particular satellite device
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: Device ID
+      responses:
+        200:
+          description: Satellite device
+          schema:
+            $ref: '#/definitions/Device'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  # Satellite channels
   /channels:
     x-swagger-router-controller: ChannelsView
-    description: |
-      The Sattelite Channels endpoint returns a list of available channels
-      related to some specific parameters
     get:
       summary: Satellite channels
       tags:
         - Channels
+      description: |
+        The Sattelite Channels endpoint returns a list of available channels
+        related to some specific parameters
       parameters:
-        - name: project_id
+        - name: project
           in: query
           description: Project ID to query its satellite channels for
-          required: true
           type: integer
       responses:
         200:
@@ -96,44 +146,57 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /channels/{id}:
+    x-swagger-router-controller: ChannelsView
+    get:
+      summary: Satellite channel
+      tags:
+        - Channels
+      description: |
+        Get particular channel
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Channel ID
+      responses:
+        200:
+          description: Satellite channel
+          schema:
+            $ref: '#/definitions/Channel'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
 
-  #/parameters:
-    #x-swagger-router-controller: ParametersView
-    #get:
-     # summary: Measurement parameters
-      #description: 
-      
+  # Measurement sessions
   /sessions:
     x-swagger-router-controller: SessionsView
-    description: |
-      This endpoint allows to get info about available sessions of a satellite (when it was able to gather the data)
     get:
       summary: Measurement sessions
       tags:
         - Measurements
         - Sessions
+      description: |
+        This endpoint allows to get info about available sessions of a satellite (when it was able to gather the data)
       parameters:
-        - name: project_id
+        - name: project
           in: query
           description: Project ID to query its sessions for
-          required: true
           type: integer
         - name: fromtime
           in: query
           description: From time
           type: string
-          required: true
         - name: totime
           in: query
           description: To time
           type: string
-          required: true
         - name: polygon
           description: Geo polygon with desired search area
           in: query
           type: string
-          required: true
-
       responses:
         200:
           description: An array of available sessions
@@ -146,29 +209,55 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  # more measurement-related endpoints to be added here...
+  /sessions/{id}:
+    x-swagger-router-controller: SessionsView
+    get:
+      summary: Measurement session
+      tags:
+        - Measurements
+        - Sessions
+      description: |
+        Retrieve single session
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Session ID
+      responses:
+        200:
+          description: Measurement session
+          schema:
+            $ref: '#/definitions/Session'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  # Measurements itself
   /measurements/:
     x-swagger-router-controller: MeasurementsView
-    description: |
-        Get all measurements
     get:
       summary: Measurements
       tags:
         - Measurements
+      description: |
+        Get list of measurements
       parameters:
         - name: session
-          description: Desired session ID
+          description: Desired session ID(s)
           in: query
-          type: integer
-          required: false
+          type: array
+          items:
+            type: integer
         - name: parameter
-          description: Desired parameter IDs
+          description: Desired parameter ID(s)
           type: array
           in: query
           items:
             type: integer
         - name: channel
-          description: Desired channel IDs
+          description: Desired channel ID(s)
           type: array
           in: query
           items:
@@ -179,7 +268,6 @@ paths:
         - name: maxfreq
           type: integer
           in: query
-
       responses:
         200:
           description: An array of measurements
@@ -187,15 +275,47 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Measurement'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
 
+  /measurements/{id}:
+    x-swagger-router-controller: MeasurementsView
+    get:
+      summary: Measurement
+      tags:
+        - Measurements
+      description: |
+        Get particular measurement
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Measurement ID
+      responses:
+        200:
+          description: Measurement
+          schema:
+            $ref: '#/definitions/Measurement'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  # Parameters
+  # /parameters/:
+
+  # Quicklook
   /quicklook/{id}:
     x-swagger-router-controller: QuicklookView
-    description: |
-      This endpoint allows to get a quicklook of certain data measurement.
     get:
       summary: Get a quicklook of data
       tags:
         - Measurements
+      description: |
+        This endpoint allows to get a quicklook of certain data measurement.
       parameters:
         - name: id
           in: path
@@ -212,20 +332,20 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  # Data download
   /download/{id}:
     x-swagger-router-controller: DownloadView
-    description: |
-      This endpoint allows to get a quicklook of certain data measurement.
     get:
       summary: Download data
       tags:
         - Measurements
+      description: |
+        This endpoint allows to get a quicklook of certain data measurement.
       parameters:
         - name: id
           in: path
           type: string
           required: true
-
       responses:
         200:
           description: Quicklook data
@@ -236,14 +356,14 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
-  # testing
+  # testing multiaction endpoint
   /data/{id}/{action}:
     x-swagger-router-controller: DownloadData
-    description: Single endpoint for two actions. Untested!
     get:
       summary: Download data
       tags:
         - Measurements
+      description: Single endpoint for two actions. Untested!
       parameters:
         - name: id
           in: path
@@ -256,7 +376,6 @@ paths:
           enum:
             - download
             - quicklook
-
       responses:
         200:
           description: JSON data
@@ -356,9 +475,7 @@ definitions:
         type: string
         description: Quicklook data
 
-
-  # helper objects next
-
+  # Time interval
   Time:
     type: object
     properties:
@@ -367,6 +484,7 @@ definitions:
       end:
         type: string
 
+  # Error message
   Error:
     type: object
     properties:
