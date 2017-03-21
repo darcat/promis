@@ -25,7 +25,7 @@ produces:
 paths:
   # Space projects
   /projects:
-    x-swagger-router-controller: ProjectsView
+    x-swagger-router-view: ProjectsView
     get:
       summary: Space projects
       tags:
@@ -45,7 +45,8 @@ paths:
             $ref: '#/definitions/Error'
 
   /projects/{id}:
-    x-swagger-router-controller: ProjectsView
+    x-swagger-object-item: true
+    x-swagger-router-view: ProjectsView
     get:
       summary: Space project
       tags:
@@ -70,7 +71,7 @@ paths:
 
   # Satellite devices
   /devices:
-    x-swagger-router-controller: DevicesView
+    x-swagger-router-view: DevicesView
     get:
       summary: Satellite devices
       tags:
@@ -96,7 +97,8 @@ paths:
             $ref: '#/definitions/Error'
 
   /devices/{id}:
-    x-swagger-router-controller: DevicesView
+    x-swagger-object-item: true
+    x-swagger-router-view: DevicesView
     get:
       summary: Satellite device
       tags:
@@ -121,7 +123,7 @@ paths:
 
   # Satellite channels
   /channels:
-    x-swagger-router-controller: ChannelsView
+    x-swagger-router-view: ChannelsView
     get:
       summary: Satellite channels
       tags:
@@ -147,7 +149,8 @@ paths:
             $ref: '#/definitions/Error'
 
   /channels/{id}:
-    x-swagger-router-controller: ChannelsView
+    x-swagger-object-item: true
+    x-swagger-router-view: ChannelsView
     get:
       summary: Satellite channel
       tags:
@@ -172,7 +175,7 @@ paths:
 
   # Measurement sessions
   /sessions:
-    x-swagger-router-controller: SessionsView
+    x-swagger-router-view: SessionsView
     get:
       summary: Measurement sessions
       tags:
@@ -210,7 +213,8 @@ paths:
             $ref: '#/definitions/Error'
 
   /sessions/{id}:
-    x-swagger-router-controller: SessionsView
+    x-swagger-object-item: true
+    x-swagger-router-view: SessionsView
     get:
       summary: Measurement session
       tags:
@@ -236,7 +240,7 @@ paths:
 
   # Measurements itself
   /measurements/:
-    x-swagger-router-controller: MeasurementsView
+    x-swagger-router-view: MeasurementsView
     get:
       summary: Measurements
       tags:
@@ -281,7 +285,8 @@ paths:
             $ref: '#/definitions/Error'
 
   /measurements/{id}:
-    x-swagger-router-controller: MeasurementsView
+    x-swagger-object-item: true
+    x-swagger-router-view: MeasurementsView
     get:
       summary: Measurement
       tags:
@@ -309,7 +314,7 @@ paths:
 
   # Quicklook
   /quicklook/{id}:
-    x-swagger-router-controller: QuicklookView
+    x-swagger-router-view: QuicklookView
     get:
       summary: Get a quicklook of data
       tags:
@@ -334,7 +339,7 @@ paths:
 
   # Data download
   /download/{id}:
-    x-swagger-router-controller: DownloadView
+    x-swagger-router-view: DownloadView
     get:
       summary: Download data
       tags:
@@ -358,7 +363,7 @@ paths:
 
   # testing multiaction endpoint
   /data/{id}/{action}:
-    x-swagger-router-controller: DownloadData
+    x-swagger-router-view: DownloadData
     get:
       summary: Download data
       tags:
