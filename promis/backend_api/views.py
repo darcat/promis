@@ -15,6 +15,8 @@ import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.pagination import LimitOffsetPagination
+from django.contrib.gis.geos import GEOSGeometry, GEOSException 
+#import ValueError
 
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
@@ -23,7 +25,6 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = models.Session
         fields = ['satellite', 'time_begin', 'time_end']
-        
     
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
@@ -50,8 +51,29 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
         if polygon is not None:
-            '''TODO: define polygon filter here'''
-            pass
+            try:
+                geoobj = GEOSGeometry(polygon, srid = 4326)
+            
+                if geoobj.valid:
+                    objs = []
+                    for obj in queryset:
+                        geoline = obj.geo_line
+                        if geoobj.crosses(geoline):
+                            objs.append(obj.id)
+                        
+                    queryset = models.Session.objects.filter(pk__in = objs)
+                
+                return queryset
+            
+            except ValueError:
+                pass
+            
+            except GEOSException:
+                pass
+            
+            
+            
+            return models.Session.objects.none()
         
         return queryset
 
