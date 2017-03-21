@@ -145,3 +145,10 @@ LOCALE_PATHS = (
 # Swagger stuff
 SWAGGER_SCHEMA = os.environ['YML_PATH']+'/promis_api.yaml'
 SWAGGER_MODULE = 'backend_api.views'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
+
+ 

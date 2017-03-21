@@ -14,6 +14,8 @@ import django_filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework.pagination import LimitOffsetPagination
+
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
     time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
@@ -21,7 +23,7 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = models.Session
         fields = ['satellite', 'time_begin', 'time_end']
-
+        
     
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
@@ -42,6 +44,7 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.SessionsSerializer    
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         queryset = models.Session.objects.all()
