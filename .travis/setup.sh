@@ -6,7 +6,7 @@ sh -e /etc/init.d/xvfb start
 # FTP server
 mkdir ftproot
 cd ftproot
-/usr/bin/python3 -m pyftpdlib > /tmp/ftp.log 2>&1 &
+python3 -m pyftpdlib > /tmp/ftp.log &
 echo "=> FTP service started"
 
 # Generate data for FTP
@@ -42,4 +42,4 @@ done
 docker logs api.promis
 
 # Populate with artificial data
-repos/promis-testing/api_command loaddata --format json - < repos/promis-testing/data/test_set.json
+repos/promis-testing/backend_command loaddata --format json - < repos/promis-testing/data/test_set.json
