@@ -1,0 +1,13 @@
+--- runprofileserver.py~	2017-03-22 04:45:53.968699324 +0200
++++ runprofileserver.py	2017-03-22 04:40:29.992051011 +0200
+@@ -95,6 +95,10 @@
+     def add_arguments(self, parser):
+         super(Command, self).add_arguments(parser)
+         parser.add_argument(
++            'addrport', nargs='?',
++            help='Optional port number, or ipaddr:port'
++        )
++        parser.add_argument(
+             '--noreload', action='store_false', dest='use_reloader',
+             default=True,
+             help='Tells Django to NOT use the auto-reloader.')
