@@ -64,3 +64,20 @@ Override `development_setup` to `on` in `conf.yml`, it will turn SSL off, route 
 
 ### Access the DB directly
 Override `expose_db` to `on` in `conf.yml`, which gives you access to the Postgres at `localhost:5432` (by default). This option is enabled automatically with `development_setup`.
+
+## Profiling queries
+
+Profiling is enabled automatically when `django_debug` is set in the config. The resulting profiles will be collected in the `sync/profiling` folder stating the path to the query and the total time it took. The files are saved in `cProfile`/`pstats` format and can be parsed as:
+
+```BASH
+$ python3 -m pstat profile_file.prof
+% help
+% stats
+```
+
+Alternatively it's possible to convert the profiles to format acceptable for KCacheGrind/QCacheGrind:
+
+```BASH
+$ pip3 install pyprof2calltree
+$ for i in sync/profiling/*.prof; do pyprof2calltree -i $i -o callgrind.$i.txt; done
+```
