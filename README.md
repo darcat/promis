@@ -75,9 +75,11 @@ $ python3 -m pstat profile_file.prof
 % stats
 ```
 
-Alternatively it's possible to convert the profiles to format acceptable for KCacheGrind/QCacheGrind:
+The `.prof` files can be also visualized by [SnakeViz](https://jiffyclub.github.io/snakeviz/). Just make sure it's Python3. Alternatively it's possible to convert the profiles to format acceptable for [KCacheGrind/QCacheGrind](https://kcachegrind.github.io/html/Home.html):
 
 ```BASH
 $ pip3 install pyprof2calltree
 $ for i in sync/profiling/*.prof; do pyprof2calltree -i $i -o callgrind.$i.txt; done
 ```
+
+**Don't** enable `--kcachegrind` in `runpromis.sh`, it has an older version of the converter and seems to have a slight unit mixup.
