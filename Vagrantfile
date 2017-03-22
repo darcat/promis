@@ -29,7 +29,9 @@ ENV["VAGRANT_NO_PARALLEL"] = "yes"
 # to VirtualBox on some Gentoo setups despite configuration
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "docker"
 
-load "config.rb"
+vagrant_root = File.dirname(__FILE__) + "/"
+
+load vagrant_root + "config.rb"
 
 # The docker build from git will hopefully be included in Vagrant 1.8.7
 # TODO: bump this to 1.8.7 from 1.8.7.dev after it goes to release
@@ -44,7 +46,7 @@ $conf["api_url"] = ($conf["disable_ssl"] ? "http://" : "https://") +
   $conf["servername_web"] + (need_ext ? "" : ":" + $conf["port_api"].to_s)
 
 # Container definitions
-containers = YAML.load_file("conf/containers.yml")
+containers = YAML.load_file(vagrant_root + "conf/containers.yml")
 
 # Check if input contains a configuration variable reference, if so, substitute
 def cfg(input)

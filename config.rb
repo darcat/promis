@@ -22,12 +22,14 @@
 # Inspiration drawn from: http://blog.scottlowe.org/2015/02/11/multi-container-docker-yaml-vagrant/
 require "yaml"
 
+vagrant_root = File.dirname(__FILE__) + "/"
+
 # Default options
-$conf = YAML.load_file("conf/defaults.yml")
+$conf = YAML.load_file(vagrant_root + "conf/defaults.yml")
 
 # Overrides with user-defined options
-if File.file?("conf/conf.yml")
-  $user_conf = YAML.load_file("conf/conf.yml")
+if File.file?(vagrant_root + "conf/conf.yml")
+  $user_conf = YAML.load_file(vagrant_root + "conf/conf.yml")
   $user_conf.each do |override|
     $conf[override[0]] = override[1]
   end
