@@ -20,14 +20,14 @@ case `basename $0` in
     ;;
 
     backend_shell)
-    docker exec $TERM_FLAG api.promis python promis/manage.py shell
+    vagrant docker-exec $TERM_FLAG api.promis -- python promis/manage.py shell
     ;;
 
     backend_command)
-    docker exec $TERM_FLAG api.promis python promis/manage.py $*
+    vagrant docker-exec $TERM_FLAG api.promis -- python promis/manage.py $*
     ;;
 
     backend_bash)
-    docker exec $TERM_FLAG api.promis bash
+    vagrant docker-exec $TERM_FLAG api.promis -- bash
     ;;
 esac
