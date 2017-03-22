@@ -22,7 +22,7 @@ if [ "$DJANGO_DEBUG" = "true" ]; then
     else
         echo "=> sync/profiling directory exists."
     fi
-    SERVER_COMMAND="runprofileserver --use-cprofile --kcachegrind --nostatic --prof-path $SYNC_DIR/profiling"
+    SERVER_COMMAND="runprofileserver --use-cprofile --nostatic --prof-path $SYNC_DIR/profiling"
     
     # TODO: remove after upstream django-extensions merge #1035
     (cd /usr/local/lib/python3.6/site-packages/django_extensions/management/commands/ && patch -p0) < fix_runprofileserver_ipport.patch
