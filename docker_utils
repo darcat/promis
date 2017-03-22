@@ -11,8 +11,17 @@ if [ -t 0 ] ; then
 
 case `basename $0` in
     sql_access_docker)
-
-    docker run $TERM_FLAG --link db.promis -e "PGPASSWORD=swordfish" --rm postgres sh -c "exec psql -h db.promis -p 5432 -U promis promisdb"
+    if [ -z $1 ]; then
+      SQL_USER=promis
+    else
+      SQL_USER=$1
+    fi
+    if [ -z $2 ]; then
+      SQL_DB=promisdb
+    else
+      SQL_DB=$2
+    fi
+    vagrant docker-exec $TERM_FLAG db.promis -- psql -U $SQL_USER $SQL_DB
     ;;
 
     sql_access_psql)
