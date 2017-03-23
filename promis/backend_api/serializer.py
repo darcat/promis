@@ -6,15 +6,22 @@ from rest_framework.relations import PrimaryKeyRelatedField, SlugRelatedField
 from rest_framework.relations import HyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer
 from rest_framework_gis.serializers import GeoModelSerializer
+from django.contrib.gis.geos import GEOSGeometry, GEOSException
+import json
 
-
-class SessionsSerializer(GeoModelSerializer):
+class SessionsSerializer(serializers.ModelSerializer):
     measurements = serializers.HyperlinkedRelatedField(many = True,
                                                        view_name = 'measurement-detail',
                                                        read_only = True)
     
     time = serializers.SerializerMethodField()
            
+    geo_line = serializers.SerializerMethodField()
+    
+    def get_geo_line(self, obj):
+        gl = json.loads(GEOSGeometry(obj.geo_line).json)        
+        return gl
+    
     def get_time(self, obj):
         ret_val = {}
         ret_val['begin'] = str(obj.time_begin.isoformat())

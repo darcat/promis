@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'backend_api',
     'rest_framework',
-    'rest_framework_gis',
+ #   'rest_framework_gis',
     
 ]
 
