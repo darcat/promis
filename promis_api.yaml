@@ -239,7 +239,7 @@ paths:
             $ref: '#/definitions/Error'
 
   # Measurements itself
-  /measurements/:
+  /measurements:
     x-swagger-router-view: MeasurementsView
     get:
       summary: Measurements
