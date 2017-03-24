@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: PROMIS API
+  title: Promis API
   description: Development version, a subject to change
   version: "0.1.1"
 
