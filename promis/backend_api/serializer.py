@@ -11,6 +11,7 @@ import json
 
 class SessionsSerializer(serializers.ModelSerializer):
     measurements = serializers.HyperlinkedRelatedField(many = True,
+                                                       lookup_url_kwarg='id',
                                                        view_name = 'measurement-detail',
                                                        read_only = True)
     

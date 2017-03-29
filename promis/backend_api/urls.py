@@ -7,18 +7,5 @@ from rest_framework.routers import SimpleRouter, DefaultRouter
 
 router = SwaggerRouter()
 
-'''sr = DefaultRouter()
-sr.register(r'SpaceProject', views.ProjectsView)
-sr.register(r'Device', views.DevicesView)
-sr.register(r'Channel', views.ChannelsView)
-sr.register(r'Parameter', views.ParametersView)
-sr.register(r'Session', views.SessionsView)
-sr.register(r'Measurement', views.MeasurementsView)
+urlpatterns =  router.urls
 
-print ('Simple Routers: ') 
-print (sr.urls)
-'''
-print ('Swagger Routers: ') 
-'''print (router.get_urls()) router.get_urls() + '''
-urlpatterns =  router.get_urls()
-'''sr.urls'''
