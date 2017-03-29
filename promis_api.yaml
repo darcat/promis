@@ -310,7 +310,75 @@ paths:
             $ref: '#/definitions/Error'
 
   # Parameters
-  # /parameters/:
+  /parameters/:
+    x-swagger-router-view: ParametersView
+    get:
+      summary: Parameters
+      tags:
+        - Parameters
+      description: |
+        Get list of parameters
+      parameters:
+        - name: session
+          description: Desired session ID(s)
+          in: query
+          type: array
+          items:
+            type: integer
+        - name: parameter
+          description: Desired parameter ID(s)
+          type: array
+          in: query
+          items:
+            type: integer
+        - name: channel
+          description: Desired channel ID(s)
+          type: array
+          in: query
+          items:
+            type: integer
+        - name: minfreq
+          type: integer
+          in: query
+        - name: maxfreq
+          type: integer
+          in: query
+      responses:
+        200:
+          description: An array of parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Parameter'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /parameters/{id}:
+    x-swagger-object-key: id
+    x-swagger-router-view: ParametersView
+    get:
+      summary: Parameter
+      tags:
+        - Parameters
+      description: |
+        Get particular parameter
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Parameter ID
+      responses:
+        200:
+          description: Parameter
+          schema:
+            $ref: '#/definitions/Parameter'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
 
   # Quicklook
   /quicklook/{id}:
@@ -442,6 +510,12 @@ definitions:
       name:
         type: string
         description: Short name of the parameter
+      description:
+        type: string
+        description: Detailed parameter information
+      channel:
+        type: string
+        description: URL to corresponding channel
 
   Session:
     type: object
