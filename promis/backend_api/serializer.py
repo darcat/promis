@@ -81,6 +81,7 @@ class ValuesSerializer(TranslatableModelSerializer):
         
 class ParametersSerializer(TranslatableModelSerializer):
     channel = serializers.HyperlinkedRelatedField(many = False,
+                                                       lookup_url_kwarg='id',
                                                        view_name = 'channel-detail',
                                                        read_only = True)
         
@@ -95,14 +96,17 @@ class DocumentsSerializer(serializers.ModelSerializer):
 
 class MeasurementsSerializer(serializers.ModelSerializer):
     session = serializers.HyperlinkedRelatedField(many = False,
+                                                       lookup_url_kwarg='id',
                                                        view_name = 'session-detail',
                                                        read_only = True)
     
     parameter = serializers.HyperlinkedRelatedField(many = False,
+                                                       lookup_url_kwarg='id',
                                                        view_name = 'parameter-detail',
                                                        read_only = True)
     
     channel = serializers.HyperlinkedRelatedField(many = False,
+                                                       lookup_url_kwarg='id',
                                                        view_name = 'channel-detail',
                                                        read_only = True)
     
