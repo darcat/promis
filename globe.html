@@ -1,4 +1,18 @@
 <!DOCTYPE html>
+
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index, all" />
+    <title>DigitalGlobe - ol3-cesium</title>
+  </head>
+  <body>
+
+  </body>
+</html>
+
 <html lang="en">
     <head>
         <title>My first three.js app</title>
@@ -6,12 +20,14 @@
             body { margin: 0; }
             canvas { width: 100%; height: 100% }
         </style>
+        <link rel="stylesheet" href="css/ol.css" type="text/css">
+        <link rel="stylesheet" href="css/ol3-layerswitcher.css" type="text/css">
     </head>
     <body>
-        <div id='container'></div>
-        <div id='infotext'>test coords go here</div>
-        <script src="js/three.min.js"></script>
-        <script src="js/orbit.js"></script>
-        <script src="js/globe.js"></script>
+        <div id="map" class="map" style="width:730px;height:600px;"></div>
+        <input type="button" value="3D / 2D" onclick="javascript:ol3d.setEnabled(!ol3d.getEnabled())" />
+        <script src="js/inject_ol3_cesium.js"></script>
+        <script src="js/ol3-layerswitcher.js"></script>
+        <script src="js/digitalglobe.js"></script>
     </body>
 </html>
