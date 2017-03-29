@@ -23,6 +23,7 @@
     DJANGO_SUPERUSER:   ${conf.django_superuser}
     DJANGO_SUPERPASS:   ${conf.django_superpass}
     DJANGO_SUPEREMAIL:  ${conf.django_superemail}
+    API_URL:            ${conf.api_url}
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
     YML_PATH:           ${conf.yml_api_dir}
