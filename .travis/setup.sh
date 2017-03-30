@@ -33,7 +33,7 @@ wget https://github.com/mozilla/geckodriver/releases/download/v0.13.0/geckodrive
 tar -xf geckodriver-v0.13.0-linux64.tar.gz
 
 # Wait for the backend to start up
-while ! docker logs api.promis | grep 'Starting development server at http://0.0.0.0:80/' > /dev/null; do
+while ! docker logs api.promis | grep 'at http://0.0.0.0:80/' > /dev/null; do
     echo "Backend not ready, sleeping 10 secs"
     sleep 10
 done
