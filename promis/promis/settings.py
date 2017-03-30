@@ -49,10 +49,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django_filters',
+    'django_loaddata_stdin', # for loading test data from the host
     'backend_api',
     'rest_framework',
  #   'rest_framework_gis',
-    
+
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -151,5 +152,3 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100
 }
-
- 

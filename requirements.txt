@@ -12,3 +12,5 @@ django-hvad
 djangorestframework-gis
 djangorestframework-filters
 django-filters
+pytz                  # for datetime conversions
+django_loaddata_stdin # for loading test data from the host
