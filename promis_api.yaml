@@ -319,18 +319,6 @@ paths:
       description: |
         Get list of parameters
       parameters:
-        - name: session
-          description: Desired session ID(s)
-          in: query
-          type: array
-          items:
-            type: integer
-        - name: parameter
-          description: Desired parameter ID(s)
-          type: array
-          in: query
-          items:
-            type: integer
         - name: channel
           description: Desired channel ID(s)
           type: array
