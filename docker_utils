@@ -3,28 +3,37 @@
 # NOTE: uses standard container names/ports et all
 # TODO: use env vars or something
 
-# Checking if we are run from interactive terminal
-if [ -t 0 ] ; then
-    TERM_FLAG="-it"
-else
-    TERM_FLAG="-i"
-fi
+function run_docker {
+    CONTAINER=$1
+    shift
+    ${DOCKER_COMMAND}exec $TERM_FLAG $CONTAINER $DOCKER_DELIM $*
+}
+
 
 # Checking if native docker is available
 # TODO: what if we have a docker AND a VM setup? exotic case, do something about it
 if which docker > /dev/null 2>&1 ; then
     DOCKER_COMMAND="docker "
     DOCKER_DELIM=""
+
+    # Checking if we are run from interactive terminal
+    if [ -t 0 ] ; then
+        TERM_FLAG="-it"
+    else
+        TERM_FLAG="-i"
+    fi
 else
     DOCKER_COMMAND="vagrant docker-"
     DOCKER_DELIM="--"
-fi
 
-function run_docker {
-    CONTAINER=$1
-    shift
-    ${DOCKER_COMMAND}exec $TERM_FLAG $CONTAINER $DOCKER_DELIM $*
-}
+    # Pretend there is a tty
+    TERM_FLAG="-it"
+    if [ ! -t 0 ] ; then
+        # TODO: #11
+        echo "Piping is not supported, see #11"
+        exit 1
+    fi
+fi
 
 case `basename $0` in
     sql_access_docker)
