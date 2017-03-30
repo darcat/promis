@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'djsw_wrapper',
     'hvad',
     'django.contrib.gis',
     'django.contrib.admin',
@@ -47,9 +48,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'django_filters',
     'django_loaddata_stdin', # for loading test data from the host
     'backend_api',
-    'rest_framework'
+    'rest_framework',
+ #   'rest_framework_gis',
+
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -91,7 +95,7 @@ WSGI_APPLICATION = 'promis.wsgi.application'
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
-    
+
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -129,6 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/usr/src/app/sync/static'
 
 LANGUAGES = (
     ('en', 'English'),
@@ -139,3 +144,11 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
+# Swagger stuff
+SWAGGER_SCHEMA = os.environ['YML_PATH']+'/promis_api.yaml'
+SWAGGER_MODULE = 'backend_api.views'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}

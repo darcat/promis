@@ -5,8 +5,12 @@ django-extensions     # for graph models
 markdown
 django-filter
 jsonfield
+djsw_wrapper
 drf-nested-routers
 dj-database-url
 django-hvad
+djangorestframework-gis
+djangorestframework-filters
+django-filters
 pytz                  # for datetime conversions
 django_loaddata_stdin # for loading test data from the host

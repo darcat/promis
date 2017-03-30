@@ -1,57 +1,118 @@
-from django.shortcuts import render
+# -*- coding: utf-8 -*-
 
-# Create your views here.
+from rest_framework.views import APIView
+from rest_framework.generics import  GenericAPIView, ListAPIView
+from rest_framework.response import Response
+from rest_framework import viewsets
+from rest_framework import status
+from rest_framework import filters
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
 from backend_api import models
 from backend_api import serializer
-from django.conf import settings
+import django_filters
 
-from rest_framework import generics, filters, viewsets, mixins
-from rest_framework.decorators import detail_route, list_route, parser_classes
-from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework.views import APIView
+from rest_framework.pagination import LimitOffsetPagination
+from django.contrib.gis.geos import GEOSGeometry, GEOSException 
+#import ValueError
 
-import json
-
-class SessionsViewSet(viewsets.ModelViewSet):
-    queryset = models.Session.objects.all()
-    serializer_class = serializer.SessionsSerializer
+class SessionFilter(django_filters.rest_framework.FilterSet):
+    time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
+    time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
     
-class SpaceProjectsViewSet(viewsets.ModelViewSet):
+    class Meta:
+        model = models.Session
+        fields = ['satellite', 'time_begin', 'time_end']
+    
+class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
-    
-class DevicesViewSet(viewsets.ModelViewSet):
+
+class DevicesView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('satellite',)
     
-class FunctionsViewSet(viewsets.ModelViewSet):
-    queryset = models.Function.objects.all()
-    serializer_class = serializer.FunctionsSerializer
-    
-class ChannelsViewSet(viewsets.ModelViewSet):
+class ChannelsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
     
-class UnitsViewSet(viewsets.ModelViewSet):
-    queryset = models.Unit.objects.all()
-    serializer_class = serializer.UnitsSerializer
-    
-class ValuesViewSet(viewsets.ModelViewSet):
-    queryset = models.Value.objects.all()
-    serializer_class = serializer.ValuesSerializer
-    
-class ParametersViewSet(viewsets.ModelViewSet):
+class SessionsView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Session.objects.all()
+    serializer_class = serializer.SessionsSerializer    
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = SessionFilter
+    pagination_class = LimitOffsetPagination
+
+    def get_queryset(self):
+        queryset = models.Session.objects.all()
+        polygon = self.request.query_params.get('polygon', None)
+        if polygon is not None:
+            try:
+                geoobj = GEOSGeometry(polygon, srid = 4326)
+            
+                if geoobj.valid:
+                    objs = []
+                    for obj in queryset:
+                        geoline = obj.geo_line
+                        if geoobj.crosses(geoline):
+                            objs.append(obj.id)
+                        
+                    queryset = models.Session.objects.filter(pk__in = objs)
+                
+                return queryset
+            
+            except ValueError:
+                pass
+            
+            except GEOSException:
+                pass
+            
+            
+            
+            return models.Session.objects.none()
+        
+        return queryset
+
+class ParametersView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Parameter.objects.all()
     serializer_class = serializer.ParametersSerializer
-    
-class DocumentsViewSet(viewsets.ModelViewSet):
-    queryset = models.Document.objects.all()
-    serializer_class = serializer.DocumentsSerializer
-    
-class MeasurementsViewSet(viewsets.ModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('channel',)
+
+class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
-    serializer_class = serializer.MeasurementsSerializer
+    serializer_class = serializer.MeasurementsSerializer    
+
+class QuicklookView(APIView):
     
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+
+        return Response(status = status.HTTP_200_OK)
+    
+
+
+class DownloadView(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+
+        return Response(status = status.HTTP_200_OK)
+    
+
+
+class DownloadData(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        # validated request data will be here
+        data = kwargs.get('data', None)
+
+        return Response(status = status.HTTP_200_OK)
+    
+
