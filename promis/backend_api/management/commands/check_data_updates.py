@@ -23,9 +23,26 @@ import backend_api.models as model
 from util.functions import get_func_by_name
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument("sat", nargs="*", type=str)
+
     def handle(self, *args, **options):
+        # Forming the list of satellites to update depending on the parameters
         # TODO: pick up the language from locale
-        for sat in model.Space_project.objects.language('en'):
+        space_projects_base = model.Space_project.objects.language('en')
+        if len(options["sat"]) > 0:
+            space_projects = None
+            for sat in options["sat"]:
+                sat_obj = space_projects_base.filter(name = sat)
+                if not space_projects:
+                    space_projects = sat_obj
+                else:
+                    space_projects |= sat_obj
+        else:
+            space_projects = space_projects_base
+
+        # Updating the selection
+        for sat in space_projects:
             if sat.data_func:
                 print("=> Checking data for satellite: %s." % sat.name)
                 check, fetch = get_func_by_name(sat.data_func.django_func)(sat)
