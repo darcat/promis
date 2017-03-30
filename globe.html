@@ -8,7 +8,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-  <title>Hello World!</title>
+  <title>Promis globe interface</title>
   <script src="/cesium/Cesium.js"></script>
   <style>
       @import url(/cesium/Widgets/widgets.css);
@@ -20,13 +20,65 @@
 <body>
   <div id="cesiumContainer"></div>
   <script>
+  // adapt!
+  // leaflet for 2d maps, cesium for globe
+  // global map obj
+  /*
+  function postRender(cesium, date) {
+    // We can safely stop rendering when:
+    //  - the camera position hasn't changed in over a second,
+    //  - there are no tiles waiting to load, and
+    //  - the clock is not animating
+    //  - there are no tweens in progress
+
+    var now = getTimestamp();
+
+    var scene = cesium.scene;
+
+    if (!Matrix4.equalsEpsilon(cesium._lastCameraViewMatrix, scene.camera.viewMatrix, 1e-5)) {
+        cesium._lastCameraMoveTime = now;
+    }
+
+    var cameraMovedInLastSecond = now - cesium._lastCameraMoveTime < 1000;
+
+    var surface = scene.globe._surface;
+    var tilesWaiting = !surface._tileProvider.ready || surface._tileLoadQueueHigh.length > 0 || surface._tileLoadQueueMedium.length > 0 || surface._tileLoadQueueLow.length > 0 || surface._debug.tilesWaitingForChildren > 0;
+
+    if (!cameraMovedInLastSecond && !tilesWaiting && !cesium.viewer.clock.shouldAnimate && cesium.scene.tweens.length === 0) {
+        if (cesium.verboseRendering) {
+            console.log('stopping rendering @ ' + getTimestamp());
+        }
+        cesium.viewer.useDefaultRenderLoop = false;
+        cesium.stoppedRendering = true;
+    }
+
+    Matrix4.clone(scene.camera.viewMatrix, cesium._lastCameraViewMatrix);
+
+    var feature = cesium.terria.selectedFeature;
+    if (defined(feature) && defined(feature.position)) {
+        cesium._selectionIndicator.position = feature.position.getValue(cesium.terria.clock.currentTime);
+    }
+    cesium._selectionIndicator.update();
+}*/
+
+
     Cesium.BingMapsApi.defaultKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
     var viewer = new Cesium.Viewer('cesiumContainer', 
     {
         'animation': false,
-        'timeline': false
+        'timeline': false,
+        'baseLayerPicker': false
     });
 
+    var layers = viewer.imageryLayers;
+
+    layers.removeAll();
+
+    var bing = layers.addImageryProvider(
+      new Cesium.BingMapsImageryProvider({ url : '//dev.virtualearth.net', mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS }));
+    var grid = layers.addImageryProvider(
+      new Cesium.GridImageryProvider());
+    grid.alpha = 0.3;
   </script>
 </body>
 </html>
