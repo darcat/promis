@@ -8,6 +8,10 @@ from jsonfield import JSONField
 from django.contrib.gis.db.models import LineStringField
 from hvad.models import TranslatableModel, TranslatedFields, TranslationManager
 
+from django.db.models.signals import post_migrate
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
+
 # TODO: is this class necessary?
 class FunctionManager(TranslationManager):
     def get_by_natural_key(self, django_func):
@@ -161,3 +165,15 @@ class Measurement(models.Model):
 
     class Meta:
         db_table = "measurements"
+
+
+def add_view_permissions(sender, **kwargs):
+    for content_type in ContentType.objects.all():
+        codename = "view_%s" % content_type.model
+        if not Permission.objects.filter(content_type=content_type, codename=codename):
+            Permission.objects.create(content_type=content_type,
+                                      codename=codename,
+                                      name="Can view %s" % content_type.name)
+            print ("Added view permission for %s" % content_type.name)
+
+post_migrate.connect(add_view_permissions)

@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework import filters
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 
 from backend_api import models
 from backend_api import serializer
@@ -16,7 +17,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.pagination import LimitOffsetPagination
 from django.contrib.gis.geos import GEOSGeometry, GEOSException 
-#import ValueError
+
+from django.contrib.auth import get_user_model
+
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
@@ -116,3 +120,16 @@ class DownloadData(APIView):
         return Response(status = status.HTTP_200_OK)
     
 
+class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin):
+    queryset = get_user_model().objects
+    serializer_class = serializer.UserSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            self.permission_classes = (AllowAny,)
+        else:
+            self.permission_classes = (IsAuthenticated,)
+        
+        return super(UserViewSet, self).get_permissions()
+    
+    

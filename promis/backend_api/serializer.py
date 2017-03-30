@@ -8,6 +8,9 @@ from rest_framework_gis.serializers import GeoModelSerializer
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
 import json
 
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+
 class SessionsSerializer(serializers.ModelSerializer):
     measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
     geo_line = serializers.SerializerMethodField()
@@ -93,3 +96,31 @@ class MeasurementsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency')
         model = models.Measurement
+        
+class UserSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(
+          write_only=True,
+    )
+
+    class Meta:
+       model = User
+       fields = ('password', 'username', 'first_name', 'last_name',)
+
+    def create(self, validated_data):
+        user = super(UserSerializer, self).create(validated_data)
+        if 'password' in validated_data:
+              user.set_password(validated_data['password'])
+        
+        grp = Group.objects.get(name='level1')
+        
+        user.groups.add(grp)
+        user.save()
+              
+        return user
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+        return super(UserSerializer, self).update(instance, validated_data)
