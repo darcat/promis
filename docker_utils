@@ -3,11 +3,28 @@
 # NOTE: uses standard container names/ports et all
 # TODO: use env vars or something
 
+# Checking if we are run from interactive terminal
 if [ -t 0 ] ; then
-        TERM_FLAG="-it"
-    else
-        TERM_FLAG="-i"
-    fi
+    TERM_FLAG="-it"
+else
+    TERM_FLAG="-i"
+fi
+
+# Checking if native docker is available
+# TODO: what if we have a docker AND a VM setup? exotic case, do something about it
+if which docker > /dev/null 2>&1 ; then
+    DOCKER_COMMAND="docker "
+    DOCKER_DELIM=""
+else
+    DOCKER_COMMAND="vagrant docker-"
+    DOCKER_DELIM="--"
+fi
+
+function run_docker {
+    CONTAINER=$1
+    shift
+    ${DOCKER_COMMAND}exec $TERM_FLAG $CONTAINER $DOCKER_DELIM $*
+}
 
 case `basename $0` in
     sql_access_docker)
@@ -21,22 +38,18 @@ case `basename $0` in
     else
       SQL_DB=$2
     fi
-    vagrant docker-exec $TERM_FLAG db.promis -- psql -U $SQL_USER $SQL_DB
-    ;;
-
-    sql_access_psql)
-    psql -h localhost -p 5432 -U promis promisdb # TODO: what if port is different?
+    run_docker db.promis psql -U $SQL_USER $SQL_DB
     ;;
 
     backend_shell)
-    vagrant docker-exec $TERM_FLAG api.promis -- python promis/manage.py shell
+    run_docker api.promis python promis/manage.py shell
     ;;
 
     backend_command)
-    vagrant docker-exec $TERM_FLAG api.promis -- python promis/manage.py $*
+    run_docker api.promis python promis/manage.py $*
     ;;
 
     backend_bash)
-    vagrant docker-exec $TERM_FLAG api.promis -- bash
+    run_docker api.promis bash
     ;;
 esac
