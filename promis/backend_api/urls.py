@@ -7,5 +7,13 @@ from rest_framework.routers import SimpleRouter, DefaultRouter
 
 router = SwaggerRouter()
 
-urlpatterns =  router.urls
+userreg = SimpleRouter()
+userreg.register(r'user', views.UserViewSet)
+
+urlpatterns =  router.urls + userreg.urls + [
+    url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework'))
+    ]
+
+    
+ 
 

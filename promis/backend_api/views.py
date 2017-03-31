@@ -120,7 +120,7 @@ class DownloadData(APIView):
         return Response(status = status.HTTP_200_OK)
     
 
-class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin):
+class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
     queryset = get_user_model().objects
     serializer_class = serializer.UserSerializer
 
@@ -131,5 +131,13 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin):
             self.permission_classes = (IsAuthenticated,)
         
         return super(UserViewSet, self).get_permissions()
+    
+    def get_queryset(self):
+        if self.request.user is not None:
+            return get_user_model().objects.filter(username = self.request.user)
+        else:
+            get_user_model().objects.none()
+
+    
     
     
