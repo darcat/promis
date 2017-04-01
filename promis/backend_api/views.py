@@ -11,6 +11,8 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 
 from backend_api import models
 from backend_api import serializer
+from backend_api.permission import ViewPermission
+
 import django_filters
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -50,8 +52,10 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
+    permission_classes = (ViewPermission,)
 
     def get_queryset(self):
+        
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
         if polygon is not None:
@@ -86,6 +90,7 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.ParametersSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('channel',)
+    permission_classes = (ViewPermission,)
 
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
@@ -138,6 +143,4 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
         else:
             get_user_model().objects.none()
 
-    
-    
     
