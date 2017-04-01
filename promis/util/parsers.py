@@ -20,7 +20,7 @@
 #
 """Parser functions for the various common file types involved in the project"""
 
-import re
+import re, struct
 import util.orbit
 
 # TODO: cull out those which have standard parsers (CSV?)
@@ -176,3 +176,27 @@ def csv(fp, as_type=float):
             values.append(as_type(m.group(1)))
         if values:
             yield tuple(values)
+
+def wkb(_wkb):
+    """
+    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4326
+    """
+    # TODO: test if we can speed up things if we serialized in JSON on the fly
+    # Setting endianness causes struct to use standard type sizes instead of native ones
+    endianness = [ ">", "<" ] [ _wkb[0] ]
+    
+    # Check if we have a 2D Linestring
+    if struct.unpack(endianness + "l", _wkb[1:5]) [0] != 2:
+        raise ValueError("WKB parser can only do LineString for now")
+    
+    # Determine the point count
+    pts_count = struct.unpack(endianness + "l", _wkb[5:5+4]) [0]
+    
+    # Get actual data
+    for i in range(pts_count):
+        # Each data point is 2 8-byte doubles, offset by header (9 bytes)
+        offset = 1 + 4 + 4 + 8 * 2 * i
+        yield struct.unpack(endianness + "dd", _wkb[offset:offset+16])
+
+    
+    
