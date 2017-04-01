@@ -21,7 +21,7 @@ class SessionsSerializer(serializers.ModelSerializer):
         #return obj.geo_line.wkb.hex()
         
         # TODO: study whether pre-building the list or JSON would speed up things
-        return ( pt for pt in util.parsers.wkb(obj.geo_line.wkb) )
+        return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
 
     def get_time(self, obj):
         ret_val = {}
