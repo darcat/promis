@@ -8,6 +8,8 @@ from rest_framework_gis.serializers import GeoModelSerializer
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
 import json
 
+import util.parsers
+
 class SessionsSerializer(serializers.ModelSerializer):
     measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
     geo_line = serializers.SerializerMethodField()
@@ -15,8 +17,11 @@ class SessionsSerializer(serializers.ModelSerializer):
 
 
     def get_geo_line(self, obj):
-        gl = json.loads(GEOSGeometry(obj.geo_line).json)
-        return gl
+        # Just in case for the future
+        #return obj.geo_line.wkb.hex()
+        
+        # TODO: study whether pre-building the list or JSON would speed up things
+        return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
 
     def get_time(self, obj):
         ret_val = {}
