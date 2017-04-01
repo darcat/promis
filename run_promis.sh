@@ -17,6 +17,9 @@ python $PROMIS_DIR/promis/manage.py batch_create_superuser
 # Add initial Potential data
 python $PROMIS_DIR/promis/manage.py loaddata init_data.json
 
+#Load group and permissions info
+python $PROMIS_DIR/promis/manage.py loaddata group_permissions.json groups.json permissions.json
+
 # Generate a diagram for the frontend
 python $PROMIS_DIR/promis/manage.py graph_models -a > $SYNC_DIR/model.dot
 

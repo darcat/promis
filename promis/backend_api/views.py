@@ -35,16 +35,19 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
+    permission_classes = (ViewPermission,)
 
 class DevicesView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('satellite',)
+    permission_classes = (ViewPermission,)
     
 class ChannelsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
+    permission_classes = (ViewPermission,)
     
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
@@ -94,7 +97,8 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
 
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
-    serializer_class = serializer.MeasurementsSerializer    
+    serializer_class = serializer.MeasurementsSerializer
+    permission_classes = (ViewPermission,)    
 
 class QuicklookView(APIView):
     
@@ -103,7 +107,6 @@ class QuicklookView(APIView):
         data = kwargs.get('data', None)
 
         return Response(status = status.HTTP_200_OK)
-    
 
 
 class DownloadView(APIView):
@@ -142,5 +145,3 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
             return get_user_model().objects.filter(username = self.request.user)
         else:
             get_user_model().objects.none()
-
-    
