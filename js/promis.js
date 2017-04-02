@@ -91,6 +91,10 @@ $(document).ready(function() {
         GeoObject.toggleFlat();
     });
 
+    $('#polypicker').change(function() {
+        GeoObject.togglePick();
+    });
+
     GeoObject.init('cesium', 'leaflet', [51.5, 10.2]);
     registerEvents(); // geoobj too
 

@@ -13,11 +13,13 @@ var GeoObject = {
     positions: [], // array of current selection (carthesian)
     selection: [], // array of current selection (degrees)
     currentZoom : 5,
+    totalPoints: 0,
     ellipsoid : false,
     cartographic : false,
     cesiumhandle: false,
     leaflethandle : false,
-    lastcameramove: false, // for rendering suspension
+    lastmove: Date.now(), // for rendering suspension
+    lastmatrix: new Cesium.Matrix4(), // same
 
     repaint : function() {
         if(this.isflat) {
@@ -59,6 +61,9 @@ var GeoObject = {
     },
 
     togglePick : function() {
+        if(this.drawing)
+            this.clearSelection();
+
         this.drawing = !this.drawing;
     },
 
@@ -66,8 +71,6 @@ var GeoObject = {
         var pos = this.getCurrentView();
 
         this.isflat = !this.isflat;
-
-        console.log(pos);
 
         if(!this.isflat) {
             /* lf2cs */
@@ -106,26 +109,44 @@ var GeoObject = {
     },
 
     clearSelectionPoints : function(completely = false) {
-        for(var i = 0; i < this.selpoints.length; i ++)
-            this.cesiumhandle.entities.remove(this.selpoints[i]);
+        for(var i = 0; i < totalPoints; i ++) {
+            if(this.isflat) {
+                this.leaflethandle.selpoints[i].remove();
+            } else {
+                this.cesiumhandle.entities.remove(this.selpoints[i]);
+            }
+        }
 
-        if(completely)
+        if(completely) {
+            this.totalPoints = 0;
             this.selpoints = [];
+        }
+    },
+
+    clearPolygon : function() {
+        if(this.isflat) {
+            this.polygon.remove();
+        } else {
+            cesiumhandle.entities.remove(this.polygon);
+        }
     },
 
     clearSelection : function() {
         this.selection = [];
         this.positions = [];
         this.clearSelectionPoints(true);
-        this.cesiumhandle.entities.remove(this.polygon);
+        this.clearPolygon();
+        this.repaint();
     },
 
     selectionPoint : function(pos, size = 500.0) {
+        var point = null;
+
         if(!self.isflat) {
-            // create point and make it draggable
+            // create point
             var positionCBP = function() { return pos; };
 
-            var point = this.cesiumhandle.entities.add({
+            point = this.cesiumhandle.entities.add({
                     position: new Cesium.CallbackProperty(positionCBP, false),
                     ellipse: {
                         semiMajorAxis: size,
@@ -135,49 +156,29 @@ var GeoObject = {
                     },
                     
                 });
+        } else {
+            var point = L.circle(pos, {
+                color: 'yellow',
+                fillColor: '#ffff03',
+                fillOpacity: 0.5,
+                radius: size
+            });
 
-            /*
-            var scene = this.cesiumhandle.scene;
-            var picked = this.cesiumhandle.picked;
-            var camera = this.cesiumhandle.camera;
-            var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-
-            handler.setInputAction(function(click) {
-                var pickedObject = scene.pick(click.position);
-
-                if (Cesium.defined(pickedObject) && pickedObject.id === point){
-                    picked = true;
-                    //this.disableCameraMotion(false);
-                }
-            }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-
-            handler.setInputAction(function(movement) {
-                if (!picked) return;
-
-                var position = camera.pickEllipsoid(movement.endPosition, scene.globe.ellipsoid);
-            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-            handler.setInputAction(function(movement) {
-                // if picked
-                picked = false;
-                //this.disableCameraMotion(true);
-            }, Cesium.ScreenSpaceEventType.LEFT_UP); */
-
-            // register
-            this.selpoints.push(point);
-    }
-    else {
-            ;;;
+            point.addTo(this.leaflethandle);
         }
+
+        // register
+        this.selpoints.push(point);
+        this.totalPoints ++;
     },
 
     updateSelectionPoints : function() {
-        var size = this.getCameraHeight() / 300;
+        var size = this.getCameraHeight() / 200;
 
         this.clearSelectionPoints(true);
 
-        for(var i = 0; i < this.positions.length; i ++) {
-            this.selectionPoint(this.positions[i], size);
+        for(var i = 0; i < totalPoints; i ++) {
+            this.selectionPoint(this.isflat ? this.selection[i] : this.positions[i], size);
         }
 
         this.repaint();
@@ -192,7 +193,9 @@ var GeoObject = {
             infoBox: false,
             animation: false,
             timeline: false,
+            homeButton: false,
             scene3DOnly: true,
+            fullscreenButton: false,
             baseLayerPicker: false,
             sceneModePicker: false,
             selectionIndicator: false
@@ -222,8 +225,8 @@ var GeoObject = {
         this.leaflethandle.addLayer(new L.BingLayer(bingKey, {type: 'AerialWithLabels'}));
 
         // scroll to startpos
-        //this.scrollToView(startpos[0], startpos[1]);
-    },
+        this.scrollToView(startpos[0], startpos[1]);
+    }
 };
 
 function clickDrawEventCesium(go, event) {
@@ -234,7 +237,7 @@ function clickDrawEventCesium(go, event) {
         if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
             // inside polygon, don't make the point
         } else {
-            var size = go.getCameraHeight() / 400;
+            var size = go.getCameraHeight() / 300;
             /*
             // for extra precision
             var ray = go.cesiumhandle.camera.getPickRay(event.position);
@@ -249,7 +252,7 @@ function clickDrawEventCesium(go, event) {
 
             go.positions.push(point);
             go.selection.push(coords);
-            go.selectionPoint(point, size);
+            go.selectionPoint(coords, size);
             go.cesiumhandle.entities.remove(go.polygon);
 
             go.polygon = go.cesiumhandle.entities.add({
@@ -262,31 +265,42 @@ function clickDrawEventCesium(go, event) {
             });
         }
     } else {
-        go.clearSelection();
+        //go.clearSelection();
     }
 }
 
-function clickDrawEventLeaflet() {
+function clickDrawEventLeaflet(go, e) {
+    if(go.drawing) {
+        pos = e.latlng;
+
+        go.selectionPoint(pos);
+    }
 
 }
 
 function repaintRequiredCesium() {
-    GeoObject.lastcameramove = Date.now();
+    GeoObject.lastmove = Date.now();
 
     if(!GeoObject.cesiumhandle.useDefaultRenderLoop) {
-        console.log('render resumed @' + GeoObject.lastcameramove);
+        console.log('render resumed @' + GeoObject.lastmove);
         GeoObject.cesiumhandle.useDefaultRenderLoop = true;
     }
 }
 
 function repaintRequiredLeaflet() {
+    
 
 }
 
 // © terriaJS
 function postRenderCesium(scene, date) {
     var now = Date.now();
-    var cameraMovedInLastSecond = (now - GeoObject.lastcameramove) < 1000;
+
+    if (!Cesium.Matrix4.equalsEpsilon(GeoObject.lastmatrix, scene.camera.viewMatrix, 1e-5)) {
+        GeoObject.lastmove = now;
+    }
+
+    var cameraMovedInLastSecond = (now - GeoObject.lastmove) < 1000;
 
     if(scene) {
         var surface = scene.globe._surface;
@@ -299,6 +313,12 @@ function postRenderCesium(scene, date) {
             }
         }
     }
+
+    Cesium.Matrix4.clone(scene.camera.viewMatrix, GeoObject.lastmatrix);
+}
+
+function registerLeafletEvents() {
+    GeoObject.leaflethandle.on('click', function(c) { clickDrawEventLeaflet(GeoObject, c); });
 }
 
 function registerCesiumEvents() {
@@ -322,6 +342,8 @@ function registerCesiumEvents() {
     canvas.addEventListener('mousemove', repaintRequiredCesium, false);
     canvas.addEventListener('mousedown', repaintRequiredCesium, false);
     canvas.addEventListener('mouseup', repaintRequiredCesium, false);
+    canvas.addEventListener('mousewheel', repaintRequiredCesium, false);
+    canvas.addEventListener('wheel', repaintRequiredCesium, false);
     canvas.addEventListener('touchstart', repaintRequiredCesium, false);
     canvas.addEventListener('touchend', repaintRequiredCesium, false);
     canvas.addEventListener('touchmove', repaintRequiredCesium, false);
@@ -339,4 +361,5 @@ function registerCesiumEvents() {
 
 function registerEvents() {
     registerCesiumEvents();
+    registerLeafletEvents();
 }
