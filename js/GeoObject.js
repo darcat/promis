@@ -1,13 +1,16 @@
 /* TODO: proper ES5/6 module */
 
+var bingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
+
 var GeoObject = {
     grid: false,
     isflat : false, // true: leaflet, false: cesium
     picked : false, // for point dragging
     polygon : false, // polygon entity
+    drawing : false, // whether polygon picking mode is active
     selpoints: [], // intermediate selection points
-    positions: [], // array of current selection
-    selection: false, // whether polygon picking mode is active
+    positions: [], // array of current selection (carthesian)
+    selection: [], // array of current selection (degrees)
     currentZoom : 5,
     ellipsoid : false,
     cartographic : false,
@@ -16,7 +19,7 @@ var GeoObject = {
     lastcameramove: false, // for rendering suspension
 
     init : function(cesiumcont, leaftcont) {
-        Cesium.BingMapsApi.defaultKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
+        Cesium.BingMapsApi.defaultKey = bingKey;
 
         this.cesiumhandle = new Cesium.Viewer(cesiumcont, 
         {
@@ -71,10 +74,12 @@ var GeoObject = {
         } else {
             this.grid.alpha = 0.3;
         }
+
+        repaintRequiredCesium();
     },
 
     togglePick : function() {
-        this.selection = !this.selection;
+        this.drawing = !this.drawing;
     },
 
     toggleFlat : function() {
@@ -98,10 +103,6 @@ var GeoObject = {
         }
     },
 
-    clearPositions : function() {
-        this.positions = [];
-    },
-
     clearSelectionPoints : function(completely = false) {
         for(var i = 0; i < this.selpoints.length; i ++)
             this.cesiumhandle.entities.remove(this.selpoints[i]);
@@ -111,8 +112,9 @@ var GeoObject = {
     },
 
     clearSelection : function() {
+        this.selection = [];
+        this.positions = [];
         this.clearSelectionPoints(true);
-        this.clearPositions();
         this.cesiumhandle.entities.remove(this.polygon);
     },
 
@@ -168,16 +170,15 @@ var GeoObject = {
     },
 
     updateSelectionPoints : function() {
-        this.clearSelectionPoints(true);
-
         var size = this.getCameraHeight() / 300;
 
-        console.log(size)
-        //if(size > )
+        this.clearSelectionPoints(true);
 
         for(var i = 0; i < this.positions.length; i ++) {
             this.selectionPoint(this.positions[i], size);
         }
+
+        repaintRequiredCesium();
     },
 };
 
@@ -185,14 +186,25 @@ function clickDrawEventCesium(go, event) {
     var pickedObject = go.cesiumhandle.scene.pick(event.position);
     var point = go.cesiumhandle.camera.pickEllipsoid(event.position);
 
-    if(go.selection && point) {
+    if(go.drawing && point) {
         if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
             // inside polygon, don't make the point
         } else {
-            var size = GeoObject.getCameraHeight() / 400;
+            var size = go.getCameraHeight() / 400;
+            /*
+            // for extra precision
+            var ray = go.cesiumhandle.camera.getPickRay(event.position);
+            var position = go.cesiumhandle.scene.globe.pick(ray, go.cesiumhandle.scene);
 
-            console.log(point);
+            if (Cesium.defined(position)) {
+                var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
+            }
+            */
+            var carrad = go.ellipsoid.cartesianToCartographic(point);
+            var coords = [Cesium.Math.toDegrees(carrad.longitude), Cesium.Math.toDegrees(carrad.latitude)];
+
             go.positions.push(point);
+            go.selection.push(coords);
             go.selectionPoint(point, size);
             go.cesiumhandle.entities.remove(go.polygon);
 
@@ -243,7 +255,7 @@ function registerCesiumEvents() {
     var handler = new Cesium.ScreenSpaceEventHandler(canvas);
 
     GeoObject.cesiumhandle.scene.camera.moveEnd.addEventListener(function() {
-        if(GeoObject.selection) // scale selection points
+        if(GeoObject.drawing) // scale selection points
         {
             GeoObject.updateSelectionPoints();
         }
