@@ -1,10 +1,11 @@
 /* TODO: proper ES5/6 module */
 
+//             AkErn6IFlYKIm4Mp34p-ayPl_zTVk6LoUyp4J9HftaB_KJdDkBV6MmOV4eWKciNF
 var bingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
 
 var GeoObject = {
     grid: false,
-    isflat : false, // true: leaflet, false: cesium
+    isflat : true, // true: leaflet, false: cesium
     picked : false, // for point dragging
     polygon : false, // polygon entity
     drawing : false, // whether polygon picking mode is active
@@ -18,42 +19,19 @@ var GeoObject = {
     leaflethandle : false,
     lastcameramove: false, // for rendering suspension
 
-    init : function(cesiumcont, leaftcont) {
-        Cesium.BingMapsApi.defaultKey = bingKey;
-
-        this.cesiumhandle = new Cesium.Viewer(cesiumcont, 
-        {
-            infoBox: false,
-            animation: false,
-            timeline: false,
-            scene3DOnly: true,
-            baseLayerPicker: false,
-            sceneModePicker: false,
-            selectionIndicator: false
-        });
-
-        var layers = this.cesiumhandle.imageryLayers;
-
-        layers.removeAll();
-
-        var bing = layers.addImageryProvider(
-            new Cesium.BingMapsImageryProvider({ url : '//dev.virtualearth.net', mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS }));
-        this.grid = layers.addImageryProvider(
-            new Cesium.GridImageryProvider());
-        this.grid.alpha = 0.3;
-
-        this.ellipsoid = this.cesiumhandle.scene.mapProjection.ellipsoid;
-        this.cartographic = new Cesium.Cartographic();
-
-        // get rid of camera inertia
-        this.cesiumhandle.scene.screenSpaceCameraController.inertiaSpin = 0;
-        this.cesiumhandle.scene.screenSpaceCameraController.inertiaZoom = 0;
-        this.cesiumhandle.scene.screenSpaceCameraController.inertiaTranslate = 0;
+    repaint : function() {
+        if(this.isflat) {
+            repaintRequiredLeaflet();
+        } else {
+            repaintRequiredCesium();
+        }
     },
 
     getCurrentView : function() {
         if(! this.isflat) {
-            return this.cesiumhandle.scene.camera.computeViewRectangle(this.cesiumhandle.scene.globe.ellipsoid);
+            return this.ellipsoid.cartesianToCartographic(this.cesiumhandle.camera.positionWC, this.cartographic);
+        } else {
+            return this.leaflethandle.getCenter();
         }
         
     },
@@ -64,18 +42,20 @@ var GeoObject = {
 
             return this.cartographic.height;
         } else {
-            return this.compatibleZoom;
+            return this.compatibleZoom();
         }
     },
 
     toggleGrid : function() {
-        if(this.grid.alpha) {
-            this.grid.alpha = 0.0;
-        } else {
-            this.grid.alpha = 0.3;
+        if(!this.isflat) {
+            if(this.grid.alpha) {
+                this.grid.alpha = 0.0;
+            } else {
+                this.grid.alpha = 0.3;
+            }
         }
 
-        repaintRequiredCesium();
+        this.repaint();
     },
 
     togglePick : function() {
@@ -83,23 +63,45 @@ var GeoObject = {
     },
 
     toggleFlat : function() {
-        this.isflat = !isflat;
+        var pos = this.getCurrentView();
+
+        this.isflat = !this.isflat;
+
+        console.log(pos);
+
+        if(!this.isflat) {
+            /* lf2cs */
+            this.scrollToView(pos.lng, pos.lat);
+            this.currentZoom = this.leaflethandle.getZoom();
+        } else {
+            /* cs2lf */
+            this.currentZoom = this.compatibleZoom();
+            this.scrollToView(Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude));
+        }
+        
+        this.repaint();
     },
 
     /* universal zoom across 2d/3d */
     compatibleZoom : function() {
+        // 3009256 == 5
         if(! this.isflat) {
-            return this.currentZoom * 1000.0;
+            return this.currentZoom * 501851;
         } else {
             return this.currentZoom;
         }
     },
 
-    scrollToView : function(lat, lon) {
+    scrollToView : function(lon, lat) {
+        this.repaint();
+
         if(! this.isflat) {
             this.cesiumhandle.camera.flyTo({
-                destination : Cesium.Cartesian3.fromDegrees(lat, lon, this.compatibleZoom())
+                destination : Cesium.Cartesian3.fromDegrees(lon, lat, this.compatibleZoom())
             });
+        } else {
+
+            this.leaflethandle.flyTo(L.latLng(lat, lon), this.compatibleZoom());
         }
     },
 
@@ -178,7 +180,49 @@ var GeoObject = {
             this.selectionPoint(this.positions[i], size);
         }
 
-        repaintRequiredCesium();
+        this.repaint();
+    },
+
+    init : function(cesiumcont, leafcont, startpos) {
+        // setup cesium
+        Cesium.BingMapsApi.defaultKey = bingKey;
+
+        this.cesiumhandle = new Cesium.Viewer(cesiumcont, 
+        {
+            infoBox: false,
+            animation: false,
+            timeline: false,
+            scene3DOnly: true,
+            baseLayerPicker: false,
+            sceneModePicker: false,
+            selectionIndicator: false
+        });
+
+        var layers = this.cesiumhandle.imageryLayers;
+
+        layers.removeAll();
+
+        var bing = layers.addImageryProvider(
+            new Cesium.BingMapsImageryProvider({ url : '//dev.virtualearth.net', mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS }));
+        this.grid = layers.addImageryProvider(
+            new Cesium.GridImageryProvider());
+        this.grid.alpha = 0.3;
+
+        this.ellipsoid = this.cesiumhandle.scene.mapProjection.ellipsoid;
+        this.cartographic = new Cesium.Cartographic();
+
+        // get rid of camera inertia
+        this.cesiumhandle.scene.screenSpaceCameraController.inertiaSpin = 0;
+        this.cesiumhandle.scene.screenSpaceCameraController.inertiaZoom = 0;
+        this.cesiumhandle.scene.screenSpaceCameraController.inertiaTranslate = 0;
+
+        // setup leaflet
+        var z = L.latLng(startpos[0], startpos[1]);
+        this.leaflethandle = new L.Map(leafcont, { center: z, zoom: this.currentZoom });
+        this.leaflethandle.addLayer(new L.BingLayer(bingKey, {type: 'AerialWithLabels'}));
+
+        // scroll to startpos
+        //this.scrollToView(startpos[0], startpos[1]);
     },
 };
 
@@ -222,6 +266,10 @@ function clickDrawEventCesium(go, event) {
     }
 }
 
+function clickDrawEventLeaflet() {
+
+}
+
 function repaintRequiredCesium() {
     GeoObject.lastcameramove = Date.now();
 
@@ -229,6 +277,10 @@ function repaintRequiredCesium() {
         console.log('render resumed @' + GeoObject.lastcameramove);
         GeoObject.cesiumhandle.useDefaultRenderLoop = true;
     }
+}
+
+function repaintRequiredLeaflet() {
+
 }
 
 // © terriaJS
