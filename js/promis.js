@@ -25,24 +25,13 @@ var PROMIS = {};
 
       $.each(dgeo[0].concat(dgeo[1]), function(i, item) {
         poln.push({lat: item[1], lng: item[0]});
-        PROMIS.orbit.push({lat: item[1], lng: item[0]});
+        PROMIS.orbit.push([item[1], item[0]]);
       });
 
       // clean previous orbit
-      if (orbit) {
-        orbit.setMap(null);
-      }
+      GeoObject.clearGeolines();
 
-      orbit = new google.maps.Polyline({
-        path: poln,
-        geodesic: true,
-        strokeColor: '#FF0000',
-        strokeOpacity: 1.0,
-        strokeWeight: 2
-      });
-
-      orbit.setMap(map);
-      //https://developers.google.com/maps/documentation/javascript/examples/polyline-simple
+      //orbit = GeoObject.makeGeoline(PROMIS.orbit);
     });
   }
 
@@ -54,24 +43,27 @@ var PROMIS = {};
     
     map = new google.maps.Map(mapCanvas, mapOptions);
 
+    /*
     google.maps.event.addListenerOnce(map, 'idle', function(){
       PROMIS.bounds = this.getBounds();
     });
     google.maps.event.addListener(map, 'bounds_changed', function() {
       PROMIS.bounds = this.getBounds();
-    });
+    });*/
 
     displaySession(2);
   }
 
   PROMIS.showOnTheMap = function() {
+    /*
     var bounds = new google.maps.LatLngBounds();
 
     bounds.extend(new google.maps.LatLng($('#geolat1').val(), $('#geolon1').val()));
     bounds.extend(new google.maps.LatLng($('#geolat2').val(), $('#geolon2').val()));
 
     google.maps.event.trigger(map, 'resize');
-    map.fitBounds(bounds);
+    map.fitBounds(bounds);*/
+    displaySession(2);
   }
 
 

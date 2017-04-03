@@ -9,6 +9,7 @@ var GeoObject = {
     picked : false, // for point dragging
     polygon : false, // polygon entity
     drawing : false, // whether polygon picking mode is active
+    geolines : [],
     selpoints: [], // intermediate selection points
     positions: [], // array of current selection (carthesian)
     selection: [], // array of current selection (degrees)
@@ -126,6 +127,49 @@ var GeoObject = {
 
         if(Cesium.defined(this.polygon))
             this.cesiumhandle.entities.remove(this.polygon);
+    },
+
+    clearGeolines : function() {
+        for(var i = 0; i < this.geolines.length; i ++) {
+            if(this.geolines[i] && 'remove' in this.geolines[i])
+                this.geolines[i].remove();
+
+            if(Cesium.defined(this.geoline[i]))
+                this.cesiumhandle.entities.remove(this.geolines[i])
+        }
+    },
+
+    makeGeoline : function(coords) {
+        var gl = null;
+
+        if(this.isflat) {
+            var gl = L.polyline(coords, {
+                color: 'red'
+            });
+
+            gl.addTo(this.leaflethandle);
+        } else {
+            var hc = new Array();
+
+            // convert latlon to lonlathgt
+            for(var i = 0; i < coords.length; i ++) {
+                hc.push(Cesium.Cartesian3.fromDegrees(coords[i][1], coords[i][0], 250000));
+            }
+
+            var gl = this.cesiumhandle.entities.add({
+                        polyline : {
+                            positions : hc,
+                            width : 5,
+                            material : new Cesium.PolylineOutlineMaterialProperty({
+                                color : Cesium.Color.ORANGE,
+                                outlineWidth : 2,
+                                outlineColor : Cesium.Color.BLACK
+                            })
+                        }
+            });
+        }
+
+        this.geolines.push(gl);
     },
 
     makePolygon : function() {
