@@ -61,8 +61,9 @@ var GeoObject = {
     },
 
     togglePick : function() {
-        if(this.drawing)
+        if(this.drawing) {
             this.clearSelection();
+        }
 
         this.drawing = !this.drawing;
     },
@@ -76,12 +77,22 @@ var GeoObject = {
             /* lf2cs */
             this.scrollToView(pos.lng, pos.lat);
             this.currentZoom = this.leaflethandle.getZoom();
+
+            for(var i = 0; i < this.selection.length; i ++) {
+                var position = new Cesium.Cartographic(Cesium.Math.toRadians(this.selection[i][1]), Cesium.Math.toRadians(this.selection[i][0]));//, 5000);
+                var cartesian = this.ellipsoid.cartographicToCartesian(position);
+                this.positions.push(cartesian);
+            }
         } else {
             /* cs2lf */
             this.currentZoom = this.compatibleZoom();
             this.scrollToView(Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude));
         }
         
+        this.totalPoints = this.selection.length;
+        this.updateSelectionPoints();
+        this.clearPolygon();
+        this.makePolygon();
         this.repaint();
     },
 
@@ -108,26 +119,35 @@ var GeoObject = {
         }
     },
 
-    clearSelectionPoints : function(completely = false) {
-        for(var i = 0; i < totalPoints; i ++) {
-            if(this.isflat) {
-                this.leaflethandle.selpoints[i].remove();
-            } else {
-                this.cesiumhandle.entities.remove(this.selpoints[i]);
-            }
-        }
+    clearPolygon : function() {
+        // clear everywhere
+        if(this.polygon && 'remove' in this.polygon)
+            this.polygon.remove();
 
-        if(completely) {
-            this.totalPoints = 0;
-            this.selpoints = [];
-        }
+        if(Cesium.defined(this.polygon))
+            this.cesiumhandle.entities.remove(this.polygon);
     },
 
-    clearPolygon : function() {
-        if(this.isflat) {
-            this.polygon.remove();
-        } else {
-            cesiumhandle.entities.remove(this.polygon);
+    makePolygon : function() {
+        if(this.totalPoints) {
+            if(this.isflat) {
+                this.polygon = L.polygon(this.selection, {
+                    color: 'blue',
+                    fillColor: '#0000ff',
+                    fillOpacity: 0.8
+                });
+                this.polygon.addTo(this.leaflethandle);
+
+            } else {
+                this.polygon = this.cesiumhandle.entities.add({
+                    polygon: {
+                        hierarchy : {
+                            positions : this.positions
+                        },
+                        material: Cesium.Color.BLUE.withAlpha(0.6)
+                    }
+                });
+            }
         }
     },
 
@@ -139,10 +159,35 @@ var GeoObject = {
         this.repaint();
     },
 
+    clearSelectionPoints : function(completely = false) {
+        if(this.totalPoints) {
+            for(var i = 0; i < this.totalPoints; i ++) {
+                // clear everywhere
+                if('remove' in this.selpoints[i]) this.selpoints[i].remove();
+                if(Cesium.defined(this.selpoints[i]))
+                    this.cesiumhandle.entities.remove(this.selpoints[i]);
+            }
+
+            if(completely) {
+                this.totalPoints = this.selection.length;
+                this.selpoints = [];
+            }
+        }
+    },
+
+    incrementPoint : function() {
+        this.totalPoints ++;
+
+        if(this.totalPoints > 4096) {
+            alert('Really?');
+            this.totalPoints = 0;
+        }
+    },
+
     selectionPoint : function(pos, size = 500.0) {
         var point = null;
 
-        if(!self.isflat) {
+        if(!this.isflat) {
             // create point
             var positionCBP = function() { return pos; };
 
@@ -154,14 +199,12 @@ var GeoObject = {
                         height: 0,
                         material: Cesium.Color.YELLOW.withAlpha(0.6)
                     },
-                    
                 });
         } else {
-            var point = L.circle(pos, {
+            var point = L.circle(pos, size, {
                 color: 'yellow',
-                fillColor: '#ffff03',
+                fillColor: '#ffff00',
                 fillOpacity: 0.5,
-                radius: size
             });
 
             point.addTo(this.leaflethandle);
@@ -169,7 +212,6 @@ var GeoObject = {
 
         // register
         this.selpoints.push(point);
-        this.totalPoints ++;
     },
 
     updateSelectionPoints : function() {
@@ -177,11 +219,30 @@ var GeoObject = {
 
         this.clearSelectionPoints(true);
 
-        for(var i = 0; i < totalPoints; i ++) {
+        for(var i = 0; i < this.totalPoints; i ++) {
             this.selectionPoint(this.isflat ? this.selection[i] : this.positions[i], size);
         }
 
         this.repaint();
+    },
+
+    // ray-casting algorithm based on
+    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+    polyContains(point, vs) {
+        var x = point.lat, y = point.lng;
+        var i = false;
+
+        for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+            var xi = vs[i].lat, yi = vs[i].lng;
+            var xj = vs[j].lat, yj = vs[j].lng;
+
+            var intersect = ((yi > y) != (yj > y))
+                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+
+            if (intersect) i = !i;
+        }
+
+        return i;
     },
 
     init : function(cesiumcont, leafcont, startpos) {
@@ -221,7 +282,7 @@ var GeoObject = {
 
         // setup leaflet
         var z = L.latLng(startpos[0], startpos[1]);
-        this.leaflethandle = new L.Map(leafcont, { center: z, zoom: this.currentZoom });
+        this.leaflethandle = new L.Map(leafcont, { center: z, zoom: this.currentZoom, minZoom: 1 });
         this.leaflethandle.addLayer(new L.BingLayer(bingKey, {type: 'AerialWithLabels'}));
 
         // scroll to startpos
@@ -248,21 +309,14 @@ function clickDrawEventCesium(go, event) {
             }
             */
             var carrad = go.ellipsoid.cartesianToCartographic(point);
-            var coords = [Cesium.Math.toDegrees(carrad.longitude), Cesium.Math.toDegrees(carrad.latitude)];
+            var coords = [Cesium.Math.toDegrees(carrad.latitude), Cesium.Math.toDegrees(carrad.longitude)];
 
             go.positions.push(point);
             go.selection.push(coords);
-            go.selectionPoint(coords, size);
-            go.cesiumhandle.entities.remove(go.polygon);
-
-            go.polygon = go.cesiumhandle.entities.add({
-                polygon: {
-                    hierarchy : {
-                        positions : go.positions
-                    },
-                    material: Cesium.Color.BLUE.withAlpha(0.6)
-                }
-            });
+            go.selectionPoint(point, size);
+            go.incrementPoint();
+            go.clearPolygon();
+            go.makePolygon()
         }
     } else {
         //go.clearSelection();
@@ -273,7 +327,14 @@ function clickDrawEventLeaflet(go, e) {
     if(go.drawing) {
         pos = e.latlng;
 
-        go.selectionPoint(pos);
+        // forbid inner points
+        if(/*! go.polyContains(pos, go.selection) */true) {
+            go.selection.push([pos.lat, pos.lng]);
+            go.selectionPoint(pos);
+            go.incrementPoint();
+            go.clearPolygon();
+            go.makePolygon();
+        }
     }
 
 }
@@ -282,7 +343,7 @@ function repaintRequiredCesium() {
     GeoObject.lastmove = Date.now();
 
     if(!GeoObject.cesiumhandle.useDefaultRenderLoop) {
-        console.log('render resumed @' + GeoObject.lastmove);
+        //console.log('render resumed @' + GeoObject.lastmove);
         GeoObject.cesiumhandle.useDefaultRenderLoop = true;
     }
 }
@@ -309,7 +370,7 @@ function postRenderCesium(scene, date) {
         if (!cameraMovedInLastSecond && !tilesWaiting && scene.tweens.length === 0) {
             if(GeoObject.cesiumhandle.useDefaultRenderLoop) {
                 GeoObject.cesiumhandle.useDefaultRenderLoop = false;
-                console.log('render suspended @' + now);
+                //console.log('render suspended @' + now);
             }
         }
     }
