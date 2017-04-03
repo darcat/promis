@@ -127,7 +127,7 @@ class FunctionsView(viewsets.ReadOnlyModelViewSet):
 
 #=====================================================
     
-class QuicklookView(viewsets.ReadOnlyModelViewSet):
+class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Document.objects.all()
     permission_classes = (ViewPermission, PromisPermission)
     serializer_class = serializer.QuickLookSerializer
