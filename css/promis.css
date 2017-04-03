@@ -9,9 +9,16 @@
   content:"\e080";
 }
 
-#map {
+#leaflet, #cesium {
   width: 100%;
   height: 300px;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+#OC {
+  display: none;
 }
 
 .main {

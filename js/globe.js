@@ -4,24 +4,26 @@
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 50, width / height, 0.1, 1000 );
     var rayCaster = new THREE.Raycaster();
-    var mousePosition = new THREE.Vector2();    
+    var mousePosition = new THREE.Vector2();
     var container = document.getElementById( 'container' );
     var renderer = webglAvailable() ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
-    var geometry = new THREE.SphereGeometry(3, 30, 30, 0, Math.PI * 2, 0, Math.PI * 2);
+    var phi = Math.PI * 2;
+    var theta = Math.PI * 2;
+    var geometry = new THREE.SphereGeometry(3, 30, 30, 0, phi, 0, theta);
     var material = new THREE.MeshNormalMaterial({wireframe:true});
     var sphere = new THREE.Mesh(geometry, material);
     var controls = new THREE.OrbitControls( camera );
-    
+
     function webglAvailable() {
         try {
             var canvas = document.createElement("canvas");
             return !!
-                window.WebGLRenderingContext && 
-                (canvas.getContext("webgl") || 
+                window.WebGLRenderingContext &&
+                (canvas.getContext("webgl") ||
                     canvas.getContext("experimental-webgl"));
-        } catch(e) { 
+        } catch(e) {
             return false;
-        } 
+        }
     }
 
     function info(text) {
@@ -38,18 +40,23 @@
 
         rayCaster.setFromCamera(mousePosition, camera);
 
-        var intersects = rayCaster.intersectObjects(sphere.children, true);
+        var intersects = rayCaster.intersectObjects(scene.children, true);
 
+        if (intersects.length > 0) {
+          // Reverse UV mapping
+          // TODO: check directions after map is applied
+          lat = intersects[0].uv.x * phi * 180 / Math.PI - 180
+          lon = intersects[0].uv.y * theta * 180 / Math.PI - 180 - 90
 
-        if (intersects.length > 0)
-            info(intersects[0].point);
+          info([lat, lon]);
+        }
         else info('fail')
     });
 
     controls.minDistance = 5;
     controls.maxDistance = 15;
     controls.enablePan = false;
-    
+
     scene.add(sphere);
 
     renderer.setSize(width, height);
