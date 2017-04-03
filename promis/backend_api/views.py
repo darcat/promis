@@ -139,8 +139,6 @@ class DownloadView(APIView):
         data = kwargs.get('data', None)
 
         return Response(status = status.HTTP_200_OK)
-    
-
 
 class DownloadData(APIView):
     

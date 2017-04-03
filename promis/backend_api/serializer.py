@@ -145,11 +145,11 @@ class UserSerializer(serializers.ModelSerializer):
         return super(UserSerializer, self).update(instance, validated_data)
     
 class QuickLookSerializer(serializers.ModelSerializer):
-    #json_data = serializers.SerializerMethodField()
+    json_data = serializers.SerializerMethodField()
         
     class Meta:
         model = models.Document
-        fields = ('__all__') #('json_data',)
+        fields = ('json_data',)
         
     def get_json_data(self, obj):
         print(obj.id)
@@ -165,5 +165,5 @@ class QuickLookSerializer(serializers.ModelSerializer):
             else:
                 result[key] = jdata[key] 
         
-        return "sraka" #result
+        return result
         
