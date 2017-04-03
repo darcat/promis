@@ -5,6 +5,7 @@ from django.contrib.auth.models import Permission
 from backend_api import helpers
 import datetime
 from django.utils import timezone 
+from backend_api import models
 
 def check_session(user, obj):
     if helpers.UserInGroup(user, 'default'):
@@ -47,5 +48,17 @@ class PromisPermission(BasePermission):
         
         if view.__class__.__name__ == 'MeasurementsView':
             return check_session(request.user, obj.session)
-                
+        
+        if view.__class__.__name__ == 'QuicklookView' \
+            or view.__class__.__name__ == 'DownloadView' \
+            or view.__class__.__name__ == 'DownloadData':
+                if not helpers.UserInGroup(request.user, "level2"):
+                    for meas in models.Measurement.objects.filter(par_doc = obj):
+                        return False
+                else:
+                    for meas in models.Measurement.objects.filter(chn_doc = obj):
+                        if not check_session(request.user, meas.session):
+                            return False
+
+            
         return True
