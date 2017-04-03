@@ -6,7 +6,8 @@ ADD fonts /var/www/promis/fonts/
 ADD data /var/www/promis/data/
 ADD css /var/www/promis/css/
 ADD js /var/www/promis/js/
-ADD cesium /var/www/promis/cesium/ # full version until webpack bundle
+# full version until webpack bundle
+ADD cesium /var/www/promis/cesium/ 
 ADD nginx.conf /etc/nginx/
 ADD promis.conf /etc/nginx/
 ADD download /var/www/promis/download/
