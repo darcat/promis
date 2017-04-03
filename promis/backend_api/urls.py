@@ -10,10 +10,17 @@ router = SwaggerRouter()
 userreg = SimpleRouter()
 userreg.register(r'user', views.UserViewSet)
 
+#== db view ==
+
+dbview = SimpleRouter()
+dbview.register(r'functions', views.FunctionsView)
+dbview.register(r'documents', views.DocumentsView)
+
+#=============
+
 urlpatterns =  router.urls + userreg.urls + [
     url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework'))
-    ]
+    ] + dbview.urls
 
-    
  
 

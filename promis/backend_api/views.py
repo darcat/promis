@@ -10,8 +10,8 @@ from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 
 from backend_api import models
-from backend_api import serializer
-from backend_api.permission import ViewPermission
+from backend_api import serializer, helpers
+from backend_api.permission import ViewPermission, PromisPermission
 
 import django_filters
 
@@ -23,6 +23,9 @@ from django.contrib.gis.geos import GEOSGeometry, GEOSException
 from django.contrib.auth import get_user_model
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
+
+
+import datetime
 
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
@@ -55,12 +58,23 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (ViewPermission,)
+    permission_classes = (ViewPermission, PromisPermission)
 
     def get_queryset(self):
         
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
+        user = self.request.user
+        if not helpers.UserExists(user):
+            return models.Session.objects.none()
+        
+        if helpers.UserInGroup(user, 'default'):
+            now = datetime.datetime.now()
+            half_year_ago = now - datetime.timedelta(183)
+            queryset = models.Session.objects.filter(time_end__range = (half_year_ago, now))
+        else:
+            queryset = models.Session.objects.all()
+       
         if polygon is not None:
             try:
                 geoobj = GEOSGeometry(polygon, srid = 4326)
@@ -98,8 +112,20 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (ViewPermission,)    
+    permission_classes = (ViewPermission, PromisPermission)    
 
+#======== Added to view db contents. Remove it: ======
+
+class DocumentsView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Document.objects.all()
+    serializer_class = serializer.DocumentsSerializer
+    
+class FunctionsView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Function.objects.all()
+    serializer_class = serializer.FunctionsSerializer
+
+#=====================================================
+    
 class QuicklookView(APIView):
     
     def get(self, request, *args, **kwargs):
