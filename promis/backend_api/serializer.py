@@ -2,6 +2,7 @@ from rest_framework import serializers
 from backend_api import models
 
 from rest_framework.fields import ReadOnlyField
+from rest_framework.reverse import reverse
 from djsw_wrapper.serializers import SwaggerHyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer
 from rest_framework_gis.serializers import GeoModelSerializer
@@ -10,6 +11,7 @@ import json
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+import pandas
 
 class SessionsSerializer(serializers.ModelSerializer):
     measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
@@ -88,14 +90,31 @@ class DocumentsSerializer(serializers.ModelSerializer):
         fields = ('__all__')
         model = models.Document
 
+'''class QuicklookHyperlink(serializers.HyperlinkedRelatedField):
+    view_name = 'document-detail'
+    read_only = True
+    
+    queryset = models.Document.objects.all()
+    
+    def get_object    
+'''  
+
 class MeasurementsSerializer(serializers.ModelSerializer):
     session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
     channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
     parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
-
+    quicklook = serializers.SerializerMethodField()
+        
     class Meta:
-        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency')
+        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency',
+                  'quicklook')
         model = models.Measurement
+    
+    def get_quicklook(self, obj):
+        id = obj.chn_doc.id
+        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id))
+        
+        
         
 class UserSerializer(serializers.ModelSerializer):
 
@@ -124,3 +143,27 @@ class UserSerializer(serializers.ModelSerializer):
             password = validated_data.pop('password')
             instance.set_password(password)
         return super(UserSerializer, self).update(instance, validated_data)
+    
+class QuickLookSerializer(serializers.ModelSerializer):
+    #json_data = serializers.SerializerMethodField()
+        
+    class Meta:
+        model = models.Document
+        fields = ('__all__') #('json_data',)
+        
+    def get_json_data(self, obj):
+        print(obj.id)
+        values_len = 1000
+        jdata = obj.json_data
+        res_data = []
+        result = {}
+        for key in jdata:
+            dlen = len(jdata[key])
+            if dlen > values_len:
+                wd = int(dlen/values_len)
+                result[key] = pandas.rolling_mean(jdata[key], dlen)
+            else:
+                result[key] = jdata[key] 
+        
+        return "sraka" #result
+        

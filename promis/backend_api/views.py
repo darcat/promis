@@ -26,6 +26,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 import datetime
+from rest_framework.decorators import permission_classes
 
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
@@ -126,14 +127,10 @@ class FunctionsView(viewsets.ReadOnlyModelViewSet):
 
 #=====================================================
     
-class QuicklookView(APIView):
-    
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-
-        return Response(status = status.HTTP_200_OK)
-
+class QuicklookView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Document.objects.all()
+    permission_classes = (ViewPermission, PromisPermission)
+    serializer_class = serializer.QuickLookSerializer
 
 class DownloadView(APIView):
     

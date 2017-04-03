@@ -22,5 +22,6 @@ urlpatterns =  router.urls + userreg.urls + [
     url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework'))
     ] + dbview.urls
 
+print(urlpatterns)
  
 
