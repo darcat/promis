@@ -370,6 +370,7 @@ paths:
 
   # Quicklook
   /quicklook/{id}:
+    x-swagger-object-key: id
     x-swagger-router-view: QuicklookView
     get:
       summary: Get a quicklook of data
@@ -395,6 +396,7 @@ paths:
 
   # Data download
   /download/{id}:
+    x-swagger-object-key: id
     x-swagger-router-view: DownloadView
     get:
       summary: Download data
@@ -409,9 +411,9 @@ paths:
           required: true
       responses:
         200:
-          description: Quicklook data
+          description: Raw data
           schema:
-            $ref: '#/definitions/Quicklook'
+            $ref: '#/definitions/RawData'
         default:
           description: Unexpected error
           schema:
@@ -541,6 +543,13 @@ definitions:
       data:
         type: string
         description: Quicklook data
+
+  RawData:
+    type: object
+    properties:
+      data:
+        type: string
+        description: Raw data
 
   # Time interval
   Time:
