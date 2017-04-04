@@ -6,7 +6,7 @@ info:
 
 # the domain of the service
 # (to be changed by deploy?)
-host: api.promis
+host: localhost:8083
 
 # array of all schemes that your API supports
 schemes:
@@ -27,6 +27,7 @@ paths:
   /projects:
     x-swagger-router-view: ProjectsView
     get:
+      operationId: ListProjects
       summary: Space projects
       tags:
         - Projects
@@ -48,6 +49,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: ProjectsView
     get:
+      operationId: GetProject
       summary: Space project
       tags:
         - Projects
@@ -73,6 +75,7 @@ paths:
   /devices:
     x-swagger-router-view: DevicesView
     get:
+      operationId: ListDevices
       summary: Satellite devices
       tags:
         - Devices
@@ -100,6 +103,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: DevicesView
     get:
+      operationId: GetDevice
       summary: Satellite device
       tags:
         - Devices
@@ -125,6 +129,7 @@ paths:
   /channels:
     x-swagger-router-view: ChannelsView
     get:
+      operationId: ListChannels
       summary: Satellite channels
       tags:
         - Channels
@@ -152,6 +157,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: ChannelsView
     get:
+      operationId: GetChannel
       summary: Satellite channel
       tags:
         - Channels
@@ -177,6 +183,7 @@ paths:
   /sessions:
     x-swagger-router-view: SessionsView
     get:
+      operationId: ListSessions
       summary: Measurement sessions
       tags:
         - Measurements
@@ -216,6 +223,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: SessionsView
     get:
+      operationId: GetSession
       summary: Measurement session
       tags:
         - Measurements
@@ -242,6 +250,7 @@ paths:
   /measurements:
     x-swagger-router-view: MeasurementsView
     get:
+      operationId: ListMeasurements
       summary: Measurements
       tags:
         - Measurements
@@ -288,6 +297,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: MeasurementsView
     get:
+      operationId: GetMeasurement
       summary: Measurement
       tags:
         - Measurements
@@ -313,6 +323,7 @@ paths:
   /parameters/:
     x-swagger-router-view: ParametersView
     get:
+      operationId: ListParameters
       summary: Parameters
       tags:
         - Parameters
@@ -347,6 +358,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: ParametersView
     get:
+      operationId: GetParameter
       summary: Parameter
       tags:
         - Parameters
@@ -373,6 +385,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: QuicklookView
     get:
+      operationId: Quicklook
       summary: Get a quicklook of data
       tags:
         - Measurements
@@ -399,6 +412,7 @@ paths:
     x-swagger-object-key: id
     x-swagger-router-view: DownloadView
     get:
+      operationId: Download
       summary: Download data
       tags:
         - Measurements
