@@ -42,8 +42,8 @@ end
 # Composing an API url
 need_ext = ($conf["disable_ssl"] && $conf["port_api"] == 80) ||
   (!$conf["disable_ssl"] && $conf["port_api"] == 443)
-$conf["api_url"] = ($conf["disable_ssl"] ? "http://" : "https://") +
-  $conf["servername_web"] + (need_ext ? "" : ":" + $conf["port_api"].to_s)
+$conf["api_domain"] = $conf["servername_api"] + (need_ext ? "" : ":" + $conf["port_api"].to_s)
+$conf["api_url"] = ($conf["disable_ssl"] ? "http://" : "https://") + $conf["api_domain"]
 
 # Container definitions
 containers = YAML.load_file(vagrant_root + "conf/containers.yml")
