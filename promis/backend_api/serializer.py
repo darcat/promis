@@ -151,9 +151,25 @@ class QuickLookSerializer(serializers.ModelSerializer):
         model = models.Document
         fields = ('json_data',)
         
+    def moving_average(self, data, period):
+        ret_val = []
+        for i in range (period, len(data) - 1):
+            ave = 0.0
+            for j in range (0, period):
+                ave += data[i + j]
+                ave /= period
+            ret_val.append(ave)
+            
     def get_json_data(self, obj):
-        print(obj.id)
-        values_len = 1000
+        values_len = self.context['request'].query_params.get('points', None)
+        if values_len is not None:
+            try:
+                values_len = int(values_len)
+            except ValueError:
+                values_len = 1000
+        if values_len > 1000:
+            values_len = 1000
+        
         jdata = obj.json_data
         res_data = []
         result = {}
@@ -161,9 +177,10 @@ class QuickLookSerializer(serializers.ModelSerializer):
             dlen = len(jdata[key])
             if dlen > values_len:
                 wd = int(dlen/values_len)
-                result[key] = pandas.rolling_mean(jdata[key], dlen)
+                result[key] = self.moving_average(jdata[key], values_len)
             else:
                 result[key] = jdata[key] 
         
+        print (result)
         return result
         
