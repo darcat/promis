@@ -3,6 +3,7 @@
 REST = {
     apiHost : 'http://something',
     swagger : null,
+    lang : 'en',
 
     csrfSafeMethod : function(method) {
         // these HTTP methods do not require CSRF protection
@@ -10,10 +11,12 @@ REST = {
     },
 
     setLanguage : function(code) {
+        this.lang = code;
         $.post(this.apiHost + '/i18n/setlang/', { language : code });
     },
 
     apiMethod : function(tag, name, params) {
+        // https://github.com/github/fetch#sending-cookies
         return this.swagger[tag][name](params); /* Promise */
     }
 };
@@ -29,8 +32,9 @@ function initREST (schemaurl)
             xhrFields: {
                 withCredentials: true
             },
+            crossDomain: false,
             beforeSend: function(xhr, settings) {
-                if (! REST.csrfSafeMethod(settings.type) /*&& !this.crossDomain*/) {
+                if (! REST.csrfSafeMethod(settings.type)) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
             }
