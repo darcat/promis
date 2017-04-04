@@ -11,7 +11,7 @@ def check_session(user, obj):
     if helpers.UserInGroup(user, 'default'):
             now = datetime.datetime.now()
             half_year_ago = timezone.make_aware(now - datetime.timedelta(183), timezone.get_default_timezone())
-            if obj.time_end > half_year_ago:
+            if obj.time_end < half_year_ago:
                 return True
             else:
                 return False

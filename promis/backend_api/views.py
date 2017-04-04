@@ -72,7 +72,8 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
         if helpers.UserInGroup(user, 'default'):
             now = datetime.datetime.now()
             half_year_ago = now - datetime.timedelta(183)
-            queryset = models.Session.objects.filter(time_end__range = (half_year_ago, now))
+            ago = datetime.date(1900, 1, 1)
+            queryset = models.Session.objects.filter(time_end__range = (ago, half_year_ago))
         else:
             queryset = models.Session.objects.all()
        

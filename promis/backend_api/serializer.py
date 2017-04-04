@@ -12,6 +12,7 @@ import json
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 import pandas
+from backend_api import helpers
 
 class SessionsSerializer(serializers.ModelSerializer):
     measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
@@ -104,18 +105,25 @@ class MeasurementsSerializer(serializers.ModelSerializer):
     channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
     parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
     quicklook = serializers.SerializerMethodField()
+    filter_fields = ('channel', 'parameters') 
         
     class Meta:
         fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency',
-                  'quicklook')
+                  'quicklook', 'chn_doc')
         model = models.Measurement
     
     def get_quicklook(self, obj):
         id = obj.chn_doc.id
+        #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id))
+    
+    def __init__(self, *args, **kwargs):
+        initial_data = models.Measurement.objects.none()
+        return super().__init__( args, kwargs)
         
-        
-        
+        #if helpers.UserInGroup(kwargs['context']['request'].user, 'level2'):
+            #fields.pop('chn_par')
+     
 class UserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(
