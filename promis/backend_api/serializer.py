@@ -118,14 +118,14 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id))
     
     def __init__(self, *args, **kwargs):
-        fields = kwargs.pop('fields', None)
-
+        
         super().__init__(*args, **kwargs)
         
         user = self.context['request'].user
         if not helpers.UserInGroup(user, 'level2'):
             self.fields.pop('par_doc')
-
+        
+        
 class UserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(
@@ -180,6 +180,8 @@ class QuickLookSerializer(serializers.ModelSerializer):
                 values_len = int(values_len)
             except ValueError:
                 values_len = 1000
+        else:
+            values_len = 1000
         if values_len > 1000:
             values_len = 1000
         
