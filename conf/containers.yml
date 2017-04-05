@@ -28,11 +28,12 @@
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
     YML_PATH:           ${conf.yml_api_dir}
+    PROMIS_ORIGIN:      ${conf.promis_origin}
 
 - name:   ${conf.hostname_web}
   build:  ${conf.dir_web}
   git_repo: "github.com/${conf.repo_web}#${conf.version_web}"
-  ports:  [ "${conf.port_api}", "${conf.port_web}" ]
+  ports:  [ "${conf.port_web}" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "${conf.ssl_prefix}"]
@@ -46,3 +47,4 @@
     PORT_API_INTERNAL:  ${conf.port_api_internal}
     PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
+    YML_PATH:           ${conf.yml_web_dir}

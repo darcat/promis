@@ -39,6 +39,11 @@ if !$conf["prefer_local"]
   Vagrant.require_version ">= 1.8.7.dev"
 end
 
+# Composing the API url
+need_ext = ($conf["disable_ssl"] && $conf["port_web"] == 80) ||
+  (!$conf["disable_ssl"] && $conf["port_web"] == 443)
+$conf["promis_origin"] = $conf["servername_web"] + (need_ext ? "" : ":" + $conf["port_web"].to_s)
+
 # Container definitions
 containers = YAML.load_file(vagrant_root + "conf/containers.yml")
 
