@@ -6,7 +6,7 @@ python $PROMIS_DIR/promis/wait_for_database.py
 
 # Change the Host: string in YAML
 # NOTE: this may change your host filesystem!
-sed -i -e 's/host:.*/host: '$API_DOMAIN'/g' $YML_PATH/promis_api.yaml
+sed -i -e 's/host:.*/host: '$PROMIS_ORIGIN'/g' $YML_PATH/promis_api.yaml
 
 # Migrate data if needed
 python $PROMIS_DIR/promis/manage.py makemigrations --no-input
