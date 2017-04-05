@@ -41,7 +41,6 @@ if $conf["development_setup"]
   $conf["servername_web"] = "localhost" unless $user_conf.key?("servername_web")
   $conf["servername_api"] = "localhost" unless $user_conf.key?("servername_api")
   $conf["port_web"] = 8081 unless $user_conf.key?("port_web")
-  $conf["port_api"] = 8083 unless $user_conf.key?("port_api")
   $conf["prefer_local"] = true unless $user_conf.key?("prefer_local")
   $conf["expose_db"] = true unless $user_conf.key?("expose_db")
   $conf["django_debug"] = true unless $user_conf.key?("django_debug")
@@ -51,20 +50,15 @@ end
 # Fix ports for oblivious people
 $conf["port_web"] = 80 if $conf["port_web"] == 443 && $conf["disable_ssl"]
 $conf["port_web"] = 443 if $conf["port_web"] == 80 && !$conf["disable_ssl"]
-$conf["port_api"] = 80 if $conf["port_api"] == 443 && $conf["disable_ssl"]
-$conf["port_api"] = 443 if $conf["port_api"] == 80 && !$conf["disable_ssl"]
+
 
 # Compose port-key specifications
 if $conf["disable_ssl"]
   $conf["port_key_web"] = $conf["port_web"].to_s
-  $conf["port_key_api"] = $conf["port_api"].to_s
 else
   $conf["port_key_web"] = $conf["port_web"].to_s + " ssl;\n" +
     "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_web"] + ";\n" +
     "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_web"]
-  $conf["port_key_api"] = $conf["port_api"].to_s + " ssl;\n" +
-      "ssl_certificate " + $conf["ssl_prefix"] + "/" + $conf["ssl_cert_api"] + ";\n" +
-      "ssl_certificate_key " + $conf["ssl_prefix"] + "/" + $conf["ssl_key_api"]
 end
 
 # Generate Django key if it's still empty

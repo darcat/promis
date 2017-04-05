@@ -23,8 +23,8 @@
     DJANGO_SUPERUSER:   ${conf.django_superuser}
     DJANGO_SUPERPASS:   ${conf.django_superpass}
     DJANGO_SUPEREMAIL:  ${conf.django_superemail}
-    API_URL:            ${conf.api_url}
-    API_DOMAIN:         ${conf.api_domain}
+    PROMIS_SERVERNAME:  ${conf.servername_web}
+    PROMIS_SERVERPORT:  ${conf.port_web}
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
     YML_PATH:           ${conf.yml_api_dir}
@@ -40,13 +40,9 @@
     - [ "repos/ionosat-docs", "${conf.yml_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
   env:
-    SERVERNAME_WEB:     ${conf.servername_web}
-    SERVERNAME_API:     ${conf.servername_api}
+    PROMIS_SERVERNAME:  ${conf.servername_web}
+    PROMIS_SERVERPORT:  ${conf.port_web}
     HOSTNAME_API:       ${conf.hostname_api}
-    PORT_WEB:           ${conf.port_web}
-    PORT_API:           ${conf.port_api}
     PORT_API_INTERNAL:  ${conf.port_api_internal}
-    API_URL:            ${conf.api_url}
-    PORT_KEY_WEB:       ${conf.port_key_web}
-    PORT_KEY_API:       ${conf.port_key_api}
+    PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
