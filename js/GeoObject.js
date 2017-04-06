@@ -147,15 +147,23 @@ var GeoObject = {
             anchor = 0;
             for (var i = 1; i < coords.length; i++) {
               /* If it's the last point or there is a -180/180 jump, add what we have */
-              var delta_lon = coords[i][1] - coords[i - 1][1];
-              if (i + 1 == coords.length || Math.abs(delta_lon) > 90) {
+              if (i + 1 == coords.length || Math.abs(coords[i][1] - coords[i - 1][1]) > 90) {
+                var sliced = coords.slice(anchor, i);
+
+                /* If we are not adding the final segment, add the current point
+                   mirrored, e.g. -170 is +190 and so on. */
+                if (i + 1 < coords.length) {
+                  var mirror = coords[i].slice();
+                  var s = Math.sign(mirror[1]);
+                  mirror[1] = mirror[1] - s * 360;
+                  sliced.push(mirror)
+                }
+
                 /* Adding the segment */
-                var gl = L.polyline(coords.slice(anchor, i), {
+                var gl = L.polyline(sliced, {
                     color: 'red'
                 });
                 gl.addTo(this.leaflethandle);
-
-                // TODO: add a 2 pt segment from coords[i] mirrored to coords[i-1] 
 
                 /* Recording new anchor, if it was the last point it wouldn't matter anyway */
                 anchor = i;
