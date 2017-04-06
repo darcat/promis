@@ -126,6 +126,10 @@ class FunctionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Function.objects.all()
     serializer_class = serializer.FunctionsSerializer
 
+class ParameterssView(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Parameter.objects.all()
+    serializer_class = serializer.ParametersSerializer
+    
 #=====================================================
     
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
@@ -134,20 +138,14 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializer.QuickLookSerializer
 
 class DownloadView(APIView):
-    
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
+    queryset = models.Measurement.objects.all()
+    permission_classes = (ViewPermission, PromisPermission)
+    serializer_class = serializer.DownloadViewSerializer
 
-        return Response(status = status.HTTP_200_OK)
 
 class DownloadData(APIView):
-    
-    def get(self, request, *args, **kwargs):
-        # validated request data will be here
-        data = kwargs.get('data', None)
-
-        return Response(status = status.HTTP_200_OK)
+    queryset = models.Document.objects.all()
+    serializer_class = serializer.DocumentsSerializer
     
 
 class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):

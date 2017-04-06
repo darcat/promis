@@ -11,10 +11,12 @@ userreg = SimpleRouter()
 userreg.register(r'user', views.UserViewSet)
 
 #== db view ==
+#TODO: Remove it
 
 dbview = SimpleRouter()
 dbview.register(r'functions', views.FunctionsView)
 dbview.register(r'documents', views.DocumentsView)
+dbview.register(r'parameters', views.ParametersView)
 
 #=============
 

@@ -100,16 +100,15 @@ class DocumentsSerializer(serializers.ModelSerializer):
     def get_object    
 '''  
 
-class MeasurementsSerializer(serializers.ModelSerializer):
-    session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
-    channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
-    parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
-    quicklook = serializers.SerializerMethodField()
-    filter_fields = ('channel', 'parameters') 
-        
+class DownloadViewSerializer(serializers.ModelSerializer):
+    chn_quicklook = serializers.SerializerMethodField(method_name='get_quicklook')
+    par_quicklook = serializers.SerializerMethodField()
+    
+    chn_doc = serializers.SerializerMethodField()
+    par_doc = serializers.SerializerMethodField()
+    
     class Meta:
-        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency',
-                  'quicklook', 'chn_doc', 'par_doc')
+        fields = ('chn_quicklook', 'par_quicklook', 'chn_doc', 'par_doc')
         model = models.Measurement
     
     def get_quicklook(self, obj):
@@ -117,12 +116,45 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id))
     
+    def get_data(self, obj):
+        id = obj.chn_doc.id
+        #TODO: SPIKE: remove below hard code and replace to related view path.
+        return self.context['request'].build_absolute_uri('/en/api/data/' + str(id))
+    
     def __init__(self, *args, **kwargs):
         
         super().__init__(*args, **kwargs)
         
         user = self.context['request'].user
         if not helpers.UserInGroup(user, 'level2'):
+            self.fields.pop('par_doc')
+            self.fields.pop('par_quicklook')
+        
+
+
+class MeasurementsSerializer(serializers.ModelSerializer):
+    session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
+    channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
+    parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
+    data = serializers.SerializerMethodField()
+    filter_fields = ('channel', 'parameters') 
+        
+    class Meta:
+        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'data')
+        model = models.Measurement
+    
+    def get_data(self, obj):
+        id = obj.chn_doc.id
+        #TODO: SPIKE: remove below hard code and replace to related view path.
+        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id))
+    
+    def __init__(self, *args, **kwargs):
+        
+        super().__init__(*args, **kwargs)
+        
+        user = self.context['request'].user
+        if not helpers.UserInGroup(user, 'level2'):
+            self.filter_fields.pop = ('parameters')
             self.fields.pop('par_doc')
         
         
