@@ -25,6 +25,7 @@
     DJANGO_SUPEREMAIL:  ${conf.django_superemail}
     API_URL:            ${conf.api_url}
     API_DOMAIN:         ${conf.api_domain}
+    PROMIS_ORIGIN:      ${conf.api_domain}  # TODO: for consistency before la_unitta merge. remove this if it conflicts with merger
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
     YML_PATH:           ${conf.yml_api_dir}
