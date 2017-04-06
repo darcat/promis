@@ -13,7 +13,6 @@
   depend:   [ "${conf.hostname_db}" ]
   sync:
     - [ "sync/", "${conf.sync_api_dir}" ]
-    - [ "repos/ionosat-docs", "${conf.yml_api_dir}" ]
   env:
     # NOTE: libpq docu says it's 'posgresql://': https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
     # TODO: echo special chars in the password maybe? low priority
@@ -28,7 +27,6 @@
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
     YML_PATH:           ${conf.yml_api_dir}
-    PROMIS_ORIGIN:      ${conf.promis_origin}
 
 - name:   ${conf.hostname_web}
   build:  ${conf.dir_web}
@@ -38,13 +36,8 @@
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "${conf.ssl_prefix}"]
     - [ "sync/", "${conf.sync_web_dir}" ]
-    - [ "repos/ionosat-docs", "${conf.yml_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
   env:
-    PROMIS_SERVERNAME:  ${conf.servername_web}
-    PROMIS_SERVERPORT:  ${conf.port_web}
-    HOSTNAME_API:       ${conf.hostname_api}
-    PORT_API_INTERNAL:  ${conf.port_api_internal}
     PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
     YML_PATH:           ${conf.yml_web_dir}
