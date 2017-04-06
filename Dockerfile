@@ -19,3 +19,5 @@ ADD deploy/promis_api.yaml /var/www/promis/api/
 
 RUN chgrp nginx /etc/ssl/private
 RUN chmod g+x,g+r /etc/ssl/private
+
+CMD [ "/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf" ]
