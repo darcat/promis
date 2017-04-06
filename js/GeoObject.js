@@ -36,7 +36,7 @@ var GeoObject = {
         } else {
             return this.leaflethandle.getCenter();
         }
-        
+
     },
 
     getCameraHeight: function() {
@@ -89,7 +89,7 @@ var GeoObject = {
             this.currentZoom = this.compatibleZoom();
             this.scrollToView(Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude));
         }
-        
+
         this.totalPoints = this.selection.length;
         this.updateSelectionPoints();
         this.clearPolygon();
@@ -143,11 +143,24 @@ var GeoObject = {
         var gl = null;
 
         if(this.isflat) {
-            var gl = L.polyline(coords, {
-                color: 'red'
-            });
+            /* First point of the segment that we're currently adding */
+            anchor = 0;
+            for (var i = 1; i < coords.length; i++) {
+              /* If it's the last point or there is a -180/180 jump, add what we have */
+              var delta_lon = coords[i][1] - coords[i - 1][1];
+              if (i + 1 == coords.length || Math.abs(delta_lon) > 90) {
+                /* Adding the segment */
+                var gl = L.polyline(coords.slice(anchor, i), {
+                    color: 'red'
+                });
+                gl.addTo(this.leaflethandle);
 
-            gl.addTo(this.leaflethandle);
+                // TODO: add a 2 pt segment from coords[i] mirrored to coords[i-1] 
+
+                /* Recording new anchor, if it was the last point it wouldn't matter anyway */
+                anchor = i;
+              }
+            }
         } else {
             var hc = new Array();
 
@@ -293,7 +306,7 @@ var GeoObject = {
         // setup cesium
         Cesium.BingMapsApi.defaultKey = bingKey;
 
-        this.cesiumhandle = new Cesium.Viewer(cesiumcont, 
+        this.cesiumhandle = new Cesium.Viewer(cesiumcont,
         {
             infoBox: false,
             animation: false,
@@ -393,7 +406,7 @@ function repaintRequiredCesium() {
 }
 
 function repaintRequiredLeaflet() {
-    
+
 
 }
 
@@ -438,7 +451,7 @@ function registerCesiumEvents() {
         }
     });
 
-    viewer.scene.postRender.addEventListener(function(scene, time)  { 
+    viewer.scene.postRender.addEventListener(function(scene, time)  {
     });
 
     handler.setInputAction(function(click) { clickDrawEventCesium(GeoObject, click) }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
