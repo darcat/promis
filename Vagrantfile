@@ -39,16 +39,16 @@ if !$conf["prefer_local"]
   Vagrant.require_version ">= 1.8.7.dev"
 end
 
-# Composing an API url
-need_ext = ($conf["disable_ssl"] && $conf["port_api"] == 80) ||
-  (!$conf["disable_ssl"] && $conf["port_api"] == 443)
-$conf["api_domain"] = $conf["servername_api"] + (need_ext ? "" : ":" + $conf["port_api"].to_s)
-$conf["api_url"] = ($conf["disable_ssl"] ? "http://" : "https://") + $conf["api_domain"]
+# Composing the API url
+need_ext = ($conf["disable_ssl"] && $conf["port_web"] == 80) ||
+  (!$conf["disable_ssl"] && $conf["port_web"] == 443)
+$conf["promis_origin"] = $conf["servername_web"] + (need_ext ? "" : ":" + $conf["port_web"].to_s)
 
 # Container definitions
 containers = YAML.load_file(vagrant_root + "conf/containers.yml")
 
 # Check if input contains a configuration variable reference, if so, substitute
+# TODO: better approach
 def cfg(input)
   res = input.dup
   rexp_conf = /\${conf.([a-zA-Z_][a-zA-Z0-9_]*)}/
@@ -57,6 +57,21 @@ def cfg(input)
   end
   return res
 end
+
+# Process auto-generated files
+# TODO: see #46, this needs to live in YML somewhere
+# TODO: this ALWAYS runs even on vagrant-status etc
+ifiles = [ "repos/ionosat-docs/promis_api.yaml", "repos/promis-frontend/promis.conf" ]
+ofiles = [ [ "repos/promis-backend/api/promis_api.yaml", "repos/promis-frontend/deploy/promis_api.yaml" ], [ "repos/promis-frontend/deploy/promis.conf" ] ]
+
+ifiles.each_with_index { |v, i|
+  s = cfg(IO.read(v))
+  ofiles[i].each { |vv|
+    fp = File.open(vv, "w")
+    fp.puts s
+    fp.close
+  }
+}
 
 Vagrant.configure("2") do |config|
   config.vm.provider "docker"

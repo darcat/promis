@@ -13,7 +13,6 @@
   depend:   [ "${conf.hostname_db}" ]
   sync:
     - [ "sync/", "${conf.sync_api_dir}" ]
-    - [ "repos/ionosat-docs", "${conf.yml_api_dir}" ]
   env:
     # NOTE: libpq docu says it's 'posgresql://': https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
     # TODO: echo special chars in the password maybe? low priority
@@ -23,9 +22,8 @@
     DJANGO_SUPERUSER:   ${conf.django_superuser}
     DJANGO_SUPERPASS:   ${conf.django_superpass}
     DJANGO_SUPEREMAIL:  ${conf.django_superemail}
-    API_URL:            ${conf.api_url}
-    API_DOMAIN:         ${conf.api_domain}
-    PROMIS_ORIGIN:      ${conf.api_domain}  # TODO: for consistency before la_unitta merge. remove this if it conflicts with merger
+    PROMIS_SERVERNAME:  ${conf.servername_web}
+    PROMIS_SERVERPORT:  ${conf.port_web}
     SYNC_DIR:           ${conf.sync_api_dir}
     PYTHONUNBUFFERED:   "0"
     YML_PATH:           ${conf.yml_api_dir}
@@ -33,21 +31,13 @@
 - name:   ${conf.hostname_web}
   build:  ${conf.dir_web}
   git_repo: "github.com/${conf.repo_web}#${conf.version_web}"
-  ports:  [ "${conf.port_api}", "${conf.port_web}" ]
+  ports:  [ "${conf.port_web}" ]
   sync:
     - [ "nginx/", "/etc/nginx/conf.d/" ]
     - [ "ssl/", "${conf.ssl_prefix}"]
     - [ "sync/", "${conf.sync_web_dir}" ]
-    - [ "repos/ionosat-docs", "${conf.yml_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
   env:
-    SERVERNAME_WEB:     ${conf.servername_web}
-    SERVERNAME_API:     ${conf.servername_api}
-    HOSTNAME_API:       ${conf.hostname_api}
-    PORT_WEB:           ${conf.port_web}
-    PORT_API:           ${conf.port_api}
-    PORT_API_INTERNAL:  ${conf.port_api_internal}
-    API_URL:            ${conf.api_url}
-    PORT_KEY_WEB:       ${conf.port_key_web}
-    PORT_KEY_API:       ${conf.port_key_api}
+    PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
+    YML_PATH:           ${conf.yml_web_dir}

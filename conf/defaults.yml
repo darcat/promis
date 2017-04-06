@@ -18,9 +18,7 @@ postgres_dbname:    'promisdb'
 
 # DNS domain names and ports for frontend and API respectively
 servername_web:     'promis.ikd.kiev.ua'
-servername_api:     'api.promis.ikd.kiev.ua'
 port_web:           443
-port_api:           443
 # Port that Backend listens on internally
 port_api_internal:  80
 
