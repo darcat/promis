@@ -5,8 +5,8 @@ info:
   version: "0.1.1"
 
 # the domain of the service
-# (to be changed by deploy?)
-host: localhost:8083
+# (to be changed by deploy)
+host: ${conf.promis_origin}
 
 # array of all schemes that your API supports
 schemes:
