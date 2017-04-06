@@ -159,11 +159,22 @@ var GeoObject = {
                   sliced.push(mirror)
                 }
 
-                /* Adding the segment */
-                var gl = L.polyline(sliced, {
-                    color: 'red'
-                });
-                gl.addTo(this.leaflethandle);
+
+                /* Utility that creates shift functions for longitude */
+                var shifter = function(s) {
+                  return function(x) {
+                    return [ x[0], x[1] + s ];
+                  };
+                }
+
+                /* Adding the segment, then the same one shifted +360°/-360° */
+                var segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
+                for (var j = 0; j < segs.length; j++) {
+                  var gl = L.polyline(segs[j], {
+                     color: 'red'
+                  });
+                  gl.addTo(this.leaflethandle);
+                }
 
                 /* Recording new anchor, if it was the last point it wouldn't matter anyway */
                 anchor = i;
