@@ -46,12 +46,12 @@ class PromisPermission(BasePermission):
         if view.__class__.__name__ == 'SessionsView':
             return check_session(request.user, obj)
         
-        if view.__class__.__name__ == 'MeasurementsView':
-            return check_session(request.user, obj.session)
+        if view.__class__.__name__ == 'MeasurementsView' \
+            or view.__class__.__name__ == 'DownloadView':
+                return check_session(request.user, obj.session)
         
         if view.__class__.__name__ == 'QuicklookView' \
-            or view.__class__.__name__ == 'DownloadView' \
-            or view.__class__.__name__ == 'DownloadData':
+           or view.__class__.__name__ == 'DownloadData':
                 if not helpers.UserInGroup(request.user, "level2"):
                     for meas in models.Measurement.objects.filter(par_doc = obj):
                         return False

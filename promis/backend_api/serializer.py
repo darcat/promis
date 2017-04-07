@@ -102,10 +102,10 @@ class DocumentsSerializer(serializers.ModelSerializer):
 
 class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField(method_name='get_quicklook')
-    par_quicklook = serializers.SerializerMethodField()
+    par_quicklook = serializers.SerializerMethodField(method_name='get_quicklook')
     
-    chn_doc = serializers.SerializerMethodField()
-    par_doc = serializers.SerializerMethodField()
+    chn_doc = serializers.SerializerMethodField(method_name='get_data')
+    par_doc = serializers.SerializerMethodField(method_name='get_data')
     
     class Meta:
         fields = ('chn_quicklook', 'par_quicklook', 'chn_doc', 'par_doc')
@@ -155,8 +155,7 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if not helpers.UserInGroup(user, 'level2'):
             self.filter_fields.pop = ('parameters')
-            self.fields.pop('par_doc')
-        
+         
         
 class UserSerializer(serializers.ModelSerializer):
 

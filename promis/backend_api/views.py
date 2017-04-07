@@ -137,13 +137,13 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (ViewPermission, PromisPermission)
     serializer_class = serializer.QuickLookSerializer
 
-class DownloadView(APIView):
+class DownloadView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     permission_classes = (ViewPermission, PromisPermission)
     serializer_class = serializer.DownloadViewSerializer
 
 
-class DownloadData(APIView):
+class DownloadData(viewsets.ReadOnlyModelViewSet):
     queryset = models.Document.objects.all()
     serializer_class = serializer.DocumentsSerializer
     
