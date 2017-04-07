@@ -62,4 +62,4 @@ class Session:
             "next": "/api/",
         }
         r = self.post("http://localhost:8081/en/api-auth/login/", data = data)
-        assert re.search(r"/api/$", r.url), "Wrong login or password"
+        return bool(re.search(r"/api/$", r.url))
