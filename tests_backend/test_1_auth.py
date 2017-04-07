@@ -13,7 +13,7 @@ def test_wrong_password(session):
 # TODO: this behaviour may and will change!
 def test_unauth_access(session):
     '''Check that we can't access the API without authenticating first'''
-    assert 400 <= session.get("http://localhost:8081/en/api/").status_code < 500, "Unauthenticated access possible"
+    assert 400 <= session.get("/en/api/").status_code < 500, "Unauthenticated access possible"
 
 @pytest.fixture
 def superuser(session):
@@ -23,7 +23,7 @@ def superuser(session):
 # TODO: replace with test data instead
 def test_potential_data(superuser):
     '''Check that Potential is correctly inserted'''
-    r = superuser.get("http://localhost:8081/en/api/projects/1")
+    r = superuser.get("/en/api/projects/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
     assert "name" in json_data, "Invalid JSON recieved"
@@ -47,7 +47,7 @@ def connie(session):
 
 def test_level2_access(melanie):
     '''Check that level2 users can see only parameter fields'''
-    r = melanie.get("http://localhost:8081/en/api/download/1")
+    r = melanie.get("/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
     assert "chn_doc" not in json_data, "Can see channels"
@@ -55,7 +55,7 @@ def test_level2_access(melanie):
 
 def test_level1_access(connie):
     '''Check that level1 users can see all fields'''
-    r = connie.get("http://localhost:8081/en/api/download/1")
+    r = connie.get("/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
     assert "chn_doc" in json_data, "Can't see channels"

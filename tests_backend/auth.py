@@ -6,7 +6,9 @@ import requests, re
 class Session:
     '''Temporary class to envelop a session'''
 
-    def _do_request(self, method, args, kwargs):
+    root_url = "http://localhost:8081" # TODO: configurability
+
+    def _do_request(self, method, url, args, kwargs):
         try:
             if self.csrftoken:
                 kwargs["cookies"] = { "csrftoken" : self.csrftoken }
@@ -17,7 +19,7 @@ class Session:
         except AttributeError:
             pass
 
-        r = method(*args, **kwargs)
+        r = method(self.root_url + url, *args, **kwargs)
 
         csrftoken = r.cookies.get("csrftoken")
         if csrftoken:
@@ -28,22 +30,22 @@ class Session:
 
         return r
 
-    def get(self, *args, **kwargs):
+    def get(self, url, *args, **kwargs):
         '''
         Does a requests.get() request and saves the csrft cookie.
 
         Uses the same cookie if available
         '''
-        return self._do_request(requests.get, args, kwargs)
+        return self._do_request(requests.get, url, args, kwargs)
 
 
-    def post(self, *args, **kwargs):
+    def post(self, url, *args, **kwargs):
         '''
         Does a requests.post() request and saves the csrft cookie.
 
         Uses the same cookie if available
         '''
-        return self._do_request(requests.post, args, kwargs)
+        return self._do_request(requests.post, url, args, kwargs)
 
 
     def login(self, user, password):
@@ -56,7 +58,7 @@ class Session:
         # TODO: configurable host:port etc
 
         # Get the authentication form
-        r = self.get("http://localhost:8081/en/api-auth/login/")
+        r = self.get("/en/api-auth/login/")
         assert r.status_code == 200, "Login form unavailable"
         assert r.cookies.get("csrftoken"), "No csrftoken in the response"
 
@@ -71,5 +73,5 @@ class Session:
             "password": password,
             "csrfmiddlewaretoken": self.middlewaretoken,
         }
-        r = self.post("http://localhost:8081/en/api-auth/login/", data = data, allow_redirects=False)
+        r = self.post("/en/api-auth/login/", data = data, allow_redirects=False)
         return r.status_code == 302
