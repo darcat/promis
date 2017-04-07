@@ -36,7 +36,7 @@ var GeoObject = {
         } else {
             return this.leaflethandle.getCenter();
         }
-        
+
     },
 
     getCameraHeight: function() {
@@ -89,7 +89,7 @@ var GeoObject = {
             this.currentZoom = this.compatibleZoom();
             this.scrollToView(Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude));
         }
-        
+
         this.totalPoints = this.selection.length;
         this.updateSelectionPoints();
         this.clearPolygon();
@@ -143,11 +143,43 @@ var GeoObject = {
         var gl = null;
 
         if(this.isflat) {
-            var gl = L.polyline(coords, {
-                color: 'red'
-            });
+            /* First point of the segment that we're currently adding */
+            anchor = 0;
+            for (var i = 1; i < coords.length; i++) {
+              /* If it's the last point or there is a -180/180 jump, add what we have */
+              if (i + 1 == coords.length || Math.abs(coords[i][1] - coords[i - 1][1]) > 90) {
+                var sliced = coords.slice(anchor, i);
 
-            gl.addTo(this.leaflethandle);
+                /* If we are not adding the final segment, add the current point
+                   mirrored, e.g. -170 is +190 and so on. */
+                if (i + 1 < coords.length) {
+                  var mirror = coords[i].slice();
+                  var s = Math.sign(mirror[1]);
+                  mirror[1] = mirror[1] - s * 360;
+                  sliced.push(mirror)
+                }
+
+
+                /* Utility that creates shift functions for longitude */
+                var shifter = function(s) {
+                  return function(x) {
+                    return [ x[0], x[1] + s ];
+                  };
+                }
+
+                /* Adding the segment, then the same one shifted +360°/-360° */
+                var segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
+                for (var j = 0; j < segs.length; j++) {
+                  var gl = L.polyline(segs[j], {
+                     color: 'red'
+                  });
+                  gl.addTo(this.leaflethandle);
+                }
+
+                /* Recording new anchor, if it was the last point it wouldn't matter anyway */
+                anchor = i;
+              }
+            }
         } else {
             var hc = new Array();
 
@@ -293,7 +325,7 @@ var GeoObject = {
         // setup cesium
         Cesium.BingMapsApi.defaultKey = bingKey;
 
-        this.cesiumhandle = new Cesium.Viewer(cesiumcont, 
+        this.cesiumhandle = new Cesium.Viewer(cesiumcont,
         {
             infoBox: false,
             animation: false,
@@ -393,7 +425,7 @@ function repaintRequiredCesium() {
 }
 
 function repaintRequiredLeaflet() {
-    
+
 
 }
 
@@ -438,7 +470,7 @@ function registerCesiumEvents() {
         }
     });
 
-    viewer.scene.postRender.addEventListener(function(scene, time)  { 
+    viewer.scene.postRender.addEventListener(function(scene, time)  {
     });
 
     handler.setInputAction(function(click) { clickDrawEventCesium(GeoObject, click) }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
