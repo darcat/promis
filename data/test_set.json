@@ -1,5 +1,38 @@
 [
 {
+    "model": "auth.user",
+    "pk": 42001,
+    "fields": {
+        "username": "john",
+        "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE="
+    },
+    "groups": [
+        3
+    ],
+},
+{
+    "model": "auth.user",
+    "pk": 42002,
+    "fields": {
+        "username": "melanie",
+        "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE="
+    },
+    "groups": [
+      2
+    ],
+},
+{
+    "model": "auth.user",
+    "pk": 42003,
+    "fields": {
+        "username": "connie",
+        "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE="
+    },
+    "groups": [
+      1
+    ],
+},
+{
     "model": "backend_api.space_projecttranslation",
     "pk": 42001,
     "fields": {
