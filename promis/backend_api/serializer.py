@@ -172,7 +172,7 @@ class UserSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
               user.set_password(validated_data['password'])
         
-        grp = Group.objects.get(name='level1')
+        grp = Group.objects.get(name='default')
         
         user.groups.add(grp)
         user.save()
