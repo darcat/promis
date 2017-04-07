@@ -18,7 +18,7 @@ import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.pagination import LimitOffsetPagination
-from django.contrib.gis.geos import GEOSGeometry, GEOSException 
+from django.contrib.gis.geos import GEOSGeometry, GEOSException
 
 from django.contrib.auth import get_user_model
 
@@ -31,11 +31,11 @@ from rest_framework.decorators import permission_classes
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
     time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
-    
+
     class Meta:
         model = models.Session
         fields = ['satellite', 'time_begin', 'time_end']
-    
+
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
@@ -45,60 +45,60 @@ class DevicesView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.DevicesSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('satellite',)
-    
+
 class ChannelsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
-    
+
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
-    serializer_class = serializer.SessionsSerializer    
+    serializer_class = serializer.SessionsSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
     permission_classes = (PromisPermission,)
 
     def get_queryset(self):
-        
+
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
         user = self.request.user
         if not helpers.UserExists(user):
             return models.Session.objects.none()
-        
-        if helpers.UserInGroup(user, 'default'):
+
+        if helpers.UserGroupsNo(user) <= 0:
             now = datetime.datetime.now()
             half_year_ago = now - datetime.timedelta(183)
             ago = datetime.date(1900, 1, 1)
             queryset = models.Session.objects.filter(time_end__range = (ago, half_year_ago))
         else:
             queryset = models.Session.objects.all()
-       
+
         if polygon is not None:
             try:
                 geoobj = GEOSGeometry(polygon, srid = 4326)
-            
+
                 if geoobj.valid:
                     objs = []
                     for obj in queryset:
                         geoline = obj.geo_line
                         if geoobj.crosses(geoline):
                             objs.append(obj.id)
-                        
+
                     queryset = models.Session.objects.filter(pk__in = objs)
-                
+
                 return queryset
-            
+
             except ValueError:
                 pass
-            
+
             except GEOSException:
                 pass
-            
-            
-            
+
+
+
             return models.Session.objects.none()
-        
+
         return queryset
 
 class ParametersView(viewsets.ReadOnlyModelViewSet):
@@ -111,7 +111,7 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (PromisPermission,)    
+    permission_classes = (PromisPermission,)
 
 '''
 #TODO: This is used only for debugging, and should be removed
@@ -120,7 +120,7 @@ class MeasurementsView(viewsets.ReadOnlyModelViewSet):
 class DocumentsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Document.objects.all()
     serializer_class = serializer.DocumentsSerializer
-    
+
 class FunctionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Function.objects.all()
     serializer_class = serializer.FunctionsSerializer
@@ -128,10 +128,10 @@ class FunctionsView(viewsets.ReadOnlyModelViewSet):
 class ParameterssView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Parameter.objects.all()
     serializer_class = serializer.ParametersSerializer
-    
+
 #=====================================================
 '''
-     
+
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Document.objects.all()
     permission_classes = (PromisPermission,)
@@ -145,7 +145,7 @@ class DownloadView(viewsets.ReadOnlyModelViewSet):
 class DownloadData(viewsets.ReadOnlyModelViewSet):
     queryset = models.Document.objects.all()
     serializer_class = serializer.DocumentsSerializer
-    
+
 class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
     queryset = get_user_model().objects
     serializer_class = serializer.UserSerializer
@@ -155,9 +155,9 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
             self.permission_classes = (AllowAny,)
         else:
             self.permission_classes = (IsAuthenticated,)
-        
+
         return super().get_permissions()
-    
+
     def get_queryset(self):
         if self.request.user is not None:
             return get_user_model().objects.filter(username = self.request.user)

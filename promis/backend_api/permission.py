@@ -4,36 +4,36 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from backend_api import helpers
 import datetime
-from django.utils import timezone 
+from django.utils import timezone
 from backend_api import models
 
 def check_session(user, obj):
-    if helpers.UserInGroup(user, 'default'):
+    if helpers.UserGroupsNo(user) <= 0:
             now = datetime.datetime.now()
             half_year_ago = timezone.make_aware(now - datetime.timedelta(183), timezone.get_default_timezone())
             if obj.time_end > half_year_ago:
                 return True
             else:
                 return False
-    
+
     else:
         return True
 
 class PromisPermission(BasePermission):
-    
+
     message = 'Data retreival is not allowed'
-    
+
     def has_permission(self, request, view):
         return True
-    
+
     def has_object_permission(self, request, view, obj):
         if view.__class__.__name__ == 'SessionsView':
             return check_session(request.user, obj)
-        
+
         if view.__class__.__name__ == 'MeasurementsView' \
             or view.__class__.__name__ == 'DownloadView':
                 return check_session(request.user, obj.session)
-        
+
         if view.__class__.__name__ == 'QuicklookView' \
            or view.__class__.__name__ == 'DownloadData':
                 if not helpers.UserInGroup(request.user, "level2"):
@@ -43,9 +43,8 @@ class PromisPermission(BasePermission):
                     for meas in models.Measurement.objects.filter(chn_doc = obj):
                         if not check_session(request.user, meas.session):
                             return False
-        
+
         if view.__class__.__name__ == 'ParametersView':
             return helpers.UserInGroup(request.user, "level2")
-        
+
         return True
-    

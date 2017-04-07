@@ -16,14 +16,5 @@
         },
         "model": "auth.group",
         "pk": 2
-    },
-    {
-        "fields": {
-            "name": "default",
-            "permissions": [
-            ]
-        },
-        "model": "auth.group",
-        "pk": 3
     }
 ]
