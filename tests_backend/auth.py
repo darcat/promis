@@ -10,10 +10,21 @@ class Session:
         try:
             if self.csrftoken:
                 kwargs["cookies"] = { "csrftoken" : self.csrftoken }
+            # It's unlikely that we have sessionid and don't have a csrftoken
+            # so, no extra checks on dictionary existence here
+            if self.sessionid:
+                kwargs["cookies"]["sessionid"] = self.sessionid
         except AttributeError:
             pass
+
         r = method(*args, **kwargs)
-        self.csrftoken = r.cookies.get("csrftoken")
+
+        csrftoken = r.cookies.get("csrftoken")
+        if csrftoken:
+            self.csrftoken = csrftoken
+        sessionid = r.cookies.get("sessionid")
+        if sessionid:
+            self.sessionid = sessionid
 
         return r
 
@@ -59,7 +70,6 @@ class Session:
             "username": user,
             "password": password,
             "csrfmiddlewaretoken": self.middlewaretoken,
-            "next": "/api/",
         }
-        r = self.post("http://localhost:8081/en/api-auth/login/", data = data)
-        return bool(re.search(r"/api/$", r.url))
+        r = self.post("http://localhost:8081/en/api-auth/login/", data = data, allow_redirects=False)
+        return r.status_code == 302
