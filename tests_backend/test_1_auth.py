@@ -45,8 +45,34 @@ def connie(session):
     session.login("connie", "test")
     return session
 
+# TODO: make it a parametrised fixture?
+def count_listing(sess):
+    r = sess.get("/en/api/sessions")
+    assert r.status_code == 200, "Invalid status code"
+    json_data = r.json()
+    assert "count" in json_data, "Malformed JSON received"
+    return json_data["count"]
+
+# TODO: discuss what does default group mean exactly except hiding the sessions
+# TODO: placeholder checks, may break with data changes
+@pytest.mark.xfail
+def test_default_listing(john):
+    '''Check that a groupless user can only see old data'''
+    assert count_listing(john) == 24, "Session count mismatch"
+
+@pytest.mark.xfail
+def test_level2_listing(melanie):
+    '''Check that a level2 user can see both old and new data'''
+    assert count_listing(melanie) == 219, "Session count mismatch"
+
+@pytest.mark.xfail
+def test_level1_listing(connie):
+    '''Check that a level2 user can see both old and new data'''
+    assert count_listing(connie) == 219, "Session count mismatch"
+
+# TODO: generalise the code
 def test_level2_access(melanie):
-    '''Check that level2 users can see only parameter fields'''
+    '''Check that a level2 user can see only parameter fields'''
     r = melanie.get("/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
@@ -54,7 +80,7 @@ def test_level2_access(melanie):
     assert "par_doc" in json_data, "Can't see parameters"
 
 def test_level1_access(connie):
-    '''Check that level1 users can see all fields'''
+    '''Check that a level1 user can see all fields'''
     r = connie.get("/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
