@@ -168,7 +168,7 @@ class UserSerializer(serializers.ModelSerializer):
        fields = ('password', 'username', 'first_name', 'last_name',)
 
     def create(self, validated_data):
-        user = super(UserSerializer, self).create(validated_data)
+        user = super().create(validated_data)
         if 'password' in validated_data:
               user.set_password(validated_data['password'])
         
@@ -183,7 +183,7 @@ class UserSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
-        return super(UserSerializer, self).update(instance, validated_data)
+        return super().update(instance, validated_data)
     
 class QuickLookSerializer(serializers.ModelSerializer):
     json_data = serializers.SerializerMethodField()
@@ -195,7 +195,7 @@ class QuickLookSerializer(serializers.ModelSerializer):
     def mean_average(self, data, period):
         ret_val = []
         
-        for i in range (0, int(len(data)/period)):
+        for i in range (0, intlen(data)//period):
             ave = 0.0
             for j in range (0, period):
                 ave += data[i*period + j]

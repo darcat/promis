@@ -160,7 +160,7 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
         else:
             self.permission_classes = (IsAuthenticated,)
         
-        return super(UserViewSet, self).get_permissions()
+        return super().get_permissions()
     
     def get_queryset(self):
         if self.request.user is not None:
