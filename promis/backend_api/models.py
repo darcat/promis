@@ -176,4 +176,4 @@ def add_view_permissions(sender, **kwargs):
                                       name="Can view %s" % content_type.name)
             print ("Added view permission for %s" % content_type.name)
 
-post_migrate.connect(add_view_permissions)
+#post_migrate.connect(add_view_permissions)
