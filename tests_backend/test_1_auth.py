@@ -45,19 +45,17 @@ def connie(session):
     session.login("connie", "test")
     return session
 
-@pytest.mark.xfail
 def test_level2_access(melanie):
     '''Check that level2 users can see only parameter fields'''
-    r = superuser.get("http://localhost:8081/en/api/download/1")
+    r = melanie.get("http://localhost:8081/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
     assert "chn_doc" not in json_data, "Can see channels"
     assert "par_doc" in json_data, "Can't see parameters"
 
-@pytest.mark.xfail
 def test_level1_access(connie):
     '''Check that level1 users can see all fields'''
-    r = superuser.get("http://localhost:8081/en/api/download/1")
+    r = connie.get("http://localhost:8081/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
     assert "chn_doc" in json_data, "Can't see channels"

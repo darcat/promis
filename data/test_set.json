@@ -6,9 +6,7 @@
         "username": "john",
         "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE="
     },
-    "groups": [
-        3
-    ],
+    "groups": []
 },
 {
     "model": "auth.user",
@@ -19,7 +17,7 @@
     },
     "groups": [
       2
-    ],
+    ]
 },
 {
     "model": "auth.user",
@@ -30,7 +28,7 @@
     },
     "groups": [
       1
-    ],
+    ]
 },
 {
     "model": "backend_api.space_projecttranslation",
