@@ -176,4 +176,5 @@ def add_view_permissions(sender, **kwargs):
                                       name="Can view %s" % content_type.name)
             print ("Added view permission for %s" % content_type.name)
 
+#Uncomment it t create view permission in migrations:
 #post_migrate.connect(add_view_permissions)
