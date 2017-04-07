@@ -20,7 +20,7 @@ before_script:
   - .travis/setup.sh
 script:
   - cd repos/promis-testing
-  - py.test; CODE=$?
+  - py.test -v; CODE=$?
   - if [ $CODE -ne 0 -a $CODE -ne 5 ]; then exit $CODE; fi # py.test returns 5 if no test were run
 
 notifications:
