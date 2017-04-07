@@ -56,7 +56,7 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (PromisPermission)
+    permission_classes = (PromisPermission,)
 
     def get_queryset(self):
         
@@ -111,7 +111,7 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (PromisPermission)    
+    permission_classes = (PromisPermission,)    
 
 '''
 #TODO: This is used only for debugging, and should be removed
@@ -134,19 +134,18 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
      
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Document.objects.all()
-    permission_classes = (PromisPermission)
+    permission_classes = (PromisPermission,)
     serializer_class = serializer.QuickLookSerializer
 
 class DownloadView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission)
+    permission_classes = (PromisPermission,)
     serializer_class = serializer.DownloadViewSerializer
 
 class DownloadData(viewsets.ReadOnlyModelViewSet):
     queryset = models.Document.objects.all()
     serializer_class = serializer.DocumentsSerializer
     
-
 class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
     queryset = get_user_model().objects
     serializer_class = serializer.UserSerializer
