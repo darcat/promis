@@ -116,6 +116,8 @@ class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.MeasurementsSerializer
     permission_classes = (ViewPermission, PromisPermission)    
 
+'''
+#TODO: This is used only for debugging, and should be removed
 #======== Added to view db contents. Remove it: ======
 
 class DocumentsView(viewsets.ReadOnlyModelViewSet):
@@ -131,7 +133,8 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.ParametersSerializer
     
 #=====================================================
-    
+'''
+     
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Document.objects.all()
     permission_classes = (ViewPermission, PromisPermission)
@@ -141,7 +144,6 @@ class DownloadView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     permission_classes = (ViewPermission, PromisPermission)
     serializer_class = serializer.DownloadViewSerializer
-
 
 class DownloadData(viewsets.ReadOnlyModelViewSet):
     queryset = models.Document.objects.all()
