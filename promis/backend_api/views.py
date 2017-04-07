@@ -11,7 +11,7 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 
 from backend_api import models
 from backend_api import serializer, helpers
-from backend_api.permission import ViewPermission, PromisPermission
+from backend_api.permission import PromisPermission
 
 import django_filters
 
@@ -39,19 +39,16 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
-    permission_classes = (ViewPermission,)
 
 class DevicesView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('satellite',)
-    permission_classes = (ViewPermission,)
     
 class ChannelsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
-    permission_classes = (ViewPermission,)
     
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
@@ -59,7 +56,7 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (ViewPermission, PromisPermission)
+    permission_classes = (PromisPermission)
 
     def get_queryset(self):
         
@@ -109,12 +106,12 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.ParametersSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('channel',)
-    permission_classes = (ViewPermission,)
+    permission_classes = (PromisPermission,)
 
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (ViewPermission, PromisPermission)    
+    permission_classes = (PromisPermission)    
 
 '''
 #TODO: This is used only for debugging, and should be removed
@@ -137,12 +134,12 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
      
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Document.objects.all()
-    permission_classes = (ViewPermission, PromisPermission)
+    permission_classes = (PromisPermission)
     serializer_class = serializer.QuickLookSerializer
 
 class DownloadView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
-    permission_classes = (ViewPermission, PromisPermission)
+    permission_classes = (PromisPermission)
     serializer_class = serializer.DownloadViewSerializer
 
 class DownloadData(viewsets.ReadOnlyModelViewSet):

@@ -18,22 +18,6 @@ def check_session(user, obj):
     
     else:
         return True
-    
-
-class ViewPermission(BasePermission):
-    
-    message = 'View data is not allowed'
-    
-    def has_permission(self, request, view):
-        if str(request.user) != 'AnonymousUser':
-            try:
-                user = User.objects.get(username = request.user)
-                codename = 'backend_api.view_%s' % ContentType.objects.get_for_model(view.queryset.model).model
-                return user.has_perm(codename)
-            except User.DoesNotExist:
-                return False
-        else:
-            return False
 
 class PromisPermission(BasePermission):
     
@@ -59,7 +43,9 @@ class PromisPermission(BasePermission):
                     for meas in models.Measurement.objects.filter(chn_doc = obj):
                         if not check_session(request.user, meas.session):
                             return False
-
-            
+        
+        if view.__class__.__name__ == 'ParametersView':
+            return helpers.UserInGroup(request.user, "level2")
+        
         return True
     
