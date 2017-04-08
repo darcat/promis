@@ -1,6 +1,7 @@
 import pytest
 import subprocess
 import sys
+import os
 
 @pytest.fixture
 def data_fetch():
@@ -13,5 +14,7 @@ def data_fetch():
         return subprocess.run(cmd, shell=True).returncode
     # TODO: return something more meaningful?
 
+@pytest.mark.skipif("CI" not in os.environ,
+                    reason="Skipping data fetch for non CI-builds")
 def test_data_fetch(data_fetch):
     assert data_fetch == 0
