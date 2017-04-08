@@ -26,7 +26,7 @@ class PromisPermission(BasePermission):
         return True
     
     def has_object_permission(self, request, view, obj):
-        if helpers.IsSuperUser:
+        if helpers.IsSuperUser(request.user):
             return True
                 
         if isinstance(view, views.SessionView):
