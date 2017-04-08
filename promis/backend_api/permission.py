@@ -2,10 +2,9 @@ from rest_framework.permissions import BasePermission
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
-from backend_api import helpers
+from backend_api import helpers, models, views
 import datetime
 from django.utils import timezone
-from backend_api import models
 
 def check_session(user, obj):
     if helpers.UserGroupsNo(user) <= 0:
@@ -25,17 +24,20 @@ class PromisPermission(BasePermission):
 
     def has_permission(self, request, view):
         return True
-
+    
     def has_object_permission(self, request, view, obj):
-        if view.__class__.__name__ == 'SessionsView':
+        if helpers.IsSuperUser:
+            return True
+                
+        if isinstance(view, views.SessionView):
             return check_session(request.user, obj)
 
-        if view.__class__.__name__ == 'MeasurementsView' \
-            or view.__class__.__name__ == 'DownloadView':
+        if isinstance(view, views.MeasurementsView) \
+            or isinstance(view, views.DownloadView):
                 return check_session(request.user, obj.session)
 
-        if view.__class__.__name__ == 'QuicklookView' \
-           or view.__class__.__name__ == 'DownloadData':
+        if isinstance(view, views.QuicklookView) \
+           or isinstance(view, views.DownloadData):
                 if not helpers.UserInGroup(request.user, "level2"):
                     for meas in models.Measurement.objects.filter(par_doc = obj):
                         return False
@@ -44,7 +46,7 @@ class PromisPermission(BasePermission):
                         if not check_session(request.user, meas.session):
                             return False
 
-        if view.__class__.__name__ == 'ParametersView':
+        if isinstance(view, views.ParametersView):
             return helpers.UserInGroup(request.user, "level2")
 
         return True
