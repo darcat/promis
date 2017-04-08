@@ -3,6 +3,7 @@ from math   import pi, atan, exp, sin, cos
 from json   import dumps
 from random import seed, randint
 from os     import path, makedirs
+from time   import time
 
 ### Globals are bad
 ### Call the cops, I don't care
@@ -31,7 +32,9 @@ heart_start = 0
 peace_start = heart_start + 3600
 lines_start = peace_start + 3600
 utick_start = lines_start + 3600
-round_start = utick_start + 3600  # TODO: currently sessions are not tied to spacecraft, it's wrong, so I'm avoiding the overlap
+
+# Roundabout represents "fresh data"
+round_start = int(time())
 
 # TODO: make a proper satellite orbit
 # TODO: ask why we have 2 lines on the original orbit (MultiLineString)
@@ -84,7 +87,7 @@ def roundabout():
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
-        
+
 def ensuredir(folder):
     if not path.exists(folder):
         makedirs(folder)
@@ -92,33 +95,33 @@ def ensuredir(folder):
 ### Inserting data generated
 def insert_orbit(folder, start_time, gen_func, data_func=None):
     ensuredir(folder)
-    
+
     time = start_time
-    
+
     for v in chunks(gen_func(), orbit_pts):
         new_time = time + orbit_pts * orbit_sec
         # TODO: orbit_code is defaulted to NULL
         # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
         sessfolder = "%s/%010d/" % (folder, time)
-        
+
         ensuredir(sessfolder)
-        
+
         with open("%s/orbit.csv" % sessfolder, "w") as fp:
             for pt in v:
                 print(str(pt[0]) + "," + str(pt[1]), file=fp)
-        
+
         # Generate some data
         if data_func:
             # TODO: parametrise the call somehow?
             docs = data_func()
             docnames = ( "channel", "parameter" )
-            
+
             for i in range(2):
                 with open("%s/%s.json" % (sessfolder, docnames[i]), "w") as fp:
                     print(dumps(docs[i]), file=fp)
 
         time = new_time
-       
+
 # Seed the PRNG
 seed(random_seed)
 
