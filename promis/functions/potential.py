@@ -29,17 +29,6 @@ import backend_api.models as model
 # TODO: integrate into ftp.py somehow
 from ftplib import error_perm
 
-def guess_duration(n, freq):
-    """
-    Guess the duration of sampling based on number of samples and expected frequency.
-
-    Assumes that the actual duration should be an integer number of minutes close to what
-    dividing samples by frequency would suggest. Returns time in seconds.
-    n       -- amount of samples.
-    freq    -- reported frequency.
-    """
-    return 60*round(n/(freq*60))
-
 def data_func(satellite_object):
     """
     [en]: POTENTIAL data service
@@ -94,7 +83,7 @@ def data_func(satellite_object):
                     continue
 
                 # TODO: working code so far
-                freqs = { "lf": 1, "hf": 1000 }
+                freqs = { "lf": 1, "hf": 1024 }
                 dirs = { "lf": "0", "hf": "00" }
 
                 # Device, Channel and Parameter discovery
@@ -133,7 +122,7 @@ def data_func(satellite_object):
                         with ftp.xopen(mvfile[0]) as fp:
                             data = { k:v for k,v in util.parsers.sets(fp, {"t", "samp"}) }
                             time_start = data["t"]
-                            time_end = data["t"] + guess_duration(data["samp"], freqs[freq])
+                            time_end = data["t"] + data["samp"] // freqs[freq]
 
                             # Check if we were the first
                             if not ez_time_start and not ez_time_end:
@@ -159,7 +148,7 @@ def data_func(satellite_object):
                             else:
                                 # Check if the time values are the same
                                 if ez_time_start != time_start or ez_time_end != time_end:
-                                    raise ValueError("Temporal inconsistency between EZ channels.")
+                                    raise ValueError("Temporal inconsistency between EZ channels: [%d:%d] is not [%d:%d]." % (ez_time_start, ez_time_end, time_start, time_end))
 
                         # Parse the actual datafile
                         with ftp.xopen(csvfile[0]) as fp:
