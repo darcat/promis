@@ -1,0 +1,20 @@
+[
+    {
+        "fields": {
+            "name": "level1",
+            "permissions": [
+            ]
+        },
+        "model": "auth.group",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "name": "level2",
+            "permissions": [
+            ]
+        },
+        "model": "auth.group",
+        "pk": 2
+    }
+]
