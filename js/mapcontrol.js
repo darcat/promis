@@ -69,14 +69,6 @@
             }
 
             GeoObject.discardPreviousSelection();
-            /*
-            var reset = $('.selreset');
-            var svoid = $('.selvoid');
-
-            if(reset.hasClass('btn-danger')) {
-                reset.removeClass('btn-danger');
-                svoid.removeClass('btn-warning');
-            }*/
 
             return true;
         });
@@ -93,6 +85,18 @@
 
         $('.seltool').click(function() {
             GeoObject.togglePick();
+        });
+
+        $('.loctoggler').change(function(e) {
+            if($(this).prop('checked')) {
+                $('.mapblock').css('visibility', 'visible');
+                $('.maplocation').show();
+                $('.textlocation').hide();
+            } else {
+                $('.mapblock').css('visibility', 'hidden');
+                $('.maplocation').hide();
+                $('.textlocation').show();
+            }
         });
 
         $(document).on('toolsChanged', function(e) {
@@ -113,8 +117,14 @@
                     reset.addClass('btn-danger');
                     svoid.addClass('btn-warning');
                 }
+                $('.curselect').empty();
+
+                for(var i = 0; i < e.count; i ++)
+                    $('.curselect').append('<li> Part #' + (i + 1) + ', ' + GeoObject.selections[i].length +' points; </li>');
             }
             else {
+                $('.curselect').empty();
+
                 if(reset.hasClass('btn-danger')) {
                     reset.removeClass('btn-danger');
                     svoid.removeClass('btn-warning');

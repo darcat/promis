@@ -139,3 +139,7 @@
 .cesium-viewer-toolbar {
     display: none !important;
 }
+
+.maplocation {
+    display: none;
+}
