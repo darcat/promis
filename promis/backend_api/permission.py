@@ -2,10 +2,9 @@ from rest_framework.permissions import BasePermission
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
-from backend_api import helpers
+from backend_api import helpers, models, views
 import datetime
 from django.utils import timezone
-from backend_api import models
 
 def check_session(user, obj):
     if helpers.UserGroupsNo(user) <= 0:
@@ -24,27 +23,38 @@ class PromisPermission(BasePermission):
     message = 'Data retreival is not allowed'
 
     def has_permission(self, request, view):
+        if isinstance(view, views.ChannelsView):
+            return helpers.UserInGroup(request.user, "level1")
+        
         return True
-
+   
     def has_object_permission(self, request, view, obj):
-        if view.__class__.__name__ == 'SessionsView':
+        if not helpers.UserExists(request.user):
+            return False
+        
+        if helpers.IsSuperUser(request.user):
+            return True
+                
+        if helpers.UserInGroup(request.user, "level1"):
+            return True
+        
+        if isinstance(view, views.ChannelsView):
+            return False
+        
+        if isinstance(view, views.SessionsView):
             return check_session(request.user, obj)
 
-        if view.__class__.__name__ == 'MeasurementsView' \
-            or view.__class__.__name__ == 'DownloadView':
-                return check_session(request.user, obj.session)
-
-        if view.__class__.__name__ == 'QuicklookView' \
-           or view.__class__.__name__ == 'DownloadData':
+        if isinstance(view, views.MeasurementsView) \
+            or isinstance(view, views.DownloadView):
                 if not helpers.UserInGroup(request.user, "level2"):
-                    for meas in models.Measurement.objects.filter(par_doc = obj):
-                        return False
-                else:
-                    for meas in models.Measurement.objects.filter(chn_doc = obj):
+                    return check_session(request.user, obj.session)
+        
+        if isinstance(view, views.QuicklookView) \
+           or isinstance(view, views.DownloadData):
+                for meas in models.Measurement.objects.filter(chn_doc = obj):
+                    return False
+                for meas in models.Measurement.objects.filter(par_doc = obj):
+                    if not helpers.UserInGroup(request.user, "level2"):
                         if not check_session(request.user, meas.session):
                             return False
-
-        if view.__class__.__name__ == 'ParametersView':
-            return helpers.UserInGroup(request.user, "level2")
-
         return True

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from backend_api import models
 
-from rest_framework.fields import ReadOnlyField
+from rest_framework.fields import ReadOnlyField, SerializerMethodField
 from rest_framework.reverse import reverse
 from djsw_wrapper.serializers import SwaggerHyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer
@@ -17,11 +17,24 @@ import util.parsers
 
 
 class SessionsSerializer(serializers.ModelSerializer):
-    measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
+#   TODO: Spike! @lyssdod, correct this
+#    measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
+    measurements = SerializerMethodField() 
+    
     geo_line = serializers.SerializerMethodField()
     time = serializers.SerializerMethodField()
 
+#   TODO: Spike! @lyssdod, correct this
+    def get_measurements(self, obj):
+        meas = models.Measurement.objects.filter(session = obj)
+        #TODO: SPIKE: remove below hard code and replace to related view path.
+        ret_val = []
+        for m in meas:
+            ret_val.append(self.context['request'].build_absolute_uri('/en/api/measurements/' + str(m.id)))
+        
+        return ret_val
 
+    
     def get_geo_line(self, obj):
         # Just in case for the future
         #return obj.geo_line.wkb.hex()
@@ -131,7 +144,7 @@ class DownloadViewSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         user = self.context['request'].user
-        if not helpers.UserInGroup(user, 'level1'):
+        if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
             self.fields.pop('chn_doc')
             self.fields.pop('chn_quicklook')
 
@@ -142,7 +155,7 @@ class MeasurementsSerializer(serializers.ModelSerializer):
     channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
     parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
     data = serializers.SerializerMethodField()
-    filter_fields = ('channel', 'parameters')
+
 
     class Meta:
         fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'data')
@@ -158,8 +171,8 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         user = self.context['request'].user
-        if not helpers.UserInGroup(user, 'level1'):
-            self.filter_fields.pop = ('channels')
+        if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
+            self.fields.pop('channel')
 
 
 class UserSerializer(serializers.ModelSerializer):

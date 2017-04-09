@@ -18,3 +18,8 @@ def UserExists(user):
         return False
 
     return True
+
+def IsSuperUser(user):
+    if UserExists(user):
+        user = User.objects.get(username = user)
+        return user.is_superuser
