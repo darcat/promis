@@ -16,6 +16,11 @@
                 $('.tool2d').show();
             }
 
+            if(GeoObject.drawing) {
+                GeoObject.togglePick();
+                $('.seltool').removeClass('active');
+            }
+
             GeoObject.toggleFlat();
 
             return true;
@@ -56,10 +61,56 @@
             return true;
         });
 
-        $('.selclear').click(function() {
-            GeoObject.clearSelection();
+        $('.selvoid').click(function() {
+            /* finish current selection if active */
+            if(GeoObject.drawing) {
+                GeoObject.togglePick();
+                $('.seltool').removeClass('active');
+            }
+
+            GeoObject.discardPreviousSelection();
+            /*
+            var reset = $('.selreset');
+            var svoid = $('.selvoid');
+
+            if(reset.hasClass('btn-danger')) {
+                reset.removeClass('btn-danger');
+                svoid.removeClass('btn-warning');
+            }*/
 
             return true;
+        });
+
+        $('.selreset').click(function() {
+            /* finish current selection if active */
+            if(GeoObject.drawing) {
+                GeoObject.togglePick();
+                $('.seltool').removeClass('active');
+            }
+
+            GeoObject.resetSelection();
+        });
+
+        $('.seltool').click(function() {
+            GeoObject.togglePick();
+
+            /* check if there're selections to waste */
+            /* using toggleClass will require global var for diff */
+            var reset = $('.selreset');
+            var svoid = $('.selvoid');
+
+            if(GeoObject.currentSelection) {
+                if(! reset.hasClass('btn-danger')) {
+                    reset.addClass('btn-danger');
+                    svoid.addClass('btn-warning');
+                }
+            } else {
+                if(reset.hasClass('btn-danger')) {
+                    reset.removeClass('btn-danger');
+                    svoid.removeClass('btn-warning');
+                }
+            }
+            $('.nextpoint').text();
         });
 
         $('#polypicker').change(function() {

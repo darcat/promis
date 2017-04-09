@@ -7,14 +7,16 @@ var GeoObject = {
     grid: false,
     isflat : true, // true: leaflet, false: cesium
     picked : false, // for point dragging
-    polygon : false, // polygon entity
+    emitter: null, // for interface updates
+    polygons : [], // polygon entities
     drawing : false, // whether polygon picking mode is active
     geolines : [],
-    selpoints: [], // intermediate selection points
-    positions: [], // array of current selection (carthesian)
-    selection: [], // array of current selection (degrees)
+    selpoints: [[]], // intermediate selections points entities
+    positions: [[]], // array of current selections (carthesian)
+    selections: [[]], // array of current selections (degrees)
     currentZoom : 5,
-    totalPoints: 0,
+    currentSelection: 0,
+    extraPolygon: null, // preview polygon
     ellipsoid : false,
     cartographic : false,
     cesiumhandle: false,
@@ -63,11 +65,18 @@ var GeoObject = {
     },
 
     togglePick : function() {
-        if(this.drawing) {
-            // ;;;
-        }
+        if(this.drawing)
+            this.currentSelection ++;
+
+        this.polygons[this.currentSelection] = null;
+        this.selpoints[this.currentSelection] = new Array();
+        this.positions[this.currentSelection] = new Array();
+        this.selections[this.currentSelection] = new Array();
 
         this.drawing = !this.drawing;
+
+        if(this.extraPolygon && 'remove' in this.extraPolygon) this.extraPolygon.remove();
+        if(Cesium.defined(this.extraPolygon)) this.cesiumhandle.entities.remove(this.extraPolygon);
     },
 
     toggleFlat : function() {
@@ -80,10 +89,16 @@ var GeoObject = {
             this.scrollToView(pos.lng, pos.lat);
             this.currentZoom = this.leaflethandle.getZoom();
 
-            for(var i = 0; i < this.selection.length; i ++) {
-                var position = new Cesium.Cartographic(Cesium.Math.toRadians(this.selection[i][1]), Cesium.Math.toRadians(this.selection[i][0]));//, 5000);
-                var cartesian = this.ellipsoid.cartographicToCartesian(position);
-                this.positions.push(cartesian);
+            for(var i = 0; i < this.selections.length; i ++) {
+                this.positions[i] = new Array();
+
+                for(var j = 0; j < this.selections[i].length; j ++) {
+                    var degrees = this.selections[i][j];
+                    var position = new Cesium.Cartographic(Cesium.Math.toRadians(degrees[1]), Cesium.Math.toRadians(degrees[0]));//, 5000);
+                    var cartesian = this.ellipsoid.cartographicToCartesian(position);
+
+                    this.positions[i].push(cartesian);
+                }
             }
         } else {
             /* cs2lf */
@@ -91,10 +106,12 @@ var GeoObject = {
             this.scrollToView(Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude));
         }
 
-        this.totalPoints = this.selection.length;
-        this.updateSelectionPoints();
-        this.clearPolygon();
-        this.makePolygon();
+        for(var i = 0; i < this.currentSelection; i ++) {
+            this.clearPolygon(i);
+            this.makePolygon(i);
+            this.updateSelectionPoints(i);
+        }
+
         this.repaint();
     },
 
@@ -121,13 +138,18 @@ var GeoObject = {
         }
     },
 
-    clearPolygon : function() {
-        // clear everywhere
-        if(this.polygon && 'remove' in this.polygon)
-            this.polygon.remove();
+    clearPolygon : function(i) {
+        var index = i !== undefined ? i : this.currentSelection;
+        var polygon = this.polygons[index];
 
-        if(Cesium.defined(this.polygon))
-            this.cesiumhandle.entities.remove(this.polygon);
+        if(polygon && 'remove' in polygon) {
+            polygon.remove();
+        }
+
+        if(Cesium.defined(polygon))
+            this.cesiumhandle.entities.remove(polygon);
+
+        this.polygons[index] = null;
     },
 
     clearGeolines : function() {
@@ -205,63 +227,124 @@ var GeoObject = {
         this.geolines.push(gl);
     },
 
-    makePolygon : function() {
-        if(this.totalPoints) {
+    makePolygon : function(i) {
+        var index = i !== undefined ? i : this.currentSelection;
+        var points = this.isflat ? this.selections[index] : this.positions[index];
+        var polygon = null;
+
+        if(points.length) {
             if(this.isflat) {
-                this.polygon = L.polygon(this.selection, {
+                console.log(points);
+                polygon = L.polygon(points, {
                     color: 'blue',
                     fillColor: '#0000ff',
                     fillOpacity: 0.8
                 });
-                this.polygon.addTo(this.leaflethandle);
 
+                polygon.addTo(this.leaflethandle);
             } else {
-                this.polygon = this.cesiumhandle.entities.add({
+                polygon = this.cesiumhandle.entities.add({
                     polygon: {
                         hierarchy : {
-                            positions : this.positions
+                            positions : points
                         },
                         material: Cesium.Color.BLUE.withAlpha(0.6)
                     }
                 });
             }
+            this.polygons[index] = polygon;
         }
     },
 
-    clearSelection : function() {
-        this.selection = [];
-        this.positions = [];
-        this.clearSelectionPoints(true);
-        this.clearPolygon();
+    previewPolygon : function(newpoint) {
+        var index = this.currentSelection;
+        var points = this.isflat ? this.selections[index] : this.positions[index];
+        var poly = null;
+
+        if(this.isflat) {
+            if(this.extraPolygon && 'remove' in this.extraPolygon) this.extraPolygon.remove();
+
+            // actually rect
+            poly = L.rectangle(points.concat([newpoint]), {
+                color: 'white',
+                dashArray: '5, 10'
+            });
+
+            poly.addTo(this.leaflethandle);
+        } else {
+            if(Cesium.defined(this.extraPolygon)) this.cesiumhandle.entities.remove(this.extraPolygon);
+
+            poly = this.cesiumhandle.entities.add({
+                polyline : {
+                    positions : points.concat(newpoint),
+                    width : 2,
+                    loop: true,
+                    material : Cesium.Color.WHITE.withAlpha(0.6)
+                }
+            });
+        }
+
+        this.extraPolygon = poly;
+    },
+
+    clearSelectionPoints : function(i) {
+        var c = i !== undefined ? i : this.currentSelection;
+        var s = this.selpoints[c];
+
+        if(s) for(var i = 0; i < s.length; i ++) {
+            var p = s[i];
+
+            if('remove' in p) p.remove();
+            if(Cesium.defined(p))
+                this.cesiumhandle.entities.remove(p);
+        }
+
+        this.selpoints[c] = new Array();
+    },
+
+    discardPreviousSelection : function(i, discard = true) {
+        /* if still drawing, discard current selection */
+        var c = 0;
+
+        if(i !== undefined) c = i;
+        else {
+            if(this.currentSelection > 0) c = this.currentSelection - 1;
+        }
+
+        this.clearSelectionPoints(c);
+        this.clearPolygon(c);
+
+        if(discard) {
+            this.selections.splice(c);
+            this.positions.splice(c);
+            this.selpoints.splice(c);
+            this.polygons.splice(c);
+        }
+        
+        /* discard! */
+        if(discard && this.currentSelection > 0) {
+            this.currentSelection --;
+        }
+
         this.repaint();
     },
 
-    clearSelectionPoints : function(completely = false) {
-        if(this.totalPoints) {
-            for(var i = 0; i < this.totalPoints; i ++) {
-                // clear everywhere
-                if('remove' in this.selpoints[i]) this.selpoints[i].remove();
-                if(Cesium.defined(this.selpoints[i]))
-                    this.cesiumhandle.entities.remove(this.selpoints[i]);
-            }
-
-            if(completely) {
-                this.totalPoints = this.selection.length;
-                this.selpoints = [];
-            }
+    resetSelection : function() {
+        for(var i = 0; i <= this.currentSelection; i ++) {
+            this.discardPreviousSelection(i, false);
         }
+
+        this.polygons = new Array();
+        this.selpoints = new Array();
+        this.positions = new Array();
+        this.selections = new Array();
+        this.currentSelection = 0;
+
+        this.repaint();
     },
 
-    incrementPoint : function() {
-        this.totalPoints ++;
-
-        if(this.totalPoints > 4096) {
-            alert('Really?');
-            this.totalPoints = 0;
-        }
-    },
-
-    selectionPoint : function(pos, size = 500.0) {
+    selectionPoint : function(pos, size = 500.0, i) {
+        var index = i !== undefined ? i : this.currentSelection;
         var point = null;
 
         if(!this.isflat) {
@@ -278,26 +361,29 @@ var GeoObject = {
                     },
                 });
         } else {
-            var point = L.circle(pos, size, {
+            var point = L.circle(pos, {
                 color: 'yellow',
                 fillColor: '#ffff00',
                 fillOpacity: 0.5,
+                radius: size
             });
 
             point.addTo(this.leaflethandle);
         }
 
         // register
-        this.selpoints.push(point);
+        this.selpoints[index].push(point);
     },
 
-    updateSelectionPoints : function() {
+    updateSelectionPoints : function(i) {
+        var index = i !== undefined ? i : this.currentSelection;
+        var data = this.isflat ? this.selections[index] : this.positions[index];
         var size = this.getCameraHeight() / 200;
 
-        this.clearSelectionPoints(true);
+        this.clearSelectionPoints(index);
 
-        for(var i = 0; i < this.totalPoints; i ++) {
-            this.selectionPoint(this.isflat ? this.selection[i] : this.positions[i], size);
+        if(data) for(var i = 0; i < data.length; i ++) {
+            this.selectionPoint(data[i], size, index);
         }
 
         this.repaint();
@@ -336,7 +422,30 @@ var GeoObject = {
             coords = [Cesium.Math.toDegrees(carrad.latitude), Cesium.Math.toDegrees(carrad.longitude)];
         }
 
-        return { 'points': point, 'coords' : coords }
+        return { 'point' : point, 'coords' : coords }
+    },
+
+    pushSelection : function(data) {
+        this.selections[this.currentSelection].push(data)
+    },
+
+    popSelection : function() {
+        return this.selections[this.currentSelection].pop();
+    },
+
+    pushPosition : function(data) {
+        this.positions[this.currentSelection].push(data);
+    },
+
+    getSelection : function() {
+        /* just flatten */
+        var selection = [];
+
+        for(var i = 0; i < this.selections.length; i ++)
+            for(var j = 0; j < this.selections[i].length; j ++)
+                selection.push(this.selections[i][j]);
+
+        return selection;
     },
 
     init : function(cesiumcont, leafcont, startpos, movecallback) {
@@ -410,12 +519,11 @@ function clickDrawEventCesium(go, event) {
             var position = go.cesiumCurrentPosition(event.position);
             var point = position.point, coords = position.coords;
 
-            go.positions.push(point);
-            go.selection.push(coords);
-            go.selectionPoint(point, size);
-            go.incrementPoint();
+            go.pushPosition(point);
+            go.pushSelection(coords);
             go.clearPolygon();
-            go.makePolygon()
+            go.makePolygon();
+            go.selectionPoint(point, size);
         }
     } else {
         //go.clearSelection();
@@ -424,15 +532,29 @@ function clickDrawEventCesium(go, event) {
 
 function clickDrawEventLeaflet(go, e) {
     if(go.drawing) {
-        pos = e.latlng;
+        var bound1 = go.popSelection();
+        var bound2 = e.latlng;
+        var bounds = null;
+        var points = null;
 
-        // forbid inner points
-        if(/*! go.polyContains(pos, go.selection) */true) {
-            go.selection.push([pos.lat, pos.lng]);
-            go.selectionPoint(pos);
-            go.incrementPoint();
+        /* second point is rect bound */
+        if(bound1 !== undefined) {
+            bounds = L.latLngBounds(bound1, bound2);
+            points = [bounds.getNorthEast(), bounds.getNorthWest(), bounds.getSouthWest(), bounds.getSouthEast()];
+
+            for(var i = 0; i < points.length; i ++)
+                go.pushSelection([points[i].lat, points[i].lng]);
+            
             go.clearPolygon();
             go.makePolygon();
+
+            for(var i = 0; i < points.length; i ++)
+                go.selectionPoint(points[i]);
+
+            go.togglePick();
+        } else {
+            go.pushSelection([bound2.lat, bound2.lng]);
+            go.selectionPoint(bound2);    
         }
     }
 
@@ -440,7 +562,10 @@ function clickDrawEventLeaflet(go, e) {
 
 function moveDrawEventLeaflet(go, e) {
     if(go.drawing) {
-        go.callbackExec([e.latlng.lat, e.latlng.lng]);
+        var coords = [e.latlng.lat, e.latlng.lng];
+
+        go.callbackExec(coords);
+        go.previewPolygon(coords);
     }
 }
 
@@ -449,6 +574,7 @@ function moveDrawEventCesium(go, e) {
         var position = go.cesiumCurrentPosition(e.endPosition);
 
         go.callbackExec(position.coords);
+        go.previewPolygon(position.point);
     }
 }
 
@@ -502,10 +628,7 @@ function registerCesiumEvents() {
     var handler = new Cesium.ScreenSpaceEventHandler(canvas);
 
     GeoObject.cesiumhandle.scene.camera.moveEnd.addEventListener(function() {
-        if(GeoObject.drawing) // scale selection points
-        {
-            GeoObject.updateSelectionPoints();
-        }
+        GeoObject.updateSelectionPoints(); // scale selection points
     });
 
     viewer.scene.postRender.addEventListener(function(scene, time)  {

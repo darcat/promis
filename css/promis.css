@@ -38,7 +38,7 @@
   padding-top: 7px;
 }
 
-path { 
+.quicklook path { 
   stroke: steelblue;
   stroke-width: 2;
   fill: none;
@@ -108,8 +108,8 @@ path {
   right: 0;
   width: 40%;
   overflow: hidden;
-  min-width: 200px;
-  max-width: 300px;
+  min-width: 250px;
+  max-width: 400px;
   margin: 0 auto;
   position: absolute;
   z-index: 1000;
