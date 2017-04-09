@@ -23,7 +23,7 @@
 # TODO: onboard time is NOT unix timestamp!
 
 from django.contrib.gis.geos import LineString
-import util.orbit, util.ftp, util.parsers, util.stats
+import util.orbit, util.ftp, util.parsers, util.stats, util.export
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow
@@ -177,3 +177,19 @@ def ef_quick_look(doc, npoints = 100):
     [uk]: Предперегляд електричного поля з ПОТЕНЦІАЛу
     """
     return { "mv": util.stats.general_quick_look(doc["mv"], npoints) }
+
+
+def ef_export(doc, session, fmt):
+    """
+    [en]: POTENTIAL's electrical field export
+    [uk]: Експорт електричного поля з ПОТЕНЦІАЛу
+    """
+    if fmt=="ascii":
+        # TODO: fill stubs
+        # TODO: take value name and units from parameter?
+        # TODO: take parameter from somewhere?
+        orbit = None # STUB
+        start_time = None # STUB
+        end_time = None # STUB
+        return util.ascii_export(make_table(doc["mv"], start_time, end_time, orbit), "Electric Field", "(mV)")
+    
