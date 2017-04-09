@@ -23,30 +23,38 @@ class PromisPermission(BasePermission):
     message = 'Data retreival is not allowed'
 
     def has_permission(self, request, view):
+        if isinstance(view, views.ChannelsView):
+            return helpers.UserInGroup(request.user, "level1")
+        
         return True
-    
+   
     def has_object_permission(self, request, view, obj):
+        if not helpers.UserExists(request.user):
+            return False
+        
         if helpers.IsSuperUser(request.user):
             return True
                 
-        if isinstance(view, views.SessionView):
+        if helpers.UserInGroup(request.user, "level1"):
+            return True
+        
+        if isinstance(view, views.ChannelsView):
+            return False
+        
+        if isinstance(view, views.SessionsView):
             return check_session(request.user, obj)
 
         if isinstance(view, views.MeasurementsView) \
             or isinstance(view, views.DownloadView):
-                return check_session(request.user, obj.session)
-
+                if not helpers.UserInGroup(request.user, "level2"):
+                    return check_session(request.user, obj.session)
+        
         if isinstance(view, views.QuicklookView) \
            or isinstance(view, views.DownloadData):
-                if not helpers.UserInGroup(request.user, "level2"):
-                    for meas in models.Measurement.objects.filter(par_doc = obj):
-                        return False
-                else:
-                    for meas in models.Measurement.objects.filter(chn_doc = obj):
+                for meas in models.Measurement.objects.filter(chn_doc = obj):
+                    return False
+                for meas in models.Measurement.objects.filter(par_doc = obj):
+                    if not helpers.UserInGroup(request.user, "level2"):
                         if not check_session(request.user, meas.session):
                             return False
-
-        if isinstance(view, views.ParametersView):
-            return helpers.UserInGroup(request.user, "level2")
-
         return True

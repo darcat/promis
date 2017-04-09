@@ -35,6 +35,12 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = models.Session
         fields = ['satellite', 'time_begin', 'time_end']
+        
+class MeasurementsFilter(django_filters.rest_framework.FilterSet):
+        
+    class Meta:
+        model = models.Measurement
+        fields = ['session', 'parameter']
 
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
@@ -49,6 +55,7 @@ class DevicesView(viewsets.ReadOnlyModelViewSet):
 class ChannelsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
+    permission_classes = (PromisPermission,)
 
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
@@ -112,6 +119,10 @@ class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
     permission_classes = (PromisPermission,)
+    filter_class = MeasurementsFilter
+    filter_backends = (DjangoFilterBackend,)
+
+       
 
 '''
 #TODO: This is used only for debugging, and should be removed
@@ -144,6 +155,7 @@ class DownloadView(viewsets.ReadOnlyModelViewSet):
 
 class DownloadData(viewsets.ReadOnlyModelViewSet):
     queryset = models.Document.objects.all()
+    permission_classes = (PromisPermission,)
     serializer_class = serializer.DocumentsSerializer
 
 class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
