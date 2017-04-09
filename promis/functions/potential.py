@@ -23,7 +23,7 @@
 # TODO: onboard time is NOT unix timestamp!
 
 from django.contrib.gis.geos import LineString
-import util.orbit, util.ftp, util.parsers
+import util.orbit, util.ftp, util.parsers, util.stats
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow
@@ -171,34 +171,9 @@ def data_func(satellite_object):
 
     return check, fetch
 
-# TODO: generalise the code here maybe
-# NOTE: that depends on what quicklooks mean for other data types
 def ef_quick_look(doc, npoints = 100):
-    '''
+    """
     [en]: POTENTIAL's electrical field quicklook
     [uk]: Предперегляд електричного поля з ПОТЕНЦІАЛу
-    '''
-    def avg_float(l, n, span):
-        '''
-        Computes an average of span elements of the list l starting from n.
-
-        span may be a float, in such case, the next element is
-        summed, multiplied by the remainder span - int(span).
-
-        TODO: maybe this needs to be rethinked somehow.
-        '''
-        # Integer part of the sum
-        s = sum(l[n:n+int(i)])
-
-        # The rest
-        ratio = i - int(i)
-        if ratio > 0.00001:
-            s += l[n + int(i)] * ratio
-
-            return s / i
-
-    # Determining how many points are averaged
-    v = doc["mv"]
-    span = len(v) / npoints
-
-    return { "mv": [ avg_float(v, int(span * i), span) for i in range(npoints) ] }
+    """
+    return { "mv": util.stats.general_quick_look(doc["mv"], npoints) }
