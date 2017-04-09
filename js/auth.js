@@ -1,6 +1,8 @@
 var AUTH = {};
 
-AUTH.host = 'http://localhost:8081';
+AUTH.setHost = function(h) {
+    AUTH.host = h;//'http://localhost:8081';
+}
 
 AUTH.register = function(login, pass, email) {
     var first = '', last = '';
@@ -15,77 +17,27 @@ AUTH.register = function(login, pass, email) {
         last += String.fromCharCode(getLetter() + (i == 0 ? 65 : 97));
     }
 
-    $.post(API.host + '/en/user/', { username : login, password : pass, first_name : first, last_name : last, email : email }).
+    $.post('/en/user/', { username : login, password : pass, first_name : first, last_name : last, email : email }).
         done(function() { PROMIS.alertSuccess('you have been registered. Please use button on the top to login', '#registerModal .modal-body'); }).
         fail(function(xhr, status, error) { PROMIS.alertError('something went wrong. Please try registering later', '#registerModal .modal-body'); });
 };
 
 AUTH.login = function(user, pass) {
-    $.post(AUTH.host + '/en/api-auth/login/', { username : user, password : pass, csrfmiddlewaretoken : $.cookie('csrftoken') }).
-        done(function() { window.location('/'); }).
-        fail(function(xhr, status, error) { PROMIS.alertError('failed to log in. ' + error, '#loginModal .modal-body')});
+    $('#loginModal .modal-body').find('.alert').remove();
+
+    $.post('/en/api-auth/login/', { username : user, password : pass, csrfmiddlewaretoken : Cookies.get('csrftoken') }).
+        done(function(res) { var x = $(res).find('.text-error'); if(x.length) { PROMIS.alertError($(x).text(), '#loginModal .modal-body'); } }).
+        fail(function(xhr, status, error) { window.location = '/' });
 }
 
-function getCookieVal(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length,c.length);
-        }
-    }
-    return "";
-}
-
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-
-function isLoggedIn()
-{
-    return ((getCookieVal("username") != "") && (getCookieVal("password") != ""))
-}
-
-function doLogin()
-{
-    $('.login-form').removeClass('has-error');
-    username = $("#username").val();
-    password = $("#password").val();
-
-    console.log(username + "|" + password);
-
-    // ADD field validation here
-    if ((username == "") || (password == ""))
-    {
-        // ADD empty field validation here
-        $('.login-form').addClass('has-error');
-        return false;
-    }
-    
-    //Add username/password validation here
-
-    if ((username == "test") && (password == "test"))
-    {
-        setCookie("username", username, 1);
-        setCookie("password", password, 1);
-        return true;
-    } else {
-        $('.login-form').addClass('has-error');
-    }
-    
-    return false;
-    
+AUTH.logout = function() {
+    $.get('/api-auth/logout/').done(function(){
+        window.location = '/';
+    })
 }
 
 function authSetup(logged) {
+    console.log('auth ', logged);
     if (logged) {
         $('.logout-bar').show();
         $('.login-bar').hide();
@@ -99,6 +51,18 @@ function authSetup(logged) {
 }
 
 $(document).ready(function(){
+    $('.user-logout').click(function(){
+        AUTH.logout();
+    });
+
+    $('.user-register').click(function(){
+        AUTH.register($('.register-username').val(), $('.register-password').val(), $('.register-email'));
+    });
+
+    $('.user-login').click(function(){
+        AUTH.login($('.login-user').val(), $('.login-password').val());
+    });
+
     $.ajax({
         url: '/en/user',
         type: 'GET',

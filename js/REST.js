@@ -3,6 +3,7 @@
 REST = {
     apiHost : 'http://something',
     swagger : null,
+    ready : false,
     lang : 'en',
 
     csrfSafeMethod : function(method) {
@@ -17,11 +18,12 @@ REST = {
 
     apiMethod : function(tag, name, params) {
         // https://github.com/github/fetch#sending-cookies
-        return this.swagger[tag][name](params); /* Promise */
+        if(this.ready) return this.swagger[tag][name](params); /* Promise */
+        else console.log('REST is not ready yet');
     }
 };
 
-function initREST (schemaurl)
+function initREST (schemaurl, callback)
 {
     var csrftoken = Cookies.get('csrftoken');
     var apiclient = new SwaggerClient({
@@ -43,7 +45,7 @@ function initREST (schemaurl)
         REST.swagger = swagger;
         REST.apiHost = swagger.schemes[0] + '://' + swagger.host;
 
-        console.log('REST ready');
+        REST.ready = true;
     }).catch(function(error){
         alert('Failed to init REST: ' + error);
     });

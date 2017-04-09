@@ -84,6 +84,11 @@ $(document).ready(function() {
     $('.checkparam input[type="checkbox"]').each(function(i, e){
       PROMIS.toggleParam(e);
     });
+
+    initREST('/api/promis_api.yaml', function(){
+      // REST ready
+      
+    });
   });
 
 })();
