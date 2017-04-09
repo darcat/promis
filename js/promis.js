@@ -35,37 +35,6 @@ var PROMIS = {};
     });
   }
 
-  PROMIS.setupMap = function() {
-    var mapCanvas = document.getElementById("map");
-    var mapOptions = {
-      center: new google.maps.LatLng(51.5, 1), zoom: 1
-    };
-    
-    map = new google.maps.Map(mapCanvas, mapOptions);
-
-    /*
-    google.maps.event.addListenerOnce(map, 'idle', function(){
-      PROMIS.bounds = this.getBounds();
-    });
-    google.maps.event.addListener(map, 'bounds_changed', function() {
-      PROMIS.bounds = this.getBounds();
-    });*/
-
-    displaySession(2);
-  }
-
-  PROMIS.showOnTheMap = function() {
-    /*
-    var bounds = new google.maps.LatLngBounds();
-
-    bounds.extend(new google.maps.LatLng($('#geolat1').val(), $('#geolon1').val()));
-    bounds.extend(new google.maps.LatLng($('#geolat2').val(), $('#geolon2').val()));
-
-    google.maps.event.trigger(map, 'resize');
-    map.fitBounds(bounds);*/
-    displaySession(2);
-  }
-
 
 
   /* main func */
@@ -81,11 +50,6 @@ $(document).ready(function() {
     });
 
     $('[data-toggle="tooltip"]').tooltip();
-
-    $('.showonthemap').click(function(){
-      $('.mapblock').css('visibility','visible');
-      PROMIS.showOnTheMap();
-    });
 
     $('#sel1').change(function(){
       if($('#sel1 option:selected').val() != 'a') {

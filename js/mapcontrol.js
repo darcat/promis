@@ -69,14 +69,6 @@
             }
 
             GeoObject.discardPreviousSelection();
-            /*
-            var reset = $('.selreset');
-            var svoid = $('.selvoid');
-
-            if(reset.hasClass('btn-danger')) {
-                reset.removeClass('btn-danger');
-                svoid.removeClass('btn-warning');
-            }*/
 
             return true;
         });
@@ -93,28 +85,51 @@
 
         $('.seltool').click(function() {
             GeoObject.togglePick();
+        });
 
-            /* check if there're selections to waste */
-            /* using toggleClass will require global var for diff */
+        $('.loctoggler').change(function(e) {
+            if($(this).prop('checked')) {
+                $('.mapblock').css('visibility', 'visible');
+                $('.maplocation').show();
+                $('.textlocation').hide();
+            } else {
+                $('.mapblock').css('visibility', 'hidden');
+                $('.maplocation').hide();
+                $('.textlocation').show();
+            }
+        });
+
+        $(document).on('toolsChanged', function(e) {
+            if(! e.state) {
+                $('.seltool').removeClass('focus');
+                $('.seltool').removeClass('active');
+                $('.nextpoint').text('');
+            }
+        });
+
+        $(document).on('selectionChanged', function(e) {
             var reset = $('.selreset');
             var svoid = $('.selvoid');
 
-            if(GeoObject.currentSelection) {
+            /* check if there're selections to waste */
+            if(e.count) {
                 if(! reset.hasClass('btn-danger')) {
                     reset.addClass('btn-danger');
                     svoid.addClass('btn-warning');
                 }
-            } else {
+                $('.curselect').empty();
+
+                for(var i = 0; i < e.count; i ++)
+                    $('.curselect').append('<li> Part #' + (i + 1) + ', ' + GeoObject.selections[i].length +' points; </li>');
+            }
+            else {
+                $('.curselect').empty();
+
                 if(reset.hasClass('btn-danger')) {
                     reset.removeClass('btn-danger');
                     svoid.removeClass('btn-warning');
                 }
             }
-            $('.nextpoint').text();
-        });
-
-        $('#polypicker').change(function() {
-            GeoObject.togglePick();
         });
 
         GeoObject.init('cesium', 'leaflet', [51.5, 10.2], function(pos) {
