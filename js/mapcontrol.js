@@ -93,28 +93,33 @@
 
         $('.seltool').click(function() {
             GeoObject.togglePick();
+        });
 
-            /* check if there're selections to waste */
-            /* using toggleClass will require global var for diff */
+        $(document).on('toolsChanged', function(e) {
+            if(! e.state) {
+                $('.seltool').removeClass('focus');
+                $('.seltool').removeClass('active');
+                $('.nextpoint').text('');
+            }
+        });
+
+        $(document).on('selectionChanged', function(e) {
             var reset = $('.selreset');
             var svoid = $('.selvoid');
 
-            if(GeoObject.currentSelection) {
+            /* check if there're selections to waste */
+            if(e.count) {
                 if(! reset.hasClass('btn-danger')) {
                     reset.addClass('btn-danger');
                     svoid.addClass('btn-warning');
                 }
-            } else {
+            }
+            else {
                 if(reset.hasClass('btn-danger')) {
                     reset.removeClass('btn-danger');
                     svoid.removeClass('btn-warning');
                 }
             }
-            $('.nextpoint').text();
-        });
-
-        $('#polypicker').change(function() {
-            GeoObject.togglePick();
         });
 
         GeoObject.init('cesium', 'leaflet', [51.5, 10.2], function(pos) {

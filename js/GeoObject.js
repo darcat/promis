@@ -65,8 +65,11 @@ var GeoObject = {
     },
 
     togglePick : function() {
-        if(this.drawing)
+        if(this.drawing && this.selections[this.currentSelection].length) {
             this.currentSelection ++;
+
+            $.event.trigger({ type: 'selectionChanged', count: this.currentSelection });
+        }
 
         this.polygons[this.currentSelection] = null;
         this.selpoints[this.currentSelection] = new Array();
@@ -77,6 +80,8 @@ var GeoObject = {
 
         if(this.extraPolygon && 'remove' in this.extraPolygon) this.extraPolygon.remove();
         if(Cesium.defined(this.extraPolygon)) this.cesiumhandle.entities.remove(this.extraPolygon);
+
+        $.event.trigger({ type: 'toolsChanged', state: this.drawing });
     },
 
     toggleFlat : function() {
@@ -234,7 +239,6 @@ var GeoObject = {
 
         if(points.length) {
             if(this.isflat) {
-                console.log(points);
                 polygon = L.polygon(points, {
                     color: 'blue',
                     fillColor: '#0000ff',
@@ -324,6 +328,7 @@ var GeoObject = {
         /* discard! */
         if(discard && this.currentSelection > 0) {
             this.currentSelection --;
+            $.event.trigger({ type: 'selectionChanged', count: this.currentSelection });
         }
 
         this.repaint();
@@ -339,6 +344,8 @@ var GeoObject = {
         this.positions = new Array();
         this.selections = new Array();
         this.currentSelection = 0;
+
+        $.event.trigger({ type: 'selectionChanged', count: 0 });
 
         this.repaint();
     },
