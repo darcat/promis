@@ -19,3 +19,9 @@ Yields successive data identifiers.
 ### Fetch and import an update
 
 `def fetch(data_identifier)`
+
+## Quick-look
+
+`def quicklook(doc, ...)`
+
+Convert Python native object doc to a quicklook representation. The callee will expand the request parameters into keyword arguments.
