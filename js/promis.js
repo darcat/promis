@@ -16,6 +16,20 @@ var PROMIS = {};
     }
   }
 
+  PROMIS.alertError = function(text, cont) {
+    var a = $('.alert-danger').clone();
+
+    $(a).find('.msg').html(text);
+    $(cont !== undefined ? cont : '.alertblock').append(a);
+  }
+
+  PROMIS.alertSuccess = function(text, cont) {
+    var a = $('.alert-success').clone();
+
+    $(a).find('.msg').html(text);
+    $(cont !== undefined ? cont : '.alertblock').append(a);
+  }
+
   function displaySession(number) {
     $.getJSON('data/session' + number + '.json', function(json) {
       var dgeo = json.geometry.coordinates;
