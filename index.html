@@ -55,6 +55,7 @@
     <!-- Code -->
     <script src="js/auth.js" type="text/javascript"></script>
     <script src="js/GeoObject.js" type="text/javascript"></script>
+    <script src="js/mapcontrol.js" type="text/javascript"></script>
 
 
     <script src="js/promis.js" type="text/javascript"></script>
@@ -192,9 +193,6 @@
                       </button>
                     </div>
                     <div class="col-sm-5">
-                      <input type="checkbox" id='maptoggler' data-toggle="toggle" 
-                        data-on="<i class='glyphicon glyphicon-globe'></i> 3D" data-off="<i class='glyphicon glyphicon-unchecked'></i> 2D" />
-                      <input type="checkbox" id='polypicker' data-toggle='toggle' data-on = 'Selection on' data-off = 'Selection off' />
                     </div>
                   </div>
                 </form>
@@ -281,12 +279,34 @@
             <div class="panel-heading">
               <h4 class="panel-title">
                 <a data-toggle="collapse" data-target="#collapseThree" href="#collapseThree">
-                  Map
+                  Map <span class = 'nextpoint'></span>
                 </a>
               </h4>
             </div>
             <div id="collapseThree" class="panel-collapse in">
               <div class="panel-body">
+                <div class = 'maptoolbox'>
+                  <div class = 'btn-group innertoolbox' role="group" aria-label="Map toolbox">
+                    <button type="button" class="btn btn-default mapviewtoggle" data-toggle="button" aria-pressed="false" autocomplete="off">
+                      <span class = 'glyphicon glyphicon-globe'></span>
+                    </button>
+                    <button type="button" class="btn btn-default seltool tool2d" data-toggle="button" aria-pressed="false" autocomplete="off">
+                      <span class = 'glyphicon glyphicon-edit'></span>
+                    </button>
+                    <button type="button" class="btn btn-default seltool tool3d" data-toggle="button" aria-pressed="false" autocomplete="off">
+                      <span class = 'glyphicon glyphicon-screenshot'></span>
+                    </button>
+                    <button type="button" class="btn btn-default gridtoggle tool3d" data-toggle="button" aria-pressed="false" autocomplete="off">
+                      <span class = 'glyphicon glyphicon-th'></span>
+                    </button>           
+                    <button type="button" class="btn btn-default fulltoggle">
+                      <span class = 'glyphicon glyphicon-resize-full'></span>
+                    </button>
+                    <button type="button" class="btn btn-danger selclear">
+                      <span class = 'glyphicon glyphicon-ban-circle'></span>
+                    </button>
+                  </div>
+                </div>
                 <div id = 'OL'>
                   <div id='leaflet'></div>
                 </div>

@@ -19,6 +19,7 @@ var GeoObject = {
     cartographic : false,
     cesiumhandle: false,
     leaflethandle : false,
+    callbackFunction : function() { },
     lastmove: Date.now(), // for rendering suspension
     lastmatrix: new Cesium.Matrix4(), // same
 
@@ -63,7 +64,7 @@ var GeoObject = {
 
     togglePick : function() {
         if(this.drawing) {
-            this.clearSelection();
+            // ;;;
         }
 
         this.drawing = !this.drawing;
@@ -304,7 +305,7 @@ var GeoObject = {
 
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-    polyContains(point, vs) {
+    polyContains : function(point, vs) {
         var x = point.lat, y = point.lng;
         var i = false;
 
@@ -321,7 +322,24 @@ var GeoObject = {
         return i;
     },
 
-    init : function(cesiumcont, leafcont, startpos) {
+    /* to be called only when drawing */
+    cesiumCurrentPosition : function(position) {
+        var pickedObject = this.cesiumhandle.scene.pick(position);
+        var point = this.cesiumhandle.camera.pickEllipsoid(position);
+        var coords = null;
+        var carrad = null;
+
+        if(point) {
+            //if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
+            //inside polygon, don't make the point (or make?)
+            carrad = this.ellipsoid.cartesianToCartographic(point);
+            coords = [Cesium.Math.toDegrees(carrad.latitude), Cesium.Math.toDegrees(carrad.longitude)];
+        }
+
+        return { 'points': point, 'coords' : coords }
+    },
+
+    init : function(cesiumcont, leafcont, startpos, movecallback) {
         // setup cesium
         Cesium.BingMapsApi.defaultKey = bingKey;
 
@@ -338,6 +356,8 @@ var GeoObject = {
             selectionIndicator: false
         });
 
+        this.callbackFunction = movecallback;
+
         var layers = this.cesiumhandle.imageryLayers;
 
         layers.removeAll();
@@ -346,7 +366,7 @@ var GeoObject = {
             new Cesium.BingMapsImageryProvider({ url : '//dev.virtualearth.net', mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS }));
         this.grid = layers.addImageryProvider(
             new Cesium.GridImageryProvider());
-        this.grid.alpha = 0.3;
+        this.grid.alpha = 0.0;
 
         this.ellipsoid = this.cesiumhandle.scene.mapProjection.ellipsoid;
         this.cartographic = new Cesium.Cartographic();
@@ -363,14 +383,17 @@ var GeoObject = {
 
         // scroll to startpos
         this.scrollToView(startpos[0], startpos[1]);
+    },
+
+    callbackExec : function(params) {
+        this.callbackFunction(params);
     }
 };
 
 function clickDrawEventCesium(go, event) {
     var pickedObject = go.cesiumhandle.scene.pick(event.position);
-    var point = go.cesiumhandle.camera.pickEllipsoid(event.position);
 
-    if(go.drawing && point) {
+    if(go.drawing) {
         if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
             // inside polygon, don't make the point
         } else {
@@ -384,8 +407,8 @@ function clickDrawEventCesium(go, event) {
                 var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
             }
             */
-            var carrad = go.ellipsoid.cartesianToCartographic(point);
-            var coords = [Cesium.Math.toDegrees(carrad.latitude), Cesium.Math.toDegrees(carrad.longitude)];
+            var position = go.cesiumCurrentPosition(event.position);
+            var point = position.point, coords = position.coords;
 
             go.positions.push(point);
             go.selection.push(coords);
@@ -415,6 +438,20 @@ function clickDrawEventLeaflet(go, e) {
 
 }
 
+function moveDrawEventLeaflet(go, e) {
+    if(go.drawing) {
+        go.callbackExec([e.latlng.lat, e.latlng.lng]);
+    }
+}
+
+function moveDrawEventCesium(go, e) {
+    if(go.drawing) {
+        var position = go.cesiumCurrentPosition(e.endPosition);
+
+        go.callbackExec(position.coords);
+    }
+}
+
 function repaintRequiredCesium() {
     GeoObject.lastmove = Date.now();
 
@@ -425,8 +462,8 @@ function repaintRequiredCesium() {
 }
 
 function repaintRequiredLeaflet() {
-
-
+    GeoObject.leaflethandle.invalidateSize();
+    GeoObject.leaflethandle.fitBounds(GeoObject.leaflethandle.getBounds())
 }
 
 // © terriaJS
@@ -456,6 +493,7 @@ function postRenderCesium(scene, date) {
 
 function registerLeafletEvents() {
     GeoObject.leaflethandle.on('click', function(c) { clickDrawEventLeaflet(GeoObject, c); });
+    GeoObject.leaflethandle.on('mousemove', function(c) { moveDrawEventLeaflet(GeoObject, c); });
 }
 
 function registerCesiumEvents() {
@@ -474,6 +512,7 @@ function registerCesiumEvents() {
     });
 
     handler.setInputAction(function(click) { clickDrawEventCesium(GeoObject, click) }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    handler.setInputAction(function(event) { moveDrawEventCesium(GeoObject, event) }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     // enable render back on mouse/touch events
     canvas.addEventListener('mousemove', repaintRequiredCesium, false);
