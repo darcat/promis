@@ -32,27 +32,32 @@ def test_per_project_sessions(connie):
         r = connie.get("/en/api/sessions?project=" + str(i))
         assert r.status_code == 200, "Invalid status code"
         json_data = r.json()
-        assert all(res["satellite"] == i for res in json_data["results"]), "Satellite entries in session mixup" 
+        assert all(res["satellite"] == i for res in json_data["results"]), "Satellite entries in session mixup"
 
 def test_super_user_access_level1(superuser):
-    '''IonosatMicro/promis-backend#75, IonosatMicro/promis-backend#78'''
+    '''IonosatMicro/promis-backend#75'''
     r = superuser.get("/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
     assert "chn_doc" in json_data, "Can't see channels"
     assert "par_doc" in json_data, "Can't see parameters"
+
+def test_unauth_access(session):
+    '''IonosatMicro/promis-backend#78'''
+    r = session.get("/en/api/download/1")
+    assert r.status_code != 500, "Invalid status code"
     # TODO: this doesn't perfectly verify the described behaviour, but I assume the root cause is the same
-    
+
 def test_unauth_session_401_data_url(session):
     '''IonosatMicro/promis-backend#76'''
     r = session.get("/en/api/download/1")
     assert r.status_code == 401, "Expecting 401 Please Authenticate"
-    
+
 def test_unauth_session_401_200_general_url(session):
     '''IonosatMicro/promis-backend#76, IonosatMicro/promis-backend#77'''
-    r = session.get("/en/api") 
+    r = session.get("/en/api")
     assert r.status_code in [ 401, 200 ], "Expecting 401 Please Authenticate or 200 OK"
-    
+
 def test_per_project_sessions(session):
     '''IonosatMicro/promis-backend#77'''
     r = session.get("/en/api/sessions")
