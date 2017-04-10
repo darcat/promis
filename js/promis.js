@@ -2,6 +2,21 @@
 
 var PROMIS = {};
 
+PROMIS.projects = new Array;
+PROMIS.sessions = new Array;
+PROMIS.channels = new Array;
+PROMIS.devices = new Array;
+
+PROMIS.currentProj = 0;
+
+function getbyid(array, id) {
+  for(var i = 0; i < array.length; i ++)
+    if(array[i] && array[i].id && array[i].id == id)
+      return array[i];
+
+  return false;
+}
+
 (function() {
   var map = null;
   var orbit = null;
@@ -55,7 +70,7 @@ var PROMIS = {};
 $(document).ready(function() {
     $('.emptynotice').hide();
 
-    $('input[name="daterange"]').daterangepicker({
+    $('.daterange').daterangepicker({
       locale: {
         format: 'YYYY-MM-DD'
       },
@@ -65,8 +80,8 @@ $(document).ready(function() {
 
     $('[data-toggle="tooltip"]').tooltip();
 
-    $('#sel1').change(function(){
-      if($('#sel1 option:selected').val() != 'a') {
+    
+      /*{
         $('.emptynotice').show();
         $('.searchbutton').prop('disabled', 'disabled');
         $('.checkparam').hide();
@@ -74,8 +89,18 @@ $(document).ready(function() {
         $('.checkparam').show();
         $('.emptynotice').hide();
         $('.searchbutton').removeProp('disabled');
-      }
+      }*/
+    $('#selproj').change(function() {
+      var i = parseInt($(this).find('option:selected').val());
+      var p = getbyid(PROMIS.projects, i);
+
+      PROMIS.currentProj = i;
+
+      $('.projdesc').html(p.description);
+      $('.daterange').data('daterangepicker').setStartDate(p.timelapse.begin);
+      $('.daterange').data('daterangepicker').setEndDate(p.timelapse.end);
     });
+
 
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
       PROMIS.toggleParam(e.target);
@@ -86,8 +111,18 @@ $(document).ready(function() {
     });
 
     initREST('/api/promis_api.yaml', function(){
-      // REST ready
-      
+      REST.apiMethod('Projects', 'ListProjects').then(function(o){
+        PROMIS.projects = o.obj.results;
+
+        $(PROMIS.projects).each(function(i, item) {
+          $('#selproj').append('<option value = "' + item.id + '" >' + item.name + '</option>')
+        });
+
+        $('#selproj').trigger('change');
+      }).catch(function(o){
+        PROMIS.alertError('failed to get data from API. Error: ' + o.obj.detail);
+      });
+
     });
   });
 

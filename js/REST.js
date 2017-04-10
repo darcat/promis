@@ -46,6 +46,8 @@ function initREST (schemaurl, callback)
         REST.apiHost = swagger.schemes[0] + '://' + swagger.host;
 
         REST.ready = true;
+
+        callback();
     }).catch(function(error){
         alert('Failed to init REST: ' + error);
     });
