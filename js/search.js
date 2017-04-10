@@ -100,8 +100,8 @@ $(document).ready(function(){
         REST.apiMethod('Sessions', 'ListSessions', 
             { satellite : PROMIS.currentProj, 
                 fromtime: range[0],
-                  totime: range[1],
-                 polygon: selection
+                  totime: range[1]/*,
+                 polygon: selection*/
             }).then(function(o){
                 var c = o.obj.count;
 
@@ -111,11 +111,13 @@ $(document).ready(function(){
                     var b = $("<button class = 'btn btn-default'>Show/hide on map</button>");
 
                     $(b).click(function(){
+                        $('.loctoggler').bootstrapToggle('on'); /* open map if not yet */
                         if(GeoObject.geolines.length) {
                             GeoObject.clearGeolines();
+                            GeoObject.geolines = new Array();
                         } else {
                             $.each(o.obj.results, function(i, item) {
-                                GeoObject.makeGeoline(item.geoline);
+                                GeoObject.makeGeoline(item.geo_line);
                             });
                         }
                     });

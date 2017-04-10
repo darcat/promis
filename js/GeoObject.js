@@ -10,6 +10,7 @@ var GeoObject = {
     emitter: null, // for interface updates
     polygons : [], // polygon entities
     drawing : false, // whether polygon picking mode is active
+    orbits : [],
     geolines : [],
     selpoints: [[]], // intermediate selections points entities
     positions: [[]], // array of current selections (carthesian)
@@ -117,6 +118,12 @@ var GeoObject = {
             this.updateSelectionPoints(i);
         }
 
+        /*if(this.geolines.length) {
+            this.clearGeolines();
+
+            for(var i = 0; i < this.geolines.length; i ++)
+                this.makeGeoline(this.orbits[i])
+        }*/
         this.repaint();
     },
 
@@ -159,12 +166,19 @@ var GeoObject = {
 
     clearGeolines : function() {
         for(var i = 0; i < this.geolines.length; i ++) {
-            if(this.geolines[i] && 'remove' in this.geolines[i])
+            if(this.geolines[i] && 'remove' in this.geolines[i]) 
                 this.geolines[i].remove();
 
-            if(Cesium.defined(this.geoline[i]))
+            if(Cesium.defined(this.geolines[i]))
                 this.cesiumhandle.entities.remove(this.geolines[i])
         }
+
+        this.repaint();
+        //this.geolines = new Array();
+    },
+
+    invertCoords : function(array) {
+        return array.map(function(x) { return [x[1], x[0]] });
     },
 
     makeGeoline : function(coords) {
@@ -198,10 +212,11 @@ var GeoObject = {
                 /* Adding the segment, then the same one shifted +360°/-360° */
                 var segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
                 for (var j = 0; j < segs.length; j++) {
-                  var gl = L.polyline(segs[j], {
+                  var gl = L.polyline(this.invertCoords(segs[j]), {
                      color: 'red'
                   });
                   gl.addTo(this.leaflethandle);
+                  //this.invertCoords(segs[j])
                 }
 
                 /* Recording new anchor, if it was the last point it wouldn't matter anyway */
