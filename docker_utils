@@ -36,7 +36,7 @@ else
 fi
 
 case `basename $0` in
-    sql_access_docker)
+    sql_access)
     if [ -z $1 ]; then
       SQL_USER=promis
     else
