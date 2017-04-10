@@ -5,7 +5,7 @@ django-extensions     # for graph models
 markdown
 django-filter
 jsonfield
-djsw_wrapper
+djsw_wrapper>=0.2.3.0
 drf-nested-routers
 dj-database-url
 django-hvad
