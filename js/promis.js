@@ -64,7 +64,18 @@ function getbyid(array, id) {
     });
   }
 
-
+function makeParam(name, rate) {
+  return $("<div class = 'form-group checkparam'> \
+            <div class='checkbox col-sm-8'> \
+    <label> \
+      <input type='checkbox' checked/>" + name + " \
+    </label> \
+  </div>\
+  <div class = 'col-sm-4 samplingrate'> \
+    <span>" + rate + "</span> \
+  </div> \
+  </div> ");
+}
 
   /* main func */
 $(document).ready(function() {
@@ -111,6 +122,7 @@ $(document).ready(function() {
     });
 
     initREST('/api/promis_api.yaml', function(){
+      // populate projects
       REST.apiMethod('Projects', 'ListProjects').then(function(o){
         PROMIS.projects = o.obj.results;
 
@@ -119,10 +131,20 @@ $(document).ready(function() {
         });
 
         $('#selproj').trigger('change');
+
       }).catch(function(o){
         PROMIS.alertError('failed to get data from API. Error: ' + o.obj.detail);
       });
 
+      // nb: query channels -> take their ids -> put here
+      // populate params
+      REST.apiMethod('Parameters', 'ListParameters', { channel : 1 }).then(function(o){
+        $('.paramsblock').append(makeParam(o.obj.results[0].name, ''));
+      });
+
+      REST.apiMethod('Parameters', 'ListParameters', { channel : 2 }).then(function(o){
+        $('.paramsblock').append(makeParam(o.obj.results[0].name, ''));
+      });
     });
   });
 
