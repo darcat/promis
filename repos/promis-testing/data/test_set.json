@@ -1,0 +1,227 @@
+[
+{
+    "model": "auth.user",
+    "pk": 42001,
+    "fields": {
+        "username": "john",
+        "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE=",
+        "groups": [ ]
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 42002,
+    "fields": {
+        "username": "melanie",
+        "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE=",
+        "groups": [ 2 ]
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 42003,
+    "fields": {
+        "username": "connie",
+        "password": "pbkdf2_sha256$10000$vkRy7QauoLLj$ry+3xm3YX+YrSXbri8s3EcXDIrx5ceM+xQjtpLdw2oE=",
+        "groups": [ 1 ]
+    }
+},
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 42001,
+    "fields": {
+        "name": "Peace&Love",
+        "description": "A satellite with exquisite orbit drawing pictures that reiginite your faith in humanity.",
+        "language_code": "en",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 42002,
+    "fields": {
+        "name": "\u041c\u0438\u0440 \u0442\u0430 \u041b\u044e\u0431\u043e\u0432",
+        "description": "\u0421\u0443\u043f\u0443\u0442\u043d\u0438\u043a \u0456\u0437 \u0432\u0438\u0448\u0443\u043a\u0430\u043d\u043e\u044e \u043e\u0440\u0431\u0456\u0442\u043e\u044e, \u0449\u043e \u0432\u0456\u0434\u0442\u0432\u043e\u0440\u044e\u0454 \u043c\u0430\u043b\u044e\u043d\u043a\u0438, \u044f\u043a\u0456 \u043f\u043e\u0432\u0435\u0440\u043d\u0443\u0442\u044c \u0432\u0430\u043c \u0432\u0456\u0440\u0443 \u0443 \u043b\u044e\u0434\u0441\u0442\u0432\u043e.",
+        "language_code": "uk",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 42003,
+    "fields": {
+        "name": "Roundabout",
+        "description": "A satellite that does something similar to a real satellite orbit as hard as it can for many minutes.",
+        "language_code": "en",
+        "master": 42001
+    }
+},
+{
+    "model": "backend_api.space_projecttranslation",
+    "pk": 42004,
+    "fields": {
+        "name": "\u041a\u043e\u043b\u043e\u0431\u0456\u0433",
+        "description": "\u0421\u0443\u043f\u0443\u0442\u043d\u0438\u043a, \u044f\u043a\u0438\u0439 \u0437 \u0443\u0441\u0438\u0445 \u0441\u0438\u043b \u0432\u0438\u0442\u0432\u043e\u0440\u044f\u0454 \u0449\u043e\u0441\u044c \u043f\u043e\u0434\u0456\u0431\u043d\u0435 \u0434\u043e \u0440\u0435\u0430\u043b\u044c\u043d\u0438\u0445 \u0441\u0443\u043f\u0443\u0442\u043d\u0438\u043a\u0456\u0432 \u0431\u0430\u0433\u0430\u0442\u043e \u0445\u0432\u0438\u043b\u0438\u043d.",
+        "language_code": "uk",
+        "master": 42001
+    }
+},
+{
+    "model": "backend_api.space_project",
+    "pk": 42000,
+    "fields": {
+        "date_start": "1970-01-01",
+        "date_end": "1970-01-01",
+        "data_func":  [ "functions.test_set.peace_love" ]
+    }
+},
+{
+    "model": "backend_api.space_project",
+    "pk": 42001,
+    "fields": {
+        "date_start": "1970-01-01",
+        "date_end": "1970-01-01",
+        "data_func": [ "functions.test_set.roundabout" ]
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 42001,
+    "fields": {
+        "name": "Space Termometer",
+        "description": "Fictional device to measure random things.",
+        "language_code": "en",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.devicetranslation",
+    "pk": 42002,
+    "fields": {
+        "name": "\u041a\u043e\u0441\u043c\u0456\u0447\u043d\u0438\u0439 \u0422\u0435\u0440\u043c\u043e\u043c\u0435\u0442\u0440",
+        "description": "\u0412\u0438\u0434\u0443\u043c\u0430\u043d\u0438\u0439 \u043f\u0440\u0438\u0441\u0442\u0440\u0456\u0439 \u044f\u043a\u0438\u0439 \u043c\u0456\u0440\u044f\u0454 \u0432\u0438\u043f\u0430\u0434\u043a\u043e\u0432\u0456 \u0440\u0435\u0447\u0456",
+        "language_code": "uk",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.device",
+    "pk": 42000,
+    "fields": {
+        "satellite": 42001
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 42001,
+    "fields": {
+        "name": "U",
+        "description": "Termometer reading",
+        "language_code": "en",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.channeltranslation",
+    "pk": 42002,
+    "fields": {
+        "name": "U",
+        "description": "\u041f\u043e\u043a\u0430\u0437\u0438 \u0442\u0435\u0440\u043c\u043e\u043c\u0435\u0442\u0440\u0443",
+        "language_code": "uk",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.channel",
+    "pk": 42000,
+    "fields": {
+        "device": 42000,
+        "quicklook": null,
+        "parser_func": null
+    }
+},
+{
+    "model": "backend_api.unittranslation",
+    "pk": 42001,
+    "fields": {
+        "short_name": "\u00b0K",
+        "long_name": "degrees Kelvin",
+        "language_code": "en",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.unittranslation",
+    "pk": 42002,
+    "fields": {
+        "short_name": "\u00b0K",
+        "long_name": "\u0433\u0440\u0430\u0434\u0443\u0441\u0438 \u041a\u0435\u043b\u0432\u0456\u043d\u0430",
+        "language_code": "uk",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.unit",
+    "pk": 42000,
+    "fields": {}
+},
+{
+    "model": "backend_api.valuetranslation",
+    "pk": 42001,
+    "fields": {
+        "name": "Space Temperature",
+        "description": "Average temperature of something near the satellite for testing purpose.",
+        "language_code": "en",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.valuetranslation",
+    "pk": 42002,
+    "fields": {
+        "name": "\u041a\u043e\u0441\u043c\u0456\u0447\u043d\u0430 \u0422\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u0430",
+        "description": "\u0421\u0435\u0440\u0435\u0434\u043d\u044f \u0442\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u0430 \u0447\u043e\u0433\u043e\u0441\u044c \u0431\u0456\u043b\u044f \u0441\u0443\u043f\u0443\u0442\u043d\u0438\u043a\u0443 \u0437\u0430\u0434\u043b\u044f \u043f\u0435\u0440\u0435\u0432\u0456\u0440\u043a\u0438",
+        "language_code": "uk",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.value",
+    "pk": 42000,
+    "fields": {
+        "short_name": "T",
+        "units": 42000
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 42001,
+    "fields": {
+        "name": "Measured Space Temperature",
+        "description": "What our satellite thinks the temperature is.",
+        "language_code": "en",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.parametertranslation",
+    "pk": 42002,
+    "fields": {
+        "name": "\u0412\u0438\u043c\u0456\u0440\u0438 \u041a\u043e\u0441\u043c\u0456\u0447\u043d\u043e\u0457 \u0422\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u0438",
+        "description": "\u0429\u043e \u043d\u0430\u0448 \u0441\u0443\u043f\u0443\u0442\u043d\u0438\u043a \u0434\u0443\u043c\u0430\u0454 \u0437 \u043f\u0440\u0438\u0432\u043e\u0434\u0443 \u0442\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u0438",
+        "language_code": "uk",
+        "master": 42000
+    }
+},
+{
+    "model": "backend_api.parameter",
+    "pk": 42000,
+    "fields": {
+        "value": 42000,
+        "conversion": null,
+        "conversion_params": "",
+        "channel": 42000,
+        "quicklook": null
+    }
+}
+]
