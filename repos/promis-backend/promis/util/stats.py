@@ -47,4 +47,4 @@ def general_quick_look(v, npoints):
     # Determining how many points are averaged
     span = len(v) / npoints
 
-    return avg_float(v, int(span * i), span) for i in range(npoints)
+    return (avg_float(v, int(span * i), span) for i in range(npoints))
