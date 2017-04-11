@@ -64,8 +64,8 @@ ssl_cert_api:       'promis_fullchain.pem'
 ssl_key_api:        'promis_secretkey.pem'
 
 # If set to on, prefer local checkouts over git versions
-dir_web:            'repos/promis-frontend'
-dir_api:            'repos/promis-backend'
+dir_web:            'frontend'
+dir_api:            'backend'
 # dir_test: TODO
 
 # Override to true/on/yes in conf.yml to cause a boot2docker VM to be run

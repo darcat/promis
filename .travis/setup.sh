@@ -10,7 +10,7 @@ python3 -m pyftpdlib > /tmp/ftp.log 2>&1 &
 echo "=> FTP service started"
 
 # Generate data for FTP
-../repos/promis-testing/data/generate.py
+../test/data/generate.py
 cd -
 
 # Waiting to split the output and start up X
@@ -42,7 +42,7 @@ done
 docker logs api.promis
 
 # Artificial data satellites
-./backend_command loaddata --format json - < repos/promis-testing/data/test_set.json
+./backend_command loaddata --format json - < test/data/test_set.json
 
 # Load the satellite data
 ./backend_command check_data_updates

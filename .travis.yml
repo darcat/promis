@@ -15,11 +15,11 @@ addons:
       - sourceline: deb http://vagrant-deb.linestarve.com/ any main
     packages:
       - vagrant
-install: "pip3 install --user -r ./repos/promis-testing/requirements.txt"
+install: "pip3 install --user -r ./test/requirements.txt"
 before_script:
   - .travis/setup.sh
 script:
-  - cd repos/promis-testing
+  - cd test
   - py.test -v; CODE=$?
   - if [ $CODE -ne 0 -a $CODE -ne 5 ]; then exit $CODE; fi # py.test returns 5 if no test were run
 

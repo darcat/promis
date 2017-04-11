@@ -55,8 +55,8 @@ end
 # Process auto-generated files
 # TODO: see #46, this needs to live in YML somewhere
 # TODO: this ALWAYS runs even on vagrant-status etc
-ifiles = [ "repos/ionosat-docs/promis_api.yaml", "repos/promis-frontend/promis.conf" ]
-ofiles = [ [ "repos/promis-backend/api/promis_api.yaml", "repos/promis-frontend/deploy/promis_api.yaml" ], [ "repos/promis-frontend/deploy/promis.conf" ] ]
+ifiles = [ "doc/promis_api.yaml", "frontend/promis.conf" ]
+ofiles = [ [ "backend/api/promis_api.yaml", "frontend/deploy/promis_api.yaml" ], [ "frontend/deploy/promis.conf" ] ]
 
 ifiles.each_with_index { |v, i|
   s = cfg(IO.read(v))
