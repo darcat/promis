@@ -143,3 +143,24 @@
 .maplocation {
     display: none;
 }
+
+.alertblock {
+  position: fixed;
+  margin: 0 auto;
+  bottom: 10px;
+  width: 400px;
+  min-width: 100%;
+  max-width: 100%;
+}
+
+.alerts, .login-bar, .logout-bar {
+  display: none;
+}
+
+.modal-content {
+  padding: 10px;
+}
+
+.panel-group .panel {
+  margin-bottom: 10px !important;
+}

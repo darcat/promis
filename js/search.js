@@ -53,6 +53,10 @@ function makeResult(data, date, name, size, href) {
     $('.searchresults tbody').append(r);
 }
 
+function geoformat(arr) {
+    return arr;
+}
+
 $(document).ready(function(){
     $('.mapblock').css('visibility', 'hidden');
     $('.resultsblock').hide();
@@ -61,18 +65,19 @@ $(document).ready(function(){
     $('.loggednotice').hide();
 
     /* assume orbit is already loaded */
-
     $('.searchbutton').click(function(){
         /* search by date */
+        
         var intime = false, latlon = false, fparams = false;
         var range = $('.daterange').val().split(' - ');
-        var mrange = moment.range(moment(range[0], 'YYYY-MM-DD'), moment(range[1], 'YYYY-MM-DD'));
+        /*var mrange = moment.range(moment(range[0], 'YYYY-MM-DD'), moment(range[1], 'YYYY-MM-DD'));
 
         $.each(DATA.dates, function(i, d){
             var x = moment(d, 'YYYY-MM-DD');
             intime = x.within(mrange);
-        });
+        });*/
 
+        /*
         if(intime) {
             $.each(PROMIS.orbit, function(i, ll){
                 if(PROMIS.bounds.contains(ll)) {
@@ -80,21 +85,63 @@ $(document).ready(function(){
                 }
             });
 
-            $('.resultsblock').show();
+            $('.resultsblock').show(); */
 
             /* clean from old searches */
-            $('.searchresults .theresult').remove();
+        $('.searchresults .theresult').remove();
 
+        var selection = null;
+
+        if(! $('.loctoggler').prop('checked'))
+            selection = geoformat([[$('#geolat1').val(), $('#geolon1').val()], [$('#geolat2').val(), $('#geolon2').val()]]);
+        else
+            selection = geoformat(GeoObject.getSelection());
+
+        REST.apiMethod('Sessions', 'ListSessions', 
+            { satellite : PROMIS.currentProj, 
+                fromtime: range[0],
+                  totime: range[1]/*,
+                 polygon: selection*/
+            }).then(function(o){
+                var c = o.obj.count;
+
+                $('.resultscount').html(c + ' sessions has been found');
+
+                if(c) {
+                    var b = $("<button class = 'btn btn-default'>Show/hide on map</button>");
+
+                    $(b).click(function(){
+                        $('.loctoggler').bootstrapToggle('on'); /* open map if not yet */
+                        if(GeoObject.geolines.length) {
+                            GeoObject.clearGeolines();
+                            GeoObject.geolines = new Array();
+                        } else {
+                            $.each(o.obj.results, function(i, item) {
+                                GeoObject.makeGeoline(item.geo_line);
+                            });
+                        }
+                    });
+
+                    PROMIS.sessions = o.obj.results;
+
+                    $('.resultsblock').append(b);
+                }
+
+                $('.resultsblock').show();
+            }).catch(function(o){
+                PROMIS.alertError('failed to get data from API. Error: ' + o.obj.detail);
+            });
             /* params */
+        /*
             if(latlon) {
                 var q = 0;
 
                 $('.checkparam input').each(function(i, objp){
                     if($(objp).is(':checked')) {
                         /* pick earliest date */
-
+                        /*
                         switch(i) {
-                            case 0: /* ez */
+                            case 0: // ez 
                                 $.each(DATA.dates, function(i, d){
                                     var z = moment(d, 'YYYY-MM-DD');
 
@@ -106,7 +153,7 @@ $(document).ready(function(){
                                 });
                             break;
 
-                            case 1: /* mwc x */
+                            case 1: // mwc x 
                                 makeResult('mw1', DATA.dates[0], 'Magnetic field X (MWC)', '386 KB', DATA.mw1);
                                 q ++;
                             break;
@@ -126,7 +173,7 @@ $(document).ready(function(){
                     }
                 }
                 else {
-                    /* hate duplicating code...*/
+                    // hate duplicating code...
                     $('.resultscount').html('Nothing has been found');
                     $('.searchresults').hide();
                 }
@@ -134,7 +181,7 @@ $(document).ready(function(){
                 $('.resultscount').html('Nothing has been found');
                 $('.searchresults').hide();
             }
-        }
+        }*/
     });
 });
 

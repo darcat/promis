@@ -2,6 +2,21 @@
 
 var PROMIS = {};
 
+PROMIS.projects = new Array;
+PROMIS.sessions = new Array;
+PROMIS.channels = new Array;
+PROMIS.devices = new Array;
+
+PROMIS.currentProj = 0;
+
+function getbyid(array, id) {
+  for(var i = 0; i < array.length; i ++)
+    if(array[i] && array[i].id && array[i].id == id)
+      return array[i];
+
+  return false;
+}
+
 (function() {
   var map = null;
   var orbit = null;
@@ -14,6 +29,20 @@ var PROMIS = {};
     } else {
       $(i).css('color', 'gray');
     }
+  }
+
+  PROMIS.alertError = function(text, cont) {
+    var a = $('.alert-danger').clone();
+
+    $(a).find('.msg').html(text);
+    $(cont !== undefined ? cont : '.alertblock').append(a);
+  }
+
+  PROMIS.alertSuccess = function(text, cont) {
+    var a = $('.alert-success').clone();
+
+    $(a).find('.msg').html(text);
+    $(cont !== undefined ? cont : '.alertblock').append(a);
   }
 
   function displaySession(number) {
@@ -35,13 +64,24 @@ var PROMIS = {};
     });
   }
 
-
+function makeParam(name, rate) {
+  return $("<div class = 'form-group checkparam'> \
+            <div class='checkbox col-sm-8'> \
+    <label> \
+      <input type='checkbox' checked/>" + name + " \
+    </label> \
+  </div>\
+  <div class = 'col-sm-4 samplingrate'> \
+    <span>" + rate + "</span> \
+  </div> \
+  </div> ");
+}
 
   /* main func */
 $(document).ready(function() {
     $('.emptynotice').hide();
 
-    $('input[name="daterange"]').daterangepicker({
+    $('.daterange').daterangepicker({
       locale: {
         format: 'YYYY-MM-DD'
       },
@@ -51,8 +91,8 @@ $(document).ready(function() {
 
     $('[data-toggle="tooltip"]').tooltip();
 
-    $('#sel1').change(function(){
-      if($('#sel1 option:selected').val() != 'a') {
+    
+      /*{
         $('.emptynotice').show();
         $('.searchbutton').prop('disabled', 'disabled');
         $('.checkparam').hide();
@@ -60,8 +100,18 @@ $(document).ready(function() {
         $('.checkparam').show();
         $('.emptynotice').hide();
         $('.searchbutton').removeProp('disabled');
-      }
+      }*/
+    $('#selproj').change(function() {
+      var i = parseInt($(this).find('option:selected').val());
+      var p = getbyid(PROMIS.projects, i);
+
+      PROMIS.currentProj = i;
+
+      $('.projdesc').html(p.description);
+      $('.daterange').data('daterangepicker').setStartDate(p.timelapse.begin);
+      $('.daterange').data('daterangepicker').setEndDate(p.timelapse.end);
     });
+
 
     $(document).on('change', '.checkparam input[type="checkbox"]', function(e) {
       PROMIS.toggleParam(e.target);
@@ -69,6 +119,32 @@ $(document).ready(function() {
 
     $('.checkparam input[type="checkbox"]').each(function(i, e){
       PROMIS.toggleParam(e);
+    });
+
+    initREST('/api/promis_api.yaml', function(){
+      // populate projects
+      REST.apiMethod('Projects', 'ListProjects').then(function(o){
+        PROMIS.projects = o.obj.results;
+
+        $(PROMIS.projects).each(function(i, item) {
+          $('#selproj').append('<option value = "' + item.id + '" >' + item.name + '</option>')
+        });
+
+        $('#selproj').trigger('change');
+
+      }).catch(function(o){
+        PROMIS.alertError('failed to get data from API. Error: ' + o.obj.detail);
+      });
+
+      // nb: query channels -> take their ids -> put here
+      // populate params
+      REST.apiMethod('Parameters', 'ListParameters', { channel : 1 }).then(function(o){
+        $('.paramsblock').append(makeParam(o.obj.results[0].name, ''));
+      });
+
+      REST.apiMethod('Parameters', 'ListParameters', { channel : 2 }).then(function(o){
+        $('.paramsblock').append(makeParam(o.obj.results[0].name, ''));
+      });
     });
   });
 

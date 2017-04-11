@@ -57,7 +57,6 @@
     <script src="js/GeoObject.js" type="text/javascript"></script>
     <script src="js/mapcontrol.js" type="text/javascript"></script>
 
-
     <script src="js/promis.js" type="text/javascript"></script>
     <script src="js/quicklook.js" type="text/javascript"></script>
     <script src="js/search.js" type="text/javascript"></script>
@@ -79,23 +78,13 @@
 
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-right">
-            <div class="form-group">
-              <label for="sel1" id='pslabel'>Please select a project:</label>
-              <select class="form-control" id="sel1">
-                <option value = 'a'>Ionosat_test</option>
-                <option value = 'b'>Potential</option>
-                <option value = 'c'>Ionosat-Micro</option>
-              </select>
+            <div class="form-group login-bar">
+              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#loginModal">Sign in</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registerModal">Register</button>
             </div>
-            <div class="form-group login-form">
-              <input type="text" placeholder="Username" class="form-control" id="username">
-              <input type="password" placeholder="Password" class="form-control" id="password">
-              <button type="button" class="btn btn-success user-login">Sign in</button>
-              <button type="submit" class="btn btn-primary user-register">Register</button>
-            </div>
-            <div class="form-group logout-form">
+            <div class="form-group logout-bar">
               <span class = 'wbar'>Hello, <span class='welcome'>user</span></span><span>&nbsp;&nbsp;</span>
-              <button type="submit" class="btn btn-warning user-logout">Sign out</button>
+              <button type="button" class="btn btn-warning user-logout">Sign out</button>
             </div>
           </form>
         </div><!--/.navbar-collapse -->
@@ -110,6 +99,7 @@
         <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
       </div>
       <!-- infoblock end -->
+
       <div class = 'row panel-group'>
         <!-- time & location start -->
         <div class = 'col-md-6 col-sm-12'>
@@ -206,6 +196,39 @@
           </div>
         </div>
         <!-- time & location end -->
+        <!-- projects start -->
+        <div class='col-md-6 col-sm-12'>
+          <div class="panel panel-default" id="panel2">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseTwo" href="#collapseTwo">
+                  Projects
+                </a>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse in">
+              <div class="panel-body">
+                <form class="form-horizontal">
+                  <div class="form-group">
+                    <div class = 'col-sm-2'>
+                      <label for="selproj" class="control-label">Current</label>
+                    </div>
+                    <div class = 'col-sm-10'>
+                      <select class="form-control" id="selproj">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class = 'col-sm-12'>
+                      <p class = 'projdesc'></p>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- projects end -->
         <!-- parameters start -->
         <div class='col-md-6 col-sm-12'>
           <div class="panel panel-default" id="panel2">
@@ -222,46 +245,7 @@
                   <p>You have selected a project with no data, so no parameters are available for search.</p>
                 </div>
                 <form class="form-horizontal">
-                  <div class = 'form-group checkparam'>
-                    <div class="checkbox col-sm-5">
-                      <label>
-                        <input type="checkbox" checked/>Electric potential <b>(EZ)</b>
-                      </label>
-                    </div>
-                    <div class = "col-sm-7 samplingrate">
-                      <span>1 Hz</span>
-                    </div>
-                  </div>
-                  <div class = 'form-group checkparam'>
-                    <div class="checkbox col-sm-5">
-                      <label>
-                        <input type="checkbox" />Magnetic field X <b>(MWC)</b>
-                      </label>
-                    </div>
-                    <div class = "col-sm-7 samplingrate">
-                      <span>50 kHz</span>
-                    </div>
-                  </div>
-                  <div class = 'form-group checkparam'>
-                    <div class="checkbox col-sm-5">
-                      <label>
-                        <input type="checkbox" />Magnetic field Y <b>(MWC)</b>
-                      </label>
-                    </div>
-                    <div class = "col-sm-7 samplingrate">
-                      <span>50 kHz</span>
-                    </div>
-                  </div>
-                  <div class = 'form-group checkparam'>
-                    <div class="checkbox col-sm-5">
-                      <label>
-                        <input type="checkbox" />Magnetic field Z <b>(MWC)</b>
-                      </label>
-                    </div>
-                    <div class = "col-sm-7 samplingrate">
-                      <span>50 kHz</span>
-                    </div>
-                  </div>
+                  <div class = 'paramsblock'></div>
                   <div class = 'form-group'>
                     <div class = 'col-sm-12'>
                       <br />
@@ -393,5 +377,69 @@
         </div>
       </div>
     </div>
+
+    <!-- Login modal -->
+    <div class = 'modal fade' id = 'loginModal' role = 'dialog' aria-labelledby = 'loginModalLabel'>
+      <div class = 'modal-dialog modal-md' role = 'document'>
+        <div class = 'modal-content'>
+          <div class = 'modal-helper'>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="loginModalLabel">Login</h4>
+          </div>
+          <div class = 'modal-body'>
+            <form>
+              <input type="text" placeholder="Username" class="login-user form-control" />
+              <input type="password" placeholder="Password" class="login-password form-control" />
+            </form>
+          </div>
+          <div class = 'modal-footer'>
+            <button class = 'btn btn-info user-login'>Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register modal -->
+    <div class = 'modal fade' id = 'registerModal' role = 'dialog' aria-labelledby = 'registerModalLabel'>
+      <div class = 'modal-dialog modal-md' role = 'document'>
+        <div class = 'modal-content'>
+          <div class = 'modal-helper'>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="registerModalLabel">Register</h4>
+          </div>
+          <div class = 'modal-body'>
+            <form>
+              <input type="email" placeholder="Email" class = "register-email form-control" />
+              <input type="text" placeholder="Username" class = "register-username form-control" />
+              <input type="password" placeholder="Password" class="register-password form-control" />
+            </form>
+          </div>
+          <div class = 'modal-footer'>
+            <button class = 'btn btn-info user-register'>Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- general alerts -->
+    <div class = 'alerts'>
+      <div class="alert alert-success alert-dismissable fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Success: </strong><span class = 'msg'>This alert box could indicate a successful or positive action.</span>
+      </div>
+      <div class="alert alert-info alert-dismissable fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Info: </strong><span class = 'msg'>This alert box could indicate a neutral informative change or action.</span>
+      </div>
+      <div class="alert alert-warning alert-dismissable fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Warning: </strong><span class = 'msg'>This alert box could indicate a warning that might need attention.</span>
+      </div>
+      <div class="alert alert-danger alert-dismissable fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Error: </strong><span class = 'msg'>This alert box could indicate a dangerous or potentially negative action.</span>
+      </div>
+    </div>
+    <div class = 'alertblock'></div>
   </body>
 </html>
