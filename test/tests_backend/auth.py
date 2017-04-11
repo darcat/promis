@@ -1,12 +1,16 @@
 # TODO: temporary code until IonosatMicro/promis-backend#69 is stabilised
 # Take with a huge grain of salt
 # TODO: meaningful exceptions
-import requests, re
+import requests, re, yaml
+
+def _get_origin():
+    with open("deploy/promis_api.yaml") as fp:
+        return yaml.load(fp)["host"]
 
 class Session:
     '''Temporary class to envelop a session'''
 
-    root_url = "http://localhost:8081" # TODO: configurability
+    root_url = "http://" + _get_origin() # TODO: pick up SSL flag from somewhere?
 
     def _do_request(self, method, url, args, kwargs):
         try:
