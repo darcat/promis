@@ -41,5 +41,8 @@ done
 # Display backend logs just for kicks
 docker logs api.promis
 
-# Populate with artificial data
-repos/promis-testing/backend_command loaddata --format json - < repos/promis-testing/data/test_set.json
+# Artificial data satellites
+./backend_command loaddata --format json - < repos/promis-testing/data/test_set.json
+
+# Load the satellite data
+./backend_command check_data_updates
