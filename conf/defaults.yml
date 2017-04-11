@@ -5,7 +5,6 @@
 # disable_ssl = on
 # servername_web = servername_backend = "localhost"
 # port_web = 8081 port_api = 8083
-# prefer_local = on
 # expose_db = on
 # django_debug = on
 # django_key set to known value (consult config.rb for details)
@@ -65,21 +64,9 @@ ssl_cert_api:       'promis_fullchain.pem'
 ssl_key_api:        'promis_secretkey.pem'
 
 # If set to on, prefer local checkouts over git versions
-prefer_local:       on # TODO set to off here after vagrant 1.8.7 release
 dir_web:            'repos/promis-frontend'
 dir_api:            'repos/promis-backend'
 # dir_test: TODO
-
-# Owners and name of the repos, override if you are working on a fork
-repo_web:           'IonosatMicro/promis-frontend'
-repo_api:           'IonosatMicro/promis-backend'
-repo_test:          'IonosatMicro/promis-setup' # TODO
-
-# Override to specify a version to deploy. Argument can be a sha,
-# branch or tag. Basically what you'd expect feed git checkout with.
-version_web:        'master'
-version_api:        'master'
-version_test:       'master'
 
 # Override to true/on/yes in conf.yml to cause a boot2docker VM to be run
 # regardless of vagrant's own judgment
