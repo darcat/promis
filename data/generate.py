@@ -18,6 +18,9 @@ orbit_sec = 1
 # Number of times "Roundabout" turns around Earth
 round_turns = 30
 
+# Time flow is multiplied by this constant for roundabout
+slow_factor = 0.3
+
 # Meridian speed, something like degrees per latitudal revolution
 round_shift = 272 # not multiple of 90
 
@@ -80,7 +83,7 @@ def uptick():
 # Yes I know this is not how satellites work
 def roundabout():
     return [ [ clamp180(round_shift*t/pi), 80*sin(t) ]
-        for t in ((2*round_turns*pi*i/round_pts)
+        for t in ((2*slow_factor*round_turns*pi*i/round_pts)
             for i in range(round_pts))]
 
 # Thx, stackoverflow
