@@ -5,13 +5,18 @@
 conf/conf.yml
 
 # User written nginx configs, certificates et al
-nginx/*
+nginx/
 
 # Also SSL directory
-ssl/*
+ssl/
 
 # Backend-generated stuff
-sync/*
+sync/
+
+# Deploy-generated stuff
+frontend/deploy/
+backend/api/
+test/deploy/
 
 # Keeper files
 !.keep

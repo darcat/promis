@@ -56,7 +56,7 @@ end
 # TODO: see #46, this needs to live in YML somewhere
 # TODO: this ALWAYS runs even on vagrant-status etc
 ifiles = [ "doc/promis_api.yaml", "frontend/promis.conf" ]
-ofiles = [ [ "backend/api/promis_api.yaml", "frontend/deploy/promis_api.yaml" ], [ "frontend/deploy/promis.conf" ] ]
+ofiles = [ [ "backend/api/promis_api.yaml", "frontend/deploy/promis_api.yaml", "test/deploy/promis_api.yaml" ], [ "frontend/deploy/promis.conf" ] ]
 
 ifiles.each_with_index { |v, i|
   s = cfg(IO.read(v))
