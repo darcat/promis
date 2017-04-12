@@ -11,7 +11,6 @@ import json
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
-import pandas
 from backend_api import helpers
 import util.parsers
 
