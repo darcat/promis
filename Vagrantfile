@@ -53,19 +53,17 @@ def cfg(input)
 end
 
 # Process auto-generated files
-# TODO: see #46, this needs to live in YML somewhere
-# TODO: this ALWAYS runs even on vagrant-status etc
-ifiles = [ "doc/promis_api.yaml", "frontend/promis.conf" ]
-ofiles = [ [ "backend/api/promis_api.yaml", "frontend/deploy/promis_api.yaml", "test/deploy/promis_api.yaml" ], [ "frontend/deploy/promis.conf" ] ]
-
-ifiles.each_with_index { |v, i|
-  s = cfg(IO.read(v))
-  ofiles[i].each { |vv|
-    fp = File.open(vv, "w")
-    fp.puts s
-    fp.close
-  }
-}
+# NOTE: this ALWAYS runs even on vagrant-status etc
+generated = YAML.load_file(vagrant_root + "conf/generated.yml")
+generated.each do | ifname, odirs |
+    s = cfg(IO.read(vagrant_root + ifname))
+    bname = File.basename ifname
+    odirs.each do | odir |
+        fp = File.open(vagrant_root + odir + "/" + bname, "w")
+        fp.puts s
+        fp.close
+    end
+end
 
 Vagrant.configure("2") do |config|
   config.vm.provider "docker"
