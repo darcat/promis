@@ -61,4 +61,8 @@ case `basename $0` in
     backend_bash)
     run_docker api.promis bash
     ;;
+    
+    backend_test)
+    run_docker api.promis py.test -v promis/
+    ;;
 esac
