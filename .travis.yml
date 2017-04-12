@@ -19,11 +19,8 @@ install: "pip3 install --user -r ./test/requirements.txt"
 before_script:
   - .travis/setup.sh
 script:
-  - echo '=> Running backend unit tests'
   - ./backend_test; BACKEND_TEST_CODE=$?
-  - cd test
-  - echo '=> Running integration tests'
-  - py.test -v; TEST_CODE=$?
+  - py.test -v test/; TEST_CODE=$?
   - if [ ($BACKEND_TEST_CODE -ne 0 -a $BACKEND_TEST_CODE -ne 5) -o ($TEST_CODE -ne 0 -a $TEST_CODE -ne 5) ]; then exit $CODE; fi # py.test returns 5 if no test were runы
 
 notifications:
