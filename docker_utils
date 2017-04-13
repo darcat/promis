@@ -9,6 +9,15 @@ function run_docker {
     ${DOCKER_COMMAND}exec $TERM_FLAG $CONTAINER $DOCKER_DELIM $*
 }
 
+function fix_exit_code {
+    CODE=$?
+    if [ $CODE -eq 5 ]; then
+        exit 0
+    else
+        exit $CODE
+    fi
+}
+
 
 # Checking if native docker is available
 # TODO: what if we have a docker AND a VM setup? exotic case, do something about it
@@ -60,5 +69,15 @@ case `basename $0` in
 
     backend_bash)
     run_docker api.promis bash
+    ;;
+    
+    backend_test)
+    run_docker api.promis py.test -v promis/
+    fix_exit_code
+    ;;
+    
+    integration_test)
+    py.test -v test/
+    fix_exit_code
     ;;
 esac

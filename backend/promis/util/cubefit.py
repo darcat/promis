@@ -68,6 +68,9 @@ def cubic_fit(x, y):
     Deduce coefs of and construct a cubic function of the form ax^3 + bx^2 + cx + d = y(x)
 
     x, y -- list of input points
+    
+    >>> cubic_fit([0, 1, 2, 3], [45, 67, 85, 12]) (0.5)             
+    51.0625
     """
     def extdet(i):
         newidx = idx[:i] + [ [ 16 + i for i in range(4) ] ] + idx[i+1:]
