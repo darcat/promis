@@ -42,5 +42,5 @@
 
 - name: ${conf.hostname_test}
   build: ${conf.dir_test}
-  ports:  [ "${conf.port_ftp_test}" ]
+  ports:  [ "${conf.port_ftp_test}", "${conf.port_ftp_passive}" ]
   noauto: true

@@ -24,6 +24,8 @@ port_api_internal:  80
 
 # Port for the test container FTP
 port_ftp_test:      2121
+# TODO: vagrant seems only open one port instead of a range, do we need a range?
+port_ftp_passive:   6000
 
 # Set to true in conf.yml to disable SSL for local testing
 disable_ssl:        off
