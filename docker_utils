@@ -70,14 +70,17 @@ case `basename $0` in
     backend_bash)
     run_docker api.promis bash
     ;;
-    
+
     backend_test)
     run_docker api.promis py.test -v promis/
     fix_exit_code
     ;;
-    
+
     integration_test)
-    py.test -v test/
+    if ! vagrant status test.promis 2>&1 | grep 'running (docker)' >/dev/null; then
+      vagrant up test.promis
+    fi
+    run_docker test.promis py.test -v
     fix_exit_code
     ;;
 esac

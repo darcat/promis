@@ -25,7 +25,7 @@ POSTGIS_PORT=4242
 echo "port_sql_host: $POSTGIS_PORT" >> conf/conf.yml
 
 # Ready, steady, go
-vagrant up
+vagrant up db.promis api.promis web.promis test.promis
 
 # Download the Firefox driver for Selenium
 # TODO: any chance to apt-get so we can put this to travis.yml?
