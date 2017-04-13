@@ -70,7 +70,7 @@ ifiles.each_with_index { |v, i|
 Vagrant.configure("2") do |config|
   config.vm.provider "docker"
   containers.each do |container|
-    config.vm.define cfg(container["name"]) do |node|
+    config.vm.define cfg(container["name"]), autostart: ! container["noauto"] do |node|
       # Removing the default folder sync
       node.vm.synced_folder ".", "/vagrant", disabled: true
 
@@ -123,7 +123,6 @@ Vagrant.configure("2") do |config|
             docker.env[env[0]] = cfg(env[1])
           end
         end
-
         docker.name = cfg(container["name"])
       end
     end
