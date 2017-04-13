@@ -5,7 +5,8 @@ import requests, re, yaml
 
 def _get_origin():
     # TODO: disover path on our own
-    with open("test/deploy/promis_api.yaml") as fp:
+    # TODO: discuss whether we need YML at all?
+    with open("deploy/promis_api.yaml") as fp:
         return yaml.load(fp)["host"]
 
 class Session:
