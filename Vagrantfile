@@ -29,9 +29,9 @@ ENV["VAGRANT_NO_PARALLEL"] = "yes"
 # to VirtualBox on some Gentoo setups despite configuration
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "docker"
 
-vagrant_root = File.dirname(__FILE__) + "/"
+vagrant_root = File.dirname(__FILE__)
 
-load vagrant_root + "config.rb"
+load File.join(vagrant_root, "config.rb")
 
 # Composing the API url
 need_ext = ($conf["disable_ssl"] && $conf["port_web"] == 80) ||
@@ -39,7 +39,7 @@ need_ext = ($conf["disable_ssl"] && $conf["port_web"] == 80) ||
 $conf["promis_origin"] = $conf["servername_web"] + (need_ext ? "" : ":" + $conf["port_web"].to_s)
 
 # Container definitions
-containers = YAML.load_file(vagrant_root + "conf/containers.yml")
+containers = YAML.load_file(File.join(vagrant_root, "conf", "containers.yml"))
 
 # Check if input contains a configuration variable reference, if so, substitute
 # TODO: better approach
@@ -54,12 +54,12 @@ end
 
 # Process auto-generated files
 # NOTE: this ALWAYS runs even on vagrant-status etc
-generated = YAML.load_file(vagrant_root + "conf/generated.yml")
+generated = YAML.load_file(File.join(vagrant_root, "conf", "/generated.yml"))
 generated.each do | ifname, odirs |
-    s = cfg(IO.read(vagrant_root + ifname))
+    s = cfg(IO.read(File.join(vagrant_root, ifname)))
     bname = File.basename ifname
     odirs.each do | odir |
-        fp = File.open(vagrant_root + odir + "/" + bname, "w")
+        fp = File.open(File.join(vagrant_root, odir, bname), "w")
         fp.puts s
         fp.close
     end
