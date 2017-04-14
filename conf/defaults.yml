@@ -54,7 +54,7 @@ sync_web_dir:   '/var/www/promis/sync/'
 sync_web_path:  '/sync/'
 
 # API YML sharing
-yml_api_dir:    '/usr/src/app/api/'
+yml_api_dir:    '/usr/src/app/deploy/'
 yml_web_dir:    '/var/www/promis/api/'
 
 # Standard ssl key names (prefixed with /etc/ssl/private)
