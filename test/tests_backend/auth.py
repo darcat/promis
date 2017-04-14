@@ -4,7 +4,8 @@
 import requests, re, yaml
 
 def _get_origin():
-    with open("deploy/promis_api.yaml") as fp:
+    # TODO: discover path on our own
+    with open("test/deploy/promis_api.yaml") as fp:
         return yaml.load(fp)["host"]
 
 class Session:
