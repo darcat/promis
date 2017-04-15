@@ -78,6 +78,13 @@ Vagrant.configure("2") do |config|
           node.vm.synced_folder cfg(sync[0]), cfg(sync[1])
         end
       end
+      
+      # Code reload directories
+      if $conf["code_reload"] and container["reload"]
+        container["reload"].each do |sync|
+          node.vm.synced_folder cfg(sync[0]), cfg(sync[1])
+        end
+      end
 
       # Setting docker stuff
       node.vm.provider "docker" do |docker|

@@ -52,6 +52,9 @@ Synced folders and links persist through `vagrant down`/`vagrant up` even if you
 ### Building containers
 If you set the `build` option instead of `image` for a container, it will be built by vagrant itself. However, vagrant shall not automatically rebuild after the first build. To cause it to do so do `vagrant reload`.
 
+### Edit stuff inside the container
+Setting `code_reload` option (enabled automatically with `development_setup`) syncs major code directories of the git repository directly to the container allowing Django/Node.js to reload things on the fly. Note that you need to reload the container after changing this setting, because it's implemented as a shared folder.
+
 ### Default password
 On non-Linux machines vagrant would spin a `boot2docker` virtual machine. The default password is `tcuser`. Access the machine either through VirtualBox native means or do `vagrant global-status`, find the id of the running virtualbox machine corresponding to the docker host and do `vagrant ssh <id>`.
 

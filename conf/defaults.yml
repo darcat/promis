@@ -2,6 +2,7 @@
 # NOTE: use cfg() in vagrantfile when you expect the string to have a config option
 
 # Development master switch, sets:
+# code_reload = on
 # disable_ssl = on
 # servername_web = servername_backend = "localhost"
 # port_web = 8081 port_api = 8083
@@ -23,6 +24,10 @@ port_api_internal:  80
 
 # Set to true in conf.yml to disable SSL for local testing
 disable_ssl:        off
+
+# Setting this to on causes local code folders to be mounted into the container
+# allowing django/node to reload and rebuild as you edit
+code_reload:        off
 
 # Whether to expose the SQL server to the development host
 expose_db:          off

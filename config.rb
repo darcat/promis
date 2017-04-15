@@ -37,6 +37,7 @@ end
 
 # Easy to use development version
 if $conf["development_setup"]
+  $conf["code_reload"] = true unless $user_conf.key?("code_reload")
   $conf["disable_ssl"] = true unless $user_conf.key?("disable_ssl")
   $conf["servername_web"] = "localhost" unless $user_conf.key?("servername_web")
   $conf["servername_api"] = "localhost" unless $user_conf.key?("servername_api")

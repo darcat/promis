@@ -8,7 +8,7 @@ ADD css /var/www/promis/css/
 ADD js /var/www/promis/js/
 # full version until webpack bundle
 ADD cesium /var/www/promis/cesium/
-ADD download /var/www/promis/download/
+#ADD download /var/www/promis/download/
 
 # This doesn't contain any replacements
 ADD nginx.conf /etc/nginx/
