@@ -4,9 +4,17 @@
 import requests, re, yaml
 
 def _get_origin():
-    # TODO: discover path on our own
-    with open("test/deploy/promis_api.yaml") as fp:
-        return yaml.load(fp)["host"]
+    # TODO: disover path on our own
+    # TODO: discuss whether we need YML at all?
+    with open("deploy/promis_api.yaml") as fp:
+        origin =  yaml.load(fp)["host"].split(":")
+
+        # Translate loopback address to docker inter-container interface
+        if origin[0] == "localhost" or origin[0] == "127.0.0.1":
+            origin[0] = "172.17.0.1"
+        if len(origin) > 1:
+            origin[0] += ":" + origin[1]
+        return origin[0]
 
 class Session:
     '''Temporary class to envelop a session'''

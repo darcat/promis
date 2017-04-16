@@ -1,5 +1,2 @@
 pytest
-selenium
 pyftpdlib
-requests
-PyYAML

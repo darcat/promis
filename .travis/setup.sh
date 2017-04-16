@@ -1,21 +1,5 @@
 #!/bin/sh
 
-# Starting a virtual display
-sh -e /etc/init.d/xvfb start
-
-# FTP server
-mkdir ftproot
-cd ftproot
-python3 -m pyftpdlib > /tmp/ftp.log 2>&1 &
-echo "=> FTP service started"
-
-# Generate data for FTP
-../test/data/generate.py
-cd -
-
-# Waiting to split the output and start up X
-sleep 3
-
 # Setting up a minimal viable config
 echo "development_setup: yes" > conf/conf.yml
 
@@ -25,12 +9,7 @@ POSTGIS_PORT=4242
 echo "port_sql_host: $POSTGIS_PORT" >> conf/conf.yml
 
 # Ready, steady, go
-vagrant up
-
-# Download the Firefox driver for Selenium
-# TODO: any chance to apt-get so we can put this to travis.yml?
-wget https://github.com/mozilla/geckodriver/releases/download/v0.13.0/geckodriver-v0.13.0-linux64.tar.gz
-tar -xf geckodriver-v0.13.0-linux64.tar.gz
+vagrant up db.promis api.promis web.promis test.promis
 
 # Wait for the backend to start up
 while ! docker logs api.promis | grep 'at http://0.0.0.0:80/' > /dev/null; do
