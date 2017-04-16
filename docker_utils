@@ -81,6 +81,7 @@ case `basename $0` in
       vagrant up test.promis
     fi
     run_docker test.promis py.test -v
+
     fix_exit_code
     ;;
 esac

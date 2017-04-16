@@ -1,0 +1,6 @@
+doc/promis_api.yaml:
+  - frontend/deploy
+  - test/deploy
+  - backend/deploy
+frontend/promis.conf:
+  - frontend/deploy
