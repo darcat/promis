@@ -7,6 +7,7 @@
 # port_web = 8081 port_api = 8083
 # expose_db = on
 # django_debug = on
+# django_type = dev
 # django_key set to known value (consult config.rb for details)
 development_setup:  off
 
@@ -42,6 +43,12 @@ django_superemail:  'promis@ikd.kiev.ua'
 
 # Django debugging
 django_debug:       off
+
+# Which django server to run
+# Options: dev, profile, unicorn
+# dev is default when development_setup is on
+# unicorn is default when development_setup is off
+django_type:        unicorn
 
 # Django secret key, auto-generated if empty
 django_key:         ''

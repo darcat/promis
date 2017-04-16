@@ -43,6 +43,7 @@ if $conf["development_setup"]
   $conf["port_web"] = 8081 unless $user_conf.key?("port_web")
   $conf["expose_db"] = true unless $user_conf.key?("expose_db")
   $conf["django_debug"] = true unless $user_conf.key?("django_debug")
+  $conf["django_type"] = "dev" unless $user_conf.key?("django_type")
   $conf["django_key"] = "8f3@*c8-gz!h(fm_4n$-tc-@9!32#bn5m9mmxj$k38or1&y&%x" unless $user_conf.key?("django_key")
 end
 
