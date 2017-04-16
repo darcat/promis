@@ -1,28 +1,20 @@
-# Making sure Selenium knows where to pick up Gecko from
-env:
-  global:
-    - PATH=$PATH:$TRAVIS_BUILD_DIR
-    - DISPLAY=:99.0
-
 services:
   - docker
 python:
   - "3.4"
 addons:
-  firefox: "49.0"
   apt:
     sources:
       - sourceline: deb http://vagrant-deb.linestarve.com/ any main
     packages:
       - vagrant
-install: "pip3 install --user -r ./test/requirements.txt"
 before_script:
   - .travis/setup.sh
 script:
   - ./backend_test; CODE_B=$?
   - ./integration_test; CODE_I=$?
   - if [ $CODE_B -ne 0 -o $CODE_I -ne 0 ]; then exit 1; fi
-  
+
 notifications:
   slack:
     secure: Xp+fsWqgB/rbZxkSkGlB4qXXaNs46zXPkNxWQi5DhSKr45vKPIqf5707sIEGTv4eNlnZlGmiiUTKnkcYmJ9PpsLitFDcvZ1QyiNpVGwvwItFU4PPoCGNiBoo3G0qT5VtnTME8Bo83ai0+M8SUmlaLQPUTKVvWKBfiStJ7A0MElXsLYPri4Zv9m1UzVllFD+/IDgEjPoszY4SSV4f3swTRNC6MZ8QRdUSOfGuqHKgrNqrjUmoSAbZCSIrzy5uq/BC6BcJuEHER5ElFaCNe1jFyS/nwYHhR7COsRp+QUk7OeNe2L+EBVNRvmhjzoBu3j5uuN4Ni8p/NIK5oZ+fy3zsp10NMJ9PT1bvBoxxfkMcXK28bl+Vg7GkaRPOK4D1/MfRHolpTqsS/RuWXrOfIKxaWLErxekn9Qg+zJBndtIHDUmYAvJBXLAuQM84e+a+lk6/auPJbYC7UwrCValn6pqO9l6F+mfRpZrOWgNvGpmc5P+8FOXX8QZljaTlUEDlqWoM+8Rkb4fYibT7H+P+rAQJDmhnFtprOsyDXqFmvN8VZXSnyLJtR34JTuxhC45k5F3oeo6utwNNTOo6TsY+/f4k+ZkDVec3IbedZaIHowWShqrZD5lgFjYn+Rs/zYdORulB/UWPRtREF0cA7QxdJHYBT5SliHFye2B9XYB2JgzT5WM=

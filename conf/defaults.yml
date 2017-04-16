@@ -18,8 +18,14 @@ postgres_dbname:    'promisdb'
 # DNS domain names and ports for frontend and API respectively
 servername_web:     'promis.ikd.kiev.ua'
 port_web:           443
+
 # Port that Backend listens on internally
 port_api_internal:  80
+
+# Port for the test container FTP
+port_ftp_test:      2121
+# TODO: vagrant seems only open one port instead of a range, do we need a range?
+port_ftp_passive:   6000
 
 # Set to true in conf.yml to disable SSL for local testing
 disable_ssl:        off
@@ -44,6 +50,7 @@ django_key:         ''
 hostname_web:       'web.promis'
 hostname_api:       'api.promis'
 hostname_db:        'db.promis'
+hostname_test:      'test.promis'
 
 # SSL prefix
 ssl_prefix:         '/etc/ssl/private/'
@@ -66,7 +73,7 @@ ssl_key_api:        'promis_secretkey.pem'
 # If set to on, prefer local checkouts over git versions
 dir_web:            'frontend'
 dir_api:            'backend'
-# dir_test: TODO
+dir_test:           'test'
 
 # Override to true/on/yes in conf.yml to cause a boot2docker VM to be run
 # regardless of vagrant's own judgment
