@@ -68,7 +68,10 @@ if (process.env.NODE_ENV === 'production') {
             }
         }),
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new OptimizeCssAssetsPlugin(),
+        new OptimizeCssAssetsPlugin({
+            cssProcessorOptions: {
+                safe: true, /* preserve z-indexes */
+        }}),
         new webpack.optimize.UglifyJsPlugin()
     );
 }
