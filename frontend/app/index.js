@@ -8,7 +8,7 @@ require('bootstrap/dist/css/bootstrap.css');
 require('react-bootstrap-toggle/dist/bootstrap2-toggle.css');
 //require('./index.css');
 
-require('../css/panel.css');
+require(__dirname + '/styles/panel.css');
 
 require('cesium/Source/Widgets/widgets.css');
 
