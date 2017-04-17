@@ -9,6 +9,10 @@ var Nav = require('./Nav');
 var Panel = require('./Panel');
 
 class App extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
     render() {
         return (
             <div>
