@@ -21,6 +21,7 @@
     DATABASE_URL:       "postgres://${conf.postgres_user}:${conf.postgres_password}@${conf.hostname_db}:${conf.port_sql}/${conf.postgres_dbname}"
     DJANGO_DEBUG:       ${conf.django_debug}
     DJANGO_KEY:         ${conf.django_key}
+    DJANGO_TYPE:        ${conf.django_type}
     DJANGO_SUPERUSER:   ${conf.django_superuser}
     DJANGO_SUPERPASS:   ${conf.django_superpass}
     DJANGO_SUPEREMAIL:  ${conf.django_superemail}
@@ -42,3 +43,8 @@
     PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
     YML_PATH:           ${conf.yml_web_dir}
+
+- name: ${conf.hostname_test}
+  build: ${conf.dir_test}
+  ports:  [ "${conf.port_ftp_test}", "${conf.port_ftp_passive}" ]
+  noauto: true
