@@ -149,7 +149,7 @@ class GeoObject {
             });
         } else {
 
-            this.leaflethandle.flyTo(L.latLng(lat, lon), this.compatibleZoom());
+            this.leaflethandle.flyTo(Leaflet.latLng(lat, lon), this.compatibleZoom());
         }
     }
 
@@ -215,7 +215,7 @@ class GeoObject {
                 /* Adding the segment, then the same one shifted +360°/-360° */
                 var segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
                 for (var j = 0; j < segs.length; j++) {
-                  var gl = L.polyline(this.invertCoords(segs[j]), {
+                  var gl = Leaflet.polyline(this.invertCoords(segs[j]), {
                      color: 'red'
                   });
                   gl.addTo(this.leaflethandle);
@@ -257,7 +257,7 @@ class GeoObject {
 
         if(points.length) {
             if(this.isflat) {
-                polygon = L.polygon(points, {
+                polygon = Leaflet.polygon(points, {
                     color: 'blue',
                     fillColor: '#0000ff',
                     fillOpacity: 0.8
@@ -287,7 +287,7 @@ class GeoObject {
             if(this.extraPolygon && 'remove' in this.extraPolygon) this.extraPolygon.remove();
 
             // actually rect
-            poly = L.rectangle(points.concat([newpoint]), {
+            poly = Leaflet.rectangle(points.concat([newpoint]), {
                 color: 'white',
                 dashArray: '5, 10'
             });
@@ -386,7 +386,7 @@ class GeoObject {
                     },
                 });
         } else {
-            var point = L.circle(pos, {
+            var point = Leaflet.circle(pos, {
                 color: 'yellow',
                 fillColor: '#ffff00',
                 fillOpacity: 0.5,
@@ -497,9 +497,9 @@ class GeoObject {
         layers.removeAll();
 
         var bing = layers.addImageryProvider(
-            new Cesium.BingMapsImageryProvider({ url : '//dev.virtualearth.net', mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS }));
+            new CViewer.BingMapsImageryProvider({ url : '//dev.virtualearth.net', mapStyle: Cesium.BingMapsStyle.AERIAL_WITH_LABELS }));
         this.grid = layers.addImageryProvider(
-            new Cesium.GridImageryProvider());
+            new CViewer.GridImageryProvider());
         this.grid.alpha = 0.0;
 
         this.ellipsoid = this.cesiumhandle.scene.mapProjection.ellipsoid;
@@ -512,8 +512,8 @@ class GeoObject {
 
         // setup leaflet
         var z = Leaflet.latLng(startpos[0], startpos[1]);
-        this.leaflethandle = new L.Map(leafcont, { center: z, zoom: this.currentZoom, minZoom: 1 });
-        this.leaflethandle.addLayer(new L.BingLayer(bingKey, {type: 'AerialWithLabels'}));
+        this.leaflethandle = new Leaflet.Map(leafcont, { center: z, zoom: this.currentZoom, minZoom: 1 });
+        this.leaflethandle.addLayer(new Leaflet.BingLayer(bingKey, {type: 'AerialWithLabels'}));
 
         // scroll to startpos
         this.scrollToView(startpos[0], startpos[1]);
@@ -564,7 +564,7 @@ function clickDrawEventLeaflet(go, e) {
 
         /* second point is rect bound */
         if(bound1 !== undefined) {
-            bounds = L.latLngBounds(bound1, bound2);
+            bounds = Leaflet.latLngBounds(bound1, bound2);
             points = [bounds.getNorthEast(), bounds.getNorthWest(), bounds.getSouthWest(), bounds.getSouthEast()];
 
             for(var i = 0; i < points.length; i ++)
