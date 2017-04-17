@@ -140,8 +140,6 @@ class QuickLookSerializer(serializers.ModelSerializer):
 
 
     def get_json_data(self, obj):
-        print(self.context)
-        print(dir(self.context))
         values_len = self.context['request'].query_params.get('points', None)
         if values_len is not None:
             try:
@@ -176,8 +174,9 @@ class ChannelQuicklookSerializer(serializers.ModelSerializer):
         model = models.Measurement
     
     def get_chn_doc(self, obj):
-        print(self.context)
-        ser = QuickLookSerializer(obj.chn_doc, context = self.context)
+        context = self.context
+        context['channel'] = obj.channel
+        ser = QuickLookSerializer(obj.chn_doc, context = context)
         
         return(ser.data)
         
@@ -190,8 +189,9 @@ class ParameterQuicklookSerializer(serializers.ModelSerializer):
         model = models.Measurement
     
     def get_par_doc(self, obj):
-        print(self.context)
-        ser = QuickLookSerializer(obj.par_doc, context = self.context)
+        context = self.context
+        context['parameter'] = obj.parameter
+        ser = QuickLookSerializer(obj.par_doc, context = context)
         
         return(ser.data)
 
