@@ -98,16 +98,13 @@ class ValuesSerializer(TranslatableModelSerializer):
         model = models.Value
 
 class ParametersSerializer(TranslatableModelSerializer):
-    channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
-
+# TODO: fix the bug
+#    channel = HyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
+    channel = ChannelsSerializer()
     class Meta:
         fields = ('id', 'name', 'description', 'channel')
         model = models.Parameter
 
-class DocumentsSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Document
 
 '''class QuicklookHyperlink(serializers.HyperlinkedRelatedField):
     view_name = 'document-detail'
@@ -118,26 +115,134 @@ class DocumentsSerializer(serializers.ModelSerializer):
     def get_object
 '''
 
-class DownloadViewSerializer(serializers.ModelSerializer):
-    chn_quicklook = serializers.SerializerMethodField(method_name='get_quicklook')
-    par_quicklook = serializers.SerializerMethodField(method_name='get_quicklook')
+class DocumentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('__all__')
+        model = models.Document
 
-    chn_doc = serializers.SerializerMethodField(method_name='get_data')
-    par_doc = serializers.SerializerMethodField(method_name='get_data')
+class QuickLookSerializer(serializers.ModelSerializer):
+    json_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Document
+        fields = ('json_data',)
+
+    def mean_average(self, data, period):
+        ret_val = []
+
+        for i in range (0, len(data)//period):
+            ave = 0.0
+            for j in range (0, period):
+                ave += data[i*period + j]
+                ave /= period
+            ret_val.append(ave)
+        return(ret_val)
+
+
+    def get_json_data(self, obj):
+        print(self.context)
+        print(dir(self.context))
+        values_len = self.context['request'].query_params.get('points', None)
+        if values_len is not None:
+            try:
+                values_len = int(values_len)
+            except ValueError:
+                values_len = 1000
+        else:
+            values_len = 1000
+        if values_len > 1000:
+            values_len = 1000
+
+        jdata = obj.json_data
+        res_data = []
+        result = {}
+        for key in jdata:
+            dlen = len(jdata[key])
+            if dlen > values_len:
+                wd = int(dlen/values_len)
+                result[key] = self.mean_average(jdata[key], values_len)
+            else:
+                result[key] = jdata[key]
+
+
+        return result
+
+class ChannelQuicklookSerializer(serializers.ModelSerializer):
+    channel = ChannelsSerializer()
+    chn_doc = serializers.SerializerMethodField()
+    
+    class Meta:
+        fields = ('channel', 'chn_doc')
+        model = models.Measurement
+    
+    def get_chn_doc(self, obj):
+        print(self.context)
+        ser = QuickLookSerializer(obj.chn_doc, context = self.context)
+        
+        return(ser.data)
+        
+class ParameterQuicklookSerializer(serializers.ModelSerializer):
+    parameter = ParametersSerializer()
+    par_doc = serializers.SerializerMethodField()
+    
+    class Meta:
+        fields = ('parameter', 'par_doc')
+        model = models.Measurement
+    
+    def get_par_doc(self, obj):
+        print(self.context)
+        ser = QuickLookSerializer(obj.par_doc, context = self.context)
+        
+        return(ser.data)
+
+        
+class ChannelDataSerializer(serializers.ModelSerializer):
+    channel = ChannelsSerializer()
+    chn_doc = DocumentsSerializer()
+    
+    class Meta:
+        fields = ('channel', 'chn_doc')
+        model = models.Measurement
+
+class ParameterDataSerializer(serializers.ModelSerializer):
+    parameter = ParametersSerializer()
+    par_doc = DocumentsSerializer()
+    
+    class Meta:
+        fields = ('parameter', 'par_doc')
+        model = models.Measurement
+    
+#TODO: class below need some refactoring.....
+class DownloadViewSerializer(serializers.ModelSerializer):
+    chn_quicklook = serializers.SerializerMethodField()
+    par_quicklook = serializers.SerializerMethodField()
+
+    chn_doc = serializers.SerializerMethodField()
+    par_doc = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('chn_quicklook', 'par_quicklook', 'chn_doc', 'par_doc')
         model = models.Measurement
 
-    def get_quicklook(self, obj):
-        id = obj.chn_doc.id
+    def get_chn_quicklook(self, obj):
+        id = obj.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id))
+        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/channel')
 
-    def get_data(self, obj):
-        id = obj.chn_doc.id
+    def get_par_quicklook(self, obj):
+        id = obj.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/data/' + str(id))
+        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/parameter')
+
+    def get_chn_doc(self, obj):
+        id = obj.id
+        #TODO: SPIKE: remove below hard code and replace to related view path.
+        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/channel')
+
+    def get_par_doc(self, obj):
+        id = obj.id
+        #TODO: SPIKE: remove below hard code and replace to related view path.
+        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/parameter')
 
     def __init__(self, *args, **kwargs):
 
@@ -147,8 +252,6 @@ class DownloadViewSerializer(serializers.ModelSerializer):
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
             self.fields.pop('chn_doc')
             self.fields.pop('chn_quicklook')
-
-
 
 class MeasurementsSerializer(serializers.ModelSerializer):
     session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
@@ -199,48 +302,3 @@ class UserSerializer(serializers.ModelSerializer):
             password = validated_data.pop('password')
             instance.set_password(password)
         return super().update(instance, validated_data)
-
-class QuickLookSerializer(serializers.ModelSerializer):
-    json_data = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.Document
-        fields = ('json_data',)
-
-    def mean_average(self, data, period):
-        ret_val = []
-
-        for i in range (0, intlen(data)//period):
-            ave = 0.0
-            for j in range (0, period):
-                ave += data[i*period + j]
-                ave /= period
-            ret_val.append(ave)
-        return(ret_val)
-
-
-    def get_json_data(self, obj):
-        values_len = self.context['request'].query_params.get('points', None)
-        if values_len is not None:
-            try:
-                values_len = int(values_len)
-            except ValueError:
-                values_len = 1000
-        else:
-            values_len = 1000
-        if values_len > 1000:
-            values_len = 1000
-
-        jdata = obj.json_data
-        res_data = []
-        result = {}
-        for key in jdata:
-            dlen = len(jdata[key])
-            if dlen > values_len:
-                wd = int(dlen/values_len)
-                result[key] = self.mean_average(jdata[key], values_len)
-            else:
-                result[key] = jdata[key]
-
-        print (result)
-        return result
