@@ -8,35 +8,8 @@ var MenuItem = Bootstrap.MenuItem;
 var Button = Bootstrap.Button;
 var ButtonToolbar = Bootstrap.ButtonToolbar;
 
-var ModalWindow = require('./Modal');
-
-class LoginWindow extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <ModalWindow show = {this.props.show} onClose = {this.props.onClose} title = 'Login'>
-                some stuff
-            </ModalWindow>
-        )
-    }
-}
-
-class RegisterWindow extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <ModalWindow show = {this.props.show} onClose = {this.props.onClose} title = 'Register'>
-                register
-            </ModalWindow>
-        )
-    }
-}
+var LoginWindow = require('./LoginWindow');
+var RegisterWindow = require('./RegisterWindow');
 
 class PromisNavbar extends React.Component {
     constructor(props) {
