@@ -3,47 +3,50 @@
 //             AkErn6IFlYKIm4Mp34p-ayPl_zTVk6LoUyp4J9HftaB_KJdDkBV6MmOV4eWKciNF
 var bingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
 
-var GeoObject = {
-    grid: false,
-    isflat : true, // true: leaflet, false: cesium
-    picked : false, // for point dragging
-    emitter: null, // for interface updates
-    polygons : [], // polygon entities
-    drawing : false, // whether polygon picking mode is active
-    orbits : [],
-    geolines : [],
-    selpoints: [[]], // intermediate selections points entities
-    positions: [[]], // array of current selections (carthesian)
-    selections: [[]], // array of current selections (degrees)
-    currentZoom : 5,
-    currentSelection: 0,
-    extraPolygon: null, // preview polygon
-    ellipsoid : false,
-    cartographic : false,
-    cesiumhandle: false,
-    leaflethandle : false,
-    callbackFunction : function() { },
-    lastmove: Date.now(), // for rendering suspension
-    lastmatrix: new Cesium.Matrix4(), // same
+var CViewer = require('cesium/Source/Widgets/Viewer/Viewer');
+var Leaflet = require('leaflet');
 
-    repaint : function() {
+class GeoObject {
+    constructor() {
+        this.grid = false;
+        this.isflat = true; // true: leaflet, false: cesium
+        this.picked = false; // for point dragging
+        this.polygons = []; // polygon entities
+        this.drawing = false; // whether polygon picking mode is active
+        this.orbits = [];
+        this.geolines = [];
+        this.selpoints = [[]]; // intermediate selections points entities
+        this.positions = [[]]; // array of current selections (carthesian)
+        this.selections = [[]]; // array of current selections (degrees)
+        this.currentZoom = 5;
+        this.currentSelection = 0;
+        this.extraPolygon = null; // preview polygon
+        this.ellipsoid = false;
+        this.cartographic = false;
+        this.cesiumhandle = false;
+        this.leaflethandle = false;
+        this.callbackFunction = function() { };
+        this.lastmove = Date.now(); // for rendering suspension
+        this.lastmatrix = new Cesium.Matrix4(); // same
+    }
+
+    repaint() {
         if(this.isflat) {
             repaintRequiredLeaflet();
         } else {
             repaintRequiredCesium();
         }
-    },
+    }
 
-    getCurrentView : function() {
+    getCurrentView() {
         if(! this.isflat) {
             return this.ellipsoid.cartesianToCartographic(this.cesiumhandle.camera.positionWC, this.cartographic);
         } else {
             return this.leaflethandle.getCenter();
         }
+    }
 
-    },
-
-    getCameraHeight: function() {
+    getCameraHeight() {
         if(! this.isflat) {
             this.ellipsoid.cartesianToCartographic(this.cesiumhandle.camera.positionWC, this.cartographic);
 
@@ -51,9 +54,9 @@ var GeoObject = {
         } else {
             return this.compatibleZoom();
         }
-    },
+    }
 
-    toggleGrid : function() {
+    toggleGrid() {
         if(!this.isflat) {
             if(this.grid.alpha) {
                 this.grid.alpha = 0.0;
@@ -63,9 +66,9 @@ var GeoObject = {
         }
 
         this.repaint();
-    },
+    }
 
-    togglePick : function() {
+    togglePick() {
         if(this.drawing && this.selections[this.currentSelection].length) {
             this.currentSelection ++;
 
@@ -82,10 +85,10 @@ var GeoObject = {
         if(this.extraPolygon && 'remove' in this.extraPolygon) this.extraPolygon.remove();
         if(Cesium.defined(this.extraPolygon)) this.cesiumhandle.entities.remove(this.extraPolygon);
 
-        $.event.trigger({ type: 'toolsChanged', state: this.drawing });
-    },
+        //TODO: $.event.trigger({ type: 'toolsChanged', state: this.drawing });
+    }
 
-    toggleFlat : function() {
+    toggleFlat() {
         var pos = this.getCurrentView();
 
         this.isflat = !this.isflat;
@@ -125,19 +128,19 @@ var GeoObject = {
                 this.makeGeoline(this.orbits[i])
         }*/
         this.repaint();
-    },
+    }
 
     /* universal zoom across 2d/3d */
-    compatibleZoom : function() {
+    compatibleZoom() {
         // 3009256 == 5
         if(! this.isflat) {
             return this.currentZoom * 501851;
         } else {
             return this.currentZoom;
         }
-    },
+    }
 
-    scrollToView : function(lon, lat) {
+    scrollToView(lon, lat) {
         this.repaint();
 
         if(! this.isflat) {
@@ -148,9 +151,9 @@ var GeoObject = {
 
             this.leaflethandle.flyTo(L.latLng(lat, lon), this.compatibleZoom());
         }
-    },
+    }
 
-    clearPolygon : function(i) {
+    clearPolygon(i) {
         var index = i !== undefined ? i : this.currentSelection;
         var polygon = this.polygons[index];
 
@@ -162,9 +165,9 @@ var GeoObject = {
             this.cesiumhandle.entities.remove(polygon);
 
         this.polygons[index] = null;
-    },
+    }
 
-    clearGeolines : function() {
+    clearGeolines() {
         for(var i = 0; i < this.geolines.length; i ++) {
             if(this.geolines[i] && 'remove' in this.geolines[i]) 
                 this.geolines[i].remove();
@@ -175,13 +178,13 @@ var GeoObject = {
 
         this.repaint();
         //this.geolines = new Array();
-    },
+    }
 
-    invertCoords : function(array) {
+    invertCoords(array) {
         return array.map(function(x) { return [x[1], x[0]] });
-    },
+    }
 
-    makeGeoline : function(coords) {
+    makeGeoline(coords) {
         var gl = null;
 
         if(this.isflat) {
@@ -245,9 +248,9 @@ var GeoObject = {
         }
 
         this.geolines.push(gl);
-    },
+    }
 
-    makePolygon : function(i) {
+    makePolygon(i) {
         var index = i !== undefined ? i : this.currentSelection;
         var points = this.isflat ? this.selections[index] : this.positions[index];
         var polygon = null;
@@ -273,9 +276,9 @@ var GeoObject = {
             }
             this.polygons[index] = polygon;
         }
-    },
+    }
 
-    previewPolygon : function(newpoint) {
+    previewPolygon(newpoint) {
         var index = this.currentSelection;
         var points = this.isflat ? this.selections[index] : this.positions[index];
         var poly = null;
@@ -304,9 +307,9 @@ var GeoObject = {
         }
 
         this.extraPolygon = poly;
-    },
+    }
 
-    clearSelectionPoints : function(i) {
+    clearSelectionPoints(i) {
         var c = i !== undefined ? i : this.currentSelection;
         var s = this.selpoints[c];
 
@@ -319,9 +322,9 @@ var GeoObject = {
         }
 
         this.selpoints[c] = new Array();
-    },
+    }
 
-    discardPreviousSelection : function(i, discard = true) {
+    discardPreviousSelection(i, discard = true) {
         /* if still drawing, discard current selection */
         var c = 0;
 
@@ -347,9 +350,9 @@ var GeoObject = {
         }
 
         this.repaint();
-    },
+    }
 
-    resetSelection : function() {
+    resetSelection() {
         for(var i = 0; i <= this.currentSelection; i ++) {
             this.discardPreviousSelection(i, false);
         }
@@ -363,9 +366,9 @@ var GeoObject = {
         $.event.trigger({ type: 'selectionChanged', count: 0 });
 
         this.repaint();
-    },
+    }
 
-    selectionPoint : function(pos, size = 500.0, i) {
+    selectionPoint(pos, size = 500.0, i) {
         var index = i !== undefined ? i : this.currentSelection;
         var point = null;
 
@@ -395,9 +398,9 @@ var GeoObject = {
 
         // register
         this.selpoints[index].push(point);
-    },
+    }
 
-    updateSelectionPoints : function(i) {
+    updateSelectionPoints(i) {
         var index = i !== undefined ? i : this.currentSelection;
         var data = this.isflat ? this.selections[index] : this.positions[index];
         var size = this.getCameraHeight() / 200;
@@ -409,11 +412,11 @@ var GeoObject = {
         }
 
         this.repaint();
-    },
+    }
 
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-    polyContains : function(point, vs) {
+    polyContains(point, vs) {
         var x = point.lat, y = point.lng;
         var i = false;
 
@@ -428,10 +431,10 @@ var GeoObject = {
         }
 
         return i;
-    },
+    }
 
     /* to be called only when drawing */
-    cesiumCurrentPosition : function(position) {
+    cesiumCurrentPosition(position) {
         var pickedObject = this.cesiumhandle.scene.pick(position);
         var point = this.cesiumhandle.camera.pickEllipsoid(position);
         var coords = null;
@@ -445,21 +448,21 @@ var GeoObject = {
         }
 
         return { 'point' : point, 'coords' : coords }
-    },
+    }
 
-    pushSelection : function(data) {
+    pushSelection(data) {
         this.selections[this.currentSelection].push(data)
-    },
+    }
 
-    popSelection : function() {
+    popSelection() {
         return this.selections[this.currentSelection].pop();
-    },
+    }
 
-    pushPosition : function(data) {
+    pushPosition(data) {
         this.positions[this.currentSelection].push(data);
-    },
+    }
 
-    getSelection : function() {
+    getSelection() {
         /* just flatten */
         var selection = [];
 
@@ -468,13 +471,13 @@ var GeoObject = {
                 selection.push(this.selections[i][j]);
 
         return selection;
-    },
+    }
 
-    init : function(cesiumcont, leafcont, startpos, movecallback) {
+    init(cesiumcont, leafcont, startpos, movecallback) {
         // setup cesium
         Cesium.BingMapsApi.defaultKey = bingKey;
 
-        this.cesiumhandle = new Cesium.Viewer(cesiumcont,
+        this.cesiumhandle = new CViewer(cesiumcont,
         {
             infoBox: false,
             animation: false,
@@ -508,15 +511,15 @@ var GeoObject = {
         this.cesiumhandle.scene.screenSpaceCameraController.inertiaTranslate = 0;
 
         // setup leaflet
-        var z = L.latLng(startpos[0], startpos[1]);
+        var z = Leaflet.latLng(startpos[0], startpos[1]);
         this.leaflethandle = new L.Map(leafcont, { center: z, zoom: this.currentZoom, minZoom: 1 });
         this.leaflethandle.addLayer(new L.BingLayer(bingKey, {type: 'AerialWithLabels'}));
 
         // scroll to startpos
         this.scrollToView(startpos[0], startpos[1]);
-    },
+    }
 
-    callbackExec : function(params) {
+    callbackExec(params) {
         this.callbackFunction(params);
     }
 };
