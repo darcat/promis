@@ -33,4 +33,4 @@ urlpatterns =  router.urls + userreg.urls + [
 
 # + dbview.urls
 
-print(urlpatterns)
+#print(urlpatterns)
