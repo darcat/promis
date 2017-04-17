@@ -71,4 +71,4 @@ if $conf["django_key"].to_s == ""
 end
 
 # Generate a config line for promis.conf determining whether we use static builds or a live nodejs server
-$conf["web_root_config"] = if $conf["code_reload"] then "proxy_pass http://localhost:3000;" else "" end
+$conf["web_root_config"] = if $conf["code_reload"] then "proxy_pass http://localhost:8080;" else "" end

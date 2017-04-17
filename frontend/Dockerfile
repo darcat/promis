@@ -1,11 +1,12 @@
 FROM richarvey/nginx-nodejs
 
 # Do this first to benefit from cache
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-ADD my-react-app/package.json /usr/src/app/
+RUN mkdir -p /usr/src/promis
+WORKDIR /usr/src/promis
+ADD package.json /usr/src/promis/
 RUN npm config set registry https://registry.npmjs.org/
 RUN npm install 
+ADD webpack.config.js /usr/src/promis/
 
 # This doesn't contain any replacements
 ADD nginx.conf /etc/nginx/
@@ -19,7 +20,7 @@ ADD deploy/promis_api.yaml /var/www/promis/api/
 
 # Add the actual app
 ADD run_web_promis.sh /
-ADD my-react-app /usr/src/app
+ADD app /usr/src/promis/app/
 
 # The original image uses supervisord to start up
 # Skipping their logic and just running our stuff
