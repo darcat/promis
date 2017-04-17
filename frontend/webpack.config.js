@@ -12,12 +12,14 @@ var path = require('path');
 var config = {
     entry: path.join(__dirname, 'app', 'index.js'),
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public'),
         filename: 'bundle.js',
+        sourcePrefix: '',
         publicPath: '/'
     },
 
     module : {
+        unknownContextCritical: false,
         rules : [ {
             test: /\.(js)$/, use: 'babel-loader',
             /* TODO: decouple lodash to shrink the build */
@@ -32,8 +34,12 @@ var config = {
                                 use: 'css-loader' })
             },
             /* use these with care */
-            { test: /\.png$/, use: "url-loader?limit=100000" },
-            { test: /\.jpg$/, use: "file-loader" },
+            {
+                test: /\.(png|gif|jpg|jpeg)$/,
+                loader: 'file-loader'
+            },
+            /*{ test: /\.png$/, use: "url-loader?limit=100000" },
+            { test: /\.jpg$/, use: "file-loader" },*/
             /* webfonts */
             { test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/font-woff' },
             { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/octet-stream' },
@@ -45,7 +51,7 @@ var config = {
         historyApiFallback: true
     },
     plugins: [
-        new HtmlWebpackPlugin({template: 'app/index.html' }),
+        new HtmlWebpackPlugin({template: 'app/index.html', inject: true }),
         new webpack.ProvidePlugin({
             Promise: 'es6-promise-promise'
         }),
