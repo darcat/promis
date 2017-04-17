@@ -39,6 +39,9 @@
     - [ "ssl/", "${conf.ssl_prefix}"]
     - [ "sync/", "${conf.sync_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
+  reload:
+    # TODO: do we need other directories synced?
+    - [ "${conf.dir_web}/app", "/usr/src/promis/app" ]
   env:
     PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}

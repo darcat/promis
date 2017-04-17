@@ -4,7 +4,7 @@ FROM richarvey/nginx-nodejs
 # using alpine nginx and installing nodejs over
 
 # Do this first to benefit from cache
-RUN mkdir -p /usr/src/promis
+RUN mkdir -p /usr/src/promis/app
 WORKDIR /usr/src/promis
 ADD package.json /usr/src/promis/
 # Allegedly speeds up things. TODO: verify
