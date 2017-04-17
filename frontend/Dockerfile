@@ -1,14 +1,11 @@
-# TODO maybe nginx:alpine?
-# TODO: special rights on /etc/ssl.d/
-FROM nginx:1.11.5
-ADD index.html /var/www/promis/
-ADD fonts /var/www/promis/fonts/
-ADD data /var/www/promis/data/
-ADD css /var/www/promis/css/
-ADD js /var/www/promis/js/
-# full version until webpack bundle
-ADD cesium /var/www/promis/cesium/
-#ADD download /var/www/promis/download/
+FROM richarvey/nginx-nodejs
+
+# Do this first to benefit from cache
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+ADD my-react-app/package.json /usr/src/app/
+RUN npm config set registry https://registry.npmjs.org/
+RUN npm install 
 
 # This doesn't contain any replacements
 ADD nginx.conf /etc/nginx/
@@ -17,7 +14,13 @@ ADD nginx.conf /etc/nginx/
 ADD deploy/promis.conf /etc/nginx/
 ADD deploy/promis_api.yaml /var/www/promis/api/
 
-RUN chgrp nginx /etc/ssl/private
-RUN chmod g+x,g+r /etc/ssl/private
+#RUN chgrp nginx /etc/ssl/private
+#RUN chmod g+x,g+r /etc/ssl/private
 
-CMD [ "/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf" ]
+# Add the actual app
+ADD run_web_promis.sh /
+ADD my-react-app /usr/src/app
+
+# The original image uses supervisord to start up
+# Skipping their logic and just running our stuff
+CMD [ "/run_web_promis.sh" ]
