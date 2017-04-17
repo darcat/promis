@@ -12,7 +12,7 @@ var path = require('path');
 var config = {
     entry: path.join(__dirname, 'app', 'index.js'),
     output: {
-        path: path.resolve(__dirname, 'public'),
+        path: '/var/www/promis', // TODO: do we need to parametrise this?
         filename: 'bundle.js',
         sourcePrefix: '',
         publicPath: '/'

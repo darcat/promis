@@ -1,9 +1,13 @@
 FROM richarvey/nginx-nodejs
 
+# TODO: consider the alternative of just
+# using alpine nginx and installing nodejs over
+
 # Do this first to benefit from cache
 RUN mkdir -p /usr/src/promis
 WORKDIR /usr/src/promis
 ADD package.json /usr/src/promis/
+# Allegedly speeds up things. TODO: verify
 RUN npm config set registry https://registry.npmjs.org/
 RUN npm install 
 ADD webpack.config.js /usr/src/promis/
@@ -15,6 +19,7 @@ ADD nginx.conf /etc/nginx/
 ADD deploy/promis.conf /etc/nginx/
 ADD deploy/promis_api.yaml /var/www/promis/api/
 
+# TODO
 #RUN chgrp nginx /etc/ssl/private
 #RUN chmod g+x,g+r /etc/ssl/private
 

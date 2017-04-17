@@ -43,6 +43,7 @@
     PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
     YML_PATH:           ${conf.yml_web_dir}
+    CODE_RELOAD:        ${conf.code_reload}
 
 - name: ${conf.hostname_test}
   build: ${conf.dir_test}
