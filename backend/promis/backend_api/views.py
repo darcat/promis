@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework import filters
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
+from rest_framework.decorators import detail_route
 
 from backend_api import models
 from backend_api import serializer, helpers
@@ -144,19 +145,60 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
 '''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    queryset = models.Document.objects.all()
+    
+    @detail_route(permission_classes = [PromisPermission,])
+    def channel(self, request, id):
+        if id:
+            obj = self.queryset.get(pk = id)
+            context = {}
+            context['request'] = self.request
+            ser = serializer.ChannelQuicklookSerializer(obj, context = context)
+            return Response(ser.data) 
+        else:
+            return Response([])
+    
+    @detail_route(permission_classes = [PromisPermission,])
+    def parameter(self, request, id):
+        if id:
+            obj = self.queryset.get(pk = id)
+            context = {}
+            context['request'] = self.request
+            ser = serializer.ParameterQuicklookSerializer(obj, context = context)
+            return Response(ser.data) 
+        else:
+            return Response([])
+    
+    queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
-    serializer_class = serializer.QuickLookSerializer
+    serializer_class = serializer.MeasurementsSerializer
 
 class DownloadView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
     serializer_class = serializer.DownloadViewSerializer
 
-class DownloadData(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Document.objects.all()
+class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
-    serializer_class = serializer.DocumentsSerializer
+    serializer_class = serializer.MeasurementsSerializer
+    
+    @detail_route(permission_classes = [PromisPermission,])
+    def channel(self, request, pk):
+        if pk:
+            obj = self.queryset.get(pk = pk)
+            ser = serializer.ChannelDataSerializer(obj)
+            return Response(ser.data) 
+        else:
+            return Response([])
+    
+    @detail_route(permission_classes = [PromisPermission,])
+    def parameter(self, request, pk):
+        if pk:
+            obj = self.queryset.get(pk = pk)
+            ser = serializer.ParameterDataSerializer(obj)
+            return Response(ser.data) 
+        else:
+            return Response([])
 
 class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
     queryset = get_user_model().objects

@@ -10,6 +10,10 @@ router = SwaggerRouter()
 userreg = SimpleRouter()
 userreg.register(r'user', views.UserViewSet)
 
+docrout = SimpleRouter()
+docrout.register(r'api/quicklook', views.QuicklookView)
+docrout.register(r'api/download', views.DownloadData)
+
 '''
 #== db view ==
 #TODO: This is used only for debugging, and should be removed
@@ -25,10 +29,8 @@ dbview.register(r'parameters', views.ParametersView)
 
 urlpatterns =  router.urls + userreg.urls + [
     url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework'))
-    ]
+    ] + docrout.urls
 
 # + dbview.urls
 
-
- 
-
+#print(urlpatterns)

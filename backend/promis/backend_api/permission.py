@@ -45,16 +45,10 @@ class PromisPermission(BasePermission):
             return check_session(request.user, obj)
 
         if isinstance(view, views.MeasurementsView) \
-            or isinstance(view, views.DownloadView):
+            or isinstance(view, views.QuicklookView) \
+            or isinstance(view, views.DownloadView) \
+            or isinstance(view, views.DownloadData):
                 if not helpers.UserInGroup(request.user, "level2"):
                     return check_session(request.user, obj.session)
-        
-        if isinstance(view, views.QuicklookView) \
-           or isinstance(view, views.DownloadData):
-                for meas in models.Measurement.objects.filter(chn_doc = obj):
-                    return False
-                for meas in models.Measurement.objects.filter(par_doc = obj):
-                    if not helpers.UserInGroup(request.user, "level2"):
-                        if not check_session(request.user, meas.session):
-                            return False
+
         return True
