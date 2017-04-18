@@ -11,6 +11,7 @@ var FormControl = Bootstrap.FormControl;
 var ControlLabel = Bootstrap.ControlLabel;
 
 var Toggle = require('react-bootstrap-toggle').default;
+var DateTime = require('react-bootstrap-datetimepicker').default;
 
 require(__dirname + '/../styles/map.css');
 
@@ -122,8 +123,11 @@ class TimeAndPositionInput extends React.Component {
                     <Col componentClass={ControlLabel} sm={2}>
                         Interval
                     </Col>
-                    <Col sm={10}>
-                        <FormControl type="text" placeholder="Interval [stub]" />
+                    <Col sm={5}>
+                        <DateTime />
+                    </Col>
+                    <Col sm={5}>
+                        <DateTime />
                     </Col>
                 </FormGroup>
                 <FormGroup controlId = 'InputType'>
@@ -149,7 +153,7 @@ class TimeAndPositionInput extends React.Component {
                     </Col>
                 </FormGroup>) }
             </Form>
-        )
+        );
     }
 }
 
