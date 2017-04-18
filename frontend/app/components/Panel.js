@@ -6,6 +6,8 @@ var Col = Bootstrap.Col;
 var Accordion = Bootstrap.Accordion;
 var BootstrapPanel = Bootstrap.Panel;
 
+require(__dirname + '/../styles/panel.css');
+
 class Panel extends React.Component {
     constructor(props) {
         super(props);
