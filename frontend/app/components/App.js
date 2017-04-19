@@ -4,6 +4,7 @@ var Bootstrap = require('react-bootstrap');
 var Row = Bootstrap.Row;
 var Well = Bootstrap.Well;
 
+var Map = require('./Map');
 var Nav = require('./Nav');
 var Panel = require('./Panel');
 
@@ -42,7 +43,9 @@ class App extends React.Component {
                         <Panel>Panel two</Panel>
                     </Row>
                     <Row>
-                        <Panel>Panel three</Panel>
+                        <Panel title = 'Map'>
+                            <Map />
+                        </Panel>
                         <Panel>Panel four</Panel>
                     </Row>
                 </div>

@@ -1,10 +1,16 @@
-/* TODO: proper ES5/6 module */
 
 //             AkErn6IFlYKIm4Mp34p-ayPl_zTVk6LoUyp4J9HftaB_KJdDkBV6MmOV4eWKciNF
 var bingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
 
-var CViewer = require('cesium/Source/Widgets/Viewer/Viewer');
 var Leaflet = require('leaflet');
+
+/* cesium stuff */
+var CesiumMath = require('cesium/Source/Core/Math');
+var CesiumViewer = require('cesium/Source/Widgets/Viewer/Viewer');
+var CesiumMatrix4 = require('cesium/Source/Core/Matrix4');
+var CesiumDefined = require('cesium/Source/Core/defined');
+var CesiumCartographic = require('cesium/Source/Core/Cartographic');
+
 
 class GeoObject {
     constructor() {
@@ -27,7 +33,7 @@ class GeoObject {
         this.leaflethandle = false;
         this.callbackFunction = function() { };
         this.lastmove = Date.now(); // for rendering suspension
-        this.lastmatrix = new Cesium.Matrix4(); // same
+        this.lastmatrix = new CesiumMatrix4(); // same
     }
 
     repaint() {
@@ -103,7 +109,7 @@ class GeoObject {
 
                 for(var j = 0; j < this.selections[i].length; j ++) {
                     var degrees = this.selections[i][j];
-                    var position = new Cesium.Cartographic(Cesium.Math.toRadians(degrees[1]), Cesium.Math.toRadians(degrees[0]));//, 5000);
+                    var position = new Cesium.Cartographic(CMath.toRadians(degrees[1]), CMath.toRadians(degrees[0]));//, 5000);
                     var cartesian = this.ellipsoid.cartographicToCartesian(position);
 
                     this.positions[i].push(cartesian);
@@ -112,7 +118,7 @@ class GeoObject {
         } else {
             /* cs2lf */
             this.currentZoom = this.compatibleZoom();
-            this.scrollToView(Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude));
+            this.scrollToView(CMath.toDegrees(pos.longitude), CMath.toDegrees(pos.latitude));
         }
 
         for(var i = 0; i < this.currentSelection; i ++) {
@@ -444,7 +450,7 @@ class GeoObject {
             //if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
             //inside polygon, don't make the point (or make?)
             carrad = this.ellipsoid.cartesianToCartographic(point);
-            coords = [Cesium.Math.toDegrees(carrad.latitude), Cesium.Math.toDegrees(carrad.longitude)];
+            coords = [CMath.toDegrees(carrad.latitude), CMath.toDegrees(carrad.longitude)];
         }
 
         return { 'point' : point, 'coords' : coords }
@@ -621,7 +627,7 @@ function repaintRequiredLeaflet() {
 function postRenderCesium(scene, date) {
     var now = Date.now();
 
-    if (!Cesium.Matrix4.equalsEpsilon(GeoObject.lastmatrix, scene.camera.viewMatrix, 1e-5)) {
+    if (!CMatrix4.equalsEpsilon(GeoObject.lastmatrix, scene.camera.viewMatrix, 1e-5)) {
         GeoObject.lastmove = now;
     }
 
@@ -639,7 +645,7 @@ function postRenderCesium(scene, date) {
         }
     }
 
-    Cesium.Matrix4.clone(scene.camera.viewMatrix, GeoObject.lastmatrix);
+    CMatrix4.clone(scene.camera.viewMatrix, GeoObject.lastmatrix);
 }
 
 function registerLeafletEvents() {
@@ -687,3 +693,5 @@ function registerEvents() {
     registerCesiumEvents();
     registerLeafletEvents();
 }
+
+module.exports = GeoObject;
