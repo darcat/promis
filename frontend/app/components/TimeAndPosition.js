@@ -74,12 +74,12 @@ function GeoInputForm(props) {
 }
 
 function MapSelection(props) {
-    if (props.length) {
+    if (props.items.length) {
         return (
             <ul className = 'mapSelectionItems'>
             { props.items.map(function(item) {
                 return (
-                    <li key = {item.lng}>{item}</li>
+                    <li>{item}</li>
                 )
             }) }    
             </ul>
@@ -95,7 +95,7 @@ class TimeAndPositionInput extends React.Component {
 
         this.state = { 
             useMap: false,
-            mapAreas: []
+            mapAreas: [1]
         };
 
         this.toggleMap = this.toggleMap.bind(this);
