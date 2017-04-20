@@ -1,23 +1,25 @@
 var React = require('react');
+var Redux = require('redux');
 var Bootstrap = require('react-bootstrap');
+var ReactRedux = require('react-redux');
+
+var Map = require('../components/UniversalMap');
+var Nav = require('../components/Nav');
+var Panel = require('../components/Panel');
+
+var mapActionsCreators = require('../actions/Map');
+
+var TimeAndPosition = require('../components/TimeAndPosition');
 
 var Row = Bootstrap.Row;
 var Well = Bootstrap.Well;
-
-var Map = require('./Map');
-var Nav = require('./Nav');
-var Panel = require('./Panel');
-
-var TimeAndPosition = require('./TimeAndPosition');
 
 class App extends React.Component {
     constructor(props) {
         super(props);
 
-        var useMap = false;
-
         this.state = {
-            useMap: useMap
+            zoom: 9
         }
 
         this.handleTimeAndPosition = this.handleTimeAndPosition.bind(this);
@@ -38,13 +40,13 @@ class App extends React.Component {
                     </Well>
                     <Row>
                         <Panel title = 'Time and position'>
-                            <TimeAndPosition onChange = {this.handleTimeAndPosition} />
+                            <TimeAndPosition options = {this.props.options} selection = {this.props.selection} onChange = {this.handleTimeAndPosition} />
                         </Panel>
                         <Panel>Panel two</Panel>
                     </Row>
                     <Row>
                         <Panel title = 'Map'>
-                            <Map />
+                            <Map options = {this.props.options} selection = {this.props.selection} actions = {this.props.mapActions} />
                         </Panel>
                         <Panel>Panel four</Panel>
                     </Row>
@@ -54,4 +56,20 @@ class App extends React.Component {
     }
 }
 
-module.exports = App;
+/* Redux state to App props */
+function mapStateToProps(state) {
+    return {
+        options: state.Map,
+        selection: state.Map.selection
+    }
+}
+
+/* Bind actions(events) to dispatch (allow event flow via Redux */
+function mapDispatchToProps(dispatch) {
+    return {
+        mapActions: Redux.bindActionCreators(mapActionsCreators, dispatch)
+    }
+}
+
+/* connect to Redux and export */
+module.exports = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(App)

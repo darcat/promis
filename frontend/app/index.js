@@ -1,17 +1,35 @@
 var React = require('react');
+var Redux = require('redux');
 var ReactDom = require('react-dom');
-var App = require('./components/App');
 var Ready = require('document-ready');
 
-/* css ingest */
-require('bootstrap/dist/css/bootstrap.css');
-require('react-bootstrap-toggle/dist/bootstrap2-toggle.css');
+var Thunk = require('redux-thunk').default;
+var Provider = require('react-redux').Provider;
 
-require('cesium/Source/Widgets/widgets.css');
+var App = require('./containers/App');
+var RootReducer = require('./reducers/Root');
+
+/* bootstrap */
+require('bootstrap/dist/css/bootstrap.css');
+require('bootstrap/dist/css/bootstrap-theme.css');
+
+/* bootstrap toggle */
+require('react-bootstrap-toggle/dist/bootstrap2-toggle.css');
 
 var BuildModuleUrl = require('cesium/Source/Core/buildModuleUrl');
 BuildModuleUrl.setBaseUrl('./');
 
+/* create Redux store */
+var store = Redux.createStore(
+	RootReducer,
+	window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+	Redux.applyMiddleware(Thunk));
+
+
 Ready(function() {
-	ReactDom.render(<App />, document.getElementById('app'));
+	ReactDom.render(
+		<Provider store = {store}>
+			<App />
+		</Provider>,
+	document.getElementById('app'));
 })
