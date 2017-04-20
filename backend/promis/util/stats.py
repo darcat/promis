@@ -44,6 +44,10 @@ def general_quick_look(v, npoints):
     """
     Averages the iterable v into an array of npoints
     """
+    # If given too much points, return the original data
+    if len(v) <= npoints:
+        return v
+
     # Determining how many points are averaged
     span = len(v) / npoints
 
