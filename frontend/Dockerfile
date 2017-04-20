@@ -26,10 +26,6 @@ ADD deploy/promis_api.yaml /var/www/promis/api/
 # Add the actual app
 ADD run_web_promis.sh /
 ADD app /usr/src/promis/app/
-# TODO: please remove what's no longer applicable!
-ADD css /usr/src/promis/css/
-ADD js /usr/src/promis/js/
-ADD fonts /usr/src/promis/fonts/
 
 # The original image uses supervisord to start up
 # Skipping their logic and just running our stuff
