@@ -1,15 +1,18 @@
-FROM richarvey/nginx-nodejs
+FROM smebberson/alpine-nginx-nodejs
 
-# TODO: consider the alternative of just
-# using alpine nginx and installing nodejs over
+# Stream the nginx logs to stdout and stderr
+# Stolen from the author's Dockerfile :)
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
 
 # Do this first to benefit from cache
 RUN mkdir -p /usr/src/promis/app
 WORKDIR /usr/src/promis
 ADD package.json /usr/src/promis/
+
 # Allegedly speeds up things. TODO: verify
-RUN npm config set registry https://registry.npmjs.org/
-RUN npm install 
+# RUN npm config set registry https://registry.npmjs.org/
+RUN npm install
 ADD webpack.config.js /usr/src/promis/
 
 # This doesn't contain any replacements

@@ -8,6 +8,6 @@ else
     npm run-script build
 fi
 
-/usr/sbin/nginx -c /etc/nginx/nginx.conf
-
-#TODO: the output gets iterwinded when running a live Node.js
+# TODO: more elegant way of making sure this container doesn't shut off?
+# http://stackoverflow.com/questions/2935183/bash-infinite-sleep-infinite-blocking
+mkfifo "/tmp/.pause.fifo" 2>/dev/null; read <"/tmp/.pause.fifo"

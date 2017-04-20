@@ -9,7 +9,7 @@ POSTGIS_PORT=4242
 echo "port_sql_host: $POSTGIS_PORT" >> conf/conf.yml
 
 # Ready, steady, go
-vagrant up db.promis api.promis
+vagrant up db.promis api.promis test.promis
 
 # Wait for the backend to start up
 while ! docker logs api.promis | grep 'at http://0.0.0.0:80/' > /dev/null; do
@@ -27,5 +27,8 @@ docker logs api.promis
 # TODO: use parallel or some other tool like that to have logs store both outputs
 ./backend_command check_data_updates 2>&1 > /tmp/fetch_data.log &
 
-# Bring the rest of the containers up
-vagrant up web.promis test.promis
+# Bring the web separately as it can be a long thing
+vagrant up web.promis
+
+# Hold on while the the data update is still going on
+wait
