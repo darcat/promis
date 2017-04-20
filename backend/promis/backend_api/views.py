@@ -10,6 +10,9 @@ from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.decorators import detail_route
 
+from django_extras.http import HttpResponseNotImplemented
+from django.http import Http404
+
 from backend_api import models
 from backend_api import serializer, helpers
 from backend_api.permission import PromisPermission
@@ -36,9 +39,9 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = models.Session
         fields = ['satellite', 'time_begin', 'time_end']
-        
+
 class MeasurementsFilter(django_filters.rest_framework.FilterSet):
-        
+
     class Meta:
         model = models.Measurement
         fields = ['session', 'parameter']
@@ -123,7 +126,7 @@ class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     filter_class = MeasurementsFilter
     filter_backends = (DjangoFilterBackend,)
 
-       
+
 
 '''
 #TODO: This is used only for debugging, and should be removed
@@ -145,29 +148,64 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
 '''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    
+
+    # TODO STUB REFATOR this and merge with the code below
     @detail_route(permission_classes = [PromisPermission,])
     def channel(self, request, id):
         if id:
             obj = self.queryset.get(pk = id)
             context = {}
             context['request'] = self.request
+            # TODO: do we *actually* need channel quick-looks at all?
             ser = serializer.ChannelQuicklookSerializer(obj, context = context)
-            return Response(ser.data) 
+            return Response(ser.data)
         else:
             return Response([])
-    
+
     @detail_route(permission_classes = [PromisPermission,])
     def parameter(self, request, id):
+        # TODO: JSON/HTML-ify the responses here?
+        # TODO: 422 instead of 404 for incorrect params?
+
         if id:
+            # Checking the quicklook function
             obj = self.queryset.get(pk = id)
-            context = {}
-            context['request'] = self.request
-            ser = serializer.ParameterQuicklookSerializer(obj, context = context)
-            return Response(ser.data) 
+            if not obj.parameter.quicklook:
+                return HttpResponseNotImplemented('No quicklook function implemented.')
+            quicklook_fun = obj.parameter.quicklook
+
+            # TODO: many stubs here depend on the knowledge of the JSON structure
+            # which varies type to type. Making 100500 functions is unfeasible, so
+            # we might want to wrap this into classes with known interface and
+            # use JSON as pickle/unpickle medium or something. Postponed to post-alpha
+            # see and use #63 for more details.
+
+            # Determining the quality of a quicklook
+            try:
+                npoints = int(self.request.query_params['points'])
+            except KeyError:
+                # TODO: configurable default or per-type setting here
+                npoints = 200
+            except ValueError:
+                raise Http404("Amount of points is not a number")
+
+            # Various checks on the number received
+            if npoints <= 0:
+                raise Http404("Non-positive amount of points requested")
+
+            # TODO: STUB: determine upper cap, that depends on the type in question
+            # if npoints > max_points_for_this_json:
+            #   raise Http404("Too much points requested")
+
+            # TODO: STUB: determine if user is not authenticated, lower the cap for them
+            # if user_not_authenticated and npoints > max_allowed_ratio * max_points_for_this_json:
+            #   raise HttpResponseUnAuthorised("Unauthenticated users can't request quicklooks of such quality")
+
+            ser = serializer.ParameterQuicklookSerializer(obj, context = { 'quicklook_fun': quicklook_fun, 'npoints': npoints })
+            return Response(ser.data)
         else:
-            return Response([])
-    
+            raise Http404("Please specify the measurement id.")
+
     queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
     serializer_class = serializer.MeasurementsSerializer
@@ -181,22 +219,22 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
     serializer_class = serializer.MeasurementsSerializer
-    
+
     @detail_route(permission_classes = [PromisPermission,])
     def channel(self, request, pk):
         if pk:
             obj = self.queryset.get(pk = pk)
             ser = serializer.ChannelDataSerializer(obj)
-            return Response(ser.data) 
+            return Response(ser.data)
         else:
             return Response([])
-    
+
     @detail_route(permission_classes = [PromisPermission,])
     def parameter(self, request, pk):
         if pk:
             obj = self.queryset.get(pk = pk)
             ser = serializer.ParameterDataSerializer(obj)
-            return Response(ser.data) 
+            return Response(ser.data)
         else:
             return Response([])
 

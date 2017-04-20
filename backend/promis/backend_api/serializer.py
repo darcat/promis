@@ -18,8 +18,8 @@ import util.parsers
 class SessionsSerializer(serializers.ModelSerializer):
 #   TODO: Spike! @lyssdod, correct this
 #    measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
-    measurements = SerializerMethodField() 
-    
+    measurements = SerializerMethodField()
+
     geo_line = serializers.SerializerMethodField()
     time = serializers.SerializerMethodField()
 
@@ -30,14 +30,14 @@ class SessionsSerializer(serializers.ModelSerializer):
         ret_val = []
         for m in meas:
             ret_val.append(self.context['request'].build_absolute_uri('/en/api/measurements/' + str(m.id)))
-        
+
         return ret_val
 
-    
+
     def get_geo_line(self, obj):
         # Just in case for the future
         #return obj.geo_line.wkb.hex()
-        
+
         # TODO: study whether pre-building the list or JSON would speed up things
         return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
 
@@ -126,79 +126,46 @@ class QuickLookSerializer(serializers.ModelSerializer):
         model = models.Document
         fields = ('json_data',)
 
-    def mean_average(self, data, period):
-        ret_val = []
-
-        for i in range (0, len(data)//period):
-            ave = 0.0
-            for j in range (0, period):
-                ave += data[i*period + j]
-                ave /= period
-            ret_val.append(ave)
-        return(ret_val)
-
-
     def get_json_data(self, obj):
-        values_len = self.context['request'].query_params.get('points', None)
-        if values_len is not None:
-            try:
-                values_len = int(values_len)
-            except ValueError:
-                values_len = 1000
-        else:
-            values_len = 1000
-        if values_len > 1000:
-            values_len = 1000
-
-        jdata = obj.json_data
-        res_data = []
-        result = {}
-        for key in jdata:
-            dlen = len(jdata[key])
-            if dlen > values_len:
-                wd = int(dlen/values_len)
-                result[key] = self.mean_average(jdata[key], values_len)
-            else:
-                result[key] = jdata[key]
-
-
-        return result
+        # Only calling the quicklook callback passed in the context
+        # TODO: standardise the npoints param in the docs
+        return self.context['quicklook_fun'](obj.json_data, npoints = self.context['npoints'])
 
 class ChannelQuicklookSerializer(serializers.ModelSerializer):
     channel = ChannelsSerializer()
     chn_doc = serializers.SerializerMethodField()
-    
+
     class Meta:
         fields = ('channel', 'chn_doc')
         model = models.Measurement
-    
+
     def get_chn_doc(self, obj):
         context = self.context
         context['channel'] = obj.channel
         ser = QuickLookSerializer(obj.chn_doc, context = context)
-        
+
         return(ser.data)
-        
+
 class ParameterQuicklookSerializer(serializers.ModelSerializer):
     parameter = ParametersSerializer()
     par_doc = serializers.SerializerMethodField()
-    
+
     class Meta:
         fields = ('parameter', 'par_doc')
         model = models.Measurement
-    
+
     def get_par_doc(self, obj):
         context = self.context
         context['parameter'] = obj.parameter
         ser = QuickLookSerializer(obj.par_doc, context = context)
-        
+
         return(ser.data)
 
-        
+
 class ChannelDataSerializer(serializers.ModelSerializer):
     channel = ChannelsSerializer()
     chn_doc = DocumentsSerializer()
-    
+
     class Meta:
         fields = ('channel', 'chn_doc')
         model = models.Measurement
@@ -206,11 +173,11 @@ class ChannelDataSerializer(serializers.ModelSerializer):
 class ParameterDataSerializer(serializers.ModelSerializer):
     parameter = ParametersSerializer()
     par_doc = DocumentsSerializer()
-    
+
     class Meta:
         fields = ('parameter', 'par_doc')
         model = models.Measurement
-    
+
 #TODO: class below need some refactoring.....
 class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField()

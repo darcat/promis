@@ -30,14 +30,14 @@ def avg_float(l, n, span):
     TODO: maybe this needs to be rethinked somehow.
     """
     # Integer part of the sum
-    s = sum(l[n:n+int(i)])
+    s = sum(l[n:n+int(span)])
 
     # The rest
-    ratio = i - int(i)
+    ratio = span - int(span)
     if ratio > 0.00001:
-        s += l[n + int(i)] * ratio
+        s += l[n + int(span)] * ratio
 
-        return s / i
+        return s / span
 
 # NOTE: that depends on what quicklooks mean for other data types
 def general_quick_look(v, npoints):
