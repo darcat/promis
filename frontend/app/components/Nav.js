@@ -3,6 +3,7 @@ var Bootstrap = require('react-bootstrap');
 
 var Nav = Bootstrap.Nav;
 var Navbar = Bootstrap.Navbar;
+var NavItem = Bootstrap.NavItem;
 var NavDropdown = Bootstrap.NavDropdown;
 var MenuItem = Bootstrap.MenuItem;
 var Button = Bootstrap.Button;
@@ -21,6 +22,13 @@ class PromisNavbar extends React.Component {
             register: false
         }
 
+        /*
+        axios.get('promis/isloggedin').then(function(response){
+            if(response.user)
+                this.setState({user: response.user })
+            else
+                this.setState({user: null});
+        })*/
         this.toggleWindow = this.toggleWindow.bind(this);
     }
 
@@ -51,19 +59,21 @@ class PromisNavbar extends React.Component {
                         </NavDropdown>
                     </Nav>
                     <Nav pullRight>
-                    { this.state.user ? (
-                    <ButtonToolbar>
-                        <span className = 'welcome'>Hello, {this.state.user} </span>
-                        <Button bsStyle="warning">Sign out</Button>
-                    </ButtonToolbar>
-                    ) : (
-                    <ButtonToolbar>
-                        <Button onClick = {this.toggleWindow.bind(null, 'login', true)} bsStyle="success">Sign in</Button>
-                        <Button onClick = {this.toggleWindow.bind(null, 'register', true)} bsStyle="primary">Register</Button>
-                        <LoginWindow show = {this.state.login} onClose = {this.toggleWindow.bind(null, 'login', false)} />
-                        <RegisterWindow show = {this.state.register} onClose = {this.toggleWindow.bind(null, 'register', false)} />
-                    </ButtonToolbar>
-                    ) }
+                        <NavItem>
+                        { this.state.user ? (
+                        <div>
+                            <span className = 'welcome'>Hello, {this.state.user} </span>
+                            <Button bsStyle="warning">Sign out</Button>
+                        </div>
+                        ) : (
+                        <ButtonToolbar>
+                            <Button onClick = {this.toggleWindow.bind(null, 'login', true)} bsStyle="success">Sign in</Button>
+                            <Button onClick = {this.toggleWindow.bind(null, 'register', true)} bsStyle="primary">Register</Button>
+                            <LoginWindow show = {this.state.login} onClose = {this.toggleWindow.bind(null, 'login', false)} />
+                            <RegisterWindow show = {this.state.register} onClose = {this.toggleWindow.bind(null, 'register', false)} />
+                        </ButtonToolbar>
+                        ) }
+                        </NavItem>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>

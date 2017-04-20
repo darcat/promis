@@ -6,6 +6,8 @@ var Col = Bootstrap.Col;
 var Accordion = Bootstrap.Accordion;
 var BootstrapPanel = Bootstrap.Panel;
 
+require(__dirname + '/../styles/panel.css');
+
 class Panel extends React.Component {
     constructor(props) {
         super(props);
@@ -13,7 +15,7 @@ class Panel extends React.Component {
 
     render() {
         return (
-            <Draggable>
+            <Draggable handle = '.panel-body'>
                 <Col md={6} sm={12}>
                     <Accordion>
                         <BootstrapPanel header = {this.props.title}>{this.props.children}</BootstrapPanel>

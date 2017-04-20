@@ -10,10 +10,13 @@ var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 var path = require('path');
 
 var config = {
-    entry: path.join(__dirname, 'app', 'index.js'),
+    entry: {
+        //abc: path.join(__dirname, 'app', 'loader.js'),
+        main: path.join(__dirname, 'app', 'index.js')
+    },
     output: {
-        path: '/var/www/promis', // TODO: do we need to parametrise this?
-        filename: 'bundle.js',
+        path: path.join(__dirname, 'public'),
+        filename: '[name]-[hash].js',
         sourcePrefix: '',
         publicPath: '/'
     },
@@ -48,10 +51,25 @@ var config = {
         ]
     },
     devServer : {
-        historyApiFallback: true
+        historyApiFallback: true,
+        contentBase: './public'
     },
     plugins: [
-        new HtmlWebpackPlugin({template: 'app/index.html', inject: true }),
+        new webpack.optimize.CommonsChunkPlugin("common.js"),
+        new HtmlWebpackPlugin({
+            minChunks: Infinity,
+            chunksSortMode: function (a, b) {  //alphabetical order
+                if (a.names[0] > b.names[0]) {
+                    return 1;
+                }
+                if (a.names[0] < b.names[0]) {
+                    return -1;
+                }
+                return 0;
+            },
+            template: 'app/index.html',
+            inject: true 
+        }),
         new webpack.ProvidePlugin({
             Promise: 'es6-promise-promise'
         }),
