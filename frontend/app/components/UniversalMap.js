@@ -25,7 +25,7 @@ class UniversalMap extends React.Component {
         var selection = this.props.selection;
 
         return (
-            <div>
+            <div className = 'mapContainer'>
                 <MapZoomBox onChange = {actions.toggleZoom} defaultZoom = {options.defaultZoom} />
                 <MapToolbox onChange = {actions} options = {options} />
                 { options.flat ? (

@@ -32,7 +32,7 @@ class MapToolBox extends React.Component {
         var opts = this.props.options;
 
         return (
-            <div className = 'maptoolbox'>
+            <div className = 'mapToolBox'>
                 <ButtonGroup>
                     <ToolboxButton onClick = {this.toggleFlat} active = {! opts.flat} icon = 'globe' help = 'Switch to 3D' />
                     <ToolboxButton icon = 'edit' help = 'Select area' />

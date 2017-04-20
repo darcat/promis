@@ -43,7 +43,7 @@ class App extends React.Component {
                     </Row>
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
-                        <Panel title = 'Map'>
+                        <Panel title = 'Map' className = 'mapPanel'>
                             <Map options = {this.props.mapOptions} selection = {this.props.selection} actions = {this.props.mapActions} />
                         </Panel> }
                         <Panel>Panel four</Panel>

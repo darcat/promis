@@ -15,10 +15,10 @@ class Panel extends React.Component {
 
     render() {
         return (
-            <Draggable handle = '.panel-body'>
+            <Draggable handle = '.panel-title'>
                 <Col md={6} sm={12}>
                     <Accordion>
-                        <BootstrapPanel header = {this.props.title}>{this.props.children}</BootstrapPanel>
+                        <BootstrapPanel className = {this.props.className} header = {this.props.title}>{this.props.children}</BootstrapPanel>
                     </Accordion>
                 </Col>
             </Draggable>
