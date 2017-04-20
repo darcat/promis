@@ -3,7 +3,6 @@ gunicorn
 django==1.10.6
 djangorestframework
 django-extensions     # for graph models
-django_extras         # for additional http responses
 markdown
 django-filter
 jsonfield

@@ -10,9 +10,6 @@ from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.decorators import detail_route
 
-from django_extras.http import HttpResponseNotImplemented
-from django.http import Http404
-
 from backend_api import models
 from backend_api import serializer, helpers
 from backend_api.permission import PromisPermission
@@ -27,6 +24,7 @@ from django.contrib.gis.geos import GEOSGeometry, GEOSException
 from django.contrib.auth import get_user_model
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
 
 import datetime
@@ -166,12 +164,14 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     def parameter(self, request, id):
         # TODO: JSON/HTML-ify the responses here?
         # TODO: 422 instead of 404 for incorrect params?
+        # TODO: most of the raises here are redundant and should be done
+        # in validators. That includes "if id" chech too.
 
         if id:
             # Checking the quicklook function
             obj = self.queryset.get(pk = id)
             if not obj.parameter.quicklook:
-                return HttpResponseNotImplemented('No quicklook function implemented.')
+                raise MethodNotAllowed('< no quicklook defined >')
             quicklook_fun = obj.parameter.quicklook
 
             # TODO: many stubs here depend on the knowledge of the JSON structure
@@ -187,24 +187,24 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
                 # TODO: configurable default or per-type setting here
                 npoints = 200
             except ValueError:
-                raise Http404("Amount of points is not a number")
+                raise NotFound("Amount of points is not a number")
 
             # Various checks on the number received
             if npoints <= 0:
-                raise Http404("Non-positive amount of points requested")
+                raise NotFound("Non-positive amount of points requested")
 
             # TODO: STUB: determine upper cap, that depends on the type in question
             # if npoints > max_points_for_this_json:
-            #   raise Http404("Too much points requested")
+            #   raise NotFound("Too much points requested")
 
             # TODO: STUB: determine if user is not authenticated, lower the cap for them
-            # if user_not_authenticated and npoints > max_allowed_ratio * max_points_for_this_json:
-            #   raise HttpResponseUnAuthorised("Unauthenticated users can't request quicklooks of such quality")
+            # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
+            #   raise NotAuthenticated
 
             ser = serializer.ParameterQuicklookSerializer(obj, context = { 'quicklook_fun': quicklook_fun, 'npoints': npoints })
             return Response(ser.data)
         else:
-            raise Http404("Please specify the measurement id.")
+            raise NotFound("Please specify the measurement id.")
 
     queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
