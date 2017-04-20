@@ -219,16 +219,23 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
             get_user_model().objects.none()
             
 class UserProfile(APIView):
+    permission_classes = (AllowAny,)
+    
     def get(self, request):
         if helpers.UserExists(request.user):
             user = get_user_model().objects.get(username = request.user)
             return Response({
-                'username' : user.username,
-                'first_name' : user.first_name,
-                'last_name' : user.last_name,
-                'last_login' : user.last_login,
-                'date_joined' : user.date_joined,
-                'email' : user.email
+                'logged' : True,
+                'userdata' : {
+                    'username' : user.username,
+                    'first_name' : user.first_name,
+                    'last_name' : user.last_name,
+                    'last_login' : user.last_login,
+                    'date_joined' : user.date_joined,
+                    'email' : user.email
+                    },
                 })
         else:
-            return Response('unauthorized')
+            return Response({
+                'logged' : False
+                })
