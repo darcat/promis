@@ -27,7 +27,7 @@ class UniversalMap extends React.Component {
         return (
             <div>
                 <MapZoomBox onChange = {actions.toggleZoom} defaultZoom = {options.defaultZoom} />
-                <MapToolbox onChange = {actions.toggleTools} options = {options} />
+                <MapToolbox onChange = {actions} options = {options} />
                 { options.flat ? (
                 <LeafletContainer onChange = {actions.updateMap} options = {options} selection = {selection} />
                 ) : (

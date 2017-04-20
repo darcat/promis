@@ -8,6 +8,7 @@ var Nav = require('../components/Nav');
 var Panel = require('../components/Panel');
 
 var mapActionsCreators = require('../actions/Map');
+var genActionsCreators = require('../actions/Generic');
 
 var TimeAndPosition = require('../components/TimeAndPosition');
 
@@ -17,10 +18,6 @@ var Well = Bootstrap.Well;
 class App extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            zoom: 9
-        }
 
         this.handleTimeAndPosition = this.handleTimeAndPosition.bind(this);
     }
@@ -40,14 +37,15 @@ class App extends React.Component {
                     </Well>
                     <Row>
                         <Panel title = 'Time and position'>
-                            <TimeAndPosition options = {this.props.options} selection = {this.props.selection} onChange = {this.handleTimeAndPosition} />
+                            <TimeAndPosition options = {this.props.inputOptions} selection = {this.props.selection} actions = {this.props.genActions} />
                         </Panel>
                         <Panel>Panel two</Panel>
                     </Row>
                     <Row>
+                        { this.props.inputOptions.mapEnabled &&
                         <Panel title = 'Map'>
-                            <Map options = {this.props.options} selection = {this.props.selection} actions = {this.props.mapActions} />
-                        </Panel>
+                            <Map options = {this.props.mapOptions} selection = {this.props.selection} actions = {this.props.mapActions} />
+                        </Panel> }
                         <Panel>Panel four</Panel>
                     </Row>
                 </div>
@@ -59,7 +57,8 @@ class App extends React.Component {
 /* Redux state to App props */
 function mapStateToProps(state) {
     return {
-        options: state.Map,
+        inputOptions: state.Generic,
+        mapOptions: state.Map,
         selection: state.Map.selection
     }
 }
@@ -67,7 +66,8 @@ function mapStateToProps(state) {
 /* Bind actions(events) to dispatch (allow event flow via Redux */
 function mapDispatchToProps(dispatch) {
     return {
-        mapActions: Redux.bindActionCreators(mapActionsCreators, dispatch)
+        mapActions : Redux.bindActionCreators(mapActionsCreators, dispatch),
+        genActions : Redux.bindActionCreators(genActionsCreators, dispatch)
     }
 }
 

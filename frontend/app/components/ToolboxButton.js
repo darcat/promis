@@ -10,11 +10,11 @@ var OverlayTrigger = Bootstrap.OverlayTrigger;
 class ToolboxButton extends React.Component {
     constructor(props) {
         super(props);
-
-        this.tooltip = (<Tooltip id="tooltip">{this.props.help}</Tooltip>);
     }
 
     render() {
+        this.tooltip = (<Tooltip id="tooltip">{this.props.help}</Tooltip>);
+
         return (
             <OverlayTrigger placement = {this.props.placement} overlay = {this.tooltip}>
                 <Button onClick = {this.props.onClick} active = {this.props.active} disabled = {this.props.disabled} bsStyle = 'default'>

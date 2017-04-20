@@ -15,62 +15,103 @@ var DateTime = require('react-bootstrap-datetimepicker').default;
 
 require(__dirname + '/../styles/map.css');
 
-function GeoInputForm(props) {
-    return (
-        <div>
-        <FormGroup controlId = 'Altitude'>
-            <Col componentClass={ControlLabel} sm={2}>
-                Altitude
-            </Col>
-            <Col sm={5}>
-                <InputGroup>
-                    <InputGroup.Addon>From</InputGroup.Addon>
-                    <FormControl type="number" />
-                </InputGroup>
-            </Col>
-            <Col sm={5}>
-                <InputGroup>
-                    <InputGroup.Addon>To</InputGroup.Addon>
-                    <FormControl type="number" />
-                </InputGroup>
-            </Col>
-        </FormGroup>
-        <FormGroup controlId = 'Latitude'>
-            <Col componentClass={ControlLabel} sm={2}>
-                Latitude
-            </Col>
-            <Col sm={5}>
-                <InputGroup>
-                    <InputGroup.Addon>From</InputGroup.Addon>
-                    <FormControl type="number" />
-                </InputGroup>
-            </Col>
-            <Col sm={5}>
-                <InputGroup>
-                    <InputGroup.Addon>To</InputGroup.Addon>
-                    <FormControl type="number" />
-                </InputGroup>
-            </Col>
-        </FormGroup>
-        <FormGroup controlId = 'Longitude'>
-            <Col componentClass={ControlLabel} sm={2}>
-                Longitude
-            </Col>
-            <Col sm={5}>
-                <InputGroup>
-                    <InputGroup.Addon>From</InputGroup.Addon>
-                    <FormControl type="number" />
-                </InputGroup>
-            </Col>
-            <Col sm={5}>
-                <InputGroup>
-                    <InputGroup.Addon>To</InputGroup.Addon>
-                    <FormControl type="number" />
-                </InputGroup>
-            </Col>
-        </FormGroup>
-        </div>
-    );
+class GeoInputForm extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.actions = props.actions;
+
+        this.latFromChange = this.latFromChange.bind(this);
+        this.latToChange = this.latToChange.bind(this);
+        this.lngFromChange = this.lngFromChange.bind(this);
+        this.lngToChange = this.lngToChange.bind(this);
+        this.altFromChange = this.altFromChange.bind(this);
+        this.altToChange = this.altToChange.bind(this);
+    }
+
+    altFromChange(e) {
+        this.actions.altFromInput(parseInt(e.target.value));
+    }
+
+    altToChange(e) {
+        this.actions.altToInput(parseInt(e.target.value));
+    }
+
+    latFromChange(e) {
+        this.actions.latFromInput(parseFloat(e.target.value));
+    }
+
+    latToChange(e) {
+        this.actions.latToInput(parseFloat(e.target.value));
+    }
+
+    lngFromChange(e) {
+        this.actions.lngFromInput(parseFloat(e.target.value));
+    }
+
+    lngToChange(e) {
+        this.actions.lngToInput(parseFloat(e.target.value));
+    }
+
+    render() {
+        var opts = this.props.options;
+
+        return (
+            <div>
+                <FormGroup controlId = 'Altitude'>
+                    <Col componentClass={ControlLabel} sm={2}>
+                        Altitude
+                    </Col>
+                    <Col sm={5}>
+                        <InputGroup>
+                            <InputGroup.Addon>From</InputGroup.Addon>
+                            <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
+                        </InputGroup>
+                    </Col>
+                    <Col sm={5}>
+                        <InputGroup>
+                            <InputGroup.Addon>To</InputGroup.Addon>
+                            <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId = 'Latitude'>
+                    <Col componentClass={ControlLabel} sm={2}>
+                        Latitude
+                    </Col>
+                    <Col sm={5}>
+                        <InputGroup>
+                            <InputGroup.Addon>From</InputGroup.Addon>
+                            <FormControl onChange = {this.latFromChange} value = {opts.latFrom} type="number" />
+                        </InputGroup>
+                    </Col>
+                    <Col sm={5}>
+                        <InputGroup>
+                            <InputGroup.Addon>To</InputGroup.Addon>
+                            <FormControl onChange = {this.latToChange} value = {opts.latTo} type="number" />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId = 'Longitude'>
+                    <Col componentClass={ControlLabel} sm={2}>
+                        Longitude
+                    </Col>
+                    <Col sm={5}>
+                        <InputGroup>
+                            <InputGroup.Addon>From</InputGroup.Addon>
+                            <FormControl onChange = {this.lngFromChange} value = {opts.lngFrom} type="number" />
+                        </InputGroup>
+                    </Col>
+                    <Col sm={5}>
+                        <InputGroup>
+                            <InputGroup.Addon>To</InputGroup.Addon>
+                            <FormControl onChange = {this.lngToChange} value = {opts.lngTo} type="number" />
+                        </InputGroup>
+                    </Col>
+                </FormGroup>
+            </div>
+        );
+    }
 }
 
 function MapSelection(props) {
@@ -93,30 +134,28 @@ class TimeAndPositionInput extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { 
-            useMap: false,
-            mapAreas: [1]
-        };
+        this.actions = props.actions;
 
         this.toggleMap = this.toggleMap.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.onChange = this.props.onChange;
-    }
-
-    handleChange() {
-        /* smth */
-        if(this.onChange) this.onChange();
+        this.dateFromChange = this.dateFromChange.bind(this);
+        this.dateToChange = this.dateToChange.bind(this);
     }
 
     toggleMap() {
-        this.setState(function(){
-            return {
-                useMap: !this.state.useMap
-            }
-        });
+        this.actions.mapToggled(! this.props.options.mapEnabled);
+    }
+
+    dateFromChange() {
+        this.actions.dateFromInput('new date from');
+    }
+
+    dateToChange() {
+        this.actions.dateToInput('new date to');
     }
 
     render() {
+        var opts = this.props.options;
+
         return (
             <Form horizontal>
                 <FormGroup controlId = 'TimeAndDate'>
@@ -124,10 +163,10 @@ class TimeAndPositionInput extends React.Component {
                         Interval
                     </Col>
                     <Col sm={5}>
-                        <DateTime />
+                        <DateTime onChange = {this.dateFromChange} />
                     </Col>
                     <Col sm={5}>
-                        <DateTime />
+                        <DateTime onChange = {this.dateToChange} />
                     </Col>
                 </FormGroup>
                 <FormGroup controlId = 'InputType'>
@@ -138,18 +177,18 @@ class TimeAndPositionInput extends React.Component {
                         <Toggle onClick = {this.toggleMap} 
                             on = {<span><Glyphicon glyph = 'screenshot' /> Use map</span>}
                             off = {<span><Glyphicon glyph = 'list-alt' /> Manual</span>}
-                            active = {this.state.useMap} 
+                            active = {opts.mapEnabled} 
                         />
                     </Col>
                 </FormGroup>
-                { ! this.state.useMap ? (
-                <GeoInputForm />) : (
+                { ! opts.mapEnabled ? (
+                <GeoInputForm actions = {this.actions} options = {opts} />) : (
                 <FormGroup controlId = 'MapSelection'>
                     <Col componentClass = {ControlLabel} sm = {2}>
                         Selection
                     </Col>
                     <Col sm = {10}>
-                        <MapSelection items = {this.state.mapAreas} />
+                        <MapSelection items = {this.props.selection} />
                     </Col>
                 </FormGroup>) }
             </Form>
