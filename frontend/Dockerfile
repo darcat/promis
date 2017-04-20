@@ -10,8 +10,7 @@ RUN mkdir -p /usr/src/promis/app
 WORKDIR /usr/src/promis
 ADD package.json /usr/src/promis/
 
-# Allegedly speeds up things. TODO: verify
-# RUN npm config set registry https://registry.npmjs.org/
+# Install packages needed
 RUN npm install
 ADD webpack.config.js /usr/src/promis/
 
