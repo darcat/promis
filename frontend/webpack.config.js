@@ -24,30 +24,31 @@ var config = {
     module : {
         unknownContextCritical: false,
         rules : [ {
-            test: /\.(js)$/, use: 'babel-loader',
-            /* TODO: decouple lodash to shrink the build */
-            /*exclude: '/node_modules/',
-            options: {
-                plugins: ['lodash'],
-                presets: [['env', 'react']] }*/
-            },
+            test: /\.(js)$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                query: {
+                    presets: ['env', 'react'],
+                    plugins: ['lodash']
+                    
+                }
+        } }, {
             /* concat css */
-            { test: /\.css$/, use: ExtractTextPlugin.extract({
-                                fallback: 'style-loader',
-                                use: 'css-loader' })
-            },
+            test: /\.css$/,
+            use: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })
+        }, {
             /* use these with care */
-            {
-                test: /\.(png|gif|jpg|jpeg)$/,
-                loader: 'file-loader'
-            },
-            /*{ test: /\.png$/, use: "url-loader?limit=100000" },
-            { test: /\.jpg$/, use: "file-loader" },*/
-            /* webfonts */
-            { test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/font-woff' },
-            { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/octet-stream' },
-            { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, use: 'file-loader' },
-            { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=image/svg+xml' }
+            test: /\.(png|gif|jpg|jpeg)$/,
+            loader: 'file-loader'
+        },
+        /*{ test: /\.png$/, use: "url-loader?limit=100000" },
+        { test: /\.jpg$/, use: "file-loader" },*/
+        /* webfonts */
+        { test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/font-woff' },
+        { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/octet-stream' },
+        { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, use: 'file-loader' },
+        { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=image/svg+xml' }
         ]
     },
     devServer : {

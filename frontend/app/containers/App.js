@@ -3,14 +3,15 @@ var Redux = require('redux');
 var Bootstrap = require('react-bootstrap');
 var ReactRedux = require('react-redux');
 
-var Map = require('../components/UniversalMap');
+
 var Nav = require('../components/Nav');
 var Panel = require('../components/Panel');
 
 var mapActionsCreators = require('../actions/Map');
 var genActionsCreators = require('../actions/Generic');
 
-var TimeAndPosition = require('../components/TimeAndPosition');
+var MapPanel = require('../components/UniversalMap');
+var TimeAndPositionPanel = require('../components/TimeAndPosition');
 
 var Row = Bootstrap.Row;
 var Well = Bootstrap.Well;
@@ -36,16 +37,15 @@ class App extends React.Component {
                         <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
                     </Well>
                     <Row>
-                        <Panel title = 'Time and position'>
-                            <TimeAndPosition options = {this.props.inputOptions} selection = {this.props.selection} actions = {this.props.genActions} />
-                        </Panel>
+                        
+                            <TimeAndPositionPanel options = {this.props.inputOptions} selection = {this.props.selection} actions = {this.props.genActions} />
+                        
                         <Panel>Panel two</Panel>
                     </Row>
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
-                        <Panel title = 'Map' className = 'mapPanel'>
-                            <Map options = {this.props.mapOptions} selection = {this.props.selection} actions = {this.props.mapActions} />
-                        </Panel> }
+                        <MapPanel options = {this.props.mapOptions} selection = {this.props.selection} actions = {this.props.mapActions} />
+                        }
                         <Panel>Panel four</Panel>
                     </Row>
                 </div>

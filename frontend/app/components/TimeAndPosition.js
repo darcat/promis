@@ -13,6 +13,8 @@ var ControlLabel = Bootstrap.ControlLabel;
 var Toggle = require('react-bootstrap-toggle').default;
 var DateTime = require('react-bootstrap-datetimepicker').default;
 
+var Panel = require('./Panel');
+
 require(__dirname + '/../styles/map.css');
 
 class GeoInputForm extends React.Component {
@@ -157,41 +159,43 @@ class TimeAndPositionInput extends React.Component {
         var opts = this.props.options;
 
         return (
-            <Form horizontal>
-                <FormGroup controlId = 'TimeAndDate'>
-                    <Col componentClass={ControlLabel} sm={2}>
-                        Interval
-                    </Col>
-                    <Col sm={5}>
-                        <DateTime onChange = {this.dateFromChange} />
-                    </Col>
-                    <Col sm={5}>
-                        <DateTime onChange = {this.dateToChange} />
-                    </Col>
-                </FormGroup>
-                <FormGroup controlId = 'InputType'>
-                    <Col componentClass={ControlLabel} sm={2}>
-                        Input
-                    </Col>
-                    <Col sm={10}>
-                        <Toggle onClick = {this.toggleMap} 
-                            on = {<span><Glyphicon glyph = 'screenshot' /> Use map</span>}
-                            off = {<span><Glyphicon glyph = 'list-alt' /> Manual</span>}
-                            active = {opts.mapEnabled} 
-                        />
-                    </Col>
-                </FormGroup>
-                { ! opts.mapEnabled ? (
-                <GeoInputForm actions = {this.actions} options = {opts} />) : (
-                <FormGroup controlId = 'MapSelection'>
-                    <Col componentClass = {ControlLabel} sm = {2}>
-                        Selection
-                    </Col>
-                    <Col sm = {10}>
-                        <MapSelection items = {this.props.selection} />
-                    </Col>
-                </FormGroup>) }
-            </Form>
+            <Panel title = 'Time and position'>
+                <Form horizontal>
+                    <FormGroup controlId = 'TimeAndDate'>
+                        <Col componentClass={ControlLabel} sm={2}>
+                            Interval
+                        </Col>
+                        <Col sm={5}>
+                            <DateTime onChange = {this.dateFromChange} />
+                        </Col>
+                        <Col sm={5}>
+                            <DateTime onChange = {this.dateToChange} />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup controlId = 'InputType'>
+                        <Col componentClass={ControlLabel} sm={2}>
+                            Input
+                        </Col>
+                        <Col sm={10}>
+                            <Toggle onClick = {this.toggleMap} 
+                                on = {<span><Glyphicon glyph = 'screenshot' /> Use map</span>}
+                                off = {<span><Glyphicon glyph = 'list-alt' /> Manual</span>}
+                                active = {opts.mapEnabled} 
+                            />
+                        </Col>
+                    </FormGroup>
+                    { ! opts.mapEnabled ? (
+                    <GeoInputForm actions = {this.actions} options = {opts} />) : (
+                    <FormGroup controlId = 'MapSelection'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Selection
+                        </Col>
+                        <Col sm = {10}>
+                            <MapSelection items = {this.props.selection} />
+                        </Col>
+                    </FormGroup>) }
+                </Form>
+            </Panel>
         );
     }
 }

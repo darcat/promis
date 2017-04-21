@@ -15,15 +15,6 @@
   },
   "author": "",
   "license": "SEE LICENCE IN LICENSE",
-  "babel": {
-    "presets": [
-      "env",
-      "react"
-    ],
-    "plugins": [
-      "lodash"
-    ]
-  },
   "dependencies": {
     "axios": "^0.16.1",
     "bootstrap": "^3.3.7",
@@ -40,6 +31,7 @@
     "react-bootstrap": "^0.30.8",
     "react-bootstrap-datetimepicker": "github:batusai513/react-bootstrap-datetimepicker",
     "react-bootstrap-toggle": "^2.0.6",
+    "react-bounds": "^0.3.1",
     "react-dom": "^15.5.4",
     "react-draggable": "^2.2.3",
     "react-redux": "^5.0.4",
