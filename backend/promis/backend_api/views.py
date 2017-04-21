@@ -8,11 +8,11 @@ from rest_framework import status
 from rest_framework import filters
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, api_view
 
 from backend_api import models
 from backend_api import serializer, helpers
-from backend_api.permission import PromisPermission
+from backend_api.permission import PromisPermission, SelfProfilePermission
 
 import django_filters
 
@@ -200,10 +200,18 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
         else:
             return Response([])
 
-class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
+class UserPagination(LimitOffsetPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'logged' : True,
+            'userdata' : data
+        })
+
+class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, ListModelMixin):
     queryset = get_user_model().objects
     serializer_class = serializer.UserSerializer
-
+    pagination_classes = UserPagination
+    
     def get_permissions(self):
         if self.request.method == 'POST':
             self.permission_classes = (AllowAny,)
@@ -218,24 +226,25 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
         else:
             get_user_model().objects.none()
             
-class UserProfile(APIView):
-    permission_classes = (AllowAny,)
+    def paginate_queryset(self, queryset, view=None):
+    # couldn't find a better solution
+        return None
+        
+        
+@api_view(['POST', 'PUT'])
+@permission_classes((SelfProfilePermission, IsAuthenticated))
+def UserUpdate(request):
+    try:
+        user = get_user_model().objects.get(username = request.user)
+    except get_user_model().DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
-    def get(self, request):
-        if helpers.UserExists(request.user):
-            user = get_user_model().objects.get(username = request.user)
-            return Response({
-                'logged' : True,
-                'userdata' : {
-                    'username' : user.username,
-                    'first_name' : user.first_name,
-                    'last_name' : user.last_name,
-                    'last_login' : user.last_login,
-                    'date_joined' : user.date_joined,
-                    'email' : user.email
-                    },
-                })
-        else:
-            return Response({
-                'logged' : False
-                })
+    if request.method == 'POST' or request.method == 'PUT':
+            
+            ser = serializer.UserSerializer(user, data=request.data, partial=True)
+            if ser.is_valid():
+                ser.save()
+                return Response(ser.data, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+            

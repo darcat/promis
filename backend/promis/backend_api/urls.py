@@ -30,7 +30,7 @@ dbview.register(r'parameters', views.ParametersView)
 
 urlpatterns =  router.urls + userreg.urls + [
     url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework')),
-    url(r'profile/$', views.UserProfile.as_view(), name = 'profile')
+    url(r'^user/update/$', views.UserUpdate),
     ] + docrout.urls 
     
 
