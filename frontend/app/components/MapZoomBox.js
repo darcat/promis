@@ -43,7 +43,7 @@ class MapZoomBox extends React.Component {
     render() {
         return (
             <div className = 'mapZoomBox'>
-                <ButtonGroup vertical>
+                <ButtonGroup className = 'innerToolBox' vertical>
                     <ToolboxButton placement = 'right' onClick = {this.zoomIn} disabled = {this.state.zoom == this.maxZoom} icon = 'plus' help = 'Zoom in' />
                     <ToolboxButton placement = 'right' onClick = {this.zoomOut} disabled = {this.state.zoom == this.minZoom} icon = 'minus' help = 'Zoom out' />
                 </ButtonGroup>

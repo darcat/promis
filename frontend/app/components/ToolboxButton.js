@@ -17,7 +17,7 @@ class ToolboxButton extends React.Component {
 
         return (
             <OverlayTrigger placement = {this.props.placement} overlay = {this.tooltip}>
-                <Button onClick = {this.props.onClick} active = {this.props.active} disabled = {this.props.disabled} bsStyle = 'default'>
+                <Button onClick = {this.props.onClick} active = {this.props.active} disabled = {this.props.disabled} bsStyle = 'default' bsSize = 'small'>
                     <Glyphicon glyph = {this.props.icon} />
                 </Button>
             </OverlayTrigger>
