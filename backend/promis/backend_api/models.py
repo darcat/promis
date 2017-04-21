@@ -40,7 +40,7 @@ class Session(models.Model):
     time_end = DateTimeField()
     orbit_code = IntegerField(null=True)
     geo_line = LineStringField()
-    satellite = ForeignKey('Space_project', null = True)
+    space_project = ForeignKey('Space_project', null = True)
 
     class Meta:
         db_table = "sessions"

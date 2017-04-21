@@ -32,11 +32,14 @@ from rest_framework.decorators import permission_classes
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
     time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
-    
-    
+    project = django_filters.ModelChoiceFilter(name='space_project',
+                                               queryset = models.Space_project.objects.all())
+    satellite = django_filters.ModelChoiceFilter(name='space_project',
+                                                 queryset = models.Space_project.objects.all())
+        
     class Meta:
         model = models.Session
-        fields = ['space_project', 'time_begin', 'time_end']
+        fields = ['space_project', 'time_begin', 'time_end', 'project', 'satellite']
         
 class MeasurementsFilter(django_filters.rest_framework.FilterSet):
         

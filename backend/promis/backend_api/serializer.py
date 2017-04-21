@@ -51,7 +51,7 @@ class SessionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Session
-        fields = ('id', 'satellite', 'orbit_code', 'geo_line', 'time', 'measurements')
+        fields = ('id', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
         geo_field = 'geo_line'
 
 class SpaceProjectsSerializer(TranslatableModelSerializer):
