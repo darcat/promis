@@ -17,4 +17,6 @@ var State = {
     selection: []
 };
 
-module.exports = { Enum, State };
+var BingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
+
+module.exports = { Enum, State, BingKey };

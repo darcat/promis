@@ -4,7 +4,7 @@ var ReactDOM = require('react-dom')
 var Leaflet = require('leaflet');
 var LeafletBing = require('leaflet-bing-layer');
 
-var BingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
+import { BingKey } from '../constants/Map'
 
 require('leaflet/dist/leaflet.css');
 

@@ -2,8 +2,8 @@ var React = require('react');
 var Bootstrap = require('react-bootstrap');
 var Dimensions = require('react-dimensions');
 
-var CesiumContainer = require('./CesiumContainer');
-var LeafletContainer = require('./LeafletContainer');
+var CesiumContainer = require('./CesiumMap');
+var LeafletContainer = require('./LeafletMap');
 var MapZoomBox = require('./MapZoomBox');
 var MapToolbox = require('./MapToolBox');
 var Panel = require('./Panel');
