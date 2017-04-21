@@ -8,6 +8,9 @@ var BootstrapPanel = Bootstrap.Panel;
 
 require(__dirname + '/../styles/panel.css');
 
+// TODO: separate click collapse handler and drag toggling
+// { !this.props.disableDrag ? (<Draggable handle = '.panel-title'>) : ()}
+
 class Panel extends React.Component {
     constructor(props) {
         super(props);
@@ -15,23 +18,10 @@ class Panel extends React.Component {
 
     render() {
         return (
-            <Draggable handle = '.panel-title'>
-                <Col md={6} sm={12}>
-                    <BootstrapPanel className = {this.props.className} header = {this.props.title}>{this.props.children}</BootstrapPanel>
-                </Col>
-            </Draggable>
-        );
-
-        /*
-        return (
-            <Draggable handle = '.panel-title'>
-                <Col md={6} sm={12}>
-                    <Accordion>
-                        
-                    </Accordion>
-                </Col>
-            </Draggable>
-        )*/
+            <Col md={6} sm={12}>
+                <BootstrapPanel className = {this.props.className} header = {this.props.title}>{this.props.children}</BootstrapPanel>
+            </Col>
+        )
     }
 }
 

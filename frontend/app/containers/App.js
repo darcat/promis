@@ -20,11 +20,29 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        this.handleTimeAndPosition = this.handleTimeAndPosition.bind(this);
+        this.state = {
+            width: 0,
+            height: 0
+        };
+
+        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
     }
 
-    handleTimeAndPosition() {
-        console.log('time and position changed');
+    componentDidMount() {
+        this.updateWindowDimensions();
+
+        window.addEventListener('resize', this.updateWindowDimensions.bind(this));
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowDimensions.bind(this));
+    }
+
+    updateWindowDimensions() {
+        /* pass new size to map */
+        var dims = new Array(window.innerWidth, window.innerHeight);
+
+        this.props.mapActions.toggleDims(dims);
     }
 
     render() {
@@ -44,7 +62,13 @@ class App extends React.Component {
                     </Row>
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
-                        <MapPanel options = {this.props.mapOptions} selection = {this.props.selection} actions = {this.props.mapActions} />
+                        <MapPanel
+                            fullheight = {this.state.height}
+                            fullwidth = {this.state.width}
+                            selection = {this.props.selection}
+                            options = {this.props.mapOptions}
+                            actions = {this.props.mapActions}
+                        />
                         }
                         <Panel>Panel four</Panel>
                     </Row>
@@ -72,4 +96,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 /* connect to Redux and export */
-module.exports = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(App)
+module.exports = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(App);

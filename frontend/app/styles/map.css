@@ -19,21 +19,6 @@
     padding: 0 !important;
 }
 
-.panelFullscreen {
-    display: block;
-    z-index: 9999;
-    position: fixed;
-    min-width: 300px;
-    min-height: 300px;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    overflow: auto;
-}
-
 .mapZoomBox,
 .mapToolBox {
     position: absolute;
@@ -59,4 +44,5 @@
     min-width: 300px;
     max-width: 400px;
     margin: 0 auto;
+    text-align: center;
 }

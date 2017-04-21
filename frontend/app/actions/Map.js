@@ -20,6 +20,15 @@ module.exports = {
         }
     },
 
+    toggleDims : function(newDimensions) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.DimsChanged,
+                payload: newDimensions
+            })
+        }
+    },
+
     toggleFlat : function(flatMode) {
         return function(dispatch) {
             dispatch({

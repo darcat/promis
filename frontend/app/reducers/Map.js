@@ -13,6 +13,10 @@ function MapReducer(state = State, action) {
             return Object.assign({}, state, { full: action.payload });
         break;
 
+        case Enum.DimsChanged:
+            return Object.assign({}, state, { dims: action.payload });
+        break;
+
         case Enum.ModeChanged:
             return Object.assign({}, state, { flat: action.payload });
         break;

@@ -22,8 +22,15 @@ class LeafletContainer extends React.Component {
     repaint() {
         if(this.map) {
             this.map.invalidateSize();
-            this.map.fitWorld();
         }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.repaint();
+    }
+
+    componentDidUpdate() {
+        this.repaint();
     }
 
     componentDidMount() {
@@ -31,16 +38,18 @@ class LeafletContainer extends React.Component {
         if(! this.map) {
             this.map = Leaflet.map(this.mapNode, this.mapParams);
             Leaflet.tileLayer.bing(this.bingParams).addTo(this.map);
-            this.repaint();
         }
+
+        this.repaint();
     }
 
     render() {
         var zoom = this.props.options.zoom;
+        var height = {height: this.props.options.full ? this.props.options.dims[1] : 300};
 
         return (
             <div>
-                <div ref={ function(node) { this.mapNode = node; }.bind(this) } id = 'leaflet'></div>
+                <div style = {height} ref={ function(node) { this.mapNode = node; }.bind(this) } id = 'leaflet'></div>
             </div>
         )
     }
