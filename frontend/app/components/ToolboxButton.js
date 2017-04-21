@@ -1,13 +1,7 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
+import React, { Component } from 'react';
+import { Button, Tooltip, Glyphicon, ButtonGroup, OverlayTrigger } from 'react-bootstrap';
 
-var Button = Bootstrap.Button;
-var Tooltip = Bootstrap.Tooltip;
-var Glyphicon = Bootstrap.Glyphicon;
-var ButtonGroup = Bootstrap.ButtonGroup;
-var OverlayTrigger = Bootstrap.OverlayTrigger;
-
-class ToolboxButton extends React.Component {
+export default class ToolboxButton extends Component {
     constructor(props) {
         super(props);
     }
@@ -31,5 +25,3 @@ ToolboxButton.defaultProps = {
     placement: 'bottom',
     onClick : function() { ; }
 }
-
-module.exports = ToolboxButton;

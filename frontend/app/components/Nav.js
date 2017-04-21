@@ -1,18 +1,10 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
+import React, { Component } from 'react';
+import { Nav, Navbar, NavItem, NavDropdown, MenuItem, Button, ButtonToolbar } from 'react-bootstrap';
 
-var Nav = Bootstrap.Nav;
-var Navbar = Bootstrap.Navbar;
-var NavItem = Bootstrap.NavItem;
-var NavDropdown = Bootstrap.NavDropdown;
-var MenuItem = Bootstrap.MenuItem;
-var Button = Bootstrap.Button;
-var ButtonToolbar = Bootstrap.ButtonToolbar;
+import LoginWindow from './LoginWindow';
+import RegisterWindow from './RegisterWindow';
 
-var LoginWindow = require('./LoginWindow');
-var RegisterWindow = require('./RegisterWindow');
-
-class PromisNavbar extends React.Component {
+export default class PromisNavbar extends Component {
     constructor(props) {
         super(props);
 
@@ -80,5 +72,3 @@ class PromisNavbar extends React.Component {
         )
     }
 }
-
-module.exports = PromisNavbar;

@@ -1,14 +1,13 @@
-var React = require('react');
-var ReactDOM = require('react-dom')
+import React, { Component } from 'react';
 
-var Leaflet = require('leaflet');
-var LeafletBing = require('leaflet-bing-layer');
+import Leaflet from 'leaflet';
+import LeafletBing from 'leaflet-bing-layer';
 
 import { BingKey } from '../constants/Map'
 
-require('leaflet/dist/leaflet.css');
+import 'leaflet/dist/leaflet.css';
 
-class LeafletContainer extends React.Component {
+export default class LeafletContainer extends Component {
     constructor(props) {
         super(props);
 
@@ -54,5 +53,3 @@ class LeafletContainer extends React.Component {
         )
     }
 }
-
-module.exports = LeafletContainer;

@@ -1,10 +1,9 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
+import React, { Component } from 'react';
+import { ButtonGroup } from 'react-bootstrap';
 
-var ButtonGroup = Bootstrap.ButtonGroup;
-var ToolboxButton = require('./ToolboxButton');
+import ToolboxButton from './ToolboxButton';
 
-class MapToolBox extends React.Component {
+export default class MapToolBox extends Component {
     constructor(props) {
         super(props);
 
@@ -46,5 +45,3 @@ class MapToolBox extends React.Component {
         )
     }
 }
-
-module.exports = MapToolBox;

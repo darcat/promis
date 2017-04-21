@@ -1,23 +1,14 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
+import React, { Component } from 'react';
+import { Col, Row, Form, FormGroup, FormControl, Glyphicon, InputGroup, ControlLabel } from 'react-bootstrap';
 
-var Col = Bootstrap.Col;
-var Row = Bootstrap.Row;
-var Form = Bootstrap.Form;
-var FormGroup = Bootstrap.FormGroup;
-var Glyphicon = Bootstrap.Glyphicon;
-var InputGroup = Bootstrap.InputGroup;
-var FormControl = Bootstrap.FormControl;
-var ControlLabel = Bootstrap.ControlLabel;
+import Toggle from 'react-bootstrap-toggle';
+import DateTime from 'react-bootstrap-datetimepicker';
 
-var Toggle = require('react-bootstrap-toggle').default;
-var DateTime = require('react-bootstrap-datetimepicker').default;
+import Panel from './Panel';
 
-var Panel = require('./Panel');
+import '../styles/map.css';
 
-require(__dirname + '/../styles/map.css');
-
-class GeoInputForm extends React.Component {
+class GeoInputForm extends Component {
     constructor(props) {
         super(props);
 
@@ -132,7 +123,7 @@ function MapSelection(props) {
     );   
 }
 
-class TimeAndPositionInput extends React.Component {
+export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
 
@@ -199,5 +190,3 @@ class TimeAndPositionInput extends React.Component {
         );
     }
 }
-
-module.exports = TimeAndPositionInput;

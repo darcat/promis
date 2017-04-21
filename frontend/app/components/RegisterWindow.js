@@ -1,16 +1,9 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
+import React, { Component } from 'react';
+import { Col, Form, Button, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
-var Col = Bootstrap.Col;
-var Form = Bootstrap.Form;
-var Button = Bootstrap.Button;
-var FormGroup = Bootstrap.FormGroup;
-var ControlLabel = Bootstrap.ControlLabel;
-var FormControl = Bootstrap.FormControl;
+import ModalWindow from './Modal';
 
-var ModalWindow = require('./Modal');
-
-class RegisterWindow extends React.Component {
+export default class RegisterWindow extends Component {
     constructor(props) {
         super(props);
     }
@@ -64,5 +57,3 @@ class RegisterWindow extends React.Component {
         )
     }
 }
-
-module.exports = RegisterWindow;

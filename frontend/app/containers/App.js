@@ -1,22 +1,19 @@
-var React = require('react');
-var Redux = require('redux');
-var Bootstrap = require('react-bootstrap');
-var ReactRedux = require('react-redux');
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { Row, Well } from 'react-bootstrap';
+
+import Nav from '../components/Nav';
+import Panel from '../components/Panel';
+
+import mapActionsCreators from '../actions/Map';
+import genActionsCreators from '../actions/Generic';
+
+import MapPanel from '../components/UniversalMap';
+import TimeAndPositionPanel from '../components/TimeAndPosition';
 
 
-var Nav = require('../components/Nav');
-var Panel = require('../components/Panel');
-
-var mapActionsCreators = require('../actions/Map');
-var genActionsCreators = require('../actions/Generic');
-
-var MapPanel = require('../components/UniversalMap');
-var TimeAndPositionPanel = require('../components/TimeAndPosition');
-
-var Row = Bootstrap.Row;
-var Well = Bootstrap.Well;
-
-class App extends React.Component {
+class App extends Component {
     constructor(props) {
         super(props);
 
@@ -90,10 +87,10 @@ function mapStateToProps(state) {
 /* Bind actions(events) to dispatch (allow event flow via Redux */
 function mapDispatchToProps(dispatch) {
     return {
-        mapActions : Redux.bindActionCreators(mapActionsCreators, dispatch),
-        genActions : Redux.bindActionCreators(genActionsCreators, dispatch)
+        mapActions : bindActionCreators(mapActionsCreators, dispatch),
+        genActions : bindActionCreators(genActionsCreators, dispatch)
     }
 }
 
 /* connect to Redux and export */
-module.exports = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -1,35 +1,35 @@
-var React = require('react');
-var Redux = require('redux');
-var ReactDom = require('react-dom');
-var Ready = require('document-ready');
+import React from 'react';
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import { render } from 'react-dom';
+import thunk from 'redux-thunk'
 
-var Thunk = require('redux-thunk').default;
-var Provider = require('react-redux').Provider;
+import Ready from 'document-ready';
 
-var App = require('./containers/App');
-var RootReducer = require('./reducers/Root');
+import App from './containers/App';
+import RootReducer from './reducers/Root';
 
 /* bootstrap */
-require('bootstrap/dist/css/bootstrap.css');
-require('bootstrap/dist/css/bootstrap-theme.css');
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap-theme.css';
 
 /* bootstrap toggle */
-require('react-bootstrap-toggle/dist/bootstrap2-toggle.css');
+import 'react-bootstrap-toggle/dist/bootstrap2-toggle.css';
 
-var BuildModuleUrl = require('cesium/Source/Core/buildModuleUrl');
+/* setup cesium */
+import BuildModuleUrl from 'cesium/Source/Core/buildModuleUrl';
 BuildModuleUrl.setBaseUrl('./');
 
 /* create Redux store */
-var store = Redux.createStore(
+var store = createStore(
 	RootReducer,
 	window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
-	Redux.applyMiddleware(Thunk));
-
+	applyMiddleware(thunk));
 
 Ready(function() {
-	ReactDom.render(
+	render(
 		<Provider store = {store}>
 			<App />
 		</Provider>,
 	document.getElementById('app'));
-})
+});

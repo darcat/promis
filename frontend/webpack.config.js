@@ -22,14 +22,19 @@ var config = {
     },
 
     module : {
+        /* cesium quirks */
         unknownContextCritical: false,
+        unknownContextRegExp: /^.\/.*$/,
+        /* ^^^^^ https://github.com/AnalyticalGraphicsInc/cesium/issues/4876 */
         rules : [ {
             test: /\.(js)$/,
             exclude: /node_modules/,
             use: {
                 loader: 'babel-loader',
                 query: {
-                    presets: ['env', 'react'],
+                    presets: [
+                        ['es2015', { 'modules': false }],
+                        ['react']],
                     plugins: ['lodash']
                     
                 }

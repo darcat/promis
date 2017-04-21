@@ -1,16 +1,12 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
-var Dimensions = require('react-dimensions');
+import React, { Component } from 'react';
 
-var CesiumContainer = require('./CesiumMap');
-var LeafletContainer = require('./LeafletMap');
-var MapZoomBox = require('./MapZoomBox');
-var MapToolbox = require('./MapToolBox');
-var Panel = require('./Panel');
+import CesiumContainer from './CesiumMap';
+import LeafletContainer from './LeafletMap';
+import MapZoomBox from './MapZoomBox';
+import MapToolbox from './MapToolBox';
+import Panel from './Panel';
 
-//import Panel from './Panel';
-
-class UniversalMap extends React.Component {
+export default class UniversalMap extends Component {
     constructor(props) {
         super(props);
 
@@ -66,6 +62,3 @@ class UniversalMap extends React.Component {
         );
     }
 }
-
-
-module.exports = UniversalMap;

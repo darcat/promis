@@ -1,10 +1,9 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
+import React, { Component } from 'react';
+import { ButtonGroup } from 'react-bootstrap';
 
-var ToolboxButton = require('./ToolboxButton');
-var ButtonGroup = Bootstrap.ButtonGroup;
+import ToolboxButton from './ToolboxButton';
 
-class MapZoomBox extends React.Component {
+export default class MapZoomBox extends Component {
     constructor(props) {
         super(props);
 
@@ -58,5 +57,3 @@ MapZoomBox.defaultProps = {
     defaultZoom: 5,
     onChange: function() { ; }
 }
-
-module.exports = MapZoomBox;

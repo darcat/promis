@@ -1,17 +1,13 @@
-var React = require('react');
-var Bootstrap = require('react-bootstrap');
-var Draggable = require('react-draggable');
+import React, { Component } from 'react';
+import { Col, Accordion, Panel } from 'react-bootstrap';
+import Draggable from 'react-draggable';
 
-var Col = Bootstrap.Col;
-var Accordion = Bootstrap.Accordion;
-var BootstrapPanel = Bootstrap.Panel;
-
-require(__dirname + '/../styles/panel.css');
+import '../styles/panel.css';
 
 // TODO: separate click collapse handler and drag toggling
 // { !this.props.disableDrag ? (<Draggable handle = '.panel-title'>) : ()}
 
-class Panel extends React.Component {
+export default class AdvancedPanel extends Component {
     constructor(props) {
         super(props);
     }
@@ -19,14 +15,12 @@ class Panel extends React.Component {
     render() {
         return (
             <Col md={6} sm={12}>
-                <BootstrapPanel className = {this.props.className} header = {this.props.title}>{this.props.children}</BootstrapPanel>
+                <Panel className = {this.props.className} header = {this.props.title}>{this.props.children}</Panel>
             </Col>
         )
     }
 }
 
-Panel.defaultProps = {
+AdvancedPanel.defaultProps = {
     title: 'Panel title'
 }
-
-module.exports = Panel;

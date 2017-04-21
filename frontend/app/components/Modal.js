@@ -1,7 +1,7 @@
-var React = require('react');
-var Modal = require('react-bootstrap').Modal;
+import React, { Component } from 'react';
+import { Modal } from 'react-bootstrap';
 
-class ModalWindow extends React.Component {
+export default class ModalWindow extends Component {
     constructor(props) {
         super(props);
 
@@ -45,5 +45,3 @@ class ModalWindow extends React.Component {
 ModalWindow.defaultProps = {
     show : false
 }
-
-module.exports = ModalWindow;
