@@ -15,7 +15,7 @@ var config = {
         main: path.join(__dirname, 'app', 'index.js')
     },
     output: {
-        path: path.resolve(__dirname, 'public'),
+        path: path.join(__dirname, 'public'),
         filename: '[name]-[hash].js',
         sourcePrefix: '',
         publicPath: '/'

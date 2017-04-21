@@ -37,6 +37,7 @@ end
 
 # Easy to use development version
 if $conf["development_setup"]
+  $conf["code_reload"] = true unless $user_conf.key?("code_reload")
   $conf["disable_ssl"] = true unless $user_conf.key?("disable_ssl")
   $conf["servername_web"] = "localhost" unless $user_conf.key?("servername_web")
   $conf["servername_api"] = "localhost" unless $user_conf.key?("servername_api")
@@ -68,3 +69,6 @@ if $conf["django_key"].to_s == ""
   o = [('a'..'z'), ('0'..'9'), ('!'..')')].map(&:to_a).flatten
   $conf["django_key"] = (0...50).map { o[rand(o.length)] }.join
 end
+
+# Generate a config line for promis.conf determining whether we use static builds or a live nodejs server
+$conf["web_root_config"] = if $conf["code_reload"] then "proxy_pass http://localhost:8080;" else "" end

@@ -1,14 +1,18 @@
-# TODO maybe nginx:alpine?
-# TODO: special rights on /etc/ssl.d/
-FROM nginx:1.11.5
-ADD index.html /var/www/promis/
-ADD fonts /var/www/promis/fonts/
-ADD data /var/www/promis/data/
-ADD css /var/www/promis/css/
-ADD js /var/www/promis/js/
-# full version until webpack bundle
-ADD cesium /var/www/promis/cesium/
-ADD download /var/www/promis/download/
+FROM smebberson/alpine-nginx-nodejs
+
+# Stream the nginx logs to stdout and stderr
+# Stolen from the author's Dockerfile :)
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
+
+# Do this first to benefit from cache
+RUN mkdir -p /usr/src/promis/app
+WORKDIR /usr/src/promis
+ADD package.json /usr/src/promis/
+
+# Install packages needed
+RUN npm install
+ADD webpack.config.js /usr/src/promis/
 
 # This doesn't contain any replacements
 ADD nginx.conf /etc/nginx/
@@ -17,7 +21,14 @@ ADD nginx.conf /etc/nginx/
 ADD deploy/promis.conf /etc/nginx/
 ADD deploy/promis_api.yaml /var/www/promis/api/
 
-RUN chgrp nginx /etc/ssl/private
-RUN chmod g+x,g+r /etc/ssl/private
+# TODO
+#RUN chgrp nginx /etc/ssl/private
+#RUN chmod g+x,g+r /etc/ssl/private
 
-CMD [ "/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf" ]
+# Add the actual app
+ADD run_web_promis.sh /
+ADD app /usr/src/promis/app/
+
+# The original image uses supervisord to start up
+# Skipping their logic and just running our stuff
+CMD [ "/run_web_promis.sh" ]
