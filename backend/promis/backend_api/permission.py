@@ -52,3 +52,16 @@ class PromisPermission(BasePermission):
                     return check_session(request.user, obj.session)
 
         return True
+
+class SelfProfilePermission(BasePermission):
+    message = 'Unauthorized'
+    
+    def has_permission(self, request, view):
+        return True
+    
+    def has_object_permission(self, request, view, obj):
+        if (helpers.IsSuperUser()) or (obj.username == request.user):
+            return True
+        else:
+            return False
+        
