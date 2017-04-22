@@ -249,10 +249,13 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
           write_only=True,
     )
+    
+    date_joined = serializers.DateTimeField(read_only = True)
+    last_login = serializers.DateTimeField(read_only = True)
 
     class Meta:
        model = User
-       fields = ('password', 'username', 'first_name', 'last_name',)
+       fields = ('password', 'username', 'first_name', 'last_name', 'date_joined', 'last_login')
 
     def create(self, validated_data):
         user = super().create(validated_data)

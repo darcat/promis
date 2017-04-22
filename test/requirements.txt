@@ -1,2 +1,6 @@
 pytest
 pyftpdlib
+
+# TODO: keep an eye on: https://github.com/pytest-dev/pytest/issues/349
+# this will eventually become a normal pytest feature
+pytest-lazy-fixture 
