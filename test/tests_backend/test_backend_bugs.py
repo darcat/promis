@@ -58,9 +58,38 @@ def test_unauth_session_401_200_general_url(session):
     r = session.get("/en/api")
     assert r.status_code in [ 401, 200 ], "Expecting 401 Please Authenticate or 200 OK"
 
-def test_per_project_sessions(session):
-    '''IonosatMicro/promis-backend#77'''
-    r = session.get("/en/api/sessions")
+
+# See test_auth.py
+# TODO: combine in conftest.py or something
+_fix = pytest.lazy_fixture
+multiuser = pytest.mark.parametrize(
+    "user, user_name", 
+    [ 
+        (_fix("superuser"), "promis"),
+        (_fix("john"), "john"),
+        (_fix("connie"), "connie"),
+        (_fix("melanie"), "melanie")
+    ], 
+    ids = [ 
+        "Superuser",
+        "Regular user",
+        "Level 2 user",
+        "Level 1 user"
+    ]
+)
+    
+multiproject = pytest.mark.parametrize("space_project_id", 
+                                       [ 1, 42000, 42001 ], 
+                                       ids = [ "Potential", "Peace&Love", "Roundabout" ])
+
+@multiuser
+@multiproject
+def test_per_project_sessions(user, space_project_id, user_name):
+    '''IonosatMicro/promis#55 IonosatMicro/promis#140'''
+    r = user.get("/en/api/sessions/?space_project=%d" % space_project_id)
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
+    assert "count" in json_data, "Malformed JSON received"
     assert json_data["count"] > 0, "Can't see any session"
+    assert "results" in json_data and len(json_data["results"]) > 0, "Malformed JSON received"
+    assert json_data["results"][0]["space_project"] == space_project_id
