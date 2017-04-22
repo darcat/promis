@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Col, Row, Form, FormGroup, FormControl, Glyphicon, InputGroup, ControlLabel } from 'react-bootstrap';
+import { Col, Row, Form, Button, FormGroup, FormControl, Glyphicon, InputGroup, ControlLabel } from 'react-bootstrap';
 
 import Toggle from 'react-bootstrap-toggle';
 import DateTime from 'react-bootstrap-datetimepicker';
 
+import InlineEdit from 'react-edit-inline';
 import Panel from './Panel';
 
 import '../styles/map.css';
@@ -107,28 +108,78 @@ class GeoInputForm extends Component {
     }
 }
 
-// TODO: update
-function MapSelection(props) {
-    if (props.items.current < 0) {
-        return (
-            <ul className = 'mapSelectionItems'>
-            { props.items.map(function(item) {
+/*
+class InlineNumberEdit extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            inner: 
+        }
+    }
+}*/
+
+class MapSelection extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+
+    render() {
+        var all = this.props.selection;
+        var actions = this.props.actions;
+
+        if (Array.isArray(all.elements) && all.elements.length > 0) {
+            return (
+                <div>
+            {all.elements.map(function(collection, index) {
                 return (
-                    <li>{item}</li>
-                )
-            }) }    
-            </ul>
+                    <Row key = {index}>
+                        <Col sm={3}>#{index + 1}</Col>
+                        <Col sm={9}>
+                            <ul className = 'mapSelectionItems'>
+                                { collection.map(function(item, index) {
+                                    function saveValue(obj) {
+                                        actions.editSelection(index, obj.value);
+                                    }
+
+                                    function deleteValue() {
+                                        actions.removeFromSelection(index);
+                                    }
+
+                                    return (
+                                        <li key = {index}>
+                                            <Col sm={4}>
+                                                <InlineEdit change = {saveValue} text = {String(item)} paramName = 'value' />
+                                            </Col>
+                                            <Col sm={4}>
+                                                <InlineEdit change = {saveValue} text = {String(item)} paramName = 'value' />
+                                            </Col>
+                                            <Col sm={4}>
+                                                <Button bsSize = 'small' bsStyle = 'danger' onClick = {deleteValue}>
+                                                    <Glyphicon glyph = 'remove'/>
+                                                </Button>
+                                            </Col>
+                                        </li>
+                                    );
+                                }) }
+                            </ul>
+                        </Col>
+                    </Row>
+                );
+            }) }
+            </div>);
+        } else return (
+            <p>Selection is empty</p>
         );
-    } else return (
-        <p>Selection is empty</p>
-    );   
+    }
 }
 
 export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
 
-        this.actions = props.actions;
+        this.actions = props.genericActions;
 
         this.toggleMap = this.toggleMap.bind(this);
         this.dateFromChange = this.dateFromChange.bind(this);
@@ -183,7 +234,7 @@ export default class TimeAndPositionInput extends Component {
                             Selection
                         </Col>
                         <Col sm = {10}>
-                            <MapSelection items = {this.props.selection} />
+                            <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }
                 </Form>

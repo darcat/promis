@@ -59,9 +59,12 @@ class App extends Component {
                         <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
                     </Well>
                     <Row>
-                        
-                            <TimeAndPositionPanel options = {this.props.inputOptions} selection = {this.props.selection} actions = {this.props.genActions} />
-                        
+                        <TimeAndPositionPanel 
+                            options = {this.props.inputOptions}
+                            selection = {this.props.selection}
+                            selectionActions = {this.props.selActions}
+                            genericActions = {this.props.genActions}
+                        />
                         <Panel>Panel two</Panel>
                     </Row>
                     <Row>

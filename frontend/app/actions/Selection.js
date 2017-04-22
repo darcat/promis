@@ -40,7 +40,7 @@ export default {
     editSelection : function(index, newValue) {
         return function(dispatch) {
             dispatch({
-                type: Enum.selectionEditElement,
+                type: Enum.SelectionEditElement,
                 payload: {
                     index: index,
                     value: newValue
@@ -49,7 +49,7 @@ export default {
         }
     },
 
-    selectionClear : function() {
+    clearSelection : function() {
         return function(dispatch) {
             dispatch({
                 type: Enum.selectionPurge,

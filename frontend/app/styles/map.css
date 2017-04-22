@@ -1,7 +1,3 @@
-.mapSelectionItems {
-
-}
-
 #leaflet,
 #cesium {
     width: 100%;
@@ -45,4 +41,13 @@
     max-width: 400px;
     margin: 0 auto;
     text-align: center;
+}
+
+.mapSelectionItems {
+
+}
+
+.mapSelectionItems li {
+    
+    list-style-type: none;
 }
