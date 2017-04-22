@@ -46,30 +46,35 @@ class MeasurementsFilter(django_filters.rest_framework.FilterSet):
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
+    permission_classes = (AllowAny,)
 
 class DevicesView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('satellite',)
+    permission_classes = (AllowAny,)
 
 class ChannelsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
     permission_classes = (PromisPermission,)
-
+    
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (PromisPermission,)
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
 
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
+
+#commented to allow Anonymous access
+        '''     
         user = self.request.user
         if not helpers.UserExists(user):
             return models.Session.objects.none()
@@ -81,7 +86,8 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
             queryset = models.Session.objects.filter(time_end__range = (ago, half_year_ago))
         else:
             queryset = models.Session.objects.all()
-
+        '''
+        
         if polygon is not None:
             try:
                 geoobj = GEOSGeometry(polygon, srid = 4326)
@@ -103,8 +109,6 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
             except GEOSException:
                 pass
 
-
-
             return models.Session.objects.none()
 
         return queryset
@@ -114,16 +118,14 @@ class ParametersView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.ParametersSerializer
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('channel',)
-    permission_classes = (PromisPermission,)
+    permission_classes = (AllowAny,)
 
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (PromisPermission,)
+    permission_classes = (AllowAny,)
     filter_class = MeasurementsFilter
     filter_backends = (DjangoFilterBackend,)
-
-       
 
 '''
 #TODO: This is used only for debugging, and should be removed
@@ -146,7 +148,7 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     
-    @detail_route(permission_classes = [PromisPermission,])
+    @detail_route(permission_classes = [AllowAny,])
     def channel(self, request, id):
         if id:
             obj = self.queryset.get(pk = id)
@@ -157,7 +159,7 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
         else:
             return Response([])
     
-    @detail_route(permission_classes = [PromisPermission,])
+    @detail_route(permission_classes = [AllowAny,])
     def parameter(self, request, id):
         if id:
             obj = self.queryset.get(pk = id)
@@ -169,7 +171,7 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
             return Response([])
     
     queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission,)
+    permission_classes = (AllowAny,)
     serializer_class = serializer.MeasurementsSerializer
 
 class DownloadView(viewsets.ReadOnlyModelViewSet):
