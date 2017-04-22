@@ -32,3 +32,7 @@ vagrant up web.promis
 
 # Hold on while the the data update is still going on
 wait
+
+# Print out anything captured in the log
+cat /tmp/fetch_data.log
+
