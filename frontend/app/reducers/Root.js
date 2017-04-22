@@ -1,7 +1,8 @@
-var Redux = require('redux');
+import { combineReducers } from 'redux';
 
-var Map = require('./Map');
-var User = require('./User');
-var Generic = require('./Generic');
+import Map from './Map';
+import User from './User';
+import Generic from './Generic';
+import Selection from './Selection';
 
-module.exports = Redux.combineReducers({ Map, User, Generic });
+export default combineReducers({ Map, User, Generic, Selection });

@@ -1,21 +1,20 @@
-var Map = require('../constants/Map');
-var Enum = Map.Enum;
+import { Enum } from '../constants/Map';
 
-module.exports = {
-    toggleZoom : function(zoom) {
+export default {
+    toggleZoom : function(newZoom) {
         return function(dispatch) {
             dispatch({
                 type: Enum.ZoomChanged,
-                payload: zoom
+                payload: newZoom
             })
         }
     },
 
-    toggleFullscreen : function(fullscreen) {
+    toggleFullscreen : function(fullscreenStatus) {
         return function(dispatch) {
             dispatch({
                 type: Enum.SizeChanged,
-                payload: fullscreen
+                payload: fullscreenStatus
             })
         }
     },
@@ -24,26 +23,29 @@ module.exports = {
         return function(dispatch) {
             dispatch({
                 type: Enum.DimsChanged,
-                payload: newDimensions
+                payload: {
+                    width: newDimensions.width,
+                    height: newDimensions.height
+                }
             })
         }
     },
 
-    toggleFlat : function(flatMode) {
+    toggleFlat : function(newFlatMode) {
         return function(dispatch) {
             dispatch({
                 type: Enum.ModeChanged,
-                payload: flatMode
+                payload: newFlatMode
             })
         }
     },
 
-    toggleGrid : function(newGrid) {
+    toggleGrid : function(newGridState) {
         return function(dispatch) {
             dispatch({
                 type: Enum.GridChanged,
-                payload: newGrid
+                payload: newGridState
             })
         }
     }
-}
+};

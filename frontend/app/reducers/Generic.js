@@ -1,9 +1,6 @@
-var Generic = require('../constants/Generic');
+import { Enum, State } from '../constants/Generic';
 
-var Enum = Generic.Enum;
-var State = Generic.State;    
-
-function GenericReducer(state = State, action) {
+export default function GenericReducer(state = State, action) {
     switch(action.type) {
         case Enum.SelectionModeChanged:
             return Object.assign({}, state, { mapEnabled: action.payload });
@@ -46,5 +43,3 @@ function GenericReducer(state = State, action) {
         break;
     }
 }
-
-module.exports = GenericReducer;

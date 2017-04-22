@@ -33,13 +33,17 @@ export default class MapToolBox extends Component {
         return (
             <div className = 'mapToolBox'>
                 <ButtonGroup className = 'innerToolBox'>
-                    <ToolboxButton onClick = {this.toggleFlat} active = {! opts.flat} icon = 'globe' help = 'Switch to 3D' />
+                    <ToolboxButton onClick = {this.toggleFlat} active = {! opts.flat} icon = 'globe' help = {'Switch to ' + (opts.flat ? '3D' : '2D')} />
                     <ToolboxButton icon = 'edit' help = 'Select area' />
                     <ToolboxButton icon = 'screenshot' help = 'Select area' />
                     <ToolboxButton onClick = {this.toggleGrid} active = {opts.grid} icon = 'th' help = 'Toggle grid' />
                     <ToolboxButton onClick = {this.toggleFull} icon = {opts.full ? 'resize-small' : 'resize-full'} help = {opts.full ? 'Minimize' : 'Fullscreen'} />
+                    { this.props.hasSelection &&
+                    <div>
                     <ToolboxButton icon = 'erase' help = 'Erase last selection' />
                     <ToolboxButton icon = 'ban-circle' help = 'Clear all selection' />
+                    </div>
+                    }
                 </ButtonGroup>
             </div>
         )

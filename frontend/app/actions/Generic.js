@@ -1,7 +1,6 @@
-var Generic = require('../constants/Generic');
-var Enum = Generic.Enum;
+import { Enum } from '../constants/Generic';
 
-module.exports = {
+export default {
     mapToggled : function(newMode) {
         return function(dispatch) {
             dispatch({
@@ -82,4 +81,4 @@ module.exports = {
             })
         }
     }
-}
+};

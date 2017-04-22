@@ -32,8 +32,8 @@ export default class UniversalMap extends Component {
             styles.left = 0;
             styles.bottom = 0;
             styles.overflow = 'auto';
-            styles.width = options.dims[0];
-            styles.height = options.dims[1];
+            styles.width = options.dims.width;
+            styles.height = options.dims.height;
         }
 
         return styles;
@@ -50,7 +50,7 @@ export default class UniversalMap extends Component {
                 <div style = {mapStyles}>
                     <div className = 'mapContainer'>
                         <MapZoomBox onChange = {actions.toggleZoom} defaultZoom = {options.defaultZoom} />
-                        <MapToolbox onChange = {actions} options = {options} />
+                        <MapToolbox onChange = {actions} options = {options} hasSelection = {selection.current > 0} />
                         { options.flat ? (
                         <LeafletContainer onChange = {actions.updateMap} options = {options} selection = {selection} />
                         ) : (

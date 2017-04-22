@@ -8,6 +8,7 @@ import Panel from '../components/Panel';
 
 import mapActionsCreators from '../actions/Map';
 import genActionsCreators from '../actions/Generic';
+import selActionsCreators from '../actions/Selection';
 
 import MapPanel from '../components/UniversalMap';
 import TimeAndPositionPanel from '../components/TimeAndPosition';
@@ -17,27 +18,25 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            width: 0,
-            height: 0
-        };
-
-        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
+        this.updateDimensions = this.updateDimensions.bind(this);
     }
 
     componentDidMount() {
-        this.updateWindowDimensions();
+        this.updateDimensions();
 
-        window.addEventListener('resize', this.updateWindowDimensions.bind(this));
+        window.addEventListener('resize', this.updateDimensions.bind(this));
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.updateWindowDimensions.bind(this));
+        window.removeEventListener('resize', this.updateDimensions.bind(this));
     }
 
-    updateWindowDimensions() {
+    updateDimensions() {
         /* pass new size to map */
-        var dims = new Array(window.innerWidth, window.innerHeight);
+        var dims = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        }
 
         this.props.mapActions.toggleDims(dims);
     }
@@ -60,8 +59,6 @@ class App extends Component {
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
                         <MapPanel
-                            fullheight = {this.state.height}
-                            fullwidth = {this.state.width}
                             selection = {this.props.selection}
                             options = {this.props.mapOptions}
                             actions = {this.props.mapActions}
@@ -80,7 +77,7 @@ function mapStateToProps(state) {
     return {
         inputOptions: state.Generic,
         mapOptions: state.Map,
-        selection: state.Map.selection
+        selection: state.Selection
     }
 }
 
@@ -88,7 +85,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         mapActions : bindActionCreators(mapActionsCreators, dispatch),
-        genActions : bindActionCreators(genActionsCreators, dispatch)
+        genActions : bindActionCreators(genActionsCreators, dispatch),
+        selActions : bindActionCreators(selActionsCreators, dispatch)
     }
 }
 

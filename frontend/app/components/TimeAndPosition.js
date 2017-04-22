@@ -107,8 +107,9 @@ class GeoInputForm extends Component {
     }
 }
 
+// TODO: update
 function MapSelection(props) {
-    if (props.items.length) {
+    if (props.items.current < 0) {
         return (
             <ul className = 'mapSelectionItems'>
             { props.items.map(function(item) {

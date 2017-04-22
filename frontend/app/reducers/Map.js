@@ -1,9 +1,6 @@
-var Map = require('../constants/Map');
+import { Enum, State } from '../constants/Map';
 
-var Enum = Map.Enum;
-var State = Map.State;
-
-function MapReducer(state = State, action) {
+export default function MapReducer(state = State, action) {
     switch(action.type) {
         case Enum.ZoomChanged:
             return Object.assign({}, state, { zoom: action.payload });
@@ -14,7 +11,7 @@ function MapReducer(state = State, action) {
         break;
 
         case Enum.DimsChanged:
-            return Object.assign({}, state, { dims: action.payload });
+            return Object.assign({}, state, { dims: { width: action.payload.width, height: action.payload.height } });
         break;
 
         case Enum.ModeChanged:
@@ -30,5 +27,3 @@ function MapReducer(state = State, action) {
         break;
     }
 }
-
-module.exports = MapReducer;

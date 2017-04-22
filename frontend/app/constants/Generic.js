@@ -1,4 +1,4 @@
-var Enum = {
+export const Enum = {
     DateFromChanged : 'GenericDateStartChanged',
     DateToChanged : 'GenericDateFinishChanged',
     LatFromChanged : 'GenericLatStartChanged',
@@ -10,7 +10,7 @@ var Enum = {
     SelectionModeChanged : 'GenericSelectionModeChanged'
 };
 
-var State = {
+export const State = {
     dateFrom : '',
     dateTo : '',
     latFrom : 41.33,
@@ -21,5 +21,3 @@ var State = {
     altTo : 100,
     mapEnabled : false
 };
-
-module.exports = { Enum, State };

@@ -1,4 +1,4 @@
-var Enum = {
+export const Enum = {
 	ZoomChanged : 'MapZoomChanged',
 	SizeChanged : 'MapSizeChanged',
     DimsChanged : 'MapDimsChanged',
@@ -7,16 +7,13 @@ var Enum = {
 	SelectionUpdated: 'MapSelectionUpdated'
 };
 
-var State = {
+export const State = {
     zoom: 5,
     flat: true,
     full: false,
-    dims: [300, 300],
     grid: false,
-    geolines: [],
-    selection: []
+    dims: [300, 300],
+    geolines: []
 };
 
-var BingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
-
-module.exports = { Enum, State, BingKey };
+export const BingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';
