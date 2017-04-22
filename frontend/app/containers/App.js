@@ -42,10 +42,18 @@ class App extends Component {
     }
 
     render() {
+        var style = {
+            width: '95%',
+            margin: '0 auto'
+        };
+
+        /* hide possible scrollbar when resizing to ultralow dimensions in fullscreen mode */
+        document.body.style.overflow = (this.props.mapOptions.full ? 'hidden' : null);
+
         return (
             <div>
                 <Nav />
-                <div style = {{ width: '95%', margin: '0 auto' }}>
+                <div style = {style}>
                     <Well bsSize="large">
                         <h3>Ionosat PROMIS</h3>
                         <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>

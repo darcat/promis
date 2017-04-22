@@ -53,6 +53,13 @@ export default class CesiumContainer extends Component {
         this.currentPosition = this.currentPosition.bind(this);
     }
 
+    /* update only for fullscreen toggling */
+    shouldComponentUpdate(nextProps) {
+        return (nextProps.options.full !== this.props.options.full) ||
+               (this.props.options.dims.width !== nextProps.options.dims.width ||
+                this.props.options.dims.height !== nextProps.options.dims.height);
+    }
+
     repaint() {
         if(this.viewer) {
             this.lastmove = Date.now();
@@ -178,7 +185,7 @@ export default class CesiumContainer extends Component {
     }
 
     render() {
-        var height = {height: this.props.options.full ? this.props.options.dims[1] : 300};
+        var height = {height: this.props.options.full ? this.props.options.dims.height : 300};
 
         return (
             <div>

@@ -18,6 +18,13 @@ export default class LeafletContainer extends Component {
         this.repaint = this.repaint.bind(this);
     }
 
+    /* update only for fullscreen toggling */
+    shouldComponentUpdate(nextProps) {
+        return (nextProps.options.full !== this.props.options.full) ||
+               (this.props.options.dims.width !== nextProps.options.dims.width ||
+                this.props.options.dims.height !== nextProps.options.dims.height);
+    }
+
     repaint() {
         if(this.map) {
             this.map.invalidateSize();
@@ -44,7 +51,7 @@ export default class LeafletContainer extends Component {
 
     render() {
         var zoom = this.props.options.zoom;
-        var height = {height: this.props.options.full ? this.props.options.dims[1] : 300};
+        var height = {height: this.props.options.full ? this.props.options.dims.height : 300};
 
         return (
             <div>
