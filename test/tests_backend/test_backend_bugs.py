@@ -48,15 +48,6 @@ def test_unauth_access(session):
     assert r.status_code != 500, "Invalid status code"
     # TODO: this doesn't perfectly verify the described behaviour, but I assume the root cause is the same
 
-def test_unauth_session_401_data_url(session):
-    '''IonosatMicro/promis-backend#76'''
-    r = session.get("/en/api/download/1")
-    assert r.status_code == 401, "Expecting 401 Please Authenticate"
-
-def test_unauth_session_401_200_general_url(session):
-    '''IonosatMicro/promis-backend#76, IonosatMicro/promis-backend#77'''
-    r = session.get("/en/api")
-    assert r.status_code in [ 401, 200 ], "Expecting 401 Please Authenticate or 200 OK"
 
 
 # See test_auth.py
@@ -65,12 +56,14 @@ _fix = pytest.lazy_fixture
 multiuser = pytest.mark.parametrize(
     "user, user_name", 
     [ 
+        (_fix("session"), "unauth"),
         (_fix("superuser"), "promis"),
         (_fix("john"), "john"),
         (_fix("connie"), "connie"),
         (_fix("melanie"), "melanie")
     ], 
     ids = [ 
+        "Anonymous",
         "Superuser",
         "Regular user",
         "Level 2 user",
