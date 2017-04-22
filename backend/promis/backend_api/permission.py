@@ -60,8 +60,6 @@ class SelfProfilePermission(BasePermission):
         return True
     
     def has_object_permission(self, request, view, obj):
-        print (obj.username)
-        print (request.user)
         if (helpers.IsSuperUser()) or (obj.username == request.user):
             return True
         else:
