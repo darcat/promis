@@ -10,11 +10,6 @@ def test_wrong_password(session):
     '''Check that we can't log in with wrong credentials'''
     assert not session.login("promis", "sunfish"), "Wrong credentials work"
 
-# TODO: this behaviour may and will change!
-def test_unauth_access(session):
-    '''Check that we can't access the API without authenticating first'''
-    assert 400 <= session.get("/en/api/").status_code < 500, "Unauthenticated access possible"
-
 @pytest.fixture
 def superuser(session):
     session.login("promis", "swordfish")

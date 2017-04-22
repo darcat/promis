@@ -239,7 +239,9 @@ class MeasurementsSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+        
         user = self.context['request'].user
+        
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
             self.fields.pop('channel')
 
