@@ -12,6 +12,9 @@
   depend:   [ "${conf.hostname_db}" ]
   sync:
     - [ "sync/", "${conf.sync_api_dir}" ]
+  reload:
+    # We don't care as much about the root directory since run_promis is running already
+    - [ "${conf.dir_api}/promis", "/usr/src/app/promis" ]
   env:
     # NOTE: libpq docu says it's 'posgresql://': https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
     # TODO: echo special chars in the password maybe? low priority
@@ -36,10 +39,14 @@
     - [ "ssl/", "${conf.ssl_prefix}"]
     - [ "sync/", "${conf.sync_web_dir}" ]
   depend: [ "${conf.hostname_api}" ]
+  reload:
+    # TODO: do we need other directories synced?
+    - [ "${conf.dir_web}/app", "/usr/src/promis/app" ]
   env:
     PORT_KEY_WEB:       ${conf.port_key_web}      # erm what's that?
     SYNC_PATH:          ${conf.sync_web_path}
     YML_PATH:           ${conf.yml_web_dir}
+    CODE_RELOAD:        ${conf.code_reload}
 
 - name: ${conf.hostname_test}
   build: ${conf.dir_test}

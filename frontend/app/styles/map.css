@@ -1,0 +1,53 @@
+#leaflet,
+#cesium {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.mapContainer {
+    position: relative;
+}
+
+.mapPanel .panel-body {
+    padding: 0 !important;
+}
+
+.mapZoomBox,
+.mapToolBox {
+    position: absolute;
+    z-index: 1000
+}
+
+.innerToolBox > .btn:focus,
+.innerToolBox > .btn.active:focus {
+   outline: none !important;
+}
+
+.mapZoomBox {
+    top: 12px;
+    left: 12px;
+}
+
+.mapToolBox {
+    top: 12px;
+    left: 0;
+    right: 0;
+    width: 50%;
+    overflow: hidden;
+    min-width: 300px;
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.mapSelectionItems {
+
+}
+
+.mapSelectionItems li {
+    
+    list-style-type: none;
+}
