@@ -45,6 +45,39 @@ def connie(session):
     session.login("connie", "test")
     return session
 
+
+# https://github.com/pytest-dev/pytest/issues/349#issuecomment-250997459
+_fix = pytest.lazy_fixture
+
+# We can't pass fixtures as params directly "yet"
+# Workaround for https://github.com/pytest-dev/pytest/issues/349
+# TODO: Remove that and change the code below to include 
+# fixtures directly when the upstream fix becomes available
+multiuser = pytest.mark.parametrize(
+    "user, user_name", 
+    [ 
+        (_fix("superuser"), "promis"),
+        (_fix("john"), "john"),
+        (_fix("connie"), "connie"),
+        (_fix("melanie"), "melanie")
+    ], 
+    ids = [ 
+        "Superuser",
+        "Regular user",
+        "Level 2 user",
+        "Level 1 user"
+    ]
+)
+
+@multiuser
+def test_get_user_profile(user, user_name):
+    '''Check that the user can query their own profile and the data would match'''
+    r = user.get("/en/user/")
+    assert r.status_code == 200, "Invalid status code"
+    json_data = r.json()
+    assert len(json_data) >= 1 and "username" in json_data[0], "Malformed JSON received"
+    assert json_data[0]["username"] == user_name
+
 # TODO: make it a parametrised fixture?
 def count_listing(sess):
     r = sess.get("/en/api/sessions")
@@ -86,3 +119,5 @@ def test_level1_access(connie):
     json_data = r.json()
     assert "chn_doc" in json_data, "Can't see channels"
     assert "par_doc" in json_data, "Can't see parameters"
+
+

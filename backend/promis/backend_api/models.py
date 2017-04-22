@@ -12,6 +12,8 @@ from django.db.models.signals import post_migrate
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 
+from util.functions import get_func_by_name
+
 # TODO: is this class necessary?
 class FunctionManager(TranslationManager):
     def get_by_natural_key(self, django_func):
@@ -35,12 +37,16 @@ class Function(TranslatableModel):
     def __str__(self):
         return self.description
 
+    def __call__(self, *args, **kwargs):
+        # TODO: handle exceptions if function not found
+        return get_func_by_name(self.django_func)(*args, **kwargs)
+
 class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
     orbit_code = IntegerField(null=True)
     geo_line = LineStringField()
-    satellite = ForeignKey('Space_project', null = True)
+    space_project = ForeignKey('Space_project', null = True)
 
     class Meta:
         db_table = "sessions"
@@ -165,4 +171,3 @@ class Measurement(models.Model):
 
     class Meta:
         db_table = "measurements"
-

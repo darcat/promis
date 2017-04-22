@@ -8,11 +8,11 @@ from rest_framework import status
 from rest_framework import filters
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, api_view
 
 from backend_api import models
 from backend_api import serializer, helpers
-from backend_api.permission import PromisPermission
+from backend_api.permission import PromisPermission, SelfProfilePermission
 
 import django_filters
 
@@ -24,6 +24,7 @@ from django.contrib.gis.geos import GEOSGeometry, GEOSException
 from django.contrib.auth import get_user_model
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
 
 import datetime
@@ -32,13 +33,17 @@ from rest_framework.decorators import permission_classes
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
     time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
-
+    project = django_filters.ModelChoiceFilter(name='space_project',
+                                               queryset = models.Space_project.objects.all())
+    satellite = django_filters.ModelChoiceFilter(name='space_project',
+                                                 queryset = models.Space_project.objects.all())
+        
     class Meta:
         model = models.Session
-        fields = ['satellite', 'time_begin', 'time_end']
-        
+        fields = ['space_project', 'time_begin', 'time_end', 'project', 'satellite']
+
 class MeasurementsFilter(django_filters.rest_framework.FilterSet):
-        
+
     class Meta:
         model = models.Measurement
         fields = ['session', 'parameter']
@@ -127,6 +132,7 @@ class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     filter_class = MeasurementsFilter
     filter_backends = (DjangoFilterBackend,)
 
+
 '''
 #TODO: This is used only for debugging, and should be removed
 #======== Added to view db contents. Remove it: ======
@@ -147,29 +153,65 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
 '''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    
+    # TODO STUB REFATOR this and merge with the code below
     @detail_route(permission_classes = [AllowAny,])
     def channel(self, request, id):
         if id:
             obj = self.queryset.get(pk = id)
             context = {}
             context['request'] = self.request
+            # TODO: do we *actually* need channel quick-looks at all?
             ser = serializer.ChannelQuicklookSerializer(obj, context = context)
-            return Response(ser.data) 
+            return Response(ser.data)
         else:
             return Response([])
     
     @detail_route(permission_classes = [AllowAny,])
     def parameter(self, request, id):
+        # TODO: JSON/HTML-ify the responses here?
+        # TODO: 422 instead of 404 for incorrect params?
+        # TODO: most of the raises here are redundant and should be done
+        # in validators. That includes "if id" chech too.
+
         if id:
+            # Checking the quicklook function
             obj = self.queryset.get(pk = id)
-            context = {}
-            context['request'] = self.request
-            ser = serializer.ParameterQuicklookSerializer(obj, context = context)
-            return Response(ser.data) 
+            if not obj.parameter.quicklook:
+                raise MethodNotAllowed('< no quicklook defined >')
+            quicklook_fun = obj.parameter.quicklook
+
+            # TODO: many stubs here depend on the knowledge of the JSON structure
+            # which varies type to type. Making 100500 functions is unfeasible, so
+            # we might want to wrap this into classes with known interface and
+            # use JSON as pickle/unpickle medium or something. Postponed to post-alpha
+            # see and use #63 for more details.
+
+            # Determining the quality of a quicklook
+            try:
+                npoints = int(self.request.query_params['points'])
+            except KeyError:
+                # TODO: configurable default or per-type setting here
+                npoints = 200
+            except ValueError:
+                raise NotFound("Amount of points is not a number")
+
+            # Various checks on the number received
+            if npoints <= 0:
+                raise NotFound("Non-positive amount of points requested")
+
+            # TODO: STUB: determine upper cap, that depends on the type in question
+            # if npoints > max_points_for_this_json:
+            #   raise NotFound("Too much points requested")
+
+            # TODO: STUB: determine if user is not authenticated, lower the cap for them
+            # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
+            #   raise NotAuthenticated
+
+            ser = serializer.ParameterQuicklookSerializer(obj, context = { 'quicklook_fun': quicklook_fun, 'npoints': npoints })
+            return Response(ser.data)
         else:
-            return Response([])
-    
+            raise NotFound("Please specify the measurement id.")
+
     queryset = models.Measurement.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = serializer.MeasurementsSerializer
@@ -183,29 +225,37 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
     serializer_class = serializer.MeasurementsSerializer
-    
+
     @detail_route(permission_classes = [PromisPermission,])
     def channel(self, request, pk):
         if pk:
             obj = self.queryset.get(pk = pk)
             ser = serializer.ChannelDataSerializer(obj)
-            return Response(ser.data) 
+            return Response(ser.data)
         else:
             return Response([])
-    
+
     @detail_route(permission_classes = [PromisPermission,])
     def parameter(self, request, pk):
         if pk:
             obj = self.queryset.get(pk = pk)
             ser = serializer.ParameterDataSerializer(obj)
-            return Response(ser.data) 
+            return Response(ser.data)
         else:
             return Response([])
 
-class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin):
+class UserPagination(LimitOffsetPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'logged' : True,
+            'userdata' : data
+        })
+
+class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, ListModelMixin):
     queryset = get_user_model().objects
     serializer_class = serializer.UserSerializer
-
+    pagination_classes = UserPagination
+    
     def get_permissions(self):
         if self.request.method == 'POST':
             self.permission_classes = (AllowAny,)
@@ -219,3 +269,26 @@ class UserViewSet(viewsets.GenericViewSet, CreateModelMixin, UpdateModelMixin, R
             return get_user_model().objects.filter(username = self.request.user)
         else:
             get_user_model().objects.none()
+            
+    def paginate_queryset(self, queryset, view=None):
+    # couldn't find a better solution
+        return None
+        
+        
+@api_view(['POST', 'PUT'])
+@permission_classes((SelfProfilePermission, IsAuthenticated))
+def UserUpdate(request):
+    try:
+        user = get_user_model().objects.get(username = request.user)
+    except get_user_model().DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'POST' or request.method == 'PUT':
+            
+            ser = serializer.UserSerializer(user, data=request.data, partial=True)
+            if ser.is_valid():
+                ser.save()
+                return Response(ser.data, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+            
