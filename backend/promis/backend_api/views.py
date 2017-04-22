@@ -176,7 +176,7 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
 
 class DownloadView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission,)
+    permission_classes = (AllowAny,)
     serializer_class = serializer.DownloadViewSerializer
 
 class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):

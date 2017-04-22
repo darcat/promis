@@ -4,7 +4,12 @@
 from django.contrib.auth.models import User, Group
 
 def UserInGroup(user, group):
-    user = User.objects.get(username = user)
+    user = User.objects.none()
+    try:
+        user = User.objects.get(username = user)
+    except User.DoesNotExist:
+        return False
+    
     return user.groups.filter(name = group).exists()
 
 def UserGroupsNo(user):
