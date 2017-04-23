@@ -380,6 +380,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  # TODO: here and below, add /channel and /parameter paths
   # Quicklook
   /quicklook/{id}:
     x-swagger-object-key: id
@@ -396,7 +397,11 @@ paths:
           in: path
           type: string
           required: true
-
+        - name: points
+          in: query
+          type: integer
+          required: false
+          description: Amount of data points to show on the quicklook.
       responses:
         200:
           description: Quicklook data
@@ -423,6 +428,11 @@ paths:
           in: path
           type: string
           required: true
+        - name: fmt
+          in: query
+          type: string
+          required: false
+          description: Format name to download data in.
       responses:
         200:
           description: Raw data
