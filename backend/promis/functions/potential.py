@@ -159,7 +159,7 @@ def data_func(satellite_object):
 
                             # Creating a measurement instance
                             # TODO: same doc right now
-                            model.Measurement.objects.create(session = ez_sess_obj, parameter = ez_par[freq], channel = ez_chan[freq], chn_doc = doc_obj, par_doc = doc_obj, sampling_frequency = freqs[freq], max_frequency = freqs[freq], min_frequency = freqs[freq])
+                            model.Measurement.objects.create(session = ez_sess_obj, parameter = ez_par[freq], channel = ez_chan[freq], channel_doc = doc_obj, parameter_doc = doc_obj, sampling_frequency = freqs[freq], max_frequency = freqs[freq], min_frequency = freqs[freq])
 
                         ftp.cwd("..")
                     except error_perm:

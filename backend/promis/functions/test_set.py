@@ -56,7 +56,7 @@ def general_fetch(path, satellite_object, add_measurement=False):
 
                 # Creating the measurement object
                 # TODO: frequencies?
-                model.Measurement.objects.create(session = sess_obj, parameter = par_obj, channel = chan_obj, chn_doc = docs[0], par_doc = docs[1], sampling_frequency = 1, max_frequency = 1, min_frequency = 1)
+                model.Measurement.objects.create(session = sess_obj, parameter = par_obj, channel = chan_obj, channel_doc = docs[0], parameter_doc = docs[1], sampling_frequency = 1, max_frequency = 1, min_frequency = 1)
 
             ftp.cwd("..")
 
