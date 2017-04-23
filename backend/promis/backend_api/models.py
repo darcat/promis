@@ -88,7 +88,8 @@ class Device(TranslatableModel):
 
 class Channel(TranslatableModel):
     device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
-    quicklook = ForeignKey('Function', blank=True, null=True)
+    quicklook = ForeignKey('Function', related_name = 'ch_ql', blank=True, null=True)
+    export = ForeignKey('Function', related_name = 'ch_ex', blank=True, null=True)
     parser_func = ForeignKey('Function', related_name = 'parser_func', blank=True, null=True)
 
     translations = TranslatedFields(
@@ -138,6 +139,7 @@ class Parameter(TranslatableModel):
     conversion_params = TextField(blank = True)
     channel = ForeignKey('Channel')
     quicklook = ForeignKey('Function', related_name = 'par_ql', blank=True, null=True)
+    export = ForeignKey('Function', related_name = 'par_ex', blank=True, null=True)
 
     translations = TranslatedFields(
         name = TextField(),
