@@ -4,7 +4,6 @@
 from django.contrib.auth.models import User, Group
 
 def UserInGroup(user, group):
-    user = User.objects.none()
     try:
         user = User.objects.get(username = user)
     except User.DoesNotExist:
