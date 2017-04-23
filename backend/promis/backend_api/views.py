@@ -153,7 +153,7 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
 '''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    def _quicklook(self, obj, src_name, src_serializer, src_doc):
+    def _quicklook(self, obj, src_name, src_serializer):
         '''Generalized quicklook function'''
         # TODO: JSON/HTML-ify the responses here?
         # TODO: 422 instead of 404 for incorrect params?
@@ -193,22 +193,21 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
         # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
         #   raise NotAuthenticated
 
-        ser = serializer.QuickLookSerializer(obj, context = { 'quicklook_fun': quicklook_fun, 
-                                                              'npoints': npoints,
+        ser = serializer.QuickLookSerializer(obj, context = { 'func': quicklook_fun, 
+                                                              'kwargs': { 'npoints': npoints },
                                                               'serializer': src_serializer,
-                                                              'document': src_doc,
-                                                              'source': src_name })
+                                                              'source': src_name } )
         return Response(ser.data)
         
     @detail_route(permission_classes = [AllowAny,])
     def channel(self, request, id):
         obj = self.queryset.get(pk = id)
-        return self._quicklook(obj, "channel", serializer.ChannelsSerializer, obj.chn_doc)
+        return self._quicklook(obj, "channel", serializer.ChannelsSerializer)
     
     @detail_route(permission_classes = [AllowAny,])
     def parameter(self, request, id):
         obj = self.queryset.get(pk = id)
-        return self._quicklook(obj, "parameter", serializer.ParametersSerializer, obj.par_doc)
+        return self._quicklook(obj, "parameter", serializer.ParametersSerializer)
 
     queryset = models.Measurement.objects.all()
     permission_classes = (AllowAny,)
@@ -223,6 +222,11 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Measurement.objects.all()
     permission_classes = (PromisPermission,)
     serializer_class = serializer.MeasurementsSerializer
+    
+    def _export(self, obj, src_name, src_serializer, src_doc):
+        '''Generalized export function'''
+        pass
+        
 
     @detail_route(permission_classes = [PromisPermission,])
     def channel(self, request, pk):
