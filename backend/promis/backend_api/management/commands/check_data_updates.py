@@ -44,11 +44,17 @@ class Command(BaseCommand):
         # Updating the selection
         for sat in space_projects:
             if sat.data_func:
-                print("=> Checking data for satellite: %s." % sat.name)
-                check, fetch = get_func_by_name(sat.data_func.django_func)(sat)
+                try:
+                    print("=> Checking data for satellite: %s." % sat.name)
+                    check, fetch = get_func_by_name(sat.data_func.django_func)(sat)
 
-                # if check() returns None, iterate an empty tuple i.e. don't do anything
-                for data_id in check() or ():
-                    if data_id:
-                        print("=> Fetching data by id: %s." % data_id)
-                        fetch(data_id)
+                    # if check() returns None, iterate an empty tuple i.e. don't do anything
+                    for data_id in check() or ():
+                        if data_id:
+                            print("=> Fetching data by id: %s." % data_id)
+                            fetch(data_id)
+                except (ImportError, AttributeError):
+                    print("Error calling data fetch function for satellite: %s." % sat.name)
+                    print("Please contact the maintainer. Aborting operation")
+                    # TODO: roll back the transaction or let it sink?
+                    break
