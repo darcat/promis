@@ -16,6 +16,10 @@ export default class LeafletContainer extends Component {
         this.bingParams = { bingMapsKey : BingKey, imagerySet : 'AerialWithLabels' };
 
         this.repaint = this.repaint.bind(this);
+        this.initEvents = this.initEvents.bind(this);
+        this.clearEvents = this.clearEvents.bind(this);
+        this.moveDrawEvent = this.moveDrawEvent.bind(this);
+        this.clickDrawEvent = this.clickDrawEvent.bind(this);
     }
 
     /* update only for fullscreen toggling */
@@ -46,7 +50,35 @@ export default class LeafletContainer extends Component {
             Leaflet.tileLayer.bing(this.bingParams).addTo(this.map);
         }
 
+        this.initEvents();
         this.repaint();
+    }
+
+    componentWillUnmount() {
+        this.clearEvents();
+    }
+
+    initEvents() {
+        this.map.on('click', this.clickDrawEvent);
+        this.map.on('mousemove', this.moveDrawEvent);
+    }
+
+    clearEvents() {
+        this.map.off('click', this.clickDrawEvent);
+        this.map.off('click', this.moveDrawEvent);
+    }
+
+    clickDrawEvent(e) {
+
+    }
+
+    moveDrawEvent(e) {
+        if(this.props.selection.active) {
+            var coords = [e.latlng.lat, e.latlng.lng];
+
+            this.props.onPreview(coords);
+            //go.previewPolygon(coords);
+        }
     }
 
     render() {

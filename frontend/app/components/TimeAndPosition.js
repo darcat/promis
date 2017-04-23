@@ -179,6 +179,15 @@ class MapSelection extends Component {
     }
 }
 
+function NextPoint(props) {
+    var lat = props.coords[0].toFixed(3);
+    var lng = props.coords[1].toFixed(3);
+
+    return (
+        <div>Next point: {lat}, {lng}</div>
+    )
+}
+
 export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
@@ -238,6 +247,8 @@ export default class TimeAndPositionInput extends Component {
                             Selection
                         </Col>
                         <Col sm = {10}>
+                            { this.props.selection.active &&
+                            <NextPoint coords = {this.props.preview} /> }
                             <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }

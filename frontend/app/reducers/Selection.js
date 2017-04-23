@@ -18,7 +18,8 @@ export default function SelectionReducer(state = State, action) {
 
         case Enum.SelectionClosed:
              /* advance index if something has been selected */
-            var currentIndex = state.elements[state.current].length ? state.current + 1 : state.current;
+            var currentIndex = Array.isArray(state.elements[state.current]) ?
+                               (state.elements[state.current].length ? state.current + 1 : state.current) : state.current;
 
             return Object.assign({}, state, 
                 {

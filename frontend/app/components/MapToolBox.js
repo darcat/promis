@@ -20,11 +20,11 @@ export default class MapToolBox extends Component {
         this.toggleSelect = this.toggleSelect.bind(this);
     }
 
-    toggleSelect(oldState) {
-        if(oldState) { /* disabling a tool */
-            this.select.finishSelection();
-        } else { /* enabling a tool */
+    toggleSelect(currentState) {
+        if(currentState) {
             this.select.startSelection();
+        } else {
+            this.select.finishSelection();
         }
     }
 
@@ -40,19 +40,31 @@ export default class MapToolBox extends Component {
         this.actions.toggleGrid(! this.props.options.grid);
     }
 
-    toggleRect() {
-        this.toggleSelect(this.props.options.rect);
-        this.actions.toggleRect(! this.props.options.rect);
+    /* just tool */
+    togglePoly(polyState) {
+        this.toggleSelect(polyState);
+        this.actions.togglePoly(polyState);
     }
 
-    togglePoly() {
-        this.toggleSelect(this.props.options.poly);
-        this.actions.togglePoly(! this.props.options.poly);
+    /* related tool */
+    toggleRect(rectState) {
+        if(this.props.options.round) {
+            this.toggleSelect(false);
+            this.actions.toggleRound(false);
+        }
+
+        this.toggleSelect(rectState);
+        this.actions.toggleRect(rectState);
     }
 
-    toggleRound() {
-        this.toggleSelect(this.props.options.round);
-        this.actions.toggleRound(! this.props.options.round);
+    /* related tool */
+    toggleRound(roundState) {
+        if(this.props.options.rect) {
+            this.toggleRect(false);
+        }
+
+        this.toggleSelect(roundState);
+        this.actions.toggleRound(roundState);
     }
 
 
@@ -64,10 +76,10 @@ export default class MapToolBox extends Component {
                 <ButtonGroup className = 'innerToolBox'>
                     <ToolboxButton onClick = {this.toggleFlat} active = {! opts.flat} icon = 'globe' help = {'Switch to ' + (opts.flat ? '3D' : '2D')} />
                     { opts.flat ? ( [
-                        <ToolboxButton key = {1} onClick = {this.toggleRect} active = {opts.rect} icon = 'unchecked' help = 'Select rectangular area' />,
-                        <ToolboxButton key = {2} onClick = {this.toggleRound} active = {opts.round} icon = 'record' help = 'Select circular area' />
+                        <ToolboxButton key = {1} onClick = {this.toggleRect.bind(null, ! opts.rect)} active = {opts.rect} icon = 'unchecked' help = 'Select rectangular area' />,
+                        <ToolboxButton key = {2} onClick = {this.toggleRound.bind(null, ! opts.round)} active = {opts.round} icon = 'record' help = 'Select circular area' />
                     ]) : ([
-                        <ToolboxButton key = {1} onClick = {this.togglePoly} active = {opts.poly} icon = 'screenshot' help = 'Select polygonal area' />
+                        <ToolboxButton key = {1} onClick = {this.togglePoly.bind(null, ! opts.poly)} active = {opts.poly} icon = 'screenshot' help = 'Select polygonal area' />
                     ]) }
                     <ToolboxButton onClick = {this.toggleGrid} active = {opts.grid} icon = 'th' help = 'Toggle grid' />
                     <ToolboxButton onClick = {this.toggleFull} icon = {opts.full ? 'resize-small' : 'resize-full'} help = {opts.full ? 'Minimize' : 'Fullscreen'} />
