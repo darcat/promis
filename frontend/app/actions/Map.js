@@ -74,5 +74,14 @@ export default {
                 payload: newRoundState
             })
         }
+    },
+
+    toggleFlush : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.FlushTools,
+                payload: true
+            })
+        }
     }
 };

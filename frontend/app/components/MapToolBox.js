@@ -17,6 +17,7 @@ export default class MapToolBox extends Component {
         this.toggleRect = this.toggleRect.bind(this);
         this.togglePoly = this.togglePoly.bind(this);
         this.toggleRound = this.toggleRound.bind(this);
+        this.toggleClean = this.toggleClean.bind(this);
         this.toggleSelect = this.toggleSelect.bind(this);
     }
 
@@ -38,6 +39,10 @@ export default class MapToolBox extends Component {
 
     toggleGrid() {
         this.actions.toggleGrid(! this.props.options.grid);
+    }
+
+    toggleClean() {
+        this.select.clearSelection();
     }
 
     /* just tool */
@@ -67,6 +72,7 @@ export default class MapToolBox extends Component {
         this.actions.toggleRound(roundState);
     }
 
+    // <ToolboxButton key = {1} icon = 'erase' help = 'Erase last selection' />,
 
     render() {
         var opts = this.props.options;
@@ -84,8 +90,7 @@ export default class MapToolBox extends Component {
                     <ToolboxButton onClick = {this.toggleGrid} active = {opts.grid} icon = 'th' help = 'Toggle grid' />
                     <ToolboxButton onClick = {this.toggleFull} icon = {opts.full ? 'resize-small' : 'resize-full'} help = {opts.full ? 'Minimize' : 'Fullscreen'} />
                     { this.props.hasSelection ? ([
-                        <ToolboxButton key = {1} icon = 'erase' help = 'Erase last selection' />,
-                        <ToolboxButton key = {2} icon = 'ban-circle' help = 'Clear all selection' />
+                        <ToolboxButton onClick = {this.toggleClean} key = {2} icon = 'ban-circle' style = 'danger' help = 'Clear all selection' />
                     ]) : ([]) }
                 </ButtonGroup>
             </div>

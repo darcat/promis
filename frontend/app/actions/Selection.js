@@ -28,21 +28,25 @@ export default {
         }
     },
 
-    removeFromSelection : function(goodbyeIndex) {
+    removeFromSelection : function(goodbyeIndex, rootIndex) {
         return function(dispatch) {
             dispatch({
                 type: Enum.SelectionDeleteElement,
-                payload: goodbyeIndex
+                payload: {
+                    root: rootIndex,
+                    index: goodbyeIndex
+                }
             })
         }
     },
 
-    editSelection : function(index, newValue) {
+    editSelection : function(elementIndex, newValue, rootIndex) {
         return function(dispatch) {
             dispatch({
                 type: Enum.SelectionEditElement,
                 payload: {
-                    index: index,
+                    root: rootIndex,
+                    index: elementIndex,
                     value: newValue
                 }
             })
@@ -52,7 +56,7 @@ export default {
     clearSelection : function() {
         return function(dispatch) {
             dispatch({
-                type: Enum.selectionPurge,
+                type: Enum.SelectionPurge,
                 payload: true
             })
         }

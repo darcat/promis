@@ -19,11 +19,7 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        /* local state and two callbacks are faster than redux loop */
-        this.state = {
-            selectionPreview: [0.0, 0.0] /* next selection point */
-        }
-
+        /* local callback is faster than whole redux state loop */
         this.updatePreview = this.updatePreview.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
     }
@@ -38,12 +34,8 @@ class App extends Component {
         window.removeEventListener('resize', this.updateDimensions.bind(this));
     }
 
-    updatePreview(newPreview) {
-        this.setState(function(){
-            return {
-                selectionPreview: newPreview
-            }
-        });
+    updatePreview(data) {
+        return data;
     }
 
     updateDimensions() {
@@ -53,6 +45,7 @@ class App extends Component {
             height: window.innerHeight
         }
 
+        //if(this.props.mapOptions.full)
         this.props.mapActions.toggleDims(dims);
     }
 
@@ -75,7 +68,7 @@ class App extends Component {
                     </Well>
                     <Row>
                         <TimeAndPositionPanel
-                            preview = {this.state.selectionPreview}
+                            preview = {this.updatePreview}
                             options = {this.props.inputOptions}
                             selection = {this.props.selection}
                             selectionActions = {this.props.selActions}

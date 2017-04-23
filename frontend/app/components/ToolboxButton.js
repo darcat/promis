@@ -11,7 +11,13 @@ export default class ToolboxButton extends Component {
 
         return (
             <OverlayTrigger placement = {this.props.placement} overlay = {this.tooltip}>
-                <Button onClick = {this.props.onClick} active = {this.props.active} disabled = {this.props.disabled} bsStyle = 'default' bsSize = 'small'>
+                <Button
+                    onClick = {this.props.onClick}
+                    active = {this.props.active}
+                    disabled = {this.props.disabled}
+                    bsStyle = {this.props.style}
+                    bsSize = 'small'
+                >
                     <Glyphicon glyph = {this.props.icon} />
                 </Button>
             </OverlayTrigger>
@@ -22,6 +28,7 @@ export default class ToolboxButton extends Component {
 ToolboxButton.defaultProps = {
     help : 'Tooltip text',
     icon : 'star',
+    style: 'default',
     placement: 'bottom',
     onClick : function() { ; }
 }

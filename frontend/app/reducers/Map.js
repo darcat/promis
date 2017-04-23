@@ -34,6 +34,14 @@ export default function MapReducer(state = State, action) {
             return Object.assign({}, state, { round: action.payload });
         break;
 
+        case Enum.FlushTools:
+            return Object.assign({}, state, {
+                round: false,
+                rect: false,
+                poly: false,
+            });
+        break;
+
         default:
             return state;
         break;

@@ -47,6 +47,7 @@ export default class UniversalMap extends Component {
         var selection = this.props.selection;
         var mapStyles = this.determineStyle(options);
 
+        console.log('uni: ',preview());
         return (
             <Panel disableDrag = {options.full} title = 'Map' className = 'mapPanel'>
                 <div style = {mapStyles}>

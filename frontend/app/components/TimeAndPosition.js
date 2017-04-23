@@ -126,38 +126,49 @@ class MapSelection extends Component {
 
 
     render() {
-        var all = this.props.selection;
+        var selection = this.props.selection;
         var actions = this.props.actions;
 
-        if (Array.isArray(all.elements) &&
-            all.elements.length > 0 &&
-            Array.isArray(all.elements[0]) &&
-            all.elements[0].length > 0)
-        {
+        if (Array.isArray(selection.elements) &&
+            selection.elements.length > 0 &&
+            Array.isArray(selection.elements[0]) &&
+            selection.elements[0].length > 0) {
             return (
                 <div>
-            {all.elements.map(function(collection, index) {
+            { selection.elements.map(function(collection, rootIndex) {
                 return (
-                    <Row key = {index}>
-                        <Col sm={3}>#{index + 1}</Col>
+                    <Row key = {rootIndex}>
+                        <Col sm={3}>#{rootIndex + 1}</Col>
                         <Col sm={9}>
                             <ul className = 'mapSelectionItems'>
-                                { collection.map(function(item, index) {
-                                    function saveValue(obj) {
-                                        actions.editSelection(index, obj.value);
+                                { collection.map(function(item, itemIndex) {
+                                    function saveValue(lat, lng) {
+                                        actions.editSelection(itemIndex, [parseFloat(lat), parseFloat(lng)], rootIndex);
                                     }
 
                                     function deleteValue() {
-                                        actions.removeFromSelection(index);
+                                        actions.removeFromSelection(itemIndex, rootIndex);
                                     }
 
-                                    return (
-                                        <li key = {index}>
+                                    if(Array.isArray(item)) {
+                                        var lat = String(item[0]);
+                                        var lng = String(item[1]);
+
+                                        function saveLat(obj) {
+                                            saveValue(obj.value, lng);
+                                        }
+
+                                        function saveLng(obj) {
+                                            saveValue(lat, obj.value);
+                                        }
+
+                                        return (
+                                        <li key = {itemIndex}>
                                             <Col sm={4}>
-                                                <InlineEdit change = {saveValue} text = {String(item)} paramName = 'value' />
+                                                <InlineEdit change = {saveLat} text = {lat} paramName = 'value' />
                                             </Col>
                                             <Col sm={4}>
-                                                <InlineEdit change = {saveValue} text = {String(item)} paramName = 'value' />
+                                                <InlineEdit change = {saveLng} text = {lng} paramName = 'value' />
                                             </Col>
                                             <Col sm={4}>
                                                 <Button bsSize = 'small' bsStyle = 'danger' onClick = {deleteValue}>
@@ -165,14 +176,14 @@ class MapSelection extends Component {
                                                 </Button>
                                             </Col>
                                         </li>
-                                    );
+                                    ) }
                                 }) }
                             </ul>
                         </Col>
                     </Row>
                 );
             }) }
-            </div>);
+        </div>);
         } else return (
             <p>Selection is empty</p>
         );
@@ -180,8 +191,10 @@ class MapSelection extends Component {
 }
 
 function NextPoint(props) {
-    var lat = props.coords[0].toFixed(3);
-    var lng = props.coords[1].toFixed(3);
+    var data = props.data();
+
+    var lat = data ? props.coords[0] : 0;
+    var lng = data ? props.coords[1] : 0;
 
     return (
         <div>Next point: {lat}, {lng}</div>
@@ -248,7 +261,7 @@ export default class TimeAndPositionInput extends Component {
                         </Col>
                         <Col sm = {10}>
                             { this.props.selection.active &&
-                            <NextPoint coords = {this.props.preview} /> }
+                            <NextPoint data = {this.props.preview} /> }
                             <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }

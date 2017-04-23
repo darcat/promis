@@ -7,6 +7,7 @@ export const Enum = {
     RectChanged : 'MapRectToggled',
     PolyChanged : 'MapPolyChanged',
     RoundChanged : 'MapRoundChanged',
+    FlushTools : 'MapFlushTools',
 	SelectionUpdated: 'MapSelectionUpdated'
 };
 
