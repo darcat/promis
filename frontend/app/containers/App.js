@@ -13,6 +13,7 @@ import selActionsCreators from '../actions/Selection';
 import MapPanel from '../components/UniversalMap';
 import TimeAndPositionPanel from '../components/TimeAndPosition';
 
+import Quicklook from '../components/Quicklook';
 
 class App extends Component {
     constructor(props) {
@@ -56,7 +57,7 @@ class App extends Component {
                 <div style = {style}>
                     <Well bsSize="large">
                         <h3>Ionosat PROMIS</h3>
-                        <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
+                        <p>We are glad to welcome you on this page. Please use the filters below to refine your search!</p>
                     </Well>
                     <Row>
                         <TimeAndPositionPanel 
@@ -75,7 +76,7 @@ class App extends Component {
                             actions = {this.props.mapActions}
                         />
                         }
-                        <Panel>Panel four</Panel>
+                        <Panel><Quicklook data={[0,1,3,-5,3,5,6,7,8,8,3,1,1,4,5,6,3,2,4,16,-12,6,3,2,1]}/></Panel>
                     </Row>
                 </div>
             </div>
