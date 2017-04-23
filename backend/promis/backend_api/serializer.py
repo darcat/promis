@@ -56,16 +56,22 @@ class SessionsSerializer(serializers.ModelSerializer):
         
 # TODO: merge with the class above
 class CompactSessionsSerializer(serializers.ModelSerializer):
-    geo_line = serializers.SerializerMethodField()
     time = serializers.SerializerMethodField()
+    
     def get_geo_line(self, obj):
         return util.parsers.wkb(obj.geo_line.wkb)
     def get_time(self, obj):
         return { 'begin': obj.time_begin.isoformat(),
                  'end': obj.time_end.isoformat() }
+    
+    def __init__(self, *args, need_geo_line=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        if need_geo_line:
+            self.fields.update({ "geo_line": serializers.SerializerMethodField() })
+    
     class Meta:
         model = models.Session
-        fields = ('geo_line', 'time')
+        fields = ('time',)
 
 class SpaceProjectsSerializer(TranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
@@ -165,7 +171,7 @@ class AbstractMeasurementSerializer(serializers.ModelSerializer):
         return self.prepare_data(obj, getattr(obj, src + '_doc'), getattr(obj, src))
         
     def get_session(self, obj):
-        return CompactSessionsSerializer(obj.session).data
+        return CompactSessionsSerializer(obj.session, need_geo_line = self.context.get('need_geo_line', True)).data
     
 class QuickLookSerializer(AbstractMeasurementSerializer):
     '''Calls the quicklook on the JSON data and returns the result'''

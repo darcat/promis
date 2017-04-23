@@ -196,7 +196,8 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
         ser = serializer.QuickLookSerializer(obj, context = { 'func': quicklook_fun, 
                                                               'kwargs': { 'npoints': npoints },
                                                               'serializer': src_serializer,
-                                                              'source': src_name } )
+                                                              'source': src_name,
+                                                              'need_geo_line': False } )
         return Response(ser.data)
         
     @detail_route(permission_classes = [AllowAny,])
