@@ -11,6 +11,7 @@ export default function SelectionReducer(state = State, action) {
 
             return Object.assign({}, state,
                 {
+                    active: true,
                     elements: ref
                 });
         break;
@@ -21,6 +22,7 @@ export default function SelectionReducer(state = State, action) {
 
             return Object.assign({}, state, 
                 {
+                    active: false,
                     current: currentIndex
                 });
         break;

@@ -73,10 +73,11 @@ class App extends Component {
                         <MapPanel
                             selection = {this.props.selection}
                             options = {this.props.mapOptions}
-                            actions = {this.props.mapActions}
+                            mapActions = {this.props.mapActions}
+                            selectionActions = {this.props.selActions}
                         />
                         }
-                        <Panel><Quicklook data={[0,1,3,-5,3,5,6,7,8,8,3,1,1,4,5,6,3,2,4,16,-12,6,3,2,1]}/></Panel>
+                        <Panel>some panel</Panel>
                     </Row>
                 </div>
             </div>

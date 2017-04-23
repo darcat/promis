@@ -129,7 +129,11 @@ class MapSelection extends Component {
         var all = this.props.selection;
         var actions = this.props.actions;
 
-        if (Array.isArray(all.elements) && all.elements.length > 0) {
+        if (Array.isArray(all.elements) &&
+            all.elements.length > 0 &&
+            Array.isArray(all.elements[0]) &&
+            all.elements[0].length > 0)
+        {
             return (
                 <div>
             {all.elements.map(function(collection, index) {

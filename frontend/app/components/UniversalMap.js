@@ -40,7 +40,8 @@ export default class UniversalMap extends Component {
     }
 
     render() {
-        var actions = this.props.actions;
+        var map = this.props.mapActions;
+        var sel = this.props.selectionActions;
         var options = this.props.options;
         var selection = this.props.selection;
         var mapStyles = this.determineStyle(options);
@@ -49,12 +50,12 @@ export default class UniversalMap extends Component {
             <Panel disableDrag = {options.full} title = 'Map' className = 'mapPanel'>
                 <div style = {mapStyles}>
                     <div className = 'mapContainer'>
-                        <MapZoomBox onChange = {actions.toggleZoom} defaultZoom = {options.defaultZoom} />
-                        <MapToolbox onChange = {actions} options = {options} hasSelection = {selection.current > 0} />
+                        <MapZoomBox onChange = {map.changeZoom} defaultZoom = {options.defaultZoom} />
+                        <MapToolbox onSelect = {sel} onChange = {map} options = {options} hasSelection = {selection.current > 0} />
                         { options.flat ? (
-                        <LeafletContainer onChange = {actions.updateMap} options = {options} selection = {selection} />
+                        <LeafletContainer onChange = {map} onSelect = {sel} options = {options} selection = {selection} />
                         ) : (
-                        <CesiumContainer onChange = {actions.updateMap} options = {options} selection = {selection} />
+                        <CesiumContainer onChange = {map} onSelect = {sel} options = {options} selection = {selection} />
                         ) }
                     </div>
                 </div>
