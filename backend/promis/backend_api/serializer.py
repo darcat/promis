@@ -120,47 +120,21 @@ class DocumentsSerializer(serializers.ModelSerializer):
         model = models.Document
 
 class QuickLookSerializer(serializers.ModelSerializer):
-    json_data = serializers.SerializerMethodField()
+    data = serializers.SerializerMethodField()
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add fields indicated by context
+        self.fields.update({self.context['source']: self.context['serializer']()})
 
     class Meta:
-        model = models.Document
-        fields = ('json_data',)
+        model = models.Measurement
+        fields = ('data',)
 
-    def get_json_data(self, obj):
+    def get_data(self, obj):
         # Only calling the quicklook callback passed in the context
         # TODO: standardise the npoints param in the docs
-        return self.context['quicklook_fun'](obj.json_data, npoints = self.context['npoints'])
-
-class ChannelQuicklookSerializer(serializers.ModelSerializer):
-    channel = ChannelsSerializer()
-    chn_doc = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ('channel', 'chn_doc')
-        model = models.Measurement
-
-    def get_chn_doc(self, obj):
-        context = self.context
-        context['channel'] = obj.channel
-        ser = QuickLookSerializer(obj.chn_doc, context = context)
-
-        return(ser.data)
-
-class ParameterQuicklookSerializer(serializers.ModelSerializer):
-    parameter = ParametersSerializer()
-    par_doc = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ('parameter', 'par_doc')
-        model = models.Measurement
-
-    def get_par_doc(self, obj):
-        context = self.context
-        context['parameter'] = obj.parameter
-        ser = QuickLookSerializer(obj.par_doc, context = context)
-
-        return(ser.data)
-
+        return self.context['quicklook_fun'](self.context['document'].json_data, npoints = self.context['npoints'])
 
 class ChannelDataSerializer(serializers.ModelSerializer):
     channel = ChannelsSerializer()

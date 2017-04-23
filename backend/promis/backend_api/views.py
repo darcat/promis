@@ -153,64 +153,62 @@ class ParameterssView(viewsets.ReadOnlyModelViewSet):
 '''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    # TODO STUB REFATOR this and merge with the code below
-    @detail_route(permission_classes = [AllowAny,])
-    def channel(self, request, id):
-        if id:
-            obj = self.queryset.get(pk = id)
-            context = {}
-            context['request'] = self.request
-            # TODO: do we *actually* need channel quick-looks at all?
-            ser = serializer.ChannelQuicklookSerializer(obj, context = context)
-            return Response(ser.data)
-        else:
-            return Response([])
-    
-    @detail_route(permission_classes = [AllowAny,])
-    def parameter(self, request, id):
+    def _quicklook(self, obj, src_name, src_serializer, src_doc):
+        '''Generalized quicklook function'''
         # TODO: JSON/HTML-ify the responses here?
         # TODO: 422 instead of 404 for incorrect params?
         # TODO: most of the raises here are redundant and should be done
-        # in validators. That includes "if id" chech too.
+        # in validators. 
+        
+        # Determining the quicklook function
+        quicklook_fun = getattr(obj, src_name).quicklook
+        
+        if not quicklook_fun:
+            raise MethodNotAllowed('< no quicklook defined >')
+        
+        # TODO: many stubs here depend on the knowledge of the JSON structure
+        # which varies type to type. Making 100500 functions is unfeasible, so
+        # we might want to wrap this into classes with known interface and
+        # use JSON as pickle/unpickle medium or something. Postponed to post-alpha
+        # see and use #63 for more details.
 
-        if id:
-            # Checking the quicklook function
-            obj = self.queryset.get(pk = id)
-            if not obj.parameter.quicklook:
-                raise MethodNotAllowed('< no quicklook defined >')
-            quicklook_fun = obj.parameter.quicklook
+        # Determining the quality of a quicklook
+        try:
+            npoints = int(self.request.query_params['points'])
+        except KeyError:
+            # TODO: configurable default or per-type setting here
+            npoints = 200
+        except ValueError:
+            raise NotFound("Amount of points is not a number")
 
-            # TODO: many stubs here depend on the knowledge of the JSON structure
-            # which varies type to type. Making 100500 functions is unfeasible, so
-            # we might want to wrap this into classes with known interface and
-            # use JSON as pickle/unpickle medium or something. Postponed to post-alpha
-            # see and use #63 for more details.
+        # Various checks on the number received
+        if npoints <= 0:
+            raise NotFound("Non-positive amount of points requested")
 
-            # Determining the quality of a quicklook
-            try:
-                npoints = int(self.request.query_params['points'])
-            except KeyError:
-                # TODO: configurable default or per-type setting here
-                npoints = 200
-            except ValueError:
-                raise NotFound("Amount of points is not a number")
+        # TODO: STUB: determine upper cap, that depends on the type in question
+        # if npoints > max_points_for_this_json:
+        #   raise NotFound("Too much points requested")
 
-            # Various checks on the number received
-            if npoints <= 0:
-                raise NotFound("Non-positive amount of points requested")
+        # TODO: STUB: determine if user is not authenticated, lower the cap for them
+        # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
+        #   raise NotAuthenticated
 
-            # TODO: STUB: determine upper cap, that depends on the type in question
-            # if npoints > max_points_for_this_json:
-            #   raise NotFound("Too much points requested")
-
-            # TODO: STUB: determine if user is not authenticated, lower the cap for them
-            # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
-            #   raise NotAuthenticated
-
-            ser = serializer.ParameterQuicklookSerializer(obj, context = { 'quicklook_fun': quicklook_fun, 'npoints': npoints })
-            return Response(ser.data)
-        else:
-            raise NotFound("Please specify the measurement id.")
+        ser = serializer.QuickLookSerializer(obj, context = { 'quicklook_fun': quicklook_fun, 
+                                                              'npoints': npoints,
+                                                              'serializer': src_serializer,
+                                                              'document': src_doc,
+                                                              'source': src_name })
+        return Response(ser.data)
+        
+    @detail_route(permission_classes = [AllowAny,])
+    def channel(self, request, id):
+        obj = self.queryset.get(pk = id)
+        return self._quicklook(obj, "channel", serializer.ChannelsSerializer, obj.chn_doc)
+    
+    @detail_route(permission_classes = [AllowAny,])
+    def parameter(self, request, id):
+        obj = self.queryset.get(pk = id)
+        return self._quicklook(obj, "parameter", serializer.ParametersSerializer, obj.par_doc)
 
     queryset = models.Measurement.objects.all()
     permission_classes = (AllowAny,)
