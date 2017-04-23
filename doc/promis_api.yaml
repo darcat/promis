@@ -433,6 +433,11 @@ paths:
           type: string
           required: false
           description: Format name to download data in.
+          default: json
+          enum:
+            - json
+            - ascii
+            - netcdf
       responses:
         200:
           description: Raw data
