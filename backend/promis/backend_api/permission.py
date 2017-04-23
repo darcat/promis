@@ -24,6 +24,7 @@ class PromisPermission(BasePermission):
 
     def has_permission(self, request, view):
         if isinstance(view, views.ChannelsView):
+            print(helpers.UserInGroup(request.user, "level1"))
             return helpers.UserInGroup(request.user, "level1")
         
         return True
