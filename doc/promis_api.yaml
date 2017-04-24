@@ -428,16 +428,17 @@ paths:
           in: path
           type: string
           required: true
-        - name: fmt
-          in: query
-          type: string
-          required: false
-          description: Format name to download data in.
-          default: json
-          enum:
-            - json
-            - ascii
-            - netcdf
+        # TODO: - required not working - put it on the deeper links
+        # - name: fmt
+        #   in: query
+        #   type: string
+        #   required: false
+        #   description: Format name to download data in.
+        #   default: json
+        #   enum:
+        #     - json
+        #     - ascii
+        #     - netcdf
       responses:
         200:
           description: Raw data
