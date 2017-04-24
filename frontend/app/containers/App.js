@@ -80,7 +80,7 @@ class App extends Component {
                             genericActions = {this.props.genActions}
                         />
                         <Panel title = 'Search'>
-                            <SearchForm />
+                            <SearchForm status = {this.props.search} actions = {this.props.rstActions} />
                         </Panel>
                     </Row>
                     <Row>
@@ -94,7 +94,7 @@ class App extends Component {
                         />
                         }
                         <Panel title = 'Search results'>
-                            <SearchResults results = {[1,2,3]} />
+                            <SearchResults results = {this.props.search.results} />
                         </Panel>
                     </Row>
                 </div>

@@ -3,7 +3,6 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import { render } from 'react-dom';
 import thunk from 'redux-thunk'
-
 import Ready from 'document-ready';
 
 import App from './containers/App';

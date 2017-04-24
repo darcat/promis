@@ -216,12 +216,12 @@ export default class TimeAndPositionInput extends Component {
         this.actions.mapToggled(! this.props.options.mapEnabled);
     }
 
-    dateFromChange() {
-        this.actions.dateFromInput('new date from');
+    dateFromChange(newFrom) {
+        this.actions.dateFromInput(newFrom);
     }
 
-    dateToChange() {
-        this.actions.dateToInput('new date to');
+    dateToChange(newTo) {
+        this.actions.dateToInput(newTo);
     }
 
     render() {
