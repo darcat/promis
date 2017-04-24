@@ -104,10 +104,10 @@ export default class SearchResults extends Component {
                     </thead>
                     <tbody>
                         { results.map(function(result, index) {
-                            var date = '2015/23/10'; // result.date
-                            var data = null; // result.data
-                            var name = 'MWC X'; // result.name
-                            var size = '50 KB'; // result.size
+                            var date = result.date;
+                            var mid = result.mid;
+                            var name = result.name;
+                            var size = '~ KB'; // result.size
 
                             return (
                                 <tr key = {index} data-name = 'mw1'>

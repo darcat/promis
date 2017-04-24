@@ -15,11 +15,12 @@ export default function RESTReducer(state = State, action) {
         break;
 
         case Enum.SetField:
-            var updated = state.data;
+            var updated = state.results;
 
-            updated[action.payload.name] = action.payload.value;
+            updated.push(action.payload);
+            //updated[action.payload.name] = action.payload.value;
 
-            return Object.assign({}, state, { data: updated });
+            return Object.assign({}, state, { results: updated });
         break;
     }
 

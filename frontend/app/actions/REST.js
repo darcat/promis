@@ -32,14 +32,11 @@ export default {
         }
     },
 
-    setField : function(name, value) {
+    setField : function(value) {
         return function(dispatch) {
             dispatch({
                 type: Enum.SetField,
-                payload: {
-                    name: name,
-                    value: value
-                }
+                payload: value
             })
         }
     }
