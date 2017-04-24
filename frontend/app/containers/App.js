@@ -15,7 +15,7 @@ import selActionsCreators from '../actions/Selection';
 import MapPanel from '../components/UniversalMap';
 import TimeAndPositionPanel from '../components/TimeAndPosition';
 
-import Quicklook from '../components/Quicklook';
+import SearchResults from '../components/SearchResults.js'
 
 class App extends Component {
     constructor(props) {
@@ -78,7 +78,7 @@ class App extends Component {
                             selectionActions = {this.props.selActions}
                             genericActions = {this.props.genActions}
                         />
-                        <Panel>Panel two</Panel>
+                        <Panel>Search?</Panel>
                     </Row>
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
@@ -90,7 +90,9 @@ class App extends Component {
                             selectionActions = {this.props.selActions}
                         />
                         }
-                        <Panel>some panel</Panel>
+                        <Panel>
+                            <SearchResults results = {[1,2,3]} />
+                        </Panel>
                     </Row>
                 </div>
             </div>

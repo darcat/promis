@@ -21,9 +21,11 @@ export default class Quicklook extends Component {
         this.data = this.formatData(this.props.data);
     }
 
-    componentDidMount() {
+    componentDidUpdate() {
         /* get rendered SVG graph element */
-        this.svg = findDOMNode(this.el).querySelector('svg');
+        if(this.el) {
+            this.svg = findDOMNode(this.el).querySelector('svg');
+        }
     }
 
     makeWatermark(canvas, context) {
@@ -83,7 +85,7 @@ export default class Quicklook extends Component {
 
             /* set image data and trigger callback when done */
             image.src = imageData;
-        }
+        } else window.alert('Quicklook is not completely loaded yet!');
     }
 
     formatData(data) {
@@ -109,7 +111,7 @@ export default class Quicklook extends Component {
 
     render() {
         return (
-            <Modal show = {this.props.show} title = 'Quicklook'>
+            <Modal show = {this.props.show} title = 'Quicklook' onClose = {this.props.onClose}>
                 <LineChart
                     ref = { function(node) { this.el = node; }.bind(this) }
                     legend = {false}
@@ -142,6 +144,7 @@ Quicklook.defaultProps = {
     show: true,
     width: '100%',
     height: '100%',
+    onClose: function() {;},
     graphWidth: 640,
     graphHeight: 480,
     watermarkText: 'https://promis.ikd.kiev.ua',
