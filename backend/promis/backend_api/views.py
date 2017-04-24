@@ -12,7 +12,7 @@ from rest_framework.decorators import detail_route, api_view
 
 from backend_api import models
 from backend_api import serializer, helpers
-from backend_api.permission import PromisPermission, SelfProfilePermission
+from backend_api.permission import PromisPermission, SelfProfilePermission, Level1Permission
 
 import django_filters
 
@@ -223,26 +223,30 @@ class DownloadView(viewsets.ReadOnlyModelViewSet):
 
 class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission,)
+    permission_classes = (PromisPermission, IsAuthenticated)
     serializer_class = serializer.MeasurementsSerializer
 
-    @detail_route(permission_classes = [PromisPermission,])
+    @detail_route(permission_classes = [PromisPermission, PromisPermission,])
+    def parameter(self, request, pk):
+        if pk:
+            obj = self.queryset.get(pk = pk)
+            self.check_object_permissions(request, obj)
+            ser = serializer.ParameterDataSerializer(obj)
+            return Response(ser.data)
+        else:
+            return Response([])
+
+    @detail_route(permission_classes = [PromisPermission, IsAuthenticated, Level1Permission])
     def channel(self, request, pk):
         if pk:
             obj = self.queryset.get(pk = pk)
+            self.check_object_permissions(request, obj)
             ser = serializer.ChannelDataSerializer(obj)
             return Response(ser.data)
         else:
             return Response([])
 
-    @detail_route(permission_classes = [PromisPermission,])
-    def parameter(self, request, pk):
-        if pk:
-            obj = self.queryset.get(pk = pk)
-            ser = serializer.ParameterDataSerializer(obj)
-            return Response(ser.data)
-        else:
-            return Response([])
+
 
 class UserPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
