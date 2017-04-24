@@ -108,7 +108,7 @@ def telemetry(fp):
 
     # Call the machinery above
     for t, pt in scan_point():
-        yield (t, pt)
+        yield (t - 378702000, pt) #  TODO: magic number
 
 def sets(fp, keys=None):
     """
@@ -138,7 +138,7 @@ def sets(fp, keys=None):
         keys_found.add(key)
 
         # Yield the data
-        yield key, int(value)
+        yield key, int(value) if key != "t" else int(value) -378702000
 
         # Reduce the counter of keys to look for and break if necessary
         if keys_left > 0:
@@ -184,19 +184,16 @@ def wkb(_wkb):
     # TODO: test if we can speed up things if we serialized in JSON on the fly
     # Setting endianness causes struct to use standard type sizes instead of native ones
     endianness = [ ">", "<" ] [ _wkb[0] ]
-    
+
     # Check if we have a 2D Linestring
     if struct.unpack(endianness + "l", _wkb[1:5]) [0] != 2:
         raise ValueError("WKB parser can only do LineString for now")
-    
+
     # Determine the point count
     pts_count = struct.unpack(endianness + "l", _wkb[5:5+4]) [0]
-    
+
     # Get actual data
     for i in range(pts_count):
         # Each data point is 2 8-byte doubles, offset by header (9 bytes)
         offset = 1 + 4 + 4 + 8 * 2 * i
         yield struct.unpack(endianness + "dd", _wkb[offset:offset+16])
-
-    
-    
