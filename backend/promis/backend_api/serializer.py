@@ -252,7 +252,7 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         model = models.Measurement
 
     def get_data(self, obj):
-        id = obj.chn_doc.id
+        id = obj.channel_doc.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/download/' + str(id))
 
