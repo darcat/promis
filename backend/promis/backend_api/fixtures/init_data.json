@@ -155,7 +155,8 @@
     "fields": {
         "device": 1,
         "quicklook": null,
-        "parser_func": null
+        "parser_func": null,
+        "export": null
     }
 },
 {
@@ -164,7 +165,8 @@
     "fields": {
         "device": 1,
         "quicklook": null,
-        "parser_func": null
+        "parser_func": null,
+        "export": null
     }
 },
 {
@@ -268,7 +270,8 @@
         "conversion": null,
         "conversion_params": "",
         "channel": 1,
-        "quicklook": [ "functions.potential.ef_quick_look" ]
+        "quicklook": [ "functions.potential.ef_quick_look" ],
+        "export": [ "functions.potential.ef_export" ]
     }
 },
 {
@@ -279,7 +282,8 @@
         "conversion": null,
         "conversion_params": "",
         "channel": 2,
-        "quicklook": [ "functions.potential.ef_quick_look" ]
+        "quicklook": [ "functions.potential.ef_quick_look" ],
+        "export": [ "functions.potential.ef_export" ]
     }
 }
 ]
