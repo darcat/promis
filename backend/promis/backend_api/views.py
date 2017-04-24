@@ -228,21 +228,21 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
         except KeyError:
             fmt = 'json'
 
-        # if fmt == 'json':
-        ser = serializer.JSONDataSerializer(obj, context = { 'serializer': src_serializer, 'source': src_name } )
-        # else:
-        #     quicklook_fun = getattr(obj, src_name).quicklook
-        #
-        #     if not quicklook_fun:
-        #         raise MethodNotAllowed('< no quicklook defined >')
-        #
-        #     ser = serializer.QuickLookSerializer(obj, context = { 'func': quicklook_fun,
-        #                                                           'kwargs': { 'npoints': npoints },
-        #                                                           'serializer': src_serializer,
-        #                                                           'source': src_name,
-        #                                                           'need_geo_line': False } )
+        # TODO: refactor this mess!!
+        if fmt == 'json':
+            res = serializer.JSONDataSerializer(obj, context = { 'serializer': src_serializer, 'source': src_name } ).data
+        else:
+            export_fun = getattr(obj, src_name).export
 
-        return Response(ser.data)
+            if not export_fun:
+                raise MethodNotAllowed('< no export defined >')
+
+            res = serializer.ExportDataSerializer(obj, context = { 'func': export_fun,
+                                                                    'kwargs': { 'fmt': fmt },
+                                                                    'serializer': src_serializer,
+                                                                    'source': src_name } ).data['data']
+
+        return Response(res)
 
 # TODO: why is it pk here and id above???
     @detail_route(permission_classes = [AllowAny,])

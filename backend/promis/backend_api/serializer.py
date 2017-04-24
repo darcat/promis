@@ -53,22 +53,22 @@ class SessionsSerializer(serializers.ModelSerializer):
         model = models.Session
         fields = ('id', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
         geo_field = 'geo_line'
-        
+
 # TODO: merge with the class above
 class CompactSessionsSerializer(serializers.ModelSerializer):
     time = serializers.SerializerMethodField()
-    
+
     def get_geo_line(self, obj):
         return util.parsers.wkb(obj.geo_line.wkb)
     def get_time(self, obj):
         return { 'begin': obj.time_begin.isoformat(),
                  'end': obj.time_end.isoformat() }
-    
+
     def __init__(self, *args, need_geo_line=True, **kwargs):
         super().__init__(*args, **kwargs)
         if need_geo_line:
             self.fields.update({ "geo_line": serializers.SerializerMethodField() })
-    
+
     class Meta:
         model = models.Session
         fields = ('time',)
@@ -135,16 +135,16 @@ class ParametersSerializer(TranslatableModelSerializer):
 
 def _context_function_call(self, *args):
     '''
-    Takes the function stored as self.context['func'] and calls it passing 
+    Takes the function stored as self.context['func'] and calls it passing
     args as positional arguments and self.context['kwargs'] as keyword arguments
     '''
     return self.context['func'] (*args, **self.context['kwargs'])
 
 class AbstractMeasurementSerializer(serializers.ModelSerializer):
     '''
-    Abstract base class for measurement serializers that include either the 
+    Abstract base class for measurement serializers that include either the
     channel or the parameter definition and do some work on the document.
-    
+
     Required stuff in context dictionary:
     * 'source': the measurement field name where the data comes from.
       Document attribute name is constructed  as {source}_doc.
@@ -155,24 +155,24 @@ class AbstractMeasurementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Measurement
         fields = ('data', 'session')
-        
+
     def __init__(self, *args, **kwargs):
         '''Adds an extra source field on construction'''
         super().__init__(*args, **kwargs)
         self.fields.update({self.context['source']: self.context['serializer']()})
-    
+
     def get_data(self, obj):
         '''
         Serializes data to JSON. Define the following callback in your derived classes:
-        
+
         def prepare_data(self, obj, doc, source)
         '''
         src = self.context['source']
         return self.prepare_data(obj, getattr(obj, src + '_doc'), getattr(obj, src))
-        
+
     def get_session(self, obj):
         return CompactSessionsSerializer(obj.session, need_geo_line = self.context.get('need_geo_line', True)).data
-    
+
 class QuickLookSerializer(AbstractMeasurementSerializer):
     '''Calls the quicklook on the JSON data and returns the result'''
     def prepare_data(self, obj, doc, source):
@@ -183,14 +183,11 @@ class JSONDataSerializer(AbstractMeasurementSerializer):
     def prepare_data(self, obj, doc, source):
         return doc.json_data
 
-#class ExportDataSerializer(serializers.ModelSerializer):
-    #'''Uses the channel/parameter export function to serialize the document'''
- #   parameter = ParametersSerializer()
-  #  par_doc = DocumentsSerializer()
-
-   # class Meta:
-     #   fields = ('parameter', 'par_doc')
-    #    model = models.Measurement
+# TODO: this pulls unnecessary fields in
+class ExportDataSerializer(AbstractMeasurementSerializer):
+    '''Uses the channel/parameter export function to serialize the document'''
+    def prepare_data(self, obj, doc, source):
+        return _context_function_call(self, doc.json_data, obj.session)
 
 #TODO: class below need some refactoring.....
 class DownloadViewSerializer(serializers.ModelSerializer):
@@ -253,9 +250,9 @@ class MeasurementsSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
-        
+
         user = self.context['request'].user
-        
+
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
             self.fields.pop('channel')
 
@@ -265,7 +262,7 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
           write_only=True,
     )
-    
+
     date_joined = serializers.DateTimeField(read_only = True)
     last_login = serializers.DateTimeField(read_only = True)
 
