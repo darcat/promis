@@ -204,11 +204,11 @@ class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField()
     par_quicklook = serializers.SerializerMethodField()
 
-    chn_doc = serializers.SerializerMethodField()
-    par_doc = serializers.SerializerMethodField()
+    channel_docn_doc = serializers.SerializerMethodField()
+    parameter_doc = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('chn_quicklook', 'par_quicklook', 'chn_doc', 'par_doc')
+        fields = ('chn_quicklook', 'par_quicklook', 'channel_doc', 'parameter_doc')
         model = models.Measurement
 
     def get_chn_quicklook(self, obj):
@@ -221,12 +221,12 @@ class DownloadViewSerializer(serializers.ModelSerializer):
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/parameter')
 
-    def get_chn_doc(self, obj):
+    def get_channel_doc(self, obj):
         id = obj.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/channel')
 
-    def get_par_doc(self, obj):
+    def get_parameter_doc(self, obj):
         id = obj.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/parameter')
