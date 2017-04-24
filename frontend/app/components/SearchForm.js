@@ -11,7 +11,8 @@ export default class SearchForm extends Component {
             desc: '',
             project: 0,
             projects: [],
-            sessions: []
+            sessions: [],
+            parameters : []
         }
 
         this.doSearch = this.doSearch.bind(this);
@@ -67,7 +68,6 @@ export default class SearchForm extends Component {
         params.time_end = to;
 
         if(Array.isArray(selection.elements)) {
-            console.log('sele');
             var geo = {
                 'type': 'Feature',
                 'geometry' : {
@@ -76,10 +76,10 @@ export default class SearchForm extends Component {
                 }
             }
 
-            console.log(JSON.stringify(geo));
-            params.polygon = stringify(geo);
+            //console.log(JSON.stringify(geo));
+            //params.polygon = stringify(geo);
 
-            console.log(params.polygon);
+            //console.log(params.polygon);
         }
         
         //params.polygon = ''//Array.isArray(geodata) ? wkt.fromObject(geodata.map(function(item) { return { x: item[0], y: item[1] } })) : undefined;
@@ -90,6 +90,7 @@ export default class SearchForm extends Component {
                     sessions: sessions
                 }
             })
+            this.props.actions.setField([date: 'date', mid: 1, name: 'sdfsdf'])
         });
     }
 
