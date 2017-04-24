@@ -50,9 +50,9 @@ class DataSection extends Component {
                     </Button>
                 </Tooltip>
                 <Quicklook
-                    ///*data = {null}*/
-                    xlabel = {'some x label'}
-                    ylabel = {'some y label'}
+                    data = {this.props.data}
+                    xlabel = {this.props.xlabel}
+                    ylabel = {this.props.ylabel}
                     onClose = {this.closeQuicklook}
                     show = {this.state.quicklookStatus}
                 />
@@ -84,13 +84,22 @@ export default class SearchResults extends Component {
                     </thead>
                     <tbody>
                         { results.map(function(result, index) {
+                            var date = '2015/23/10'; // result.date
+                            var data = null; // result.data
+                            var name = 'MWC X'; // result.name
+                            var size = '50 KB'; // result.size
+
                             return (
                                 <tr key = {index} data-name = 'mw1'>
-                                    <td>2015/23/10</td>
-                                    <td>MWC X</td>
-                                    <td>50 KB</td>
+                                    <td>{date}</td>
+                                    <td>{name}</td>
+                                    <td>{size}</td>
                                     <td>
-                                        <DataSection data = {result} />
+                                        <DataSection
+                                            data = {data}
+                                            xlabel = {'x data label'}
+                                            ylabel = {'y data label'}
+                                        />
                                     </td>
                                 </tr>
                             )
