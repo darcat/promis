@@ -33,6 +33,7 @@ export default {
     },
 
     setField : function(value) {
+        //console.log('setting')
         return function(dispatch) {
             dispatch({
                 type: Enum.SetField,

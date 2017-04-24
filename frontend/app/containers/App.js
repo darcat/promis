@@ -27,6 +27,7 @@ class App extends Component {
         this.updateDimensions = this.updateDimensions.bind(this);
 
         this.props.usrActions.profile();
+        this.onResult = this.onResult.bind(this);
     }
 
     componentDidMount() {
@@ -52,6 +53,10 @@ class App extends Component {
 
         //if(this.props.mapOptions.full)
         this.props.mapActions.toggleDims(dims);
+    }
+
+    onResult(data) {
+        return data;
     }
 
     render() {
@@ -85,6 +90,7 @@ class App extends Component {
                                 generic = {this.props.inputOptions}
                                 actions = {this.props.rstActions}
                                 selection = {this.props.selection}
+                                onResult = {this.onResult}
                             />
                         </Panel>
                     </Row>
@@ -100,7 +106,11 @@ class App extends Component {
                         // this.props.search.results
                         }
                         <Panel title = 'Search results'>
-                            <SearchResults results = {this.props.search.results} restActions = {this.props.rstActions} />
+                            <SearchResults
+                                results = {this.props.search.results}
+                                onResult = {this.onResult}
+                                restActions = {this.props.rstActions}
+                            />
                         </Panel>
                     </Row>
                 </div>

@@ -9,6 +9,7 @@ class DataSection extends Component {
 
         this.state = {
             data : new Array(),
+            desc: '',
             quicklookStatus: false
         }
 
@@ -24,10 +25,11 @@ class DataSection extends Component {
         var mid = this.props.mid;
 
         if(mid) {
-            this.props.actions.makeQuery('/en/api/quicklook/' + mid + '/parameter/', {}, function(resp) {
+            this.props.actions.makeQuery('/en/api/quicklook/' + mid + '/parameter/?points=100', {}, function(resp) {
                 this.setState(function() {
                     return {
-                        data: resp.data.mv
+                        data: resp.data.mv,
+                        desc: resp.parameter.description
                     }
                 })
             }.bind(this))
@@ -70,6 +72,7 @@ class DataSection extends Component {
                 { this.state.data.length &&
                 <Quicklook
                     data = {this.state.data}
+                    title = {this.state.desc}
                     xlabel = {this.props.xlabel}
                     ylabel = {this.props.ylabel}
                     onClose = {this.closeQuicklook}
@@ -87,9 +90,11 @@ export default class SearchResults extends Component {
     }
 
     render() {
-        var results = this.props.results;
+        var results = this.props.results;//onResult();
 
-        if(results.length) {
+        //console.log('FFFF', results);
+
+        if(results && results.length) {
             return (
                 <div>
                 <span>Found {results.length} result(s)</span>
@@ -104,10 +109,10 @@ export default class SearchResults extends Component {
                     </thead>
                     <tbody>
                         { results.map(function(result, index) {
-                            var date = result.date;
-                            var mid = result.mid;
-                            var name = result.name;
-                            var size = '~ KB'; // result.size
+                            var date = result[0].date;
+                            var mid = result[0].mid;
+                            var name = result[0].name;
+                            var size = 'size unknown'; // result.size
 
                             return (
                                 <tr key = {index} data-name = 'mw1'>

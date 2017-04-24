@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Glyphicon, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 import Spinner from 'react-spinjs';
 import stringify from 'wellknown';
+import moment  from 'moment';
 
 export default class SearchForm extends Component {
     constructor(props) {
@@ -18,7 +19,7 @@ export default class SearchForm extends Component {
         this.doSearch = this.doSearch.bind(this);
         this.updateProject = this.updateProject.bind(this);
         this.queryProjects = this.queryProjects.bind(this);
-        this.querySessions = this.querySessions.bind(this);
+        //this.querySessions = this.querySessions.bind(this);
     }
 
     componentDidMount() {
@@ -60,19 +61,19 @@ export default class SearchForm extends Component {
         }.bind(this));
     }
 
-    querySessions(project, from, to, selection) {
+    doSearch(){//(project, from, to, selection) {
         var params = {};
 
-        params.space_project = project;
-        params.time_begin = from;
-        params.time_end = to;
+        params.space_project = this.state.project;
+        params.time_begin = '';//from;
+        params.time_end = '';//to;
 
-        if(Array.isArray(selection.elements)) {
+        if(Array.isArray(this.props.selection.elements)) {
             var geo = {
                 'type': 'Feature',
                 'geometry' : {
                     'type': 'MultiPolygon',
-                    'coordinates': selection.elements
+                    'coordinates': this.props.selection.elements
                 }
             }
 
@@ -85,24 +86,54 @@ export default class SearchForm extends Component {
         //params.polygon = ''//Array.isArray(geodata) ? wkt.fromObject(geodata.map(function(item) { return { x: item[0], y: item[1] } })) : undefined;
 
         this.props.actions.makeQuery('/en/api/sessions', {params}, function(sessions) {
-            this.setState(function() {
-                return {
-                    sessions: sessions
+            var res = new Array();
+
+            function idfromurl(url) {
+                let r = /.*\/([0-9]+)/g;
+                let m = r.exec(url);
+                return m[1];
+            }
+
+            sessions.results.map(function(session) {
+                if(Array.isArray(session.measurements)) {
+                    session.measurements.map(function(url) {
+                        //this.props.actions.makeQuery()
+                        let mid = idfromurl(url);
+                        let dm = moment(session.time_begin);
+
+                        this.props.actions.setField([
+                            {
+                                name: 'Measurement #' + mid,
+                                date: String(dm.day() + '.' + dm.month() + '.' + dm.year()),
+                                mid: mid
+                            }]);
+                        //console.log(mid);
+                    }.bind(this));
                 }
-            })
-            this.props.actions.setField([date: 'date', mid: 1, name: 'sdfsdf'])
-        });
+                //this.props.actions.
+            }.bind(this));
+
+            //this.props.actions.setField([{sessions: 'date', mid: 1, name: 'sdfsdf'}]);
+
+            //console.log(sessions);
+            
+
+            
+        }.bind(this));
     }
 
-    doSearch() {
-        this.querySessions(this.state.project, '', '', this.props.selection)
-    }
+    //doSearch() {
+    //    this.querySessions(this.state.project, '', '', this.props.selection)
+    //}
 
     render() {
 
         var proj = this.state.project;
         var projects = this.state.projects;
         var desc = this.state.desc; //projects.length ? backproj(projects, proj) : '';// && projects[proj]) ? projects[proj].description : '';
+
+        var sess = this.state.sessions;
+        var slen = sess.length;
 
         //console.log(active);
         return (
@@ -123,6 +154,9 @@ export default class SearchForm extends Component {
                         <Glyphicon glyph = 'search' /> Search
                     </Button>
                 </FormGroup>
+                { slen && 
+                <div>{sess}</div>        
+                }
             </div>
         )
     }

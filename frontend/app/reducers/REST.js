@@ -19,7 +19,7 @@ export default function RESTReducer(state = State, action) {
 
             updated.push(action.payload);
             //updated[action.payload.name] = action.payload.value;
-
+            //console.log('assign');
             return Object.assign({}, state, { results: updated });
         break;
     }
