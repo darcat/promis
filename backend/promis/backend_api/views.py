@@ -248,13 +248,13 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
         return Response(res)
 
 # TODO: why is it pk here and id above???
-    @detail_route(permission_classes = [AllowAny,])
+    @detail_route(permission_classes = [PromisPermission,])
     def channel(self, request, pk):
         obj = self.queryset.get(pk = pk)
         self.check_object_permissions(request, obj)
         return self._export(obj, "channel", serializer.ChannelsSerializer)
 
-    @detail_route(permission_classes = [AllowAny,])
+    @detail_route(permission_classes = [PromisPermission, IsAuthenticated, Level1Permission])
     def parameter(self, request, pk):
         obj = self.queryset.get(pk = pk)
         self.check_object_permissions(request, obj)
