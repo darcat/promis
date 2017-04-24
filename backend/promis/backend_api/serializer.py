@@ -189,6 +189,16 @@ class ExportDataSerializer(AbstractMeasurementSerializer):
     def prepare_data(self, obj, doc, source):
         return _context_function_call(self, doc.json_data, obj.session)
 
+# TODO: move somewhere else
+from rest_framework import renderers
+class PlainTextRenderer:
+    media_type = 'text/plain'
+    format = 'ascii'
+    charset = 'utf8'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return "\n".join(data)
+
 #TODO: class below need some refactoring.....
 class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField()

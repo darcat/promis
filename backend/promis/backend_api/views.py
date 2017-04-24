@@ -220,16 +220,19 @@ class DownloadView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.DownloadViewSerializer
 
 # TODO: make a common base class for this and QuicklookView
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
+    renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer)
+
     def _export(self, obj, src_name, src_serializer):
         # TODO: comment this code, merge it with quicklook
         try:
-            fmt = self.request.query_params['fmt']
+            fmt = self.request.query_params['format']
         except KeyError:
             fmt = 'json'
 
         # TODO: refactor this mess!!
-        if fmt == 'json':
+        if fmt == 'json' or fmt == 'api':
             res = serializer.JSONDataSerializer(obj, context = { 'serializer': src_serializer, 'source': src_name } ).data
         else:
             export_fun = getattr(obj, src_name).export
