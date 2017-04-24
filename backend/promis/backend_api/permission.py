@@ -10,7 +10,7 @@ def check_session(user, obj):
     if helpers.UserGroupsNo(user) <= 0:
             now = datetime.datetime.now()
             half_year_ago = timezone.make_aware(now - datetime.timedelta(183), timezone.get_default_timezone())
-            if obj.time_end > half_year_ago:
+            if obj.time_end < half_year_ago:
                 return True
             else:
                 return False
@@ -21,12 +21,6 @@ def check_session(user, obj):
 class PromisPermission(BasePermission):
 
     message = 'Data retreival is not allowed'
-
-    def has_permission(self, request, view):
-        if isinstance(view, views.ChannelsView):
-            return helpers.UserInGroup(request.user, "level1")
-        
-        return True
    
     def has_object_permission(self, request, view, obj):
         if not helpers.UserExists(request.user):
@@ -52,6 +46,25 @@ class PromisPermission(BasePermission):
                     return check_session(request.user, obj.session)
 
         return True
+
+class Level1Permission(BasePermission):
+
+    message = 'Data retreival is not allowed'
+
+    def has_permission(self, request, view):
+        if helpers.IsSuperUser(request.user):
+            return True
+        return helpers.UserInGroup(request.user, "level1")
+   
+    def has_object_permission(self, request, view, obj):
+        if not helpers.UserExists(request.user):
+            return False
+        
+        if helpers.IsSuperUser(request.user):
+            return True
+                
+        if helpers.UserInGroup(request.user, "level1"):
+            return True
 
 class SelfProfilePermission(BasePermission):
     message = 'Unauthorized'

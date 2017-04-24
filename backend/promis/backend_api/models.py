@@ -12,6 +12,8 @@ from django.db.models.signals import post_migrate
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 
+from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
+
 from util.functions import get_func_by_name
 
 # TODO: is this class necessary?
@@ -38,8 +40,10 @@ class Function(TranslatableModel):
         return self.description
 
     def __call__(self, *args, **kwargs):
-        # TODO: handle exceptions if function not found
-        return get_func_by_name(self.django_func)(*args, **kwargs)
+        try:
+            return get_func_by_name(self.django_func)(*args, **kwargs)
+        except (ImportError, AttributeError) as e:
+            raise MethodNotAllowed(self.django_func, detail = "Calling %s failed: '%s'. Please contact the maintainer." % (self.django_func, str(e)))
 
 class Session(models.Model):
     time_begin = DateTimeField()
@@ -88,7 +92,8 @@ class Device(TranslatableModel):
 
 class Channel(TranslatableModel):
     device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
-    quicklook = ForeignKey('Function', blank=True, null=True)
+    quicklook = ForeignKey('Function', related_name = 'ch_ql', blank=True, null=True)
+    export = ForeignKey('Function', related_name = 'ch_ex', blank=True, null=True)
     parser_func = ForeignKey('Function', related_name = 'parser_func', blank=True, null=True)
 
     translations = TranslatedFields(
@@ -138,6 +143,7 @@ class Parameter(TranslatableModel):
     conversion_params = TextField(blank = True)
     channel = ForeignKey('Channel')
     quicklook = ForeignKey('Function', related_name = 'par_ql', blank=True, null=True)
+    export = ForeignKey('Function', related_name = 'par_ex', blank=True, null=True)
 
     translations = TranslatedFields(
         name = TextField(),
@@ -163,8 +169,8 @@ class Measurement(models.Model):
     session = ForeignKey('Session', related_name = 'measurements')
     parameter = ForeignKey('Parameter')
     channel = ForeignKey('Channel')
-    chn_doc = ForeignKey('Document', related_name = 'chn_doc_id')
-    par_doc = ForeignKey('Document', related_name = 'par_doc_id')
+    channel_doc = ForeignKey('Document', related_name = 'channel_doc_id')
+    parameter_doc = ForeignKey('Document', related_name = 'parameter_doc_id')
     sampling_frequency = FloatField()
     max_frequency  = FloatField()
     min_frequency  = FloatField()

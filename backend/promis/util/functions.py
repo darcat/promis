@@ -21,19 +21,18 @@
 from importlib import import_module
 
 def get_func_by_name(path):
-    """Returns the function identified by its fully qualified path string"""
+    """
+    Returns the function identified by its fully qualified path string
+    
+    Wrong input may cause ImportError and AttributeErorr to be thrown.
+    """
     # Breaking down to components
     path_comp = path.rsplit(sep=".", maxsplit=1)
 
     # Importing the module
     module = import_module(path_comp[0])
-    if not module:
-        raise ValueError("Can not import the module: %s." % path_comp[0])
-
+    
     # Looking for the function
-    # TODO: this raises an exception if not found see #56
     f = getattr(module, path_comp[1])
-    if not f:
-        raise ValueError("Can not locate the function: %s." % path_comp[1])
 
     return f

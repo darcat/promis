@@ -54,6 +54,25 @@ class SessionsSerializer(serializers.ModelSerializer):
         fields = ('id', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
         geo_field = 'geo_line'
 
+# TODO: merge with the class above
+class CompactSessionsSerializer(serializers.ModelSerializer):
+    time = serializers.SerializerMethodField()
+
+    def get_geo_line(self, obj):
+        return util.parsers.wkb(obj.geo_line.wkb)
+    def get_time(self, obj):
+        return { 'begin': obj.time_begin.isoformat(),
+                 'end': obj.time_end.isoformat() }
+
+    def __init__(self, *args, need_geo_line=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        if need_geo_line:
+            self.fields.update({ "geo_line": serializers.SerializerMethodField() })
+
+    class Meta:
+        model = models.Session
+        fields = ('time',)
+
 class SpaceProjectsSerializer(TranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
 
@@ -114,80 +133,82 @@ class ParametersSerializer(TranslatableModelSerializer):
     def get_object
 '''
 
-class DocumentsSerializer(serializers.ModelSerializer):
+def _context_function_call(self, *args):
+    '''
+    Takes the function stored as self.context['func'] and calls it passing
+    args as positional arguments and self.context['kwargs'] as keyword arguments
+    '''
+    return self.context['func'] (*args, **self.context['kwargs'])
+
+class AbstractMeasurementSerializer(serializers.ModelSerializer):
+    '''
+    Abstract base class for measurement serializers that include either the
+    channel or the parameter definition and do some work on the document.
+
+    Required stuff in context dictionary:
+    * 'source': the measurement field name where the data comes from.
+      Document attribute name is constructed  as {source}_doc.
+    * 'serializer': serializer class to serialize source with.
+    '''
+    data = serializers.SerializerMethodField()
+    session = serializers.SerializerMethodField()
     class Meta:
-        fields = ('__all__')
-        model = models.Document
-
-class QuickLookSerializer(serializers.ModelSerializer):
-    json_data = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.Document
-        fields = ('json_data',)
-
-    def get_json_data(self, obj):
-        # Only calling the quicklook callback passed in the context
-        # TODO: standardise the npoints param in the docs
-        return self.context['quicklook_fun'](obj.json_data, npoints = self.context['npoints'])
-
-class ChannelQuicklookSerializer(serializers.ModelSerializer):
-    channel = ChannelsSerializer()
-    chn_doc = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ('channel', 'chn_doc')
         model = models.Measurement
+        fields = ('data', 'session')
 
-    def get_chn_doc(self, obj):
-        context = self.context
-        context['channel'] = obj.channel
-        ser = QuickLookSerializer(obj.chn_doc, context = context)
+    def __init__(self, *args, **kwargs):
+        '''Adds an extra source field on construction'''
+        super().__init__(*args, **kwargs)
+        self.fields.update({self.context['source']: self.context['serializer']()})
 
-        return(ser.data)
+    def get_data(self, obj):
+        '''
+        Serializes data to JSON. Define the following callback in your derived classes:
 
-class ParameterQuicklookSerializer(serializers.ModelSerializer):
-    parameter = ParametersSerializer()
-    par_doc = serializers.SerializerMethodField()
+        def prepare_data(self, obj, doc, source)
+        '''
+        src = self.context['source']
+        return self.prepare_data(obj, getattr(obj, src + '_doc'), getattr(obj, src))
 
-    class Meta:
-        fields = ('parameter', 'par_doc')
-        model = models.Measurement
+    def get_session(self, obj):
+        return CompactSessionsSerializer(obj.session, need_geo_line = self.context.get('need_geo_line', True)).data
 
-    def get_par_doc(self, obj):
-        context = self.context
-        context['parameter'] = obj.parameter
-        ser = QuickLookSerializer(obj.par_doc, context = context)
+class QuickLookSerializer(AbstractMeasurementSerializer):
+    '''Calls the quicklook on the JSON data and returns the result'''
+    def prepare_data(self, obj, doc, source):
+        return _context_function_call(self, doc.json_data)
 
-        return(ser.data)
+class JSONDataSerializer(AbstractMeasurementSerializer):
+    '''Serializes the document (channel or parameter) into rich JSON form'''
+    def prepare_data(self, obj, doc, source):
+        return doc.json_data
 
+# TODO: this pulls unnecessary fields in
+class ExportDataSerializer(AbstractMeasurementSerializer):
+    '''Uses the channel/parameter export function to serialize the document'''
+    def prepare_data(self, obj, doc, source):
+        return _context_function_call(self, doc.json_data, obj.session)
 
-class ChannelDataSerializer(serializers.ModelSerializer):
-    channel = ChannelsSerializer()
-    chn_doc = DocumentsSerializer()
+# TODO: move somewhere else
+from rest_framework import renderers
+class PlainTextRenderer:
+    media_type = 'text/plain'
+    format = 'ascii'
+    charset = 'utf8'
 
-    class Meta:
-        fields = ('channel', 'chn_doc')
-        model = models.Measurement
-
-class ParameterDataSerializer(serializers.ModelSerializer):
-    parameter = ParametersSerializer()
-    par_doc = DocumentsSerializer()
-
-    class Meta:
-        fields = ('parameter', 'par_doc')
-        model = models.Measurement
+    def render(self, data, media_type=None, renderer_context=None):
+        return "\n".join(data)
 
 #TODO: class below need some refactoring.....
 class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField()
     par_quicklook = serializers.SerializerMethodField()
 
-    chn_doc = serializers.SerializerMethodField()
-    par_doc = serializers.SerializerMethodField()
+    channel_docn_doc = serializers.SerializerMethodField()
+    parameter_doc = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('chn_quicklook', 'par_quicklook', 'chn_doc', 'par_doc')
+        fields = ('chn_quicklook', 'par_quicklook', 'channel_doc', 'parameter_doc')
         model = models.Measurement
 
     def get_chn_quicklook(self, obj):
@@ -200,12 +221,12 @@ class DownloadViewSerializer(serializers.ModelSerializer):
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/parameter')
 
-    def get_chn_doc(self, obj):
+    def get_channel_doc(self, obj):
         id = obj.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/channel')
 
-    def get_par_doc(self, obj):
+    def get_parameter_doc(self, obj):
         id = obj.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/parameter')
@@ -239,9 +260,9 @@ class MeasurementsSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
-        
+
         user = self.context['request'].user
-        
+
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
             self.fields.pop('channel')
 
@@ -251,7 +272,7 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
           write_only=True,
     )
-    
+
     date_joined = serializers.DateTimeField(read_only = True)
     last_login = serializers.DateTimeField(read_only = True)
 

@@ -39,8 +39,8 @@ def test_super_user_access_level1(superuser):
     r = superuser.get("/en/api/download/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
-    assert "chn_doc" in json_data, "Can't see channels"
-    assert "par_doc" in json_data, "Can't see parameters"
+    assert "channel_doc" in json_data, "Can't see channels"
+    assert "parameter_doc" in json_data, "Can't see parameters"
 
 def test_unauth_access(session):
     '''IonosatMicro/promis-backend#78'''

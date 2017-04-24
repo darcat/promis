@@ -159,7 +159,7 @@ def data_func(satellite_object):
 
                             # Creating a measurement instance
                             # TODO: same doc right now
-                            model.Measurement.objects.create(session = ez_sess_obj, parameter = ez_par[freq], channel = ez_chan[freq], chn_doc = doc_obj, par_doc = doc_obj, sampling_frequency = freqs[freq], max_frequency = freqs[freq], min_frequency = freqs[freq])
+                            model.Measurement.objects.create(session = ez_sess_obj, parameter = ez_par[freq], channel = ez_chan[freq], channel_doc = doc_obj, parameter_doc = doc_obj, sampling_frequency = freqs[freq], max_frequency = freqs[freq], min_frequency = freqs[freq])
 
                         ftp.cwd("..")
                     except error_perm:
@@ -185,11 +185,7 @@ def ef_export(doc, session, fmt):
     [uk]: Експорт електричного поля з ПОТЕНЦІАЛу
     """
     if fmt=="ascii":
-        # TODO: fill stubs
         # TODO: take value name and units from parameter?
         # TODO: take parameter from somewhere?
-        orbit = None # STUB
-        start_time = None # STUB
-        end_time = None # STUB
-        return util.ascii_export(make_table(doc["mv"], start_time, end_time, orbit), "Electric Field", "(mV)")
-    
+        tbl = util.export.make_table(doc["mv"], session.time_begin, session.time_end, session.geo_line)
+        return util.export.ascii_export(tbl, "Electric Field", "(mV)")
