@@ -58,6 +58,8 @@ export default class SearchForm extends Component {
         }.bind(this));
     }
 
+
+
     querySessions(project, from, to, selection) {
         var params = {};
 

@@ -92,9 +92,10 @@ class App extends Component {
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}
                         />
+                        // this.props.search.results
                         }
                         <Panel title = 'Search results'>
-                            <SearchResults results = {this.props.search.results} />
+                            <SearchResults results = {[1,2,3]} restActions = {this.props.rstActions} />
                         </Panel>
                     </Row>
                 </div>

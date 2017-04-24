@@ -8,12 +8,30 @@ class DataSection extends Component {
         super(props);
 
         this.state = {
+            data : new Array(),
             quicklookStatus: false
         }
 
+        this.fetchData = this.fetchData.bind(this);
         this.downloadResult = this.downloadResult.bind(this);
         this.closeQuicklook = this.closeQuicklook.bind(this);
         this.showQuicklook = this.showQuicklook.bind(this);
+
+        this.fetchData(this.props.mid);
+    }
+
+    fetchData() {
+        var mid = this.props.mid;
+
+        if(mid) {
+            this.props.actions.makeQuery('/en/api/quicklook/' + mid + '/parameter/', {}, function(resp) {
+                this.setState(function() {
+                    return {
+                        data: resp.data.mv
+                    }
+                })
+            }.bind(this))
+        }
     }
 
     downloadResult() {
@@ -49,13 +67,15 @@ class DataSection extends Component {
                         <Glyphicon glyph = 'download-alt' />
                     </Button>
                 </Tooltip>
+                { this.state.data.length &&
                 <Quicklook
-                    data = {this.props.data}
+                    data = {this.state.data}
                     xlabel = {this.props.xlabel}
                     ylabel = {this.props.ylabel}
                     onClose = {this.closeQuicklook}
                     show = {this.state.quicklookStatus}
                 />
+                }
             </div>
         )
     }
@@ -96,7 +116,8 @@ export default class SearchResults extends Component {
                                     <td>{size}</td>
                                     <td>
                                         <DataSection
-                                            data = {data}
+                                            mid = {index + 1}
+                                            actions = {this.props.restActions}
                                             xlabel = {'x data label'}
                                             ylabel = {'y data label'}
                                         />
