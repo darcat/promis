@@ -7,18 +7,26 @@ import Nav from '../components/Nav';
 import Panel from '../components/Panel';
 
 import mapActionsCreators from '../actions/Map';
+import usrActionsCreators from '../actions/User';
+import rstActionsCreators from '../actions/REST';
 import genActionsCreators from '../actions/Generic';
 import selActionsCreators from '../actions/Selection';
 
 import MapPanel from '../components/UniversalMap';
 import TimeAndPositionPanel from '../components/TimeAndPosition';
 
+import SearchForm from '../components/SearchForm.js';
+import SearchResults from '../components/SearchResults.js';
 
 class App extends Component {
     constructor(props) {
         super(props);
 
+        /* local callback is faster than whole redux state loop */
+        this.updatePreview = this.updatePreview.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
+
+        this.props.usrActions.profile();
     }
 
     componentDidMount() {
@@ -31,6 +39,10 @@ class App extends Component {
         window.removeEventListener('resize', this.updateDimensions.bind(this));
     }
 
+    updatePreview(data) {
+        return data;
+    }
+
     updateDimensions() {
         /* pass new size to map */
         var dims = {
@@ -38,6 +50,7 @@ class App extends Component {
             height: window.innerHeight
         }
 
+        //if(this.props.mapOptions.full)
         this.props.mapActions.toggleDims(dims);
     }
 
@@ -52,30 +65,37 @@ class App extends Component {
 
         return (
             <div>
-                <Nav />
+                <Nav actions = {this.props.usrActions} userData = {this.props.userData} />
                 <div style = {style}>
                     <Well bsSize="large">
                         <h3>Ionosat PROMIS</h3>
-                        <p>We are glad to welcome you on this page. Please use the filters below to refine your search</p>
+                        <p>We are glad to welcome you on this page. Please use the filters below to refine your search!</p>
                     </Well>
                     <Row>
-                        <TimeAndPositionPanel 
+                        <TimeAndPositionPanel
+                            preview = {this.updatePreview}
                             options = {this.props.inputOptions}
                             selection = {this.props.selection}
                             selectionActions = {this.props.selActions}
                             genericActions = {this.props.genActions}
                         />
-                        <Panel>Panel two</Panel>
+                        <Panel title = 'Search'>
+                            <SearchForm status = {this.props.search} actions = {this.props.rstActions} />
+                        </Panel>
                     </Row>
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
                         <MapPanel
+                            onPreview = {this.updatePreview}
                             selection = {this.props.selection}
                             options = {this.props.mapOptions}
-                            actions = {this.props.mapActions}
+                            mapActions = {this.props.mapActions}
+                            selectionActions = {this.props.selActions}
                         />
                         }
-                        <Panel>Panel four</Panel>
+                        <Panel title = 'Search results'>
+                            <SearchResults results = {this.props.search.results} />
+                        </Panel>
                     </Row>
                 </div>
             </div>
@@ -88,7 +108,9 @@ function mapStateToProps(state) {
     return {
         inputOptions: state.Generic,
         mapOptions: state.Map,
-        selection: state.Selection
+        selection: state.Selection,
+        userData: state.User,
+        search: state.REST
     }
 }
 
@@ -97,7 +119,9 @@ function mapDispatchToProps(dispatch) {
     return {
         mapActions : bindActionCreators(mapActionsCreators, dispatch),
         genActions : bindActionCreators(genActionsCreators, dispatch),
-        selActions : bindActionCreators(selActionsCreators, dispatch)
+        selActions : bindActionCreators(selActionsCreators, dispatch),
+        rstActions : bindActionCreators(rstActionsCreators, dispatch),
+        usrActions : bindActionCreators(usrActionsCreators, dispatch)
     }
 }
 

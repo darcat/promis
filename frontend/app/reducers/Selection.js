@@ -11,16 +11,28 @@ export default function SelectionReducer(state = State, action) {
 
             return Object.assign({}, state,
                 {
+                    active: true,
                     elements: ref
                 });
         break;
 
         case Enum.SelectionClosed:
-             /* advance index if something has been selected */
-            var currentIndex = state.elements[state.current].length ? state.current + 1 : state.current;
+            var currentIndex = state.current;
 
-            return Object.assign({}, state, 
+            if(Array.isArray(state.elements[state.current])) {
+                /* advance index if at least triangle has been selected... */
+                if(state.elements[state.current].length > 2) {
+                    currentIndex ++;
+                }
+                /* ...or flush incomplete selection */
+                else {
+                    state.elements[state.current] = new Array();
+                }
+            }
+
+            return Object.assign({}, state,
                 {
+                    active: false,
                     current: currentIndex
                 });
         break;
@@ -39,30 +51,41 @@ export default function SelectionReducer(state = State, action) {
             return Object.assign({}, state, { elements: ref });
         break;
 
-        case Enum.SelectionDeleteElement:
-            /* create ref */
-            var ref = state.elements;
-
-            /* check if we're in bounds */
-            var index = action.payload < ref[state.current].length ? action.payload : 0;
-
-            /* pop last element */
-            ref[state.current].splice(index, 1);
-
-            return Object.assign({}, state, { elements: ref });
-        break;
-
         case Enum.SelectionEditElement:
-            /* create ref */
+        case Enum.SelectionDeleteElement:
+            /* create ref and init indexes */
             var ref = state.elements;
+            var idx = 0, rdx = 0;
 
-            /* check if we're in bounds */
-            var index = action.payload.index < ref[state.current].length ? action.payload.index : 0;
+            /* check if we're dealing with arrays */
+            if(Array.isArray(ref)) {
+                /* check for root index in event payload, use current index otherwise */
+                rdx = (action.payload.root !== undefined && Array.isArray(ref[action.payload.root])) ? action.payload.root : state.current;
 
-            /* substitute element */
-            ref[state.current][index] = action.payload.value;
+                /* check if we're in bounds */
+                idx = action.payload.index < ref[rdx].length ? action.payload.index : 0;
 
-            return Object.assign({}, state, { elements: ref });
+                /* substitute element */
+                if(action.payload.value)
+                    ref[rdx][idx] = action.payload.value;
+                /* delete element */
+                else {
+                    ref[rdx].splice(idx, 1);
+
+                    /* if it was the last element, decrement root selection */
+                    if(ref[rdx].length == 0) {
+                        ref.splice(rdx, 1);
+
+                        if(state.current > 0) {
+                            return Object.assign({}, state, { current: state.current - 1, elements: ref });
+                        }
+                    }
+                }
+
+                return Object.assign({}, state, { elements: ref });
+            }
+
+            return Object.assign({}, state);
         break;
 
         case Enum.SelectionPurge:
