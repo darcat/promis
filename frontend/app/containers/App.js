@@ -7,6 +7,8 @@ import Nav from '../components/Nav';
 import Panel from '../components/Panel';
 
 import mapActionsCreators from '../actions/Map';
+import usrActionsCreators from '../actions/User';
+import rstActionsCreators from '../actions/REST';
 import genActionsCreators from '../actions/Generic';
 import selActionsCreators from '../actions/Selection';
 
@@ -22,6 +24,8 @@ class App extends Component {
         /* local callback is faster than whole redux state loop */
         this.updatePreview = this.updatePreview.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
+
+        this.props.usrActions.profile();
     }
 
     componentDidMount() {
@@ -60,7 +64,7 @@ class App extends Component {
 
         return (
             <div>
-                <Nav />
+                <Nav actions = {this.props.usrActions} userData = {this.props.userData} />
                 <div style = {style}>
                     <Well bsSize="large">
                         <h3>Ionosat PROMIS</h3>
@@ -99,7 +103,9 @@ function mapStateToProps(state) {
     return {
         inputOptions: state.Generic,
         mapOptions: state.Map,
-        selection: state.Selection
+        selection: state.Selection,
+        userData: state.User,
+        search: state.REST
     }
 }
 
@@ -108,7 +114,9 @@ function mapDispatchToProps(dispatch) {
     return {
         mapActions : bindActionCreators(mapActionsCreators, dispatch),
         genActions : bindActionCreators(genActionsCreators, dispatch),
-        selActions : bindActionCreators(selActionsCreators, dispatch)
+        selActions : bindActionCreators(selActionsCreators, dispatch),
+        rstActions : bindActionCreators(rstActionsCreators, dispatch),
+        usrActions : bindActionCreators(usrActionsCreators, dispatch)
     }
 }
 
