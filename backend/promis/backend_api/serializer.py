@@ -204,7 +204,7 @@ class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField()
     par_quicklook = serializers.SerializerMethodField()
 
-    channel_docn_doc = serializers.SerializerMethodField()
+    channel_doc_doc = serializers.SerializerMethodField()
     parameter_doc = serializers.SerializerMethodField()
 
     class Meta:
@@ -237,7 +237,7 @@ class DownloadViewSerializer(serializers.ModelSerializer):
 
         user = self.context['request'].user
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
-            self.fields.pop('chn_doc')
+            self.fields.pop('channel_doc')
             self.fields.pop('chn_quicklook')
 
 class MeasurementsSerializer(serializers.ModelSerializer):
@@ -252,7 +252,7 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         model = models.Measurement
 
     def get_data(self, obj):
-        id = obj.chn_doc.id
+        id = obj.channel_doc.id
         #TODO: SPIKE: remove below hard code and replace to related view path.
         return self.context['request'].build_absolute_uri('/en/api/download/' + str(id))
 
