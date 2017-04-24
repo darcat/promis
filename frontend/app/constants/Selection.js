@@ -8,6 +8,7 @@ export const Enum = {
 };
 
 export const State = {
+    active : false, /* when selection tool is active */
     current : 0, /* current selection index */
     elements : new Array() /* storage */
 };

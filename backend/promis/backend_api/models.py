@@ -12,6 +12,8 @@ from django.db.models.signals import post_migrate
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 
+from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
+
 from util.functions import get_func_by_name
 
 # TODO: is this class necessary?
@@ -38,8 +40,10 @@ class Function(TranslatableModel):
         return self.description
 
     def __call__(self, *args, **kwargs):
-        # TODO: handle exceptions if function not found
-        return get_func_by_name(self.django_func)(*args, **kwargs)
+        try:
+            return get_func_by_name(self.django_func)(*args, **kwargs)
+        except (ImportError, AttributeError) as e:
+            raise MethodNotAllowed(self.django_func, detail = "Calling %s failed: '%s'. Please contact the maintainer." % (self.django_func, str(e)))
 
 class Session(models.Model):
     time_begin = DateTimeField()

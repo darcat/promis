@@ -4,15 +4,22 @@ export const Enum = {
     DimsChanged : 'MapDimsChanged',
 	ModeChanged : 'MapModeChanged',
 	GridChanged : 'MapGridToggled',
+    RectChanged : 'MapRectToggled',
+    PolyChanged : 'MapPolyChanged',
+    RoundChanged : 'MapRoundChanged',
+    FlushTools : 'MapFlushTools',
 	SelectionUpdated: 'MapSelectionUpdated'
 };
 
 export const State = {
-    zoom: 5,
-    flat: true,
-    full: false,
-    grid: false,
-    dims: [300, 300],
+    zoom: 5,            /* zoom level */
+    flat: true,         /* true for 2D, false for 3D */
+    full: false,        /* fullscreen mode */
+    grid: false,        /* grid status */
+    rect: false,        /* rectangular selection tool status */
+    poly: false,        /* polygon selection tool status */
+    round: false,       /* circular selection tool status */
+    dims: [300, 300],   /* map fullscreen dimensions */
     geolines: []
 };
 

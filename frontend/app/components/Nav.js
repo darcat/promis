@@ -9,7 +9,6 @@ export default class PromisNavbar extends Component {
         super(props);
 
         this.state = { 
-            user: null,
             login: false,
             register: false
         }
@@ -35,6 +34,9 @@ export default class PromisNavbar extends Component {
     }
 
     render() {
+        var data = this.props.userData;
+        var actions = this.props.actions;
+
         return (
             <Navbar inverse collapseOnSelect>
                 <Navbar.Header>
@@ -44,25 +46,34 @@ export default class PromisNavbar extends Component {
                     <Navbar.Toggle />
                 </Navbar.Header>
                 <Navbar.Collapse>
-                    <Nav>
+                    { /*<Nav>
                         <NavDropdown eventKey={3} title="Language" id="basic-nav-dropdown">
                             <MenuItem eventKey={3.1}>English</MenuItem>
                             <MenuItem eventKey={3.2}>Ukrainian</MenuItem>
                         </NavDropdown>
-                    </Nav>
+                    </Nav> */ }
                     <Nav pullRight>
                         <NavItem>
-                        { this.state.user ? (
+                        { data.user ? (
                         <div>
-                            <span className = 'welcome'>Hello, {this.state.user} </span>
-                            <Button bsStyle="warning">Sign out</Button>
+                            <span className = 'welcome'>Hello, {data.user.name} </span>
+                            <Button onClick = {actions.logout} bsStyle="warning">Sign out</Button>
                         </div>
                         ) : (
                         <ButtonToolbar>
                             <Button onClick = {this.toggleWindow.bind(null, 'login', true)} bsStyle="success">Sign in</Button>
                             <Button onClick = {this.toggleWindow.bind(null, 'register', true)} bsStyle="primary">Register</Button>
-                            <LoginWindow show = {this.state.login} onClose = {this.toggleWindow.bind(null, 'login', false)} />
-                            <RegisterWindow show = {this.state.register} onClose = {this.toggleWindow.bind(null, 'register', false)} />
+                            <LoginWindow
+                                onLogin = {actions.login}
+                                userData = {data}
+                                show = {this.state.login}
+                                onClose = {this.toggleWindow.bind(null, 'login', false)}
+                            />
+                            <RegisterWindow
+                                onRegister = {actions.register}
+                                show = {this.state.register}
+                                onClose = {this.toggleWindow.bind(null, 'register', false)}
+                            />
                         </ButtonToolbar>
                         ) }
                         </NavItem>

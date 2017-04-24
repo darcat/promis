@@ -1,7 +1,7 @@
 import { Enum } from '../constants/Map';
 
 export default {
-    toggleZoom : function(newZoom) {
+    changeZoom : function(newZoom) {
         return function(dispatch) {
             dispatch({
                 type: Enum.ZoomChanged,
@@ -45,6 +45,42 @@ export default {
             dispatch({
                 type: Enum.GridChanged,
                 payload: newGridState
+            })
+        }
+    },
+
+    toggleRect : function(newRectState) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.RectChanged,
+                payload: newRectState
+            })
+        }
+    },
+
+    togglePoly : function(newPolyState) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.PolyChanged,
+                payload: newPolyState
+            })
+        }
+    },
+
+    toggleRound : function(newRoundState) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.RoundChanged,
+                payload: newRoundState
+            })
+        }
+    },
+
+    toggleFlush : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.FlushTools,
+                payload: true
             })
         }
     }

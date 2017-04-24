@@ -22,6 +22,26 @@ export default function MapReducer(state = State, action) {
             return Object.assign({}, state, { grid: action.payload });
         break;
 
+        case Enum.RectChanged:
+            return Object.assign({}, state, { rect: action.payload });
+        break;
+
+        case Enum.PolyChanged:
+            return Object.assign({}, state, { poly: action.payload });
+        break;
+
+        case Enum.RoundChanged:
+            return Object.assign({}, state, { round: action.payload });
+        break;
+
+        case Enum.FlushTools:
+            return Object.assign({}, state, {
+                round: false,
+                rect: false,
+                poly: false,
+            });
+        break;
+
         default:
             return state;
         break;

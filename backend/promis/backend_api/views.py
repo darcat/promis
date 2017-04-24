@@ -12,7 +12,7 @@ from rest_framework.decorators import detail_route, api_view
 
 from backend_api import models
 from backend_api import serializer, helpers
-from backend_api.permission import PromisPermission, SelfProfilePermission
+from backend_api.permission import PromisPermission, SelfProfilePermission, Level1Permission
 
 import django_filters
 
@@ -251,15 +251,17 @@ class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
     @detail_route(permission_classes = [AllowAny,])
     def channel(self, request, pk):
         obj = self.queryset.get(pk = pk)
+        self.check_object_permissions(request, obj)
         return self._export(obj, "channel", serializer.ChannelsSerializer)
 
     @detail_route(permission_classes = [AllowAny,])
     def parameter(self, request, pk):
         obj = self.queryset.get(pk = pk)
+        self.check_object_permissions(request, obj)
         return self._export(obj, "parameter", serializer.ParametersSerializer)
 
     queryset = models.Measurement.objects.all()
-    permission_classes = (AllowAny,)
+    permission_classes = (PromisPermission, IsAuthenticated)
     serializer_class = serializer.MeasurementsSerializer
 
 class UserPagination(LimitOffsetPagination):

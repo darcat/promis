@@ -153,5 +153,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'backend_api.exceptions.promis_exception_handler',
 }
