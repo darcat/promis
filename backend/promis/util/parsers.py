@@ -22,6 +22,14 @@
 
 import re, struct
 import util.orbit
+import datetime
+import pytz
+
+def str_to_utc(x):
+    time_fmt = "%Y{0}%m{0}%d %H:%M:%S".format(x[4])
+    ts = datetime.datetime.strptime(x, time_fmt)
+    ts = ts.replace(tzinfo=pytz.timezone("UTC")).timestamp()
+    return int(ts)
 
 # TODO: cull out those which have standard parsers (CSV?)
 # TODO: replace ValueErrors with meaningful exception classes when integrating
@@ -75,10 +83,10 @@ def telemetry(fp):
 
             # Try to parse the data
             # NOTE: expected format: <timestamp> <float value(.)> <human readable date>, ignoring the last one
-            m = re.search("^([0-9]*) ([0-9.-]*)", ln)
+            m = re.search("^[0-9]* ([0-9.-]*) (2.*)", ln)
             if m:
                 # Yielding a nested tuple e.g. ( "RX", (1, 432.0) ), will be converted to dict
-                yield ( sect, (int(m.group(1)), float(m.group(2))) )
+                yield ( sect, (str_to_utc(m.group(2)), float(m.group(1))) )
             else:
                 raise ValueError("Input inconsistency detected")
 
@@ -108,7 +116,7 @@ def telemetry(fp):
 
     # Call the machinery above
     for t, pt in scan_point():
-        yield (t - 378702000, pt) #  TODO: magic number
+        yield (t, pt) #  TODO: magic number
 
 def sets(fp, keys=None):
     """
@@ -124,7 +132,7 @@ def sets(fp, keys=None):
     keys_left = -1 if not keys else len(keys)
     # TODO: currently only integers, see regex below and yield statement
 
-    for m in re.finditer("([a-zA-Z_]+)=([0-9]+)", fp.getvalue()): # TODO: matches " = ", shouldn't ideally
+    for m in re.finditer(r"([a-zA-Z_]+)=([^,^\n]+)", fp.getvalue()): # TODO: matches " = ", shouldn't ideally
         key = m.group(1)
         value = m.group(2)
 
@@ -138,7 +146,7 @@ def sets(fp, keys=None):
         keys_found.add(key)
 
         # Yield the data
-        yield key, int(value) if key != "t" else int(value) -378702000
+        yield key, int(value) if key != "utc" else str_to_utc(value)
 
         # Reduce the counter of keys to look for and break if necessary
         if keys_left > 0:
