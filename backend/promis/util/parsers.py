@@ -160,10 +160,9 @@ def csv(fp, as_type=float):
     rexp_comment = r"^#"
     rexp_values  = r"([0-9-.e]+),?" # NOTE: numbers only
 
-    while True:
-        ln = fp.readline()
+    for ln in fp:
         if ln.rstrip() == "":
-            break
+            continue
 
         # Skipping the comments
         # TODO: anything of value here?
