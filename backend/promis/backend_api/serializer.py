@@ -204,7 +204,7 @@ class DownloadViewSerializer(serializers.ModelSerializer):
     chn_quicklook = serializers.SerializerMethodField()
     par_quicklook = serializers.SerializerMethodField()
 
-    channel_doc_doc = serializers.SerializerMethodField()
+    channel_doc = serializers.SerializerMethodField()
     parameter_doc = serializers.SerializerMethodField()
 
     class Meta:
