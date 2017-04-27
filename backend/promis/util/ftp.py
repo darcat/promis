@@ -33,11 +33,11 @@ class FTPChecker(ftplib.FTP):
     """
     Advanced version of ftplib.FTP class with bells and whistles
     """
-    
+
     def __init__(self, rootdir, host, port=0):
         """
         Note usual FTP parameters should go AFTER the custom ones.
-        
+
         rootdir     -- root directory where the project folders (data_ids) reside.
         exceptions  -- searchable object containing folders which should not be seen as data_ids.
         ^-- should be set in the ftp object after creation to avoid mixup of parameters
@@ -47,32 +47,40 @@ class FTPChecker(ftplib.FTP):
         # TODO: support for authentication
         super().__init__()
         self.connect(host, port)
-        
+
     def __enter__(self):
         super().__enter__()
         self.login()
         self.cwd(self.rootdir)
         return self
-    
+
+    def __exit__(self, *args, **kwargs):
+        try:
+            super().__exit__(*args, **kwargs)
+        # Sometimes the server hangs the connection up before we can
+        # read the responce to QUIT
+        except (ftplib.error_perm, ftplib.error_temp):
+            pass
+
     # TODO: is it pythonic to have .list() and .open() methods instead?
-           
+
     def xlist(self, regex):
         """Generator returning filenames in current FTP directory matching a regular expression"""
         return (fname for fname in self.nlst() if re.search(regex, fname))
-        
-    
+
+
     def xopen(ftpself, filename):
         """Downloads the file from FTP and presents it as a file StringIO in memory object. "with" interface supported"""
         class _ftp_open(io.StringIO):
             def __init__(self, filename):
                 self.filename = filename
                 super().__init__()
-            
+
             def __enter__(self):
                 ftpself.retrlines("RETR " + self.filename, lambda x: self.write(x + "\n"))
                 self.seek(0)
                 return super().__enter__()
-            
+
         return _ftp_open(filename)
 
     def check(self):
