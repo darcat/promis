@@ -27,6 +27,7 @@ class App extends Component {
         this.updateDimensions = this.updateDimensions.bind(this);
 
         this.props.usrActions.profile();
+        this.onResult = this.onResult.bind(this);
     }
 
     componentDidMount() {
@@ -52,6 +53,10 @@ class App extends Component {
 
         //if(this.props.mapOptions.full)
         this.props.mapActions.toggleDims(dims);
+    }
+
+    onResult(data) {
+        return data;
     }
 
     render() {
@@ -80,7 +85,13 @@ class App extends Component {
                             genericActions = {this.props.genActions}
                         />
                         <Panel title = 'Search'>
-                            <SearchForm status = {this.props.search} actions = {this.props.rstActions} />
+                            <SearchForm
+                                status = {this.props.search}
+                                generic = {this.props.inputOptions}
+                                actions = {this.props.rstActions}
+                                selection = {this.props.selection}
+                                onResult = {this.onResult}
+                            />
                         </Panel>
                     </Row>
                     <Row>
@@ -92,9 +103,14 @@ class App extends Component {
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}
                         />
+                        // this.props.search.results
                         }
                         <Panel title = 'Search results'>
-                            <SearchResults results = {this.props.search.results} />
+                            <SearchResults
+                                results = {this.props.search.results}
+                                onResult = {this.onResult}
+                                restActions = {this.props.rstActions}
+                            />
                         </Panel>
                     </Row>
                 </div>

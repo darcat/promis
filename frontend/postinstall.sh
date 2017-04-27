@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 rm -rf public && mkdir public
 #cd node_modules/cesium

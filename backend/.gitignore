@@ -94,3 +94,6 @@ ENV/
 
 # Whatever that IDE of yours is
 .settings/
+
+# Migrations autocreated by django
+promis/backend_api/migrations/

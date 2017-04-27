@@ -20,7 +20,6 @@
 #
 
 # TODO: maintain 1 continuous FTP object
-# TODO: onboard time is NOT unix timestamp!
 
 from django.contrib.gis.geos import LineString
 import util.orbit, util.ftp, util.parsers, util.stats, util.export
@@ -120,9 +119,9 @@ def data_func(satellite_object):
 
                         # TODO: generalise with the earlier call
                         with ftp.xopen(mvfile[0]) as fp:
-                            data = { k:v for k,v in util.parsers.sets(fp, {"t", "samp"}) }
-                            time_start = data["t"]
-                            time_end = data["t"] + data["samp"] // freqs[freq]
+                            data = { k:v for k,v in util.parsers.sets(fp, {"utc", "samp"}) }
+                            time_start = data["utc"]
+                            time_end = data["utc"] + data["samp"] // freqs[freq]
 
                             # Check if we were the first
                             if not ez_time_start and not ez_time_end:
@@ -132,8 +131,8 @@ def data_func(satellite_object):
 
                                 # Generator for the orbit
                                 line_gen = ( (y.lon, y.lat) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
-
                                 # Converting time to python objects for convenience
+                                # This is the point where onboard time gets converted to the UTC
                                 time_start = util.orbit.maketime(time_start)
                                 time_end = util.orbit.maketime(time_end)
                                 time_dur = time_end - time_start

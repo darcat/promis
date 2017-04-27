@@ -13,14 +13,31 @@ export default class AdvancedPanel extends Component {
     }
 
     render() {
+        var drag = !this.props.disableDrag;
+
         return (
-            <Col md={6} sm={12}>
-                <Panel className = {this.props.className} header = {this.props.title}>{this.props.children}</Panel>
-            </Col>
+            <div>
+                { drag ? (
+                    <Draggable key = {1} handle = '.panel-title'>
+                        <Col md={6} sm={12}>
+                            <Accordion>
+                                <Panel className = {this.props.className} header = {this.props.title}>{this.props.children}</Panel>
+                            </Accordion>
+                        </Col>
+                    </Draggable> ) : (
+                        <Col md={6} sm={12}>
+                            <Accordion>
+                                <Panel className = {this.props.className} header = {this.props.title}>{this.props.children}</Panel>
+                            </Accordion>
+                        </Col>
+                    )
+                }
+            </div>
         )
     }
 }
 
 AdvancedPanel.defaultProps = {
-    title: 'Panel title'
+    title: 'Panel title',
+    disableDrag: false
 }

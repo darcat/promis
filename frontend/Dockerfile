@@ -14,6 +14,10 @@ ADD package.json /usr/src/promis/
 RUN npm install
 ADD webpack.config.js /usr/src/promis/
 
+# Add the post install script
+ADD postinstall.sh /usr/src/promis
+RUN npm run-script postinstall
+
 # This doesn't contain any replacements
 ADD nginx.conf /etc/nginx/
 

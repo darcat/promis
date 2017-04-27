@@ -16,6 +16,7 @@ sync/
 # Deploy-generated stuff
 frontend/deploy/
 backend/deploy/
+backend/api/
 test/deploy/
 
 # Keeper files
