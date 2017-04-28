@@ -48,8 +48,9 @@ class Function(TranslatableModel):
 class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
-    orbit_code = IntegerField(null=True)
-    geo_line = LineStringField()
+    orbit_code = IntegerField(null = True)
+    # TODO: http://spatialreference.org/ref/epsg/4979/postgis/ 
+    geo_line = LineStringField(dim = 3, srid = 4979)
     space_project = ForeignKey('Space_project', null = True)
 
     class Meta:

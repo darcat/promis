@@ -25,6 +25,8 @@ import operator
 import util.cubefit
 import datetime, pytz
 
+_earth_radius = 6371 # km
+
 # TODO: onboard time shift
 def maketime(u):
     return datetime.datetime.fromtimestamp(u, tz=pytz.utc)
@@ -33,21 +35,17 @@ def sign(x):
     """Returns 1 for non-negative arguments and -1 otherwise."""
     return 1 if x>=0 else -1
 
-def rad2deg(x):
-    """Converts radians to degrees."""
-    return 180*x/math.pi
-
-OrbitPoint = collections.namedtuple("OrbitPoint", [ "lon", "lat" ])
+OrbitPoint = collections.namedtuple("OrbitPoint", [ "lon", "lat", "alt" ])
 
 def cord_conv(RX, RY, RZ, **kwargs):
-    """Converts coordinates in ECEF cartesian system to radius, longitude and latitude."""
+    """Converts coordinates in ECEF cartesian system to longitude, latitude and altitude."""
     # TODO: is rotation included?
     # TODO: resulting tuple only has lon/lat, add fields if necessary
     r   = math.sqrt(RX**2 + RY**2 + RZ**2)
     phi = math.pi/2 - math.acos(RZ/r)
     rho = math.acos(RX/(r*math.sin(math.pi/2 - phi))) * sign(RY)
-    # Vector from origin, Longitude, Latitude
-    return OrbitPoint(rad2deg(rho), rad2deg(phi))
+    # Vector from Longitude, Latitude, Altitude
+    return OrbitPoint(math.degrees(rho), math.degrees(phi), r - _earth_radius)
 
 # Generating an orbit point every 1 second, discarding extra point and filling the gaps
 def generate_orbit(datapoints, orbit_start, orbit_end):
@@ -120,14 +118,14 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
                 # Shifting all the time values by orbit_start to prevent overflows
                 v = [ pt for pt in (x - orbit_start for x in anchor[l]) ]
                 # Source points and components
-                src_cmps = [ [ pt[i] for pt in (datapoints[z] for z in anchor[l]) ] for i in range(2) ] # NOTE: hardcode
+                src_cmps = [ [ pt[i] for pt in (datapoints[z] for z in anchor[l]) ] for i in range(3) ] # NOTE: hardcode
                 # If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
                 if any(180 < abs(src_cmps[0][x] - src_cmps[0][y]) for x in range(4) for y in range(4) if x<y):
                     src_cmps[0] = [ v + 360 if v < 0 else v for v in src_cmps[0] ]
                 # Generating the cubic functions
                 f = [ util.cubefit.cubic_fit(v, cmp) for cmp in src_cmps ]
 
-            res_vals = [ f[i](t - orbit_start) for i in range(2) ]
+            res_vals = [ f[i](t - orbit_start) for i in range(3) ]
             # Making sure longitude fits
             res_vals[0] = ( res_vals[0] + 180 ) % 360 - 180
             return OrbitPoint(*res_vals)

@@ -130,7 +130,7 @@ def data_func(satellite_object):
                                 ez_time_end = time_end
 
                                 # Generator for the orbit
-                                line_gen = ( (y.lon, y.lat) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
+                                line_gen = ( (y.lon, y.lat, y.alt) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
                                 # Converting time to python objects for convenience
                                 # This is the point where onboard time gets converted to the UTC
                                 time_start = util.orbit.maketime(time_start)
@@ -140,7 +140,7 @@ def data_func(satellite_object):
 
                                 # Creating a session object
                                 # TODO: make it more readable
-                                ez_sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4326), space_project = satellite_object )
+                                ez_sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4979), space_project = satellite_object )
 
                                 # TODO: record data_id in the object
                                 # TODO: somehow generalise this process maybe

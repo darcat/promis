@@ -39,7 +39,7 @@ def telemetry(fp):
     """
     Parses the telemetry .txt file used in Potential and possibly some other satellites.
 
-    Yields time, (time, lon, lat) pairs.
+    Yields time, (time, lon, lat, alt) tuples.
     """
     # We have a bit of a decision here:
     # 1. Read the file in one try reading each compontent into an in memory list
