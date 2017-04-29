@@ -1,91 +1,158 @@
-import { Enum, State } from '../constants/Selection';
+import { Enum, Types, State } from '../constants/Selection';
+
+function makeNewSelection() {
+    return new Object(
+    {
+        type: 'MustBeSet',
+        data: new Array()
+    });
+}
+
+function isObject(obj) {
+    return obj === Object(obj) && ! Array.isArray(obj);
+}
+
+function isArray(arr) {
+    return Array.isArray(arr);
+}
+
+function isSelection(element) {
+    return isObject(element) && isArray(element.data);
+}
 
 export default function SelectionReducer(state = State, action) {
+    /* get data from state */
+    let current = state.current;
+    let elements = state.elements;
+    let selection = elements[current];
+
+    /* check and fix data if needed */
+    if(current < 0) {
+        current = 0;
+    }
+
+    if(! isArray(elements)) {
+        elements = new Array();
+    }
+
+    if(! isSelection(selection)) {
+        selection = makeNewSelection();
+    }
+
+    /* process actions */
     switch(action.type) {
         case Enum.SelectionOpened:
-            /* create ref */
-            var ref = state.elements;
-
             /* create new selection */
-            ref[state.current] = new Array();
+            elements[current] = makeNewSelection();
 
+            /* update state */
             return Object.assign({}, state,
                 {
                     active: true,
-                    elements: ref
+                    elements: elements
                 });
         break;
 
-        case Enum.SelectionClosed:
-            var currentIndex = state.current;
+        case Enum.SelectionSetType:
+            let type = 'Unknown';
 
-            if(Array.isArray(state.elements[state.current])) {
-                /* advance index if at least triangle has been selected... */
-                if(state.elements[state.current].length > 2) {
-                    currentIndex ++;
-                }
-                /* ...or flush incomplete selection */
-                else {
-                    state.elements[state.current] = new Array();
-                }
+            /* determine type from payload */
+            switch(String(action.payload)) {
+                case Types.Rect:
+                    type = Types.Rect;
+                break;
+
+                case Types.Polygon:
+                    type = Types.Polygon;
+                break;
+
+                case Types.Circle:
+                    type = Types.Circle;
+                break;
+            }
+
+            /* set type */
+            elements[current].type = type;
+
+            /* update state */
+            return Object.assign({}, state,
+                {
+                    elements: elements
+                })
+        break;
+
+        case Enum.SelectionClosed:
+            let minimum = 0;
+
+            /* define minimum element counts for various selection types */
+            switch(elements[current].type) {
+                case Types.Polygon:
+                    minimum = 3;
+                break;
+
+                case Types.Circle:
+                    minimum = 2;
+                break;
+
+                default:
+                    /* mark unknown selection type as incomplete */
+                    minimum = elements[current].data.length + 1;
+                break;
+            }
+
+            /* advance counter if needed... */
+            if(elements[current].data.length >= minimum) {
+                current ++;
+            }
+            /* ...or flush incomplete selection (will also discard unknown type) */
+            else {
+                elements[current] = makeNewSelection();
             }
 
             return Object.assign({}, state,
                 {
                     active: false,
-                    current: currentIndex
+                    current: current,
+                    elements: elements
                 });
         break;
 
         case Enum.SelectionPushElement:
-            /* create ref */
-            var ref = state.elements;
-
-            /* create array in case someone decided to push before SelectionOpened */
-            if(! Array.isArray(ref[state.current]))
-                ref[state.current] = new Array();
-
             /* add new element to current selection */
-            ref[state.current].push(action.payload);
+            elements[current].data.push(action.payload);
 
-            return Object.assign({}, state, { elements: ref });
+            return Object.assign({}, state, { elements: elements });
         break;
 
         case Enum.SelectionEditElement:
         case Enum.SelectionDeleteElement:
-            /* create ref and init indexes */
-            var ref = state.elements;
-            var idx = 0, rdx = 0;
+            /* check for root index in event payload, use current index otherwise */
+            let rootIndex = (action.payload.root !== undefined && isArray(elements[action.payload.root])) ? action.payload.root : current;
 
-            /* check if we're dealing with arrays */
-            if(Array.isArray(ref)) {
-                /* check for root index in event payload, use current index otherwise */
-                rdx = (action.payload.root !== undefined && Array.isArray(ref[action.payload.root])) ? action.payload.root : state.current;
+            /* check if we're in bounds for data array, use 0 if exceed */
+            let itemIndex = action.payload.index < elements[rootIndex].data.length ? action.payload.index : 0;
 
-                /* check if we're in bounds */
-                idx = action.payload.index < ref[rdx].length ? action.payload.index : 0;
+            /* substitute element */
+            if(action.payload.value)
+                elements[rootIndex].data[itemIndex] = action.payload.value;
+            /* delete element */
+            else {
+                elements[rootIndex].data.splice(itemIndex, 1);
 
-                /* substitute element */
-                if(action.payload.value)
-                    ref[rdx][idx] = action.payload.value;
-                /* delete element */
-                else {
-                    ref[rdx].splice(idx, 1);
+                /* if it was the last element, decrement root selection */
+                if(elements[rootIndex].data.length == 0) {
+                    elements.splice(rootIndex, 1);
 
-                    /* if it was the last element, decrement root selection */
-                    if(ref[rdx].length == 0) {
-                        ref.splice(rdx, 1);
-
-                        if(state.current > 0) {
-                            return Object.assign({}, state, { current: state.current - 1, elements: ref });
-                        }
+                    if(current > 0) {
+                        current --;
                     }
                 }
-
-                return Object.assign({}, state, { elements: ref });
             }
 
-            return Object.assign({}, state);
+            return Object.assign({}, state, {
+                current: current,
+                elements: elements
+            });
         break;
 
         case Enum.SelectionPurge:

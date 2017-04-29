@@ -10,6 +10,15 @@ export default {
         }
     },
 
+    setType : function(selType) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SelectionSetType,
+                payload: selType
+            })
+        }
+    },
+
     finishSelection : function() {
         return function(dispatch) {
             dispatch({

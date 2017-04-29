@@ -3,6 +3,8 @@ import { ButtonGroup } from 'react-bootstrap';
 
 import ToolboxButton from './ToolboxButton';
 
+import { Types } from '../constants/Selection';
+
 export default class MapToolBox extends Component {
     constructor(props) {
         super(props);
@@ -49,6 +51,10 @@ export default class MapToolBox extends Component {
     togglePoly(polyState) {
         this.toggleSelect(polyState);
         this.actions.togglePoly(polyState);
+
+        if(polyState) {
+            this.select.setType(Types.Polygon);
+        }
     }
 
     /* related tool */
@@ -60,6 +66,10 @@ export default class MapToolBox extends Component {
 
         this.toggleSelect(rectState);
         this.actions.toggleRect(rectState);
+
+        if(rectState) {
+            this.select.setType(Types.Rect);
+        }
     }
 
     /* related tool */
@@ -70,6 +80,10 @@ export default class MapToolBox extends Component {
 
         this.toggleSelect(roundState);
         this.actions.toggleRound(roundState);
+
+        if(roundState) {
+            this.select.setType(Types.Circle);
+        }
     }
 
     // <ToolboxButton key = {1} icon = 'erase' help = 'Erase last selection' />,
