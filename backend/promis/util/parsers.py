@@ -39,7 +39,7 @@ def telemetry(fp):
     """
     Parses the telemetry .txt file used in Potential and possibly some other satellites.
 
-    Yields time, (time, lon, lat) pairs.
+    Yields time, (time, lon, lat, alt) tuples.
     """
     # We have a bit of a decision here:
     # 1. Read the file in one try reading each compontent into an in memory list
@@ -186,21 +186,22 @@ def csv(fp, as_type=float):
 
 def wkb(_wkb):
     """
-    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4326
+    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4979
     """
     # TODO: test if we can speed up things if we serialized in JSON on the fly
     # Setting endianness causes struct to use standard type sizes instead of native ones
     endianness = [ ">", "<" ] [ _wkb[0] ]
 
     # Check if we have a 2D Linestring
-    if struct.unpack(endianness + "l", _wkb[1:5]) [0] != 2:
+    # TODO: why this weird literal?
+    if struct.unpack(endianness + "L", _wkb[1:5]) [0] != 0x80000002:
         raise ValueError("WKB parser can only do LineString for now")
 
     # Determine the point count
-    pts_count = struct.unpack(endianness + "l", _wkb[5:5+4]) [0]
+    pts_count = struct.unpack(endianness + "L", _wkb[5:5+4]) [0]
 
     # Get actual data
     for i in range(pts_count):
         # Each data point is 2 8-byte doubles, offset by header (9 bytes)
-        offset = 1 + 4 + 4 + 8 * 2 * i
-        yield struct.unpack(endianness + "dd", _wkb[offset:offset+16])
+        offset = 1 + 4 + 4 + 8 * 3 * i
+        yield struct.unpack(endianness + "ddd", _wkb[offset:offset+8*3])
