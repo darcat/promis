@@ -17,8 +17,9 @@ export const Types = {
 };
 
 export const State = {
-    active : false, /* when selection tool is active */
-    current : 0, /* current selection index */
-    elements : new Array() /* storage */
+    active : false,         /* when selection tool is active */
+    current : 0,            /* current selection index */
+    elements : new Array(), /* map and ui-friendly storage */
+    polygons : new Array()  /* coordinate storage */
 };
 

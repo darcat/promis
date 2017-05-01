@@ -90,6 +90,7 @@ export default function SelectionReducer(state = State, action) {
                     minimum = 3;
                 break;
 
+                case Types.Rect:
                 case Types.Circle:
                     minimum = 2;
                 break;

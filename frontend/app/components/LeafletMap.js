@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import Leaflet from 'leaflet';
 import LeafletBing from 'leaflet-bing-layer';
 
+import { Types } from '../constants/Selection';
 import { BingKey } from '../constants/Map'
 
 import 'leaflet/dist/leaflet.css';
@@ -11,36 +12,36 @@ export default class LeafletContainer extends Component {
     constructor(props) {
         super(props);
 
+        /* handles */
         this.map = null;
         this.geolines = new Array();
-        this.precision = 3;
-        this.pointsHandles = new Array();
-        this.polygonHandles = new Array();
+        this.pointHandles = new Array();
+        this.shapeHandles = new Array();
+        this.previewHandle = null;
 
-        this.previewCircleHandle = null;
-        this.previewRectangleHandle = null;
-
+        /* options */
         this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1 };
         this.bingParams = { bingMapsKey : BingKey, imagerySet : 'AerialWithLabels' };
 
-        this.fpoint = this.fpoint.bind(this);
-        this.repaint = this.repaint.bind(this);
+        /* events handling */
         this.initEvents = this.initEvents.bind(this);
         this.clearEvents = this.clearEvents.bind(this);
+        this.eventToPoint = this.eventToPoint.bind(this);
+        this.pointToRadius = this.pointToRadius.bind(this);
+        this.startDrawEvent = this.startDrawEvent.bind(this);
         this.moveDrawEvent = this.moveDrawEvent.bind(this);
-        this.clickDrawEvent = this.clickDrawEvent.bind(this);
+        this.stopDrawEvent = this.stopDrawEvent.bind(this);
+
+        /* update functions */
+        this.repaint = this.repaint.bind(this);
         this.processSelection = this.processSelection.bind(this);
 
-        this.getPoints = this.getPoints.bind(this);
-        this.getCurrent = this.getCurrent.bind(this);
-
-        this.makePolygon = this.makePolygon.bind(this);
-        this.clearPolygon = this.clearPolygon.bind(this);
+        /* drawing functions */
+        this.makeShape = this.makeShape.bind(this);
+        this.clearShape = this.clearShape.bind(this);
+        this.previewShape = this.previewShape.bind(this);
         this.makeSelectionPoint = this.makeSelectionPoint.bind(this);
         this.clearSelectionPoint = this.clearSelectionPoint.bind(this);
-        this.previewRectangle = this.previewRectangle.bind(this);
-        this.previewCircle = this.previewCircle.bind(this);
-        this.removePreview = this.removePreview.bind(this);
     }
 
     /* update only for fullscreen toggling */
@@ -50,10 +51,6 @@ export default class LeafletContainer extends Component {
                 this.props.options.dims.height !== nextProps.options.dims.height);
     }
 
-    fpoint(number) {
-        return parseFloat(number.toFixed(this.precision));
-    }
-
     repaint() {
         if(this.map) {
             this.map.invalidateSize();
@@ -61,7 +58,7 @@ export default class LeafletContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.processSelection(nextProps.selection);
+        this.processSelection();
         this.repaint();
     }
 
@@ -85,13 +82,15 @@ export default class LeafletContainer extends Component {
     }
 
     initEvents() {
-        this.map.on('click', this.clickDrawEvent);
+        this.map.on('mousedown', this.startDrawEvent);
         this.map.on('mousemove', this.moveDrawEvent);
+        this.map.on('mouseup',   this.stopDrawEvent);
     }
 
     clearEvents() {
-        this.map.off('click', this.clickDrawEvent);
-        this.map.off('click', this.moveDrawEvent);
+        this.map.off('mousedown', this.startDrawEvent);
+        this.map.off('mousemove', this.moveDrawEvent);
+        this.map.off('mouseup',   this.stopDrawEvent);
     }
 
     makeGeoline(coords)
@@ -149,41 +148,66 @@ export default class LeafletContainer extends Component {
         this.geolines = new Array();
     }
 
-    /* get (current) selection points */
-    getPoints(i) {
-        var index = (i !== undefined ? i : this.props.selection.current);
+    /* remove given shape from map */
+    clearShape(shape) {
+        if(shape && 'remove' in shape) shape.remove();
 
-        return this.props.selection.elements[index];
+        //shape = null;
     }
 
-    /* get current selection index */
-    getCurrent() {
-        return this.props.selection.current;
+    /* make shape from current selection */
+    makeShape(type, data, opts) {
+        let shape = null;
+        let options = (opts !== undefined ? opts : {
+            color: 'blue',
+            fillColor: '#0000ff',
+            fillOpacity: 0.8
+        });
+
+        switch(type) {
+            case Types.Rect:
+                shape = Leaflet.rectangle(data, options);
+            break;
+
+            case Types.Circle:
+                shape = Leaflet.circle(data[0], data[1], options);
+            break;
+
+            case Types.Polygon:
+                shape = Leaflet.polygon(data, options);
+            break;
+        }
+
+        if(shape) {
+            shape.addTo(this.map);
+        }
+
+        return shape;
     }
 
-    /* make polygon from selection current or given index */
-    makePolygon(i) {
-        var polygon = Leaflet.polygon(
-            this.getPoints(i),
-            {
-                color: 'blue',
-                fillColor: '#0000ff',
-                fillOpacity: 0.8
+    /* make preview shape */
+    previewShape(newpoint) {
+        let temp = null;
+        let last = this.props.onSelect.getLastPoint();
+        let type = this.props.onSelect.getCurrentType();
+
+        if(last) {
+            /* calc radius for circles or just assign new point */
+            if(type == Types.Circle) {
+                temp = this.pointToRadius(last, newpoint);
+            } else {
+                temp = newpoint;
+            }
+
+            /* clear last preview */
+            this.clearShape(this.previewHandle);
+
+            /* and make new one */
+            this.previewHandle = this.makeShape(type, new Array(last, temp), {
+                color: 'white',
+                dashArray: '5, 10'
             });
-
-        polygon.addTo(this.map);
-
-        return polygon;
-    }
-
-    /* remove given polygon from map */
-    clearPolygon(i) {
-        var index = (i !== undefined ? i : this.getCurrent());
-        var polygon = this.polygonHandles[index];
-
-        if(polygon && 'remove' in polygon) polygon.remove();
-
-        polygon = null;
+        }
     }
 
     /* make anchor point of selection */
@@ -211,84 +235,92 @@ export default class LeafletContainer extends Component {
         point = null;
     }
 
-    removePreview() {
-        if(this.previewRectangleHandle && 'remove' in this.previewRectangleHandle) this.previewRectangleHandle.remove();
-        if(this.previewCircleHandle && 'remove' in this.previewCircleHandle) this.previewCircleHandle.remove();
+    /* update visible areas according to current selection */
+    processSelection() {
+        this.clearShape(this.previewHandle);
 
-    }
-    /* delete old preview rect and make new one */
-    previewRectangle(newpoint) {
-        this.removePreview();
-
-        var points = this.getPoints();
-        var rect = Leaflet.rectangle(points.concat([newpoint]), {
-                color: 'white',
-                dashArray: '5, 10'
-            });
-
-        rect.addTo(this.map);
-
-        this.previewRectangleHandle = rect;
-    }
-
-    /* delete old preview circle and make new one */
-    previewCircle(newpoint) {
-        this.removePreview();
-
-        var start = this.getPoints()[0];
-
-        if(start) {
-            var where = Leaflet.latLng(start);
-            var radius = where.distanceTo(Leaflet.latLng(newpoint));
-
-            console.log(radius);
-            var circle = Leaflet.circle(where, radius, {
-                            color: 'white',
-                            dashArray: '5, 10'
-                        });
-
-            circle.addTo(this.map);
-
-            this.previewCircleHandle = circle;
-        }
-    }
-
-    /* update visible areas according to (current) selection */
-    processSelection(particular) {
-        var selection = (particular !== undefined ? particular : this.props.selection);
-
-        this.removePreview();
-
-        this.polygonHandles.forEach(function(handle, index) {
-            this.clearPolygon(index);
+        this.shapeHandles.forEach(function(handle) {
+            this.clearShape(handle);
         }.bind(this));
 
-        this.pointsHandles.forEach(function(point) {
-            this.clearSelectionPoint(point);
+        this.pointHandles.forEach(function(point) {
+            this.clearShape(point);
         }.bind(this));
 
-        if(selection.current > 0) {
-            this.polygonHandles = new Array();
-            this.pointsHandles = new Array();
+        if(this.props.selection.current > 0) {
+            this.shapeHandles = new Array();
+            this.pointHandles = new Array();
 
-            this.props.selection.elements.forEach(function(selection, index) {
-                this.polygonHandles.push(this.makePolygon(index));
+            this.props.selection.elements.forEach(function(selection, rootIndex) {
+                if(selection.data.length) {
+                    this.shapeHandles.push(this.makeShape(selection.type, selection.data));
+                }
 
-                selection.forEach(function(point) {
-                    this.pointsHandles.push(this.makeSelectionPoint(point));
+                selection.forEach(function(point, itemIndex) {
+                    //this.pointsHandles.push(this.makeSelectionPoint(point));
+
+                    // point drag handler here
                 }.bind(this));
             }.bind(this));
         }
     }
 
-    clickDrawEvent(e) {
+    /* shortcut */
+    eventToPoint(e) {
+        return new Array(this.props.onSelect.fixedPoint(e.latlng.lat), this.props.onSelect.fixedPoint(e.latlng.lng));
+    }
+
+    /* another shortcut */
+    pointToRadius(from, to) {
+        let latlng = Leaflet.latLng(from);
+
+        return latlng.distanceTo(Leaflet.latLng(to));
+    }
+
+    startDrawEvent(e) {
         if(this.props.selection.active) {
+            this.map.dragging.disable();
+
+            this.props.onSelect.addToSelection(this.eventToPoint(e));
+        }
+    }
+
+    moveDrawEvent(e) {
+        if(this.props.selection.active) {
+            let point = this.eventToPoint(e);
+
+            if(this.props.onPreview)
+                this.props.onPreview(point);
+
+            this.previewShape(point);
+        }
+    }
+
+    stopDrawEvent(e) {
+        if(this.props.selection.active) {
+            this.map.dragging.enable();
+
+            let point = this.eventToPoint(e);
+
+            /* add radius instead of coords if dealing with circle */
+            if(this.props.onSelect.getCurrentType() == Types.Circle) {
+                point = this.pointToRadius(this.props.onSelect.getLastPoint(), point);
+            }
+
+            this.props.onSelect.addToSelection(point);
+            this.props.onSelect.finishSelection();
+            this.props.onChange.toggleFlush();
+        }
+    }
+
+/*
             var bound1 = this.getPoints().pop();
             var bound2 = e.latlng;
             var bounds = null;
-            var points = null;
+            var points = null;*/
 
             /* make rect or circle */
+            /*
             if(bound1 !== undefined) {
                 if(this.props.options.rect) {
                     bounds = Leaflet.latLngBounds(bound1, bound2);
@@ -318,21 +350,7 @@ export default class LeafletContainer extends Component {
                 this.props.onSelect.addToSelection([this.fpoint(bound2.lat), this.fpoint(bound2.lng)]);
             }
         }
-    }
-
-    moveDrawEvent(e) {
-        if(this.props.selection.active) {
-            var coords = new Array(this.fpoint(e.latlng.lat), this.fpoint(e.latlng.lng));
-
-            if(this.props.onPreview)
-                this.props.onPreview(coords);
-
-            if(this.props.options.rect)
-                this.previewRectangle(coords);
-            if(this.props.options.round)
-                this.previewCircle(coords);
-        }
-    }
+    }*/
 
     render() {
         var zoom = this.props.options.zoom;
