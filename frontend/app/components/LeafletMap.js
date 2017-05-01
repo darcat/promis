@@ -41,7 +41,6 @@ export default class LeafletContainer extends Component {
         this.clearShape = this.clearShape.bind(this);
         this.previewShape = this.previewShape.bind(this);
         this.makeSelectionPoint = this.makeSelectionPoint.bind(this);
-        this.clearSelectionPoint = this.clearSelectionPoint.bind(this);
     }
 
     /* update only for fullscreen toggling */
@@ -150,9 +149,11 @@ export default class LeafletContainer extends Component {
 
     /* remove given shape from map */
     clearShape(shape) {
-        if(shape && 'remove' in shape) shape.remove();
+        if(shape && 'remove' in shape) {
+            shape.remove();
 
-        //shape = null;
+            shape = null;
+        }
     }
 
     /* make shape from current selection */
@@ -211,28 +212,22 @@ export default class LeafletContainer extends Component {
     }
 
     /* make anchor point of selection */
-    makeSelectionPoint(location, size = 500) {
+    makeSelectionPoint(location) {
         if(location) {
-            var point = Leaflet.circle(location, {
+            let point = Leaflet.circleMarker(location, {
+                weight: 2,
                 color: 'yellow',
                 fillColor: '#ffff00',
-                fillOpacity: 0.5,
-                radius: size
+                fillOpacity: 0.5
             });
 
+            point.setRadius(4);
             point.addTo(this.map);
 
             return point;
         }
 
         return null;
-    }
-
-    /* clear anchor point */
-    clearSelectionPoint(point) {
-        if(point && 'remove' in point) point.remove();
-
-        point = null;
     }
 
     /* update visible areas according to current selection */
@@ -254,13 +249,15 @@ export default class LeafletContainer extends Component {
             this.props.selection.elements.forEach(function(selection, rootIndex) {
                 if(selection.data.length) {
                     this.shapeHandles.push(this.makeShape(selection.type, selection.data));
+
+                    selection.data.every(function(point, itemIndex) {
+                        this.pointHandles.push(this.makeSelectionPoint(point));
+                        // point drag handler here
+
+                        /* break if we've got a circle */
+                        return selection.type != Types.Circle;
+                    }.bind(this));
                 }
-
-                selection.forEach(function(point, itemIndex) {
-                    //this.pointsHandles.push(this.makeSelectionPoint(point));
-
-                    // point drag handler here
-                }.bind(this));
             }.bind(this));
         }
     }
@@ -313,52 +310,13 @@ export default class LeafletContainer extends Component {
         }
     }
 
-/*
-            var bound1 = this.getPoints().pop();
-            var bound2 = e.latlng;
-            var bounds = null;
-            var points = null;*/
-
-            /* make rect or circle */
-            /*
-            if(bound1 !== undefined) {
-                if(this.props.options.rect) {
-                    bounds = Leaflet.latLngBounds(bound1, bound2);
-                    points = [bounds.getNorthEast(), bounds.getNorthWest(), bounds.getSouthWest(), bounds.getSouthEast()];
-
-                    for(var i = 0; i < points.length; i ++)
-                        this.props.onSelect.addToSelection([this.fpoint(points[i].lat), this.fpoint(points[i].lng)]);
-                }
-                if(this.props.options.round) {
-                    // TODO: proper calculations!
-                    var center = bound1;
-                    var radius = 10; //bound2.distanceTo(bound1);
-
-                    for (var i = 0; i < 180; i += 10) {
-                        var angle = 2.1 + (i * Math.PI / 90);
-
-                        var lat = center[0] + Math.sin(angle) * radius;
-                        var lng = center[1] + Math.cos(angle) * radius;
-
-                        this.props.onSelect.addToSelection([this.fpoint(lat), this.fpoint(lng)]);
-                    }
-                }
-
-                this.props.onSelect.finishSelection();
-                this.props.onChange.toggleFlush();
-            } else {
-                this.props.onSelect.addToSelection([this.fpoint(bound2.lat), this.fpoint(bound2.lng)]);
-            }
-        }
-    }*/
-
     render() {
         var zoom = this.props.options.zoom;
         var height = {height: this.props.options.full ? this.props.options.dims.height : 300};
 
         return (
             <div>
-                <div style = {height} ref={ function(node) { this.mapNode = node; }.bind(this) } id = 'leaflet'></div>
+                <div style = {height} ref = { function(node) { this.mapNode = node; }.bind(this) } id = 'leaflet'></div>
             </div>
         )
     }
