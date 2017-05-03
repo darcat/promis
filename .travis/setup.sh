@@ -1,20 +1,33 @@
 #!/bin/sh
 
-# Setting up a minimal viable config
-echo "development_setup: yes" > conf/conf.yml
+echo "pre"
+echo $CI_BUILD_TYPE
+echo "post"
+set
 
-# Non-standard Postgres port so it won't clash with Travis machine
-# TODO: maaybe just make it expose a different one on the host?
-POSTGIS_PORT=4242
-echo "port_sql_host: $POSTGIS_PORT" >> conf/conf.yml
+if [ "$CI_BUILD_TYPE" == "Debug" ]; then
+    # Setting up a minimal viable config
+    echo "development_setup: yes" > conf/conf.yml
+
+    # Non-standard Postgres port so it won't clash with Travis machine
+    # TODO: maaybe just make it expose a different one on the host?
+    POSTGIS_PORT=4242
+    echo "port_sql_host: $POSTGIS_PORT" >> conf/conf.yml
+else
+    # Setting the name to localhost
+    echo "servername_web: localhost" > conf/conf.yml
+    # Disabling SSL support
+    echo "disable_ssl: yes" >> conf/conf.yml
+fi
 
 # Ready, steady, go
 vagrant up db.promis api.promis test.promis
 
 # Wait for the backend to start up
-while ! docker logs api.promis | grep 'at http://0.0.0.0:80/' > /dev/null; do
+while ! docker logs api.promis 2>&1 | grep 'at http://0.0.0.0:80/' > /dev/null; do
     echo "Backend not ready, sleeping 10 secs"
     sleep 10
+    docker logs api.promis
 done
 
 # Display backend logs just for kicks

@@ -2,6 +2,10 @@ services:
   - docker
 python:
   - "3.4"
+env:
+    matrix:
+        - CI_BUILD_TYPE="Debug"
+        - CI_BUILD_TYPE="Release"
 addons:
   apt:
     sources:
@@ -9,6 +13,8 @@ addons:
     packages:
       - vagrant
 before_script:
+  - echo $CI_BUILD_TYPE
+  - set
   - .travis/setup.sh
 script:
   - ./backend_test; CODE_B=$?
