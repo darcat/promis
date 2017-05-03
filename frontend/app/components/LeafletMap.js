@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Leaflet from 'leaflet';
 import LeafletBing from 'leaflet-bing-layer';
+import LeafletGeodesy from 'leaflet-geodesy';
 
 import { Types } from '../constants/Selection';
 import { BingKey } from '../constants/Map'
@@ -171,7 +172,11 @@ export default class LeafletContainer extends Component {
             break;
 
             case Types.Circle:
-                shape = Leaflet.circle(data[0], data[1], options);
+                /* Picking up a good amount of points for approximation */
+                /* TODO: currently 1 point pert 10000 meters of radius */
+                options.parts = Math.trunc(data[1] / 10000)
+
+                shape = LeafletGeodesy.circle(data[0], data[1], options);
             break;
 
             case Types.Polygon:
