@@ -148,18 +148,29 @@ export default class LeafletContainer extends Component {
         this.geolines = new Array();
     }
 
+    /* Utility */
+    removeShape(shape) {
+        if (shape && 'remove' in shape) {
+            shape.remove();
+            shape = null;
+        }
+    }
+
     /* remove given shape from map */
     /* TODO: is assigning to null necessary? */
-    clearShape(shapes) {
-        if(shapes) {
-            while(shapes.length > 0) {
-                var shape = shapes.pop();
+    clearShape(shape) {
+        if(!shape) {
+            return;
+        }
 
-                if(shape && 'remove' in shape) {
-                    shape.remove();
-                    shape = null;
-                }
+        /* Check if we have one shape or an array */
+        if('length' in shape) {
+            while(shape.length > 0) {
+                var sh = shape.pop();
+                this.removeShape(sh);
             }
+        } else {
+            this.removeShape(shape);
         }
     }
 
