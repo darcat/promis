@@ -21,7 +21,7 @@ export default class LeafletContainer extends Component {
         this.previewHandle = null;
 
         /* options */
-        this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1 };
+        this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1, worldCopyJump: true };
         this.bingParams = { bingMapsKey : BingKey, imagerySet : 'AerialWithLabels' };
 
         /* events handling */
@@ -149,46 +149,66 @@ export default class LeafletContainer extends Component {
     }
 
     /* remove given shape from map */
-    clearShape(shape) {
-        if(shape && 'remove' in shape) {
-            shape.remove();
+    /* TODO: is assigning to null necessary? */
+    clearShape(shapes) {
+        if(shapes) {
+            while(shapes.length > 0) {
+                var shape = shapes.pop();
 
-            shape = null;
+                if(shape && 'remove' in shape) {
+                    shape.remove();
+                    shape = null;
+                }
+            }
         }
     }
 
     /* make shape from current selection */
     makeShape(type, data, opts) {
-        let shape = null;
+        let shapes = null;
         let options = (opts !== undefined ? opts : {
             color: 'blue',
             fillColor: '#0000ff',
             fillOpacity: 0.8
         });
 
-        switch(type) {
-            case Types.Rect:
-                shape = Leaflet.rectangle(data, options);
-            break;
+        /* Normal copy and ±360° ones */
+        /* TODO: can we merge this with makeGeoline? */
+        shapes = new Array(3);
+        var shifts = [ 0, -360, 360 ];
 
-            case Types.Circle:
-                /* Picking up a good amount of points for approximation */
-                /* TODO: currently 1 point pert 10000 meters of radius */
-                options.parts = Math.trunc(data[1] / 10000)
+        for(var i = 0; i < 3; i++) {
+            switch(type) {
+                case Types.Rect:
+                    var bounds = [ [ data[0][0], data[0][1] + shifts[i] ], [ data[1][0], data[1][1] + shifts[i] ] ];
+                    shapes[i] = Leaflet.rectangle(bounds, options);
+                break;
 
-                shape = LeafletGeodesy.circle(data[0], data[1], options);
-            break;
+                case Types.Circle:
+                    var center = [ data[0][0], data[0][1] + shifts[i] ];
+                    /* Picking up a good amount of points for approximation */
+                    /* TODO: currently 1 point pert 10000 meters of radius */
+                    options.parts = Math.trunc(data[1] / 10000)
 
-            case Types.Polygon:
-                shape = Leaflet.polygon(data, options);
-            break;
+                    shapes[i] = LeafletGeodesy.circle(center, data[1], options);
+                break;
+
+                case Types.Polygon:
+                    /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
+                    var points = new Array(data.length);
+                    for(var j = 0; j < data.length; j++) {
+                        points[j] = [ data[j][0], data[j][1] + shifts[i] ];
+                    }
+                    shapes[i] = Leaflet.polygon(points, options);
+                break;
+            }
+
+            if(shapes[i]) {
+                shapes[i].addTo(this.map);
+            }
         }
 
-        if(shape) {
-            shape.addTo(this.map);
-        }
-
-        return shape;
+        return shapes;
     }
 
     /* make preview shape */
