@@ -148,78 +148,77 @@ export default class LeafletContainer extends Component {
         this.geolines = new Array();
     }
 
-    /* Utility */
-    removeShape(shape) {
-        if (shape && 'remove' in shape) {
+    /* remove given shape from map */
+    /* TODO: is assigning to null necessary? */
+    clearShape(shape) {
+        if(shape && 'remove' in shape) {
             shape.remove();
             shape = null;
         }
     }
 
-    /* remove given shape from map */
-    /* TODO: is assigning to null necessary? */
-    clearShape(shape) {
-        if(!shape) {
-            return;
-        }
-
-        /* Check if we have one shape or an array */
-        if('length' in shape) {
-            while(shape.length > 0) {
-                var sh = shape.pop();
-                this.removeShape(sh);
+    /* recursively clear an array */
+    clearShapes(shapes) {
+        if(shapes && 'length' in shapes) {
+            while(shapes.length > 0) {
+                let shape = shapes.pop();
+                this.clearShape(shape);
             }
-        } else {
-            this.removeShape(shape);
         }
     }
 
+    /* make 3 copies of the same shape at 0 and ±360°, return an array */
+    makeShapes(type, data, opts) {
+        /* TODO: can we merge this with makeGeoline? */
+        let shifts = [ 0, -360, 360 ];
+        let shapes = new Array(shifts.length);
+
+        for (let i = 0; i < shifts.length; i++) {
+            shapes[i] = this.makeShape(type, data, opts, shifts[i]);
+        }
+
+        return shapes;
+    }
+
     /* make shape from current selection */
-    makeShape(type, data, opts) {
-        let shapes = null;
+    makeShape(type, data, opts, shift = 0) {
+        let shape = null;
         let options = (opts !== undefined ? opts : {
             color: 'blue',
             fillColor: '#0000ff',
             fillOpacity: 0.8
         });
 
-        /* Normal copy and ±360° ones */
-        /* TODO: can we merge this with makeGeoline? */
-        shapes = new Array(3);
-        var shifts = [ 0, -360, 360 ];
+        switch(type) {
+            case Types.Rect:
+                let bounds = [ [ data[0][0], data[0][1] + shift ], [ data[1][0], data[1][1] + shift ] ];
+                shape = Leaflet.rectangle(bounds, options);
+            break;
 
-        for(var i = 0; i < 3; i++) {
-            switch(type) {
-                case Types.Rect:
-                    var bounds = [ [ data[0][0], data[0][1] + shifts[i] ], [ data[1][0], data[1][1] + shifts[i] ] ];
-                    shapes[i] = Leaflet.rectangle(bounds, options);
-                break;
+            case Types.Circle:
+                let center = [ data[0][0], data[0][1] + shift ];
+                /* Picking up a good amount of points for approximation */
+                /* TODO: currently 1 point pert 10000 meters of radius */
+                options.parts = Math.trunc(data[1] / 10000)
 
-                case Types.Circle:
-                    var center = [ data[0][0], data[0][1] + shifts[i] ];
-                    /* Picking up a good amount of points for approximation */
-                    /* TODO: currently 1 point pert 10000 meters of radius */
-                    options.parts = Math.trunc(data[1] / 10000)
+                shape = LeafletGeodesy.circle(center, data[1], options);
+            break;
 
-                    shapes[i] = LeafletGeodesy.circle(center, data[1], options);
-                break;
-
-                case Types.Polygon:
-                    /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
-                    var points = new Array(data.length);
-                    for(var j = 0; j < data.length; j++) {
-                        points[j] = [ data[j][0], data[j][1] + shifts[i] ];
-                    }
-                    shapes[i] = Leaflet.polygon(points, options);
-                break;
-            }
-
-            if(shapes[i]) {
-                shapes[i].addTo(this.map);
-            }
+            case Types.Polygon:
+                /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
+                let points = new Array(data.length);
+                for(let i = 0; i < data.length; i++) {
+                    points[j] = [ data[i][0], data[i][1] + shift ];
+                }
+                shape = Leaflet.polygon(points, options);
+            break;
         }
 
-        return shapes;
+        if(shape) {
+            shape.addTo(this.map);
+        }
+
+        return shape;
     }
 
     /* make preview shape */
@@ -237,10 +236,10 @@ export default class LeafletContainer extends Component {
             }
 
             /* clear last preview */
-            this.clearShape(this.previewHandle);
+            this.clearShapes(this.previewHandle);
 
             /* and make new one */
-            this.previewHandle = this.makeShape(type, new Array(last, temp), {
+            this.previewHandle = this.makeShapes(type, new Array(last, temp), {
                 color: 'white',
                 dashArray: '5, 10'
             });
@@ -268,10 +267,10 @@ export default class LeafletContainer extends Component {
 
     /* update visible areas according to current selection */
     processSelection() {
-        this.clearShape(this.previewHandle);
+        this.clearShapes(this.previewHandle);
 
         this.shapeHandles.forEach(function(handle) {
-            this.clearShape(handle);
+            this.clearShapes(handle);
         }.bind(this));
 
         this.pointHandles.forEach(function(point) {
@@ -284,7 +283,7 @@ export default class LeafletContainer extends Component {
 
             this.props.selection.elements.forEach(function(selection, rootIndex) {
                 if(selection.data.length) {
-                    this.shapeHandles.push(this.makeShape(selection.type, selection.data));
+                    this.shapeHandles.push(this.makeShapes(selection.type, selection.data));
 
                     selection.data.every(function(point, itemIndex) {
                         this.pointHandles.push(this.makeSelectionPoint(point));
