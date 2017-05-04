@@ -18,7 +18,7 @@ export default class LeafletContainer extends Component {
         this.geolines = new Array();
         this.pointHandles = new Array();
         this.shapeHandles = new Array();
-        this.previewHandle = null;
+        this.previewHandles = null;
 
         /* options */
         this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1, worldCopyJump: true };
@@ -171,11 +171,11 @@ export default class LeafletContainer extends Component {
     makeShapes(type, data, opts) {
         /* TODO: can we merge this with makeGeoline? */
         let shifts = [ 0, -360, 360 ];
-        let shapes = new Array(shifts.length);
+        let shapes = new Array();
 
-        for (let i = 0; i < shifts.length; i++) {
-            shapes[i] = this.makeShape(type, data, opts, shifts[i]);
-        }
+        shifts.forEach(function(shift) {
+            shapes.push(this.makeShape(type, data, opts, shift));
+        }.bind(this));
 
         return shapes;
     }
@@ -236,10 +236,10 @@ export default class LeafletContainer extends Component {
             }
 
             /* clear last preview */
-            this.clearShapes(this.previewHandle);
+            this.clearShapes(this.previewHandles);
 
             /* and make new one */
-            this.previewHandle = this.makeShapes(type, new Array(last, temp), {
+            this.previewHandles = this.makeShapes(type, new Array(last, temp), {
                 color: 'white',
                 dashArray: '5, 10'
             });
@@ -267,33 +267,35 @@ export default class LeafletContainer extends Component {
 
     /* update visible areas according to current selection */
     processSelection() {
-        this.clearShapes(this.previewHandle);
+        if(! this.props.selection.active) {
+            this.clearShapes(this.previewHandles);
 
-        this.shapeHandles.forEach(function(handle) {
-            this.clearShapes(handle);
-        }.bind(this));
-
-        this.pointHandles.forEach(function(point) {
-            this.clearShape(point);
-        }.bind(this));
-
-        if(this.props.selection.current > 0) {
-            this.shapeHandles = new Array();
-            this.pointHandles = new Array();
-
-            this.props.selection.elements.forEach(function(selection, rootIndex) {
-                if(selection.data.length) {
-                    this.shapeHandles.push(this.makeShapes(selection.type, selection.data));
-
-                    selection.data.every(function(point, itemIndex) {
-                        this.pointHandles.push(this.makeSelectionPoint(point));
-                        // point drag handler here
-
-                        /* break if we've got a circle */
-                        return selection.type != Types.Circle;
-                    }.bind(this));
-                }
+            this.shapeHandles.forEach(function(handle) {
+                this.clearShapes(handle);
             }.bind(this));
+
+            this.pointHandles.forEach(function(point) {
+                this.clearShape(point);
+            }.bind(this));
+
+            if(this.props.selection.current > 0) {
+                this.shapeHandles = new Array();
+                this.pointHandles = new Array();
+
+                this.props.selection.elements.forEach(function(selection, rootIndex) {
+                    if(selection.data.length) {
+                        this.shapeHandles.push(this.makeShapes(selection.type, selection.data));
+
+                        selection.data.every(function(point, itemIndex) {
+                            this.pointHandles.push(this.makeSelectionPoint(point));
+                            // point drag handler here
+
+                            /* break if we've got a circle */
+                            return selection.type != Types.Circle;
+                        }.bind(this));
+                    }
+                }.bind(this));
+            }
         }
     }
 
