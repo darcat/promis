@@ -201,7 +201,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Session'
+              $ref: '#/definitions/IdURL'
         default:
           description: Unexpected error
           schema:
