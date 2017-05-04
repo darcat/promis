@@ -56,7 +56,12 @@ paths:
       description: |
         Retrieve particular space project
       parameters:
-        - $ref: '#/parameters/Id'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
       responses:
         200:
           description: Space project
@@ -106,7 +111,12 @@ paths:
       description: |
         Get particular satellite device
       parameters:
-        - $ref: '#/parameters/Id'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
       responses:
         200:
           description: Satellite device
@@ -156,7 +166,12 @@ paths:
       description: |
         Get particular channel
       parameters:
-        - $ref: '#/parameters/Id'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
       responses:
         200:
           description: Satellite channel
@@ -183,6 +198,7 @@ paths:
           in: query
           description: Project ID to query its sessions for
           type: integer
+        # #193: we can fold that too:
         - name: fromtime
           in: query
           description: From time, UNIX timestamp at UTC
@@ -219,7 +235,12 @@ paths:
       description: |
         Retrieve single session
       parameters:
-        - $ref: '#/parameters/Id'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
       responses:
         200:
           description: Measurement session
@@ -288,7 +309,12 @@ paths:
       description: |
         Get particular measurement
       parameters:
-        - $ref: '#/parameters/Id'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
       responses:
         200:
           description: Measurement
@@ -345,7 +371,12 @@ paths:
       description: |
         Get particular parameter
       parameters:
-        - $ref: '#/parameters/Id'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
       responses:
         200:
           description: Parameter
@@ -370,12 +401,37 @@ paths:
       description: |
         This endpoint allows to get a quicklook of certain data measurement.
       parameters:
-        - $ref: '#/parameters/Id'
-        - $ref: '#/parameters/Source'
-        - $ref: '#/parameters/FromTime'
-        - $ref: '#/parameters/ToTime'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
+        - name: source
+          in: path
+          type: string
+          description: Where to take the data from
+          required: true
+          enum:
+            - parameter
+            - channel
+        #- $ref: '#/parameters/Source'
+        #- $ref: '#/parameters/FromTime'
+        #- $ref: '#/parameters/ToTime'
+        #- $ref: '#/parameters/Polygon'
+        - name: fromtime
+          in: query
+          description: From time, UNIX timestamp at UTC
+          type: integer
+        - name: totime
+          in: query
+          description: To time, UNIX timestamp at UTC
+          type: integer
         # TODO: in future release
-        - $ref: '#/parameters/Polygon'
+        - name: polygon
+          description: WKT polygon with desired search area
+          in: query
+          type: string
         - name: points
           in: query
           type: integer
@@ -403,12 +459,37 @@ paths:
       description: |
         This endpoint allows to get a quicklook of certain data measurement.
       parameters:
-        - $ref: '#/parameters/Id'
-        - $ref: '#/parameters/Source'
-        - $ref: '#/parameters/FromTime'
-        - $ref: '#/parameters/ToTime'
+        - name: id
+          in: path
+          type: integer
+          required: true
+          description: Unique numerical identifier
+        # $ref: '#/parameters/Id' # #193
+        - name: source
+          in: path
+          type: string
+          description: Where to take the data from
+          required: true
+          enum:
+            - parameter
+            - channel
+        #- $ref: '#/parameters/Source'
+        #- $ref: '#/parameters/FromTime'
+        #- $ref: '#/parameters/ToTime'
+        #- $ref: '#/parameters/Polygon'
+        - name: fromtime
+          in: query
+          description: From time, UNIX timestamp at UTC
+          type: integer
+        - name: totime
+          in: query
+          description: To time, UNIX timestamp at UTC
+          type: integer
         # TODO: in future release
-        - $ref: '#/parameters/Polygon'
+        - name: polygon
+          description: WKT polygon with desired search area
+          in: query
+          type: string
         # TODO: - required not working - put it on the deeper links
         - name: fmt
           in: query
@@ -556,21 +637,21 @@ definitions:
               #$ref: '#/definitions/IdURL'
           #timelapse:
             #$ref: '#/definitions/Time'
-        project:
-          type: integer
-          description: Related project ID
-        orbit:
-          type: number
-          description: Orbit representation
-        geoline:
-          $ref: '#/definitions/GeoLine'
-        measurements:
-          type: array # api links to measurement instances
-          description: Available measurements for this session
-          items:
-            $ref: '#/definitions/IdURL'
-        timelapse:
-          $ref: '#/definitions/Time'
+      project:
+        type: integer
+        description: Related project ID
+      orbit:
+        type: number
+        description: Orbit representation
+      geoline:
+        $ref: '#/definitions/GeoLine'
+      measurements:
+        type: array # api links to measurement instances
+        description: Available measurements for this session
+        items:
+          $ref: '#/definitions/IdURL'
+      timelapse:
+        $ref: '#/definitions/Time'
 
 
   Measurement:
@@ -611,31 +692,31 @@ definitions:
           #parameter_download:
             #type: string
             #description: URL to parameter data download
-        session:
-          $ref: '#/definitions/IdURL'
-        channel:
-          $ref: '#/definitions/IdURL'
-        parameter:
-          $ref: '#/definitions/IdURL'
-        freq:
-          type: number
-          description: Sampling frequency
-        min_freq:
-          type: number
-        max_freq:
-          type: number
-        channel_quicklook:
-          type: string
-          description: URL to channel quicklook
-        channel_download:
-          type: string
-          description: URL to channel data download
-        parameter_quicklook:
-          type: string
-          description: URL to parameter quicklook
-        parameter_download:
-          type: string
-          description: URL to parameter data download
+      session:
+       $ref: '#/definitions/IdURL'
+      channel:
+       $ref: '#/definitions/IdURL'
+      parameter:
+       $ref: '#/definitions/IdURL'
+      freq:
+       type: number
+       description: Sampling frequency
+      min_freq:
+       type: number
+      max_freq:
+       type: number
+      channel_quicklook:
+       type: string
+       description: URL to channel quicklook
+      channel_download:
+       type: string
+       description: URL to channel data download
+      parameter_quicklook:
+       type: string
+       description: URL to parameter quicklook
+      parameter_download:
+       type: string
+       description: URL to parameter data download
 
   Quicklook:
     type: object
@@ -756,4 +837,3 @@ parameters:
     description: WKT polygon with desired search area
     in: query
     type: string
-
