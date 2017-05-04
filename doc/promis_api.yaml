@@ -510,7 +510,18 @@ definitions:
             type: number
           max_freq:
             type: number
-
+          channel_quicklook:
+            type: string
+            description: URL to channel quicklook
+          channel_download:
+            type: string
+            description: URL to channel data download
+          parameter_quicklook:
+            type: string
+            description: URL to parameter quicklook
+          parameter_download:
+            type: string
+            description: URL to parameter data download
   Quicklook:
     type: object
     properties:
