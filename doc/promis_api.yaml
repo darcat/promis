@@ -435,93 +435,208 @@ paths:
 definitions:
   Project:
     type: object
-    allOf:
-      - $ref: '#/definitions/IdURL'
-      - $ref: '#/definitions/NameDesc'
-      - properties:
-          timelapse:
-            $ref: '#/definitions/Time'
+    # cut here, #193
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+      name:
+        type: string
+        description: Short name
+      desc:
+        type: string
+        description: In-depth description
+    #allOf:
+      #- $ref: '#/definitions/IdURL'
+      #- $ref: '#/definitions/NameDesc'
+      #- properties:
+      timelapse:
+        $ref: '#/definitions/Time'
 
   Device:
     type: object
-    allOf:
-      - $ref: '#/definitions/IdURL'
-      - $ref: '#/definitions/NameDesc'
-      - properties:
-          channels:
-            type: array
-            description: Channels the device provides
-            items:
-              $ref: '#/definitions/IdURL'
+    # cut here, #193
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+      name:
+        type: string
+        description: Short name
+      desc:
+        type: string
+        description: In-depth description
+    #allOf:
+      #- $ref: '#/definitions/IdURL'
+      #- $ref: '#/definitions/NameDesc'
+      #- properties:
+      channels:
+        type: array
+        description: Channels the device provides
+        items:
+          $ref: '#/definitions/IdURL'
 
   Channel:
     type: object
-    allOf:
-      - $ref: '#/definitions/IdURL'
-      - $ref: '#/definitions/NameDesc'
+    # cut here, #193
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+      name:
+        type: string
+        description: Short name
+      desc:
+        type: string
+        description: In-depth description
+    #allOf:
+      #- $ref: '#/definitions/IdURL'
+      #- $ref: '#/definitions/NameDesc'
 
   Parameter:
     type: object
-    allOf:
-      - $ref: '#/definitions/IdURL'
-      - $ref: '#/definitions/NameDesc'
-      - properties:
-          channel:
-            allOf:
-              - description: Channel the parameter depends on
-              - $ref: '#/definitions/IdURL'
+    # cut here, #193
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+      name:
+        type: string
+        description: Short name
+      desc:
+        type: string
+        description: In-depth description
+    #allOf:
+      #- $ref: '#/definitions/IdURL'
+      #- $ref: '#/definitions/NameDesc'
+      #- properties:
+      channel:
+            #allOf:
+              #- description: Channel the parameter depends on
+              #- $ref: '#/definitions/IdURL'
+        $ref: '#/definitions/IdURL'
 
   Session:
     type: object
-    allOf:
-      - $ref: '#/definitions/IdURL'
-      - properties:
-          project:
-            type: integer
-            description: Related project ID
-          orbit:
-            type: number
-            description: Orbit representation
-          geoline:
-            $ref: '#/definitions/GeoLine'
-          measurements:
-            type: array # api links to measurement instances
-            description: Available measurements for this session
-            items:
-              $ref: '#/definitions/IdURL'
-          timelapse:
-            $ref: '#/definitions/Time'
+    # cut here, #193
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+    #allOf:
+      #- $ref: '#/definitions/IdURL'
+      #- properties:
+          #project:
+            #type: integer
+            #description: Related project ID
+          #orbit:
+            #type: number
+            #description: Orbit representation
+          #geoline:
+            #$ref: '#/definitions/GeoLine'
+          #measurements:
+            #type: array # api links to measurement instances
+            #description: Available measurements for this session
+            #items:
+              #$ref: '#/definitions/IdURL'
+          #timelapse:
+            #$ref: '#/definitions/Time'
+        project:
+          type: integer
+          description: Related project ID
+        orbit:
+          type: number
+          description: Orbit representation
+        geoline:
+          $ref: '#/definitions/GeoLine'
+        measurements:
+          type: array # api links to measurement instances
+          description: Available measurements for this session
+          items:
+            $ref: '#/definitions/IdURL'
+        timelapse:
+          $ref: '#/definitions/Time'
+
 
   Measurement:
     type: object
-    allOf:
-      - $ref: '#/definitions/IdURL'
-      - properties:
-          session:
-            $ref: '#/definitions/IdURL'
-          channel:
-            $ref: '#/definitions/IdURL'
-          parameter:
-            $ref: '#/definitions/IdURL'
-          freq:
-            type: number
-            description: Sampling frequency
-          min_freq:
-            type: number
-          max_freq:
-            type: number
-          channel_quicklook:
-            type: string
-            description: URL to channel quicklook
-          channel_download:
-            type: string
-            description: URL to channel data download
-          parameter_quicklook:
-            type: string
-            description: URL to parameter quicklook
-          parameter_download:
-            type: string
-            description: URL to parameter data download
+    # cut here, #193
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+    #allOf:
+      #- $ref: '#/definitions/IdURL'
+      #- properties:
+          #session:
+            #$ref: '#/definitions/IdURL'
+          #channel:
+            #$ref: '#/definitions/IdURL'
+          #parameter:
+            #$ref: '#/definitions/IdURL'
+          #freq:
+            #type: number
+            #description: Sampling frequency
+          #min_freq:
+            #type: number
+          #max_freq:
+            #type: number
+          #channel_quicklook:
+            #type: string
+            #description: URL to channel quicklook
+          #channel_download:
+            #type: string
+            #description: URL to channel data download
+          #parameter_quicklook:
+            #type: string
+            #description: URL to parameter quicklook
+          #parameter_download:
+            #type: string
+            #description: URL to parameter data download
+        session:
+          $ref: '#/definitions/IdURL'
+        channel:
+          $ref: '#/definitions/IdURL'
+        parameter:
+          $ref: '#/definitions/IdURL'
+        freq:
+          type: number
+          description: Sampling frequency
+        min_freq:
+          type: number
+        max_freq:
+          type: number
+        channel_quicklook:
+          type: string
+          description: URL to channel quicklook
+        channel_download:
+          type: string
+          description: URL to channel data download
+        parameter_quicklook:
+          type: string
+          description: URL to parameter quicklook
+        parameter_download:
+          type: string
+          description: URL to parameter data download
+
   Quicklook:
     type: object
     properties:
