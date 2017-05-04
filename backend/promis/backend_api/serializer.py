@@ -60,6 +60,21 @@ class ChannelsSerializer(HyperlinkedTranslatableModelSerializer):
                 self.fields.pop(f)
 
 
+class ParametersSerializer(TranslatableModelSerializer):
+    channel = ChannelsSerializer(idurl = True)
+
+    class Meta(LookupById):
+        fields = ('id', 'url', 'name', 'description', 'channel')
+        model = models.Parameter
+
+    # TODO: STUB
+    def __init__(self, *args, idurl=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if idurl:
+            for f in ('name', 'description', 'channel'):
+                self.fields.pop(f)
+
+
 class DevicesSerializer(TranslatableModelSerializer):
     space_project = SpaceProjectsSerializer(many = False, idurl = True)
     channels = ChannelsSerializer(many = True, idurl = True)
@@ -126,14 +141,6 @@ class CompactSessionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Session
         fields = ('time',)
-
-class ParametersSerializer(TranslatableModelSerializer):
-# TODO: fix the bug
-#    channel = HyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
-    channel = ChannelsSerializer()
-    class Meta:
-        fields = ('id', 'name', 'description', 'channel')
-        model = models.Parameter
 
 
 '''class QuicklookHyperlink(serializers.HyperlinkedRelatedField):
