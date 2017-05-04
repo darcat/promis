@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Promis API
   description: Development version, a subject to change
-  version: "0.1.1"
+  version: "0.1.2"
 
 # the domain of the service
 # (to be changed by deploy)
@@ -481,84 +481,62 @@ paths:
 definitions:
   Project:
     type: object
-    properties:
-      id:
-        type: number
-        description: Unique project ID
-      name:
-        type: string
-        description: Name of the project
-      desc:
-        type: string
-        description: Description of the project
-      timelapse:
-        $ref: '#/definitions/Time'
+    allOf:
+      - $ref: '#/definitions/IdURL'
+      - $ref: '#/definitions/NameDesc'
+      - properties:
+          timelapse:
+            $ref: '#/definitions/Time'
 
   Device:
     type: object
-    properties:
-      id:
-        type: number
-        description: Unique device ID
-      name:
-        type: string
-        description: Short name of the device
-      desc:
-        type: string
-        description: Detailed info about the device
-      channels:
-        type: array
-        items:
-          type: string
+    allOf:
+      - $ref: '#/definitions/IdURL'
+      - $ref: '#/definitions/NameDesc'
+      - properties:
+          channels:
+            type: array
+            description: Channels the device provides
+            items:
+              $ref: '#/definitions/IdURL'
 
   Channel:
     type: object
-    properties:
-      id:
-        type: number
-        description: Unique channel ID
-      name:
-        type: string
-        description: Short name of the channel
+    allOf:
+      - $ref: '#/definitions/IdURL'
+      - $ref: '#/definitions/NameDesc'
 
   Parameter:
     type: object
-    properties:
-      id:
-        type: number
-        description: Unique parameter ID
-      name:
-        type: string
-        description: Short name of the parameter
-      description:
-        type: string
-        description: Detailed parameter information
-      channel:
-        type: string
-        description: URL to corresponding channel
+    allOf:
+      - $ref: '#/definitions/IdURL'
+      - $ref: '#/definitions/NameDesc'
+      - properties:
+          channel:
+            allOf:
+              - description: Channel the parameter depends on
+              - $ref: '#/definitions/IdURL'
 
   Session:
     type: object
-    properties:
-      id:
-        type: integer
-        description: Unique session ID
-      project:
-        type: integer
-        description: Related project ID
-      orbit:
-        type: number
-        description: Orbit representation
-      geoline:
-        type: string
-        description: Where data has been measured
-      measurements:
-        type: array # api links to measurement instances
-        description: Available measurements for this session
-        items:
-          type: string
-      time:
-        $ref: '#/definitions/Time'
+    allOf:
+      - $ref: '#/definitions/IdURL'
+      - properties:
+          project:
+            type: integer
+            description: Related project ID
+          orbit:
+            type: number
+            description: Orbit representation
+          geoline:
+            $ref: '#/definitions/GeoLine'
+          measurements:
+            type: array # api links to measurement instances
+            description: Available measurements for this session
+            items:
+              $ref: '#/definitions/IdURL'
+          timelapse:
+            $ref: '#/definitions/Time'
 
   Measurement:
     type: object
@@ -571,7 +549,7 @@ definitions:
     type: object
     properties:
       data:
-        type: string
+        type: array
         description: Quicklook data
 
   RawData:
@@ -585,10 +563,22 @@ definitions:
   Time:
     type: object
     properties:
-      begin:
-        type: string
+      start:
+        type: integer
+        description: UNIX time at UTC
       end:
-        type: string
+        type: integer
+        description: UNIX time at UTC
+
+  # 3D geoline
+  GeoLine:
+    type: array
+    items:
+      type: array
+      description: Coordinates at 1 Hz
+      items:
+        type: number
+        description: Latitude, Longitude, Altitude
 
   # Error message
   Error:
@@ -597,3 +587,23 @@ definitions:
       message:
         type: string
         description: Error message
+
+  # Common components
+  IdURL:
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+
+  NameDesc:
+    properties:
+      name:
+        type: string
+        description: Short name
+      desc:
+        type: string
+        description: In-depth description
+
