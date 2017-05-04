@@ -51,6 +51,7 @@ class MeasurementsFilter(django_filters.rest_framework.FilterSet):
 class ProjectsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
+    lookup_field = 'id'
     permission_classes = (AllowAny,)
 
 class DevicesView(viewsets.ReadOnlyModelViewSet):

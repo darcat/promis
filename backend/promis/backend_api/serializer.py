@@ -4,7 +4,7 @@ from backend_api import models
 from rest_framework.fields import ReadOnlyField, SerializerMethodField
 from rest_framework.reverse import reverse
 from djsw_wrapper.serializers import SwaggerHyperlinkedRelatedField
-from hvad.contrib.restframework import TranslatableModelSerializer
+from hvad.contrib.restframework import TranslatableModelSerializer, HyperlinkedTranslatableModelSerializer
 from rest_framework_gis.serializers import GeoModelSerializer
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
 import json
@@ -14,6 +14,7 @@ from django.contrib.auth.models import Group
 from backend_api import helpers
 import util.parsers
 
+# TODO: can we do the extra_kwargs thing globally?
 
 class SessionsSerializer(serializers.ModelSerializer):
 #   TODO: Spike! @lyssdod, correct this
@@ -73,19 +74,20 @@ class CompactSessionsSerializer(serializers.ModelSerializer):
         model = models.Session
         fields = ('time',)
 
-class SpaceProjectsSerializer(TranslatableModelSerializer):
+class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
 
     def get_timelapse(self, obj):
-        ret_val = {}
-        ret_val['begin'] = str(obj.date_start.isoformat())
-        ret_val['end'] = str(obj.date_end.isoformat())
-
-        return ret_val
+        # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
+        return { 'start': util.parsers.datetime_to_utc(obj.date_start),
+                 'end': util.parsers.datetime_to_utc(obj.date_end) }
 
     class Meta:
         model = models.Space_project
-        fields = ('id', 'name', 'description', 'timelapse')
+        fields = ('id', 'url', 'name', 'description', 'timelapse')
+        extra_kwargs = {
+            'url': { 'lookup_field': 'id' }
+        }
 
 class ChannelsSerializer(TranslatableModelSerializer):
     class Meta:

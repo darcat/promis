@@ -25,11 +25,15 @@ import util.orbit
 import datetime
 import pytz
 
+def datetime_to_utc(x):
+    # Add the 00:00 time if we only got a date
+    if type(x) is datetime.date:
+        x = datetime.datetime.combine(x, datetime.datetime.min.time())
+    return int(x.replace(tzinfo=pytz.timezone("UTC")).timestamp())
+
 def str_to_utc(x):
     time_fmt = "%Y{0}%m{0}%d %H:%M:%S".format(x[4])
-    ts = datetime.datetime.strptime(x, time_fmt)
-    ts = ts.replace(tzinfo=pytz.timezone("UTC")).timestamp()
-    return int(ts)
+    return datetime_to_utc(datetime.datetime.strptime(x, time_fmt))
 
 # TODO: cull out those which have standard parsers (CSV?)
 # TODO: replace ValueErrors with meaningful exception classes when integrating
