@@ -14,7 +14,60 @@ from django.contrib.auth.models import Group
 from backend_api import helpers
 import util.parsers
 
-# TODO: can we do the extra_kwargs thing globally?
+
+class LookupById:
+    '''Shortcut to include extra_kwargs to every Meta class'''
+    extra_kwargs = { 'url': { 'lookup_field': 'id' } }
+
+# TODO: can we have smth like this?
+#class IdAndURLSerializer(serializers.HyperlinkedModelSerializer):
+    #'''Serializes anything to a id/url pair'''
+    #class Meta(LookupById):
+        #model = AbstractModel
+        #fields = ('id', 'url')
+
+
+class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
+    timelapse = serializers.SerializerMethodField()
+
+    def get_timelapse(self, obj):
+        # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
+        return { 'start': util.parsers.datetime_to_utc(obj.date_start),
+                 'end': util.parsers.datetime_to_utc(obj.date_end) }
+
+    class Meta(LookupById):
+        model = models.Space_project
+        fields = ('id', 'url', 'name', 'description', 'timelapse')
+
+    # TODO: STUB
+    def __init__(self, *args, idurl=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if idurl:
+            for f in ('name', 'description', 'timelapse'):
+                self.fields.pop(f)
+
+
+class ChannelsSerializer(HyperlinkedTranslatableModelSerializer):
+    class Meta(LookupById):
+        fields = ('id', 'url', 'name', 'description')
+        model = models.Channel
+
+    # TODO: STUB
+    def __init__(self, *args, idurl=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if idurl:
+            for f in ('name', 'description'):
+                self.fields.pop(f)
+
+
+class DevicesSerializer(TranslatableModelSerializer):
+    space_project = SpaceProjectsSerializer(many = False, idurl = True)
+    channels = ChannelsSerializer(many = True, idurl = True)
+
+    class Meta:
+        model = models.Device
+        fields = ('id', 'name', 'description', 'space_project', 'channels')
+
 
 class SessionsSerializer(serializers.ModelSerializer):
 #   TODO: Spike! @lyssdod, correct this
@@ -73,49 +126,6 @@ class CompactSessionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Session
         fields = ('time',)
-
-class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
-    timelapse = serializers.SerializerMethodField()
-
-    def get_timelapse(self, obj):
-        # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
-        return { 'start': util.parsers.datetime_to_utc(obj.date_start),
-                 'end': util.parsers.datetime_to_utc(obj.date_end) }
-
-    class Meta:
-        model = models.Space_project
-        fields = ('id', 'url', 'name', 'description', 'timelapse')
-        extra_kwargs = {
-            'url': { 'lookup_field': 'id' }
-        }
-
-class ChannelsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('id', 'name', 'description',)
-        model = models.Channel
-
-class DevicesSerializer(TranslatableModelSerializer):
-    satellite = SpaceProjectsSerializer(many = False)
-    channels = ChannelsSerializer(many = True)
-
-    class Meta:
-        model = models.Device
-        fields = ('id', 'name', 'description', 'satellite', 'channels')
-
-class FunctionsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Function
-
-class UnitsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Unit
-
-class ValuesSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Value
 
 class ParametersSerializer(TranslatableModelSerializer):
 # TODO: fix the bug

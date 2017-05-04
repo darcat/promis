@@ -30,6 +30,13 @@ from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllow
 import datetime
 from rest_framework.decorators import permission_classes
 
+class PromisViewSet(viewsets.ReadOnlyModelViewSet):
+    '''Collects most commonly used View stuff'''
+    lookup_field = 'id'
+    permission_classes = (AllowAny,)
+    # TODO: Is it okay to put it here even for classes that don't need it?
+    filter_backends = (DjangoFilterBackend,)
+
 class SessionFilter(django_filters.rest_framework.FilterSet):
     time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
     time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
@@ -48,23 +55,18 @@ class MeasurementsFilter(django_filters.rest_framework.FilterSet):
         model = models.Measurement
         fields = ['session', 'parameter']
 
-class ProjectsView(viewsets.ReadOnlyModelViewSet):
+class ProjectsView(PromisViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
-    lookup_field = 'id'
-    permission_classes = (AllowAny,)
 
-class DevicesView(viewsets.ReadOnlyModelViewSet):
+class DevicesView(PromisViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('satellite',)
-    permission_classes = (AllowAny,)
+    filter_fields = ('space_project',)
 
-class ChannelsView(viewsets.ReadOnlyModelViewSet):
+class ChannelsView(PromisViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
-    permission_classes = (PromisPermission,)
 
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()

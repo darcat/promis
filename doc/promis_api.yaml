@@ -527,7 +527,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
@@ -550,13 +550,15 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
       #- $ref: '#/definitions/IdURL'
       #- $ref: '#/definitions/NameDesc'
       #- properties:
+      space_project:
+        $ref: '#/definitions/IdURL'
       channels:
         type: array
         description: Channels the device provides
@@ -576,7 +578,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
@@ -596,7 +598,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
@@ -637,9 +639,8 @@ definitions:
               #$ref: '#/definitions/IdURL'
           #timelapse:
             #$ref: '#/definitions/Time'
-      project:
-        type: integer
-        description: Related project ID
+      space_project:
+        $ref: '#/definitions/IdURL'
       orbit:
         type: number
         description: Orbit representation
@@ -798,7 +799,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
 
