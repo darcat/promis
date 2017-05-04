@@ -9,6 +9,8 @@ import Panel from './Panel';
 
 import '../styles/map.css';
 
+import { isSelectionElement } from '../constants/Selection';
+
 class GeoInputForm extends Component {
     constructor(props) {
         super(props);
@@ -19,16 +21,6 @@ class GeoInputForm extends Component {
         this.latToChange = this.latToChange.bind(this);
         this.lngFromChange = this.lngFromChange.bind(this);
         this.lngToChange = this.lngToChange.bind(this);
-        this.altFromChange = this.altFromChange.bind(this);
-        this.altToChange = this.altToChange.bind(this);
-    }
-
-    altFromChange(e) {
-        this.actions.altFromInput(parseInt(e.target.value));
-    }
-
-    altToChange(e) {
-        this.actions.altToInput(parseInt(e.target.value));
     }
 
     latFromChange(e) {
@@ -52,23 +44,6 @@ class GeoInputForm extends Component {
 
         return (
             <div>
-                <FormGroup controlId = 'Altitude'>
-                    <Col componentClass={ControlLabel} sm={2}>
-                        Altitude
-                    </Col>
-                    <Col sm={5}>
-                        <InputGroup>
-                            <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
-                        </InputGroup>
-                    </Col>
-                    <Col sm={5}>
-                        <InputGroup>
-                            <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
-                        </InputGroup>
-                    </Col>
-                </FormGroup>
                 <FormGroup controlId = 'Latitude'>
                     <Col componentClass={ControlLabel} sm={2}>
                         Latitude
@@ -77,12 +52,14 @@ class GeoInputForm extends Component {
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
                             <FormControl onChange = {this.latFromChange} value = {opts.latFrom} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
                             <FormControl onChange = {this.latToChange} value = {opts.latTo} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                 </FormGroup>
@@ -94,12 +71,14 @@ class GeoInputForm extends Component {
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
                             <FormControl onChange = {this.lngFromChange} value = {opts.lngFrom} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
                             <FormControl onChange = {this.lngToChange} value = {opts.lngTo} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                 </FormGroup>
@@ -108,35 +87,29 @@ class GeoInputForm extends Component {
     }
 }
 
-/*
-class InlineNumberEdit extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            inner: 
-        }
-    }
-}*/
-
 class MapSelection extends Component {
     constructor(props) {
         super(props);
     }
 
-
     render() {
-        var selection = this.props.selection;
-        var actions = this.props.actions;
+        let selection = this.props.selection;
+        let actions = this.props.actions;
 
-        if (Array.isArray(selection.elements) &&
-            selection.elements.length > 0 &&
-            Array.isArray(selection.elements[0]) &&
-            selection.elements[0].length > 0) {
+        if(isSelectionElement(selection.elements[0]) && selection.elements[0].data.length > 0)
+        {
             return (
-                <div>
+                <FormGroup controlId = 'selectionControlSelect'>
+                    <ControlLabel>Selection</ControlLabel>
+                        <FormControl componentClass = 'select' placeholder = 'select'>
+                            <option value="select">select</option>
+                            <option value="other">...</option>
+                        </FormControl>
+                    </FormGroup>
+                    /*
             { selection.elements.map(function(collection, rootIndex) {
                 return (
+
                     <Row key = {rootIndex}>
                         <Col sm={3}>#{rootIndex + 1}</Col>
                         <Col sm={9}>
@@ -183,7 +156,7 @@ class MapSelection extends Component {
                     </Row>
                 );
             }) }
-        </div>);
+        </div>*/);
         } else return (
             <p>Selection is empty</p>
         );
@@ -191,10 +164,8 @@ class MapSelection extends Component {
 }
 
 function NextPoint(props) {
-    var data = props.data();
-
-    var lat = data ? props.coords[0] : 0;
-    var lng = data ? props.coords[1] : 0;
+    let lat = props.data ? props.data[0] : 0;
+    let lng = props.data ? props.data[1] : 0;
 
     return (
         <div>Next point: {lat}, {lng}</div>
@@ -210,6 +181,8 @@ export default class TimeAndPositionInput extends Component {
         this.toggleMap = this.toggleMap.bind(this);
         this.dateFromChange = this.dateFromChange.bind(this);
         this.dateToChange = this.dateToChange.bind(this);
+        this.altFromChange = this.altFromChange.bind(this);
+        this.altToChange = this.altToChange.bind(this);
     }
 
     toggleMap() {
@@ -224,8 +197,16 @@ export default class TimeAndPositionInput extends Component {
         this.actions.dateToInput(newTo);
     }
 
+    altFromChange(e) {
+        this.actions.altFromInput(parseInt(e.target.value));
+    }
+
+    altToChange(e) {
+        this.actions.altToInput(parseInt(e.target.value));
+    }
+
     render() {
-        var opts = this.props.options;
+        let opts = this.props.options;
 
         return (
             <Panel title = 'Time and position'>
@@ -241,9 +222,28 @@ export default class TimeAndPositionInput extends Component {
                             <DateTime onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
+                    <FormGroup controlId = 'Altitude'>
+                        <Col componentClass={ControlLabel} sm={2}>
+                            Altitude
+                        </Col>
+                        <Col sm={5}>
+                            <InputGroup>
+                                <InputGroup.Addon>From</InputGroup.Addon>
+                                <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
+                                <InputGroup.Addon>m</InputGroup.Addon>
+                            </InputGroup>
+                        </Col>
+                        <Col sm={5}>
+                            <InputGroup>
+                                <InputGroup.Addon>To</InputGroup.Addon>
+                                <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
+                                <InputGroup.Addon>m</InputGroup.Addon>
+                            </InputGroup>
+                        </Col>
+                    </FormGroup>
                     <FormGroup controlId = 'InputType'>
                         <Col componentClass={ControlLabel} sm={2}>
-                            Input
+                            Geo input
                         </Col>
                         <Col sm={10}>
                             <Toggle onClick = {this.toggleMap} 

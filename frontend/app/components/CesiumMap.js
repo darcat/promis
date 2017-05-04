@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-
 import { toDegrees } from 'cesium/Source/Core/Math';
 import Viewer from 'cesium/Source/Widgets/Viewer/Viewer';
 import Matrix4 from 'cesium/Source/Core/Matrix4';
@@ -10,6 +9,8 @@ import BingMapsStyle from 'cesium/Source/Scene/BingMapsStyle';
 import BingMapsImageryProvider from 'cesium/Source/Scene/BingMapsImageryProvider';
 import GridImageryProvider from 'cesium/Source/Scene/GridImageryProvider';
 import Cartographic from 'cesium/Source/Core/Cartographic';
+import ScreenSpaceEventHandler from 'cesium/Source/Core/ScreenSpaceEventHandler';
+import ScreenSpaceEventType from 'cesium/Source/Core/ScreenSpaceEventType';
 
 import { BingKey } from '../constants/Map';
 
@@ -19,6 +20,7 @@ export default class CesiumContainer extends Component {
     constructor(props) {
         super(props);
 
+        /* map options */
         BingMapsApi.defaultKey = BingKey;
 
         this.options = {
@@ -33,24 +35,37 @@ export default class CesiumContainer extends Component {
             selectionIndicator: false
         }
 
+        /* main handle */
         this.viewer = null;
+
+        /* object handles */
+        this.geolines = new Array();
+        this.pointHandles = new Array();
+        this.shapeHandles = new Array();
+        this.previewHandle = null;
 
         /* for render suspension */
         this.lastmove = Date.now();
         this.lastmatrix = new Matrix4();
 
         /* enable render on this events */
+        this.eventHandler = null;
         this.renderEvents = new Array('mousemove', 'mousedown', 'mouseup', 'mousewheel', 'mouseclick', 'wheel', 
                                       'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup');
 
         // scroll to startpos
         //this.scrollToView(startpos[0], startpos[1]);
         this.repaint = this.repaint.bind(this);
+        this.currentView = this.currentView.bind(this);
+        this.currentPosition = this.currentPosition.bind(this);
+
+        /* events */
         this.initEvents = this.initEvents.bind(this);
         this.postRender = this.postRender.bind(this);
         this.clearEvents = this.clearEvents.bind(this);
-        this.currentView = this.currentView.bind(this);
-        this.currentPosition = this.currentPosition.bind(this);
+        this.justDrawEvent = this.justDrawEvent.bind(this);
+        this.moveDrawEvent = this.moveDrawEvent.bind(this);
+        
     }
 
     /* update only for fullscreen toggling */
@@ -58,38 +73,6 @@ export default class CesiumContainer extends Component {
         return (nextProps.options.full !== this.props.options.full) ||
                (this.props.options.dims.width !== nextProps.options.dims.width ||
                 this.props.options.dims.height !== nextProps.options.dims.height);
-    }
-
-    repaint() {
-        if(this.viewer) {
-            this.lastmove = Date.now();
-
-            if(! this.viewer.useDefaultRenderLoop) {
-                this.viewer.useDefaultRenderLoop = true;
-                console.log('render resumed @', this.lastmove);
-            }
-        }
-    }
-
-    currentView() {
-        return this.ellipsoid.cartesianToCartographic(this.viewer.camera.positionWC, this.cartographic);
-    }
-
-    /* to be called only when drawing */
-    currentPosition(position) {
-        var pickedObject = this.viewer.scene.pick(position);
-        var point = this.viewer.camera.pickEllipsoid(position);
-        var coords = null;
-        var carrad = null;
-
-        if(point) {
-            //if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
-            //inside polygon, don't make the point (or make?)
-            carrad = this.ellipsoid.cartesianToCartographic(point);
-            coords = [toDegrees(carrad.latitude), toDegrees(carrad.longitude)];
-        }
-
-        return { 'point' : point, 'coords' : coords }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -133,16 +116,52 @@ export default class CesiumContainer extends Component {
         this.repaint();
     }
 
+    repaint() {
+        if(this.viewer) {
+            this.lastmove = Date.now();
+
+            if(! this.viewer.useDefaultRenderLoop) {
+                this.viewer.useDefaultRenderLoop = true;
+                console.log('render resumed @', this.lastmove);
+            }
+        }
+    }
+
+    currentView() {
+        return this.ellipsoid.cartesianToCartographic(this.viewer.camera.positionWC, this.cartographic);
+    }
+
+    /* to be called only when drawing */
+    currentPosition(position) {
+        let pickedObject = this.viewer.scene.pick(position);
+        let point = this.viewer.camera.pickEllipsoid(position);
+        let coords = null;
+        let carrad = null;
+
+        if(point) {
+            //if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
+            //inside polygon, don't make the point (or make?)
+            carrad = this.ellipsoid.cartesianToCartographic(point);
+            coords = [
+                        this.props.onSelect.fixedPoint(toDegrees(carrad.latitude)),
+                        this.props.onSelect.fixedPoint(toDegrees(carrad.longitude))
+                    ];
+        }
+
+        return { 'point' : point, 'coords' : coords }
+    }
+
     initEvents() {
-        //var handler = new Cesium.ScreenSpaceEventHandler(this.viewer.canvas);
+        this.eventHandler = new ScreenSpaceEventHandler(this.viewer.canvas);
 
         this.viewer.scene.camera.moveEnd.addEventListener(function() {
             //GeoObject.updateSelectionPoints(); // scale selection points
         });
 
-        /* click events */
-        //handler.setInputAction(function(click) { clickDrawEventCesium(GeoObject, click) }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        //handler.setInputAction(function(event) { moveDrawEventCesium(GeoObject, event) }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        /* draw events */
+        this.eventHandler.setInputAction(this.justDrawEvent, ScreenSpaceEventType.LEFT_CLICK);
+        this.eventHandler.setInputAction(this.moveDrawEvent, ScreenSpaceEventType.MOUSE_MOVE);
+        //handler.setInputAction(this.stopDrawEvent, Cesium.ScreenSpaceEventType.LEFT_UP);
 
         /* shut down render sometimes */
         this.viewer.scene.postRender.addEventListener(this.postRender);
@@ -157,6 +176,26 @@ export default class CesiumContainer extends Component {
         this.renderEvents.forEach(function(eventname) {
             this.viewer.canvas.removeEventListener(eventname, this.repaint, false);
         }.bind(this));
+
+        this.eventHandler = this.eventHandler && this.eventHandler.destroy();
+    }
+
+    justDrawEvent(event) {
+        if(this.props.selection.active) {
+            let position = this.currentPosition(event.position);
+
+            console.log(position.coords);
+            //this.props.onSelect.addToSelection(this.eventToPoint(e));
+        }
+    }
+
+    moveDrawEvent(event) {
+        if(this.props.selection.active) {
+            let position = this.currentPosition(event.endPosition);
+
+            if(this.props.onPreview)
+                this.props.onPreview(position.coords);
+        }
     }
 
     /* © terriaJS */

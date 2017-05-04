@@ -23,6 +23,10 @@ class App extends Component {
         super(props);
 
         /* local callback is faster than whole redux state loop */
+        this.state = {
+            previewData: null
+        }
+        this.getPreview = this.getPreview.bind(this);
         this.updatePreview = this.updatePreview.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
 
@@ -41,7 +45,15 @@ class App extends Component {
     }
 
     updatePreview(data) {
-        return data;
+        this.setState(function(){
+            return {
+                previewData: data
+            }
+        })
+    }
+
+    getPreview() {
+        return this.previewData;
     }
 
     updateDimensions() {
@@ -78,7 +90,7 @@ class App extends Component {
                     </Well>
                     <Row>
                         <TimeAndPositionPanel
-                            preview = {this.updatePreview}
+                            preview = {this.state.previewData}
                             options = {this.props.inputOptions}
                             selection = {this.props.selection}
                             selectionActions = {this.props.selActions}

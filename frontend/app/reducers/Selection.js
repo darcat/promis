@@ -1,4 +1,4 @@
-import { Enum, Types, State } from '../constants/Selection';
+import { Enum, Types, State, isObject, isArray, isSelectionElement } from '../constants/Selection';
 
 function makeNewSelection() {
     return new Object(
@@ -6,18 +6,6 @@ function makeNewSelection() {
         type: 'MustBeSet',
         data: new Array()
     });
-}
-
-function isObject(obj) {
-    return obj === Object(obj) && ! Array.isArray(obj);
-}
-
-function isArray(arr) {
-    return Array.isArray(arr);
-}
-
-function isSelection(element) {
-    return isObject(element) && isArray(element.data);
 }
 
 export default function SelectionReducer(state = State, action) {
@@ -35,7 +23,7 @@ export default function SelectionReducer(state = State, action) {
         elements = new Array();
     }
 
-    if(! isSelection(selection)) {
+    if(! isSelectionElement(selection)) {
         selection = makeNewSelection();
     }
 
