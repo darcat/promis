@@ -9,6 +9,10 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r requirements.txt
+
+# NOTE: this copies everything, but only promis directory reloads
+# As such, the migration files auto-created on the container will
+# be lost when the container is deleted
 COPY . /usr/src/app
 
 CMD [ "/usr/src/app/run_promis.sh" ]
