@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Leaflet from 'leaflet';
 import LeafletBing from 'leaflet-bing-layer';
+import LeafletGeodesy from 'leaflet-geodesy';
 
 import { Types } from '../constants/Selection';
 import { BingKey } from '../constants/Map'
@@ -20,7 +21,7 @@ export default class LeafletContainer extends Component {
         this.previewHandle = null;
 
         /* options */
-        this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1 };
+        this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1, worldCopyJump: true };
         this.bingParams = { bingMapsKey : BingKey, imagerySet : 'AerialWithLabels' };
 
         /* events handling */
@@ -148,16 +149,39 @@ export default class LeafletContainer extends Component {
     }
 
     /* remove given shape from map */
+    /* TODO: is assigning to null necessary? */
     clearShape(shape) {
         if(shape && 'remove' in shape) {
             shape.remove();
-
             shape = null;
         }
     }
 
+    /* recursively clear an array */
+    clearShapes(shapes) {
+        if(shapes && 'length' in shapes) {
+            while(shapes.length > 0) {
+                let shape = shapes.pop();
+                this.clearShape(shape);
+            }
+        }
+    }
+
+    /* make 3 copies of the same shape at 0 and ±360°, return an array */
+    makeShapes(type, data, opts) {
+        /* TODO: can we merge this with makeGeoline? */
+        let shifts = [ 0, -360, 360 ];
+        let shapes = new Array(shifts.length);
+
+        for (let i = 0; i < shifts.length; i++) {
+            shapes[i] = this.makeShape(type, data, opts, shifts[i]);
+        }
+
+        return shapes;
+    }
+
     /* make shape from current selection */
-    makeShape(type, data, opts) {
+    makeShape(type, data, opts, shift = 0) {
         let shape = null;
         let options = (opts !== undefined ? opts : {
             color: 'blue',
@@ -167,15 +191,26 @@ export default class LeafletContainer extends Component {
 
         switch(type) {
             case Types.Rect:
-                shape = Leaflet.rectangle(data, options);
+                let bounds = [ [ data[0][0], data[0][1] + shift ], [ data[1][0], data[1][1] + shift ] ];
+                shape = Leaflet.rectangle(bounds, options);
             break;
 
             case Types.Circle:
-                shape = Leaflet.circle(data[0], data[1], options);
+                let center = [ data[0][0], data[0][1] + shift ];
+                /* Picking up a good amount of points for approximation */
+                /* TODO: currently 1 point pert 10000 meters of radius */
+                options.parts = Math.trunc(data[1] / 10000)
+
+                shape = LeafletGeodesy.circle(center, data[1], options);
             break;
 
             case Types.Polygon:
-                shape = Leaflet.polygon(data, options);
+                /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
+                let points = new Array(data.length);
+                for(let i = 0; i < data.length; i++) {
+                    points[j] = [ data[i][0], data[i][1] + shift ];
+                }
+                shape = Leaflet.polygon(points, options);
             break;
         }
 
@@ -201,10 +236,10 @@ export default class LeafletContainer extends Component {
             }
 
             /* clear last preview */
-            this.clearShape(this.previewHandle);
+            this.clearShapes(this.previewHandle);
 
             /* and make new one */
-            this.previewHandle = this.makeShape(type, new Array(last, temp), {
+            this.previewHandle = this.makeShapes(type, new Array(last, temp), {
                 color: 'white',
                 dashArray: '5, 10'
             });
@@ -232,10 +267,10 @@ export default class LeafletContainer extends Component {
 
     /* update visible areas according to current selection */
     processSelection() {
-        this.clearShape(this.previewHandle);
+        this.clearShapes(this.previewHandle);
 
         this.shapeHandles.forEach(function(handle) {
-            this.clearShape(handle);
+            this.clearShapes(handle);
         }.bind(this));
 
         this.pointHandles.forEach(function(point) {
@@ -248,7 +283,7 @@ export default class LeafletContainer extends Component {
 
             this.props.selection.elements.forEach(function(selection, rootIndex) {
                 if(selection.data.length) {
-                    this.shapeHandles.push(this.makeShape(selection.type, selection.data));
+                    this.shapeHandles.push(this.makeShapes(selection.type, selection.data));
 
                     selection.data.every(function(point, itemIndex) {
                         this.pointHandles.push(this.makeSelectionPoint(point));

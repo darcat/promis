@@ -27,6 +27,7 @@
     "js-cookie": "^2.1.4",
     "leaflet": "^1.0.3",
     "leaflet-bing-layer": "^3.1.0",
+    "leaflet-geodesy": "^0.2.1",
     "moment": "^2.18.1",
     "rd3": "^0.7.4",
     "react": "^15.5.4",
