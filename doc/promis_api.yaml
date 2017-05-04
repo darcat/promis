@@ -197,14 +197,14 @@ paths:
           type: integer
         - name: fromtime
           in: query
-          description: From time
-          type: string
+          description: From time, UNIX timestamp at UTC
+          type: integer
         - name: totime
           in: query
-          description: To time
-          type: string
+          description: To time, UNIX timestamp at UTC
+          type: integer
         - name: polygon
-          description: Geo polygon with desired search area
+          description: WKT polygon with desired search area
           in: query
           type: string
       responses:
@@ -381,8 +381,9 @@ paths:
             $ref: '#/definitions/Error'
 
   # TODO: here and below, add /channel and /parameter paths
+  # TODO: reuse parameters across several paths
   # Quicklook
-  /quicklook/{id}:
+  /quicklook/{id}/{source}:
     x-swagger-object-key: id
     x-swagger-router-view: QuicklookView
     get:
@@ -402,6 +403,27 @@ paths:
           type: integer
           required: false
           description: Amount of data points to show on the quicklook.
+        - name: source
+          in: path
+          type: string
+          description: Where to take the data from
+          required: true
+          enum:
+            - parameter
+            - channel
+        - name: fromtime
+          in: query
+          description: From time, UNIX timestamp at UTC
+          type: integer
+        - name: totime
+          in: query
+          description: To time, UNIX timestamp at UTC
+          type: integer
+        # TODO: in future release
+        - name: polygon
+          description: WKT polygon with desired search area
+          in: query
+          type: string
       responses:
         200:
           description: Quicklook data
@@ -413,7 +435,7 @@ paths:
             $ref: '#/definitions/Error'
 
   # Data download
-  /download/{id}:
+  /download/{id}/{source}:
     x-swagger-object-key: id
     x-swagger-router-view: DownloadView
     get:
@@ -428,17 +450,39 @@ paths:
           in: path
           type: string
           required: true
+        - name: source
+          in: path
+          type: string
+          description: Where to take the data from
+          required: true
+          enum:
+            - parameter
+            - channel
+        - name: fromtime
+          in: query
+          description: From time, UNIX timestamp at UTC
+          type: integer
+        - name: totime
+          in: query
+          description: To time, UNIX timestamp at UTC
+          type: integer
+        # TODO: in future release
+        - name: polygon
+          description: WKT polygon with desired search area
+          in: query
+          type: string
         # TODO: - required not working - put it on the deeper links
-        # - name: fmt
-        #   in: query
-        #   type: string
-        #   required: false
-        #   description: Format name to download data in.
-        #   default: json
-        #   enum:
-        #     - json
-        #     - ascii
-        #     - netcdf
+        - name: fmt
+          in: query
+          type: string
+          required: false
+          description: Format name to download data in.
+          default: json
+          enum:
+            - json
+            - ascii
+            - csv
+            - netcdf
       responses:
         200:
           description: Raw data
@@ -446,34 +490,6 @@ paths:
             $ref: '#/definitions/RawData'
         default:
           description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-
-  # testing multiaction endpoint
-  /data/{id}/{action}:
-    x-swagger-router-view: DownloadData
-    get:
-      summary: Download data
-      tags:
-        - Measurements
-      description: Single endpoint for two actions. Untested!
-      parameters:
-        - name: id
-          in: path
-          type: string
-          required: true
-        - name: action
-          in: path
-          type: string
-          required: true
-          enum:
-            - download
-            - quicklook
-      responses:
-        200:
-          description: JSON data
-        default:
-          description: Error
           schema:
             $ref: '#/definitions/Error'
 
@@ -540,10 +556,22 @@ definitions:
 
   Measurement:
     type: object
-    properties:
-      url:
-        description: API URL to certain Measurement
-        type: string
+    allOf:
+      - $ref: '#/definitions/IdURL'
+      - properties:
+          session:
+            $ref: '#/definitions/IdURL'
+          channel:
+            $ref: '#/definitions/IdURL'
+          parameter:
+            $ref: '#/definitions/IdURL'
+          freq:
+            type: number
+            description: Sampling frequency
+          min_freq:
+            type: number
+          max_freq:
+            type: number
 
   Quicklook:
     type: object
@@ -551,6 +579,15 @@ definitions:
       data:
         type: array
         description: Quicklook data
+      geoline:
+        $ref: '#/definitions/GeoLine'
+      timelapse:
+        $ref: '#/definitions/Time'
+      source:
+        # TODO: technically it can also be a parameter but whatever
+        $ref: '#/definitions/Channel'
+      value:
+        $ref: '#/definitions/Value'
 
   RawData:
     type: object
@@ -569,6 +606,19 @@ definitions:
       end:
         type: integer
         description: UNIX time at UTC
+
+  # Physical value
+  Value:
+    type: object
+    properties:
+      name:
+        type: string
+      symbol:
+        type: string
+        description: The symbol or the letter used to denote the value
+      units:
+        type: string
+        description: The abbreviated form of the units the value is measured in
 
   # 3D geoline
   GeoLine:
