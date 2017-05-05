@@ -74,13 +74,11 @@ class DevicesView(PromisViewSet):
     filter_fields = ('space_project',)
 
 
-class SessionsView(viewsets.ReadOnlyModelViewSet):
+class SessionsView(PromisViewSet):
     queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer
-    filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (AllowAny,)
 
     def get_queryset(self):
 
@@ -129,32 +127,11 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
 
 
 
-class MeasurementsView(viewsets.ReadOnlyModelViewSet):
+class MeasurementsView(PromisViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (AllowAny,)
     filter_class = MeasurementsFilter
-    filter_backends = (DjangoFilterBackend,)
 
-
-'''
-#TODO: This is used only for debugging, and should be removed
-#======== Added to view db contents. Remove it: ======
-
-class DocumentsView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Document.objects.all()
-    serializer_class = serializer.DocumentsSerializer
-
-class FunctionsView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Function.objects.all()
-    serializer_class = serializer.FunctionsSerializer
-
-class ParameterssView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
-
-#=====================================================
-'''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     def _quicklook(self, obj, src_name, src_serializer):
@@ -218,10 +195,6 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (AllowAny,)
     serializer_class = serializer.MeasurementsSerializer
 
-class DownloadView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Measurement.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = serializer.DownloadViewSerializer
 
 # TODO: make a common base class for this and QuicklookView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer

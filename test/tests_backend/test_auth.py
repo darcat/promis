@@ -101,18 +101,18 @@ def test_level1_listing(connie):
 # TODO: generalise the code
 def test_level2_access(melanie):
     '''Check that a level2 user can see only parameter fields'''
-    r = melanie.get("/en/api/download/1")
+    r = melanie.get("/en/api/measurements/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
-    assert "channel_doc" not in json_data, "Can see channels"
-    assert "parameter_doc" in json_data, "Can't see parameters"
+    assert "channel_download" not in json_data, "Can see channels"
+    assert "parameter_download" in json_data, "Can't see parameters"
 
 def test_level1_access(connie):
     '''Check that a level1 user can see all fields'''
-    r = connie.get("/en/api/download/1")
+    r = connie.get("/en/api/measurements/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
-    assert "channel_doc" in json_data, "Can't see channels"
-    assert "parameter_doc" in json_data, "Can't see parameters"
+    assert "channel_download" in json_data, "Can't see channels"
+    assert "parameter_download" in json_data, "Can't see parameters"
 
 

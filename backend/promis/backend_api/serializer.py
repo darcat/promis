@@ -94,34 +94,6 @@ class SessionsSerializer(serializers.ModelSerializer):
         if type(args[0]) is list:
             self.fields.pop('geo_line')
 
-# TODO: merge with the class above
-class CompactSessionsSerializer(serializers.ModelSerializer):
-    time = serializers.SerializerMethodField()
-
-    def get_geo_line(self, obj):
-        return util.parsers.wkb(obj.geo_line.wkb)
-    def get_time(self, obj):
-        return { 'begin': obj.time_begin.isoformat(),
-                 'end': obj.time_end.isoformat() }
-
-    def __init__(self, *args, need_geo_line=True, **kwargs):
-        super().__init__(*args, **kwargs)
-        if need_geo_line:
-            self.fields.update({ "geo_line": serializers.SerializerMethodField() })
-
-    class Meta:
-        model = models.Session
-        fields = ('time',)
-
-
-'''class QuicklookHyperlink(serializers.HyperlinkedRelatedField):
-    view_name = 'document-detail'
-    read_only = True
-
-    queryset = models.Document.objects.all()
-
-    def get_object
-'''
 
 def _context_function_call(self, *args):
     '''
@@ -189,72 +161,43 @@ class PlainTextRenderer:
     def render(self, data, media_type=None, renderer_context=None):
         return "\n".join(data)
 
-#TODO: class below need some refactoring.....
-class DownloadViewSerializer(serializers.ModelSerializer):
-    chn_quicklook = serializers.SerializerMethodField()
-    par_quicklook = serializers.SerializerMethodField()
-
-    channel_doc = serializers.SerializerMethodField()
-    parameter_doc = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ('chn_quicklook', 'par_quicklook', 'channel_doc', 'parameter_doc')
-        model = models.Measurement
-
-    def get_chn_quicklook(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/channel')
-
-    def get_par_quicklook(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/parameter')
-
-    def get_channel_doc(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/channel')
-
-    def get_parameter_doc(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/parameter')
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        user = self.context['request'].user
-        if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
-            self.fields.pop('channel_doc')
-            self.fields.pop('chn_quicklook')
 
 class MeasurementsSerializer(serializers.ModelSerializer):
     session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
     channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
     parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
-    data = serializers.SerializerMethodField()
+    channel_quicklook = serializers.SerializerMethodField()
+    channel_download = serializers.SerializerMethodField()
+    parameter_quicklook = serializers.SerializerMethodField()
+    parameter_download = serializers.SerializerMethodField()
 
 
-    class Meta:
-        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'data')
+    class Meta(LookupById):
+        # TODO: add 'url' here, currently it's broken, see #196
+        fields = ('id', 'session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'channel_quicklook', 'channel_download', 'parameter_quicklook', 'parameter_download')
         model = models.Measurement
 
-    def get_data(self, obj):
-        id = obj.channel_doc.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id))
+    #TODO: SPIKE: remove below hard code and replace to related view path.
+    def construct_data_url(self, obj, source, action):
+        id = getattr(obj, source + "_doc").id
+        return self.context['request'].build_absolute_uri('/api/%s/%d/%s' % (action, id, source))
+
+    def get_channel_quicklook(self, obj):
+        return self.construct_data_url(obj, "channel", "quicklook")
+    def get_channel_download(self, obj):
+        return self.construct_data_url(obj, "channel", "download")
+    def get_parameter_quicklook(self, obj):
+        return self.construct_data_url(obj, "parameter", "quicklook")
+    def get_parameter_download(self, obj):
+        return self.construct_data_url(obj, "parameter", "download")
+    # cut here ^
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
-
         user = self.context['request'].user
-
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
-            self.fields.pop('channel')
+            self.fields.pop('channel_download')
 
 
 class UserSerializer(serializers.ModelSerializer):

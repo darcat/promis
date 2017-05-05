@@ -732,12 +732,12 @@ definitions:
       parameter:
         type: string
         description: API Link to the measured parameter
-      freq:
+      sampling_frequency:
         type: number
         description: Sampling frequency
-      min_freq:
+      min_frequency:
         type: number
-      max_freq:
+      max_frequency:
         type: number
       channel_quicklook:
         type: string
