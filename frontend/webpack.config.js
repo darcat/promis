@@ -10,6 +10,9 @@ var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 var path = require('path');
 
 var config = {
+    node: {
+        fs: 'empty' /* workaround for cesium 1.33 */
+    },
     entry: {
         //abc: path.join(__dirname, 'app', 'loader.js'),
         main: path.join(__dirname, 'app', 'index.js')

@@ -19,7 +19,7 @@
     "axios": "^0.16.1",
     "blob-util": "^1.2.1",
     "bootstrap": "^3.3.7",
-    "cesium": "^1.32.1",
+    "cesium": "^1.33.0",
     "d3": "^3.5.17",
     "document-ready": "^2.0.1",
     "es6-promise-promise": "^1.0.0",

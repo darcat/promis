@@ -30,6 +30,7 @@ export default class UniversalMap extends Component {
         this.selectionActions.getLastPoint = this.getLastPoint;
         this.selectionActions.getSelection = this.getSelection;
         this.selectionActions.getCurrentType = this.getCurrentType;
+        this.selectionActions.getCurrentData = this.getCurrentData;
         this.selectionActions.getCurrentIndex = this.getCurrentIndex;
     }
 
@@ -60,6 +61,13 @@ export default class UniversalMap extends Component {
         let selection = this.getSelection();
 
         return selection.type;
+    }
+
+    /* get current selection data */
+    getCurrentData() {
+        let selection = this.getSelection();
+
+        return selection.data;
     }
 
     /* get last point from current selection */
