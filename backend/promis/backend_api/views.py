@@ -26,6 +26,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
+# TODO: also used by orbit.py, maybe make util.time
+import datetime, pytz
+def maketime(u):
+    return datetime.datetime.fromtimestamp(u, tz=pytz.utc)
 
 import datetime
 from rest_framework.decorators import permission_classes
@@ -38,12 +42,19 @@ class PromisViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
 
 class SessionFilter(django_filters.rest_framework.FilterSet):
-    time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
-    time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
+    time_begin = django_filters.NumberFilter(method='unix_time_filter')
+    time_end = django_filters.NumberFilter(method='unix_time_filter')
     project = django_filters.ModelChoiceFilter(name='space_project',
                                                queryset = models.Space_project.objects.all())
     satellite = django_filters.ModelChoiceFilter(name='space_project',
                                                  queryset = models.Space_project.objects.all())
+
+    # TODO: make a separate class?
+    def unix_time_filter(self, queryset, name, value):
+        # Composition of the queryset.filter argument depending on which field was used
+        filter_actions = { 'time_begin': 'time_begin__gte', 'time_end': 'time_end__lte' }
+        return queryset.filter(**{ filter_actions[name]: maketime(value) })
+
 
     class Meta:
         model = models.Session
@@ -81,24 +92,9 @@ class SessionsView(PromisViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
 
-#commented to allow Anonymous access
-        '''
-        user = self.request.user
-        if not helpers.UserExists(user):
-            return models.Session.objects.none()
-
-        if helpers.UserGroupsNo(user) <= 0:
-            now = datetime.datetime.now()
-            half_year_ago = now - datetime.timedelta(183)
-            ago = datetime.date(1900, 1, 1)
-            queryset = models.Session.objects.filter(time_end__range = (ago, half_year_ago))
-        else:
-            queryset = models.Session.objects.all()
-        '''
 
         if polygon is not None:
             try:
