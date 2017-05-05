@@ -558,12 +558,14 @@ definitions:
       #- $ref: '#/definitions/NameDesc'
       #- properties:
       space_project:
-        $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the related Space Project
       channels:
         type: array
         description: Channels the device provides
         items:
-          $ref: '#/definitions/IdURL'
+          type: string
+          description: API Link to the channel provided
 
   Channel:
     type: object
@@ -609,7 +611,8 @@ definitions:
             #allOf:
               #- description: Channel the parameter depends on
               #- $ref: '#/definitions/IdURL'
-        $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the related channel
 
   Session:
     type: object
@@ -640,7 +643,8 @@ definitions:
           #timelapse:
             #$ref: '#/definitions/Time'
       space_project:
-        $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the related Space Project
       orbit:
         type: number
         description: Orbit representation
@@ -650,7 +654,8 @@ definitions:
         type: array # api links to measurement instances
         description: Available measurements for this session
         items:
-          $ref: '#/definitions/IdURL'
+          type: string
+          description: API Link to the measurement during the session
       timelapse:
         $ref: '#/definitions/Time'
 
@@ -694,30 +699,33 @@ definitions:
             #type: string
             #description: URL to parameter data download
       session:
-       $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the related session
       channel:
-       $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the measured channel
       parameter:
-       $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the measured parameter
       freq:
-       type: number
-       description: Sampling frequency
+        type: number
+        description: Sampling frequency
       min_freq:
-       type: number
+        type: number
       max_freq:
-       type: number
+        type: number
       channel_quicklook:
-       type: string
-       description: URL to channel quicklook
+        type: string
+        description: URL to channel quicklook
       channel_download:
-       type: string
-       description: URL to channel data download
+        type: string
+        description: URL to channel data download
       parameter_quicklook:
-       type: string
-       description: URL to parameter quicklook
+        type: string
+        description: URL to parameter quicklook
       parameter_download:
-       type: string
-       description: URL to parameter data download
+        type: string
+        description: URL to parameter data download
 
   Quicklook:
     type: object

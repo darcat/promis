@@ -19,15 +19,6 @@ class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
     extra_kwargs = { 'url': { 'lookup_field': 'id' } }
 
-# TODO: STUB, please implement a fitting serializer in Swagger so we can just SwaggerHyperlinkedRelatedField all over
-def _remove_extra_fields(obj, inline):
-    print("in extra fields")
-    if not inline:
-        fields = tuple(obj.fields.keys())
-        print(fields)
-        for f in fields:
-            if f not in ('id', 'url'):
-                obj.fields.pop(f)
 
 class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
@@ -41,48 +32,28 @@ class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
         model = models.Space_project
         fields = ('id', 'url', 'name', 'description', 'timelapse')
 
-    # TODO: STUB
-    def __init__(self, *args, inline = True, **kwargs):
-        super().__init__(*args, **kwargs)
-        _remove_extra_fields(self, inline)
-
 
 class ChannelsSerializer(HyperlinkedTranslatableModelSerializer):
     class Meta(LookupById):
         fields = ('id', 'url', 'name', 'description')
         model = models.Channel
 
-    # TODO: STUB
-    def __init__(self, *args, inline = True, **kwargs):
-        super().__init__(*args, **kwargs)
-        _remove_extra_fields(self, inline)
-
 
 class ParametersSerializer(HyperlinkedTranslatableModelSerializer):
-    channel = ChannelsSerializer(inline = False)
+    channel = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'channel-detail')
 
     class Meta(LookupById):
         fields = ('id', 'url', 'name', 'description', 'channel')
         model = models.Parameter
 
-    # TODO: STUB
-    def __init__(self, *args, inline = True, **kwargs):
-        super().__init__(*args, **kwargs)
-        _remove_extra_fields(self, inline)
-
 
 class DevicesSerializer(HyperlinkedTranslatableModelSerializer):
-    space_project = SpaceProjectsSerializer(many = False, inline = False)
-    channels = ChannelsSerializer(many = True, inline = False)
+    space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
+    channels = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'channel-detail')
 
     class Meta(LookupById):
         model = models.Device
         fields = ('id', 'url', 'name', 'description', 'space_project', 'channels')
-
-    # TODO: STUB
-    def __init__(self, *args, inline = True, **kwargs):
-        super().__init__(*args, **kwargs)
-        _remove_extra_fields(self, inline)
 
 
 class SessionsSerializer(serializers.ModelSerializer):
