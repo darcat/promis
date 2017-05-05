@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from backend_api import helpers
 import util.parsers
-
+import util.unix_time
 
 class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
@@ -25,8 +25,8 @@ class SpaceProjectsSerializer(TranslatableModelSerializer):
 
     def get_timelapse(self, obj):
         # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
-        return { 'start': util.parsers.datetime_to_utc(obj.date_start),
-                 'end': util.parsers.datetime_to_utc(obj.date_end) }
+        return { 'start': util.unix_time.datetime_to_utc(obj.date_start),
+                 'end': util.unix_time.datetime_to_utc(obj.date_end) }
 
     class Meta(LookupById):
         model = models.Space_project
@@ -80,8 +80,8 @@ class SessionsSerializer(serializers.ModelSerializer):
 
     def get_time(self, obj):
         # TODO: change to time_start in model for consistency
-        return { 'start': util.parsers.datetime_to_utc(obj.time_begin),
-                 'end': util.parsers.datetime_to_utc(obj.time_end) }
+        return { 'start': util.unix_time.datetime_to_utc(obj.time_begin),
+                 'end': util.unix_time.datetime_to_utc(obj.time_end) }
 
 
     class Meta(LookupById):

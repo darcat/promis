@@ -26,10 +26,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
-# TODO: also used by orbit.py, maybe make util.time
-import datetime, pytz
-def maketime(u):
-    return datetime.datetime.fromtimestamp(u, tz=pytz.utc)
+import util.unix_time
 
 import datetime
 from rest_framework.decorators import permission_classes
@@ -53,7 +50,7 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
     def unix_time_filter(self, queryset, name, value):
         # Composition of the queryset.filter argument depending on which field was used
         filter_actions = { 'time_begin': 'time_begin__gte', 'time_end': 'time_end__lte' }
-        return queryset.filter(**{ filter_actions[name]: maketime(value) })
+        return queryset.filter(**{ filter_actions[name]: util.unix_time.maketime(value) })
 
 
     class Meta:

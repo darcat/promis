@@ -22,7 +22,7 @@
 # TODO: maintain 1 continuous FTP object
 
 from django.contrib.gis.geos import LineString
-import util.orbit, util.ftp, util.parsers, util.stats, util.export
+import util.orbit, util.ftp, util.parsers, util.stats, util.export, util.unix_time
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow
@@ -133,8 +133,8 @@ def data_func(satellite_object):
                                 line_gen = ( (y.lon, y.lat, y.alt) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
                                 # Converting time to python objects for convenience
                                 # This is the point where onboard time gets converted to the UTC
-                                time_start = util.orbit.maketime(time_start)
-                                time_end = util.orbit.maketime(time_end)
+                                time_start = util.unix_time.maketime(time_start)
+                                time_end = util.unix_time.maketime(time_end)
                                 time_dur = time_end - time_start
                                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
 
