@@ -659,6 +659,31 @@ definitions:
       timelapse:
         $ref: '#/definitions/Time'
 
+  # merge with Session using allOf when #193 is resolved
+  SessionCompact:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+      space_project:
+        type: string
+        description: API Link to the related Space Project
+      orbit:
+        type: number
+        description: Orbit representation
+      measurements:
+        type: array # api links to measurement instances
+        description: Available measurements for this session
+        items:
+          type: string
+          description: API Link to the measurement during the session
+      timelapse:
+        $ref: '#/definitions/Time'
+
 
   Measurement:
     type: object

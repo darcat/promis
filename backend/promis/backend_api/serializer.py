@@ -20,7 +20,7 @@ class LookupById:
     extra_kwargs = { 'url': { 'lookup_field': 'id' } }
 
 
-class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
+class SpaceProjectsSerializer(TranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
 
     def get_timelapse(self, obj):
@@ -33,13 +33,13 @@ class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
         fields = ('id', 'url', 'name', 'description', 'timelapse')
 
 
-class ChannelsSerializer(HyperlinkedTranslatableModelSerializer):
+class ChannelsSerializer(TranslatableModelSerializer):
     class Meta(LookupById):
         fields = ('id', 'url', 'name', 'description')
         model = models.Channel
 
 
-class ParametersSerializer(HyperlinkedTranslatableModelSerializer):
+class ParametersSerializer(TranslatableModelSerializer):
     channel = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'channel-detail')
 
     class Meta(LookupById):
@@ -47,7 +47,7 @@ class ParametersSerializer(HyperlinkedTranslatableModelSerializer):
         model = models.Parameter
 
 
-class DevicesSerializer(HyperlinkedTranslatableModelSerializer):
+class DevicesSerializer(TranslatableModelSerializer):
     space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
     channels = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'channel-detail')
 
@@ -57,23 +57,12 @@ class DevicesSerializer(HyperlinkedTranslatableModelSerializer):
 
 
 class SessionsSerializer(serializers.ModelSerializer):
-#   TODO: Spike! @lyssdod, correct this
-#    measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
-    measurements = SerializerMethodField()
+    # TODO: wtf? /quicklook/ here
+    measurements = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'measurement-detail')
+    space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
 
     geo_line = serializers.SerializerMethodField()
     time = serializers.SerializerMethodField()
-
-#   TODO: Spike! @lyssdod, correct this
-    def get_measurements(self, obj):
-        meas = models.Measurement.objects.filter(session = obj)
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        ret_val = []
-        for m in meas:
-            ret_val.append(self.context['request'].build_absolute_uri('/en/api/measurements/' + str(m.id)))
-
-        return ret_val
-
 
     def get_geo_line(self, obj):
         # Just in case for the future
@@ -83,17 +72,20 @@ class SessionsSerializer(serializers.ModelSerializer):
         return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
 
     def get_time(self, obj):
-        ret_val = {}
-        ret_val['begin'] = str(obj.time_begin.isoformat())
-        ret_val['end'] = str(obj.time_end.isoformat())
-
-        return ret_val
+        # TODO: change to time_start in model for consistency
+        return { 'start': util.parsers.datetime_to_utc(obj.time_begin),
+                 'end': util.parsers.datetime_to_utc(obj.time_end) }
 
 
-    class Meta:
+    class Meta(LookupById):
         model = models.Session
-        fields = ('id', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
-        geo_field = 'geo_line'
+        fields = ('id', 'url', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If we are serializing a list of sessions, don't include the geo_line
+        if type(args[0]) is list:
+            self.fields.pop('geo_line')
 
 # TODO: merge with the class above
 class CompactSessionsSerializer(serializers.ModelSerializer):
