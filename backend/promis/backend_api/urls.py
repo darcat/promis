@@ -15,25 +15,8 @@ docrout = SimpleRouter()
 docrout.register(r'api/quicklook', views.QuicklookView)
 docrout.register(r'api/download', views.DownloadData)
 
-'''
-#== db view ==
-#TODO: This is used only for debugging, and should be removed
-#TODO: Remove it
-
-dbview = SimpleRouter()
-dbview.register(r'functions', views.FunctionsView)
-dbview.register(r'documents', views.DocumentsView)
-dbview.register(r'parameters', views.ParametersView)
-
-#=============
-'''
 
 urlpatterns =  router.urls + userreg.urls + [
     url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework')),
     url(r'^user/update/$', views.UserUpdate),
     ] + docrout.urls 
-    
-
-# + dbview.urls
-
-#print(urlpatterns)

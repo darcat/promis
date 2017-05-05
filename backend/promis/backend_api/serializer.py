@@ -57,8 +57,15 @@ class DevicesSerializer(TranslatableModelSerializer):
 
 
 class SessionsSerializer(serializers.ModelSerializer):
-    # TODO: wtf? /quicklook/ here
-    measurements = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'measurement-detail')
+    # TODO: STUB, see #196
+    #measurements = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'measurement-detail')
+    # cut from here:
+    measurements = SerializerMethodField()
+    def get_measurements(self, obj):
+        return (self.context['request'].build_absolute_uri('/api/measurements/' + str(m.id))
+                    for m in models.Measurement.objects.filter(session = obj))
+    # to here ^
+
     space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
 
     geo_line = serializers.SerializerMethodField()
