@@ -19,13 +19,15 @@ class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
     extra_kwargs = { 'url': { 'lookup_field': 'id' } }
 
-# TODO: can we have smth like this?
-#class IdAndURLSerializer(serializers.HyperlinkedModelSerializer):
-    #'''Serializes anything to a id/url pair'''
-    #class Meta(LookupById):
-        #model = AbstractModel
-        #fields = ('id', 'url')
-
+# TODO: STUB, please implement a fitting serializer in Swagger so we can just SwaggerHyperlinkedRelatedField all over
+def _remove_extra_fields(obj, inline):
+    print("in extra fields")
+    if not inline:
+        fields = tuple(obj.fields.keys())
+        print(fields)
+        for f in fields:
+            if f not in ('id', 'url'):
+                obj.fields.pop(f)
 
 class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
     timelapse = serializers.SerializerMethodField()
@@ -40,11 +42,9 @@ class SpaceProjectsSerializer(HyperlinkedTranslatableModelSerializer):
         fields = ('id', 'url', 'name', 'description', 'timelapse')
 
     # TODO: STUB
-    def __init__(self, *args, idurl=False, **kwargs):
+    def __init__(self, *args, inline = True, **kwargs):
         super().__init__(*args, **kwargs)
-        if idurl:
-            for f in ('name', 'description', 'timelapse'):
-                self.fields.pop(f)
+        _remove_extra_fields(self, inline)
 
 
 class ChannelsSerializer(HyperlinkedTranslatableModelSerializer):
@@ -53,35 +53,36 @@ class ChannelsSerializer(HyperlinkedTranslatableModelSerializer):
         model = models.Channel
 
     # TODO: STUB
-    def __init__(self, *args, idurl=False, **kwargs):
+    def __init__(self, *args, inline = True, **kwargs):
         super().__init__(*args, **kwargs)
-        if idurl:
-            for f in ('name', 'description'):
-                self.fields.pop(f)
+        _remove_extra_fields(self, inline)
 
 
-class ParametersSerializer(TranslatableModelSerializer):
-    channel = ChannelsSerializer(idurl = True)
+class ParametersSerializer(HyperlinkedTranslatableModelSerializer):
+    channel = ChannelsSerializer(inline = False)
 
     class Meta(LookupById):
         fields = ('id', 'url', 'name', 'description', 'channel')
         model = models.Parameter
 
     # TODO: STUB
-    def __init__(self, *args, idurl=False, **kwargs):
+    def __init__(self, *args, inline = True, **kwargs):
         super().__init__(*args, **kwargs)
-        if idurl:
-            for f in ('name', 'description', 'channel'):
-                self.fields.pop(f)
+        _remove_extra_fields(self, inline)
 
 
-class DevicesSerializer(TranslatableModelSerializer):
-    space_project = SpaceProjectsSerializer(many = False, idurl = True)
-    channels = ChannelsSerializer(many = True, idurl = True)
+class DevicesSerializer(HyperlinkedTranslatableModelSerializer):
+    space_project = SpaceProjectsSerializer(many = False, inline = False)
+    channels = ChannelsSerializer(many = True, inline = False)
 
-    class Meta:
+    class Meta(LookupById):
         model = models.Device
-        fields = ('id', 'name', 'description', 'space_project', 'channels')
+        fields = ('id', 'url', 'name', 'description', 'space_project', 'channels')
+
+    # TODO: STUB
+    def __init__(self, *args, inline = True, **kwargs):
+        super().__init__(*args, **kwargs)
+        _remove_extra_fields(self, inline)
 
 
 class SessionsSerializer(serializers.ModelSerializer):

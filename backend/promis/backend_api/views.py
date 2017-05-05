@@ -59,14 +59,20 @@ class ProjectsView(PromisViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
 
+class ChannelsView(PromisViewSet):
+    queryset = models.Channel.objects.all()
+    serializer_class = serializer.ChannelsSerializer
+
+class ParametersView(PromisViewSet):
+    queryset = models.Parameter.objects.all()
+    serializer_class = serializer.ParametersSerializer
+    filter_fields = ('channel',)
+
 class DevicesView(PromisViewSet):
     queryset = models.Device.objects.all()
     serializer_class = serializer.DevicesSerializer
     filter_fields = ('space_project',)
 
-class ChannelsView(PromisViewSet):
-    queryset = models.Channel.objects.all()
-    serializer_class = serializer.ChannelsSerializer
 
 class SessionsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Session.objects.all()
@@ -121,12 +127,7 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
-class ParametersView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('channel',)
-    permission_classes = (AllowAny,)
+
 
 class MeasurementsView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Measurement.objects.all()
