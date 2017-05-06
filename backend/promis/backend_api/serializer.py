@@ -171,7 +171,7 @@ class MeasurementsSerializer(serializers.ModelSerializer):
     #TODO: SPIKE: remove below hard code and replace to related view path.
     def construct_data_url(self, obj, source, action):
         id = getattr(obj, source + "_doc").id
-        return self.context['request'].build_absolute_uri('/api/%s/%d/%s' % (action, id, source))
+        return self.context['request'].build_absolute_uri('/api/download/%d/%s?source=%s' % (id, action, source))
 
     def get_channel_quicklook(self, obj):
         return self.construct_data_url(obj, "channel", "quicklook")
@@ -189,6 +189,8 @@ class MeasurementsSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
             self.fields.pop('channel_download')
+        if not user.is_authenticated():
+            self.fields.pop('parameter_download')
 
 
 class UserSerializer(serializers.ModelSerializer):

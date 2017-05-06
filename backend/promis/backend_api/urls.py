@@ -12,6 +12,7 @@ userreg.register(r'user', views.UserViewSet)
 
 
 docrout = SimpleRouter()
+# TODO: maaaybe we go as far as /measurements/<id>/quicklook ?
 docrout.register(r'api/download', views.DownloadView)
 
 

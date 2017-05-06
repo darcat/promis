@@ -153,6 +153,7 @@
     "model": "backend_api.channel",
     "pk": 1,
     "fields": {
+        "value": 1,
         "device": 1,
         "quicklook": null,
         "parser_func": null,
@@ -163,6 +164,7 @@
     "model": "backend_api.channel",
     "pk": 2,
     "fields": {
+        "value": 1,
         "device": 1,
         "quicklook": null,
         "parser_func": null,

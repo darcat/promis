@@ -135,6 +135,7 @@
     "model": "backend_api.channel",
     "pk": 42000,
     "fields": {
+        "value": 42000,
         "device": 42000,
         "quicklook": null,
         "parser_func": null
