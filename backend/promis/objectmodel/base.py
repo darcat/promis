@@ -49,6 +49,7 @@ class AbstractTimeSeries:
         return self[start:end]
 
     def quicklook(self):
+        pass
 
 
 
