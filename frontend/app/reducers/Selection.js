@@ -69,6 +69,17 @@ export default function SelectionReducer(state = State, action) {
                 })
         break;
 
+        case Enum.SelectionCancel:
+            elements[current] = makeNewSelection();
+
+            return Object.assign({}, state,
+                {
+                    active: false,
+                    current: current,
+                    elements: elements
+                });
+        break;
+
         case Enum.SelectionClosed:
             let minimum = 0;
 

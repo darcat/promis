@@ -6,6 +6,7 @@ import LeafletGeodesy from 'leaflet-geodesy';
 
 import { Types } from '../constants/Selection';
 import { BingKey } from '../constants/Map'
+import EventEmitter from 'wolfy87-eventemitter';
 
 import 'leaflet/dist/leaflet.css';
 
@@ -13,11 +14,14 @@ export default class LeafletContainer extends Component {
     constructor(props) {
         super(props);
 
+        /* ee */
+        this.ee = new EventEmitter();
+
         /* handles */
         this.map = null;
-        this.geolines = new Array();
         this.pointHandles = new Array();
         this.shapeHandles = new Array();
+        this.geolineHandles = new Array();
         this.previewHandles = null;
 
         /* options */
@@ -32,14 +36,16 @@ export default class LeafletContainer extends Component {
         this.startDrawEvent = this.startDrawEvent.bind(this);
         this.moveDrawEvent = this.moveDrawEvent.bind(this);
         this.stopDrawEvent = this.stopDrawEvent.bind(this);
+        this.voidDrawEvent = this.voidDrawEvent.bind(this);
 
         /* update functions */
         this.repaint = this.repaint.bind(this);
-        this.processSelection = this.processSelection.bind(this);
+        this.updateMap = this.updateMap.bind(this);
 
         /* drawing functions */
         this.makeShape = this.makeShape.bind(this);
         this.clearShape = this.clearShape.bind(this);
+        this.makeGeoline = this.makeGeoline.bind(this);
         this.previewShape = this.previewShape.bind(this);
         this.makeSelectionPoint = this.makeSelectionPoint.bind(this);
     }
@@ -58,7 +64,7 @@ export default class LeafletContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.processSelection();
+        this.updateMap();
         this.repaint();
     }
 
@@ -74,7 +80,7 @@ export default class LeafletContainer extends Component {
         }
 
         this.initEvents();
-        this.processSelection();
+        this.updateMap();
     }
 
     componentWillUnmount() {
@@ -82,15 +88,17 @@ export default class LeafletContainer extends Component {
     }
 
     initEvents() {
-        this.map.on('mousedown', this.startDrawEvent);
-        this.map.on('mousemove', this.moveDrawEvent);
-        this.map.on('mouseup',   this.stopDrawEvent);
+        this.map.on('contextmenu', this.voidDrawEvent);
+        this.map.on('mousedown',   this.startDrawEvent);
+        this.map.on('mousemove',   this.moveDrawEvent);
+        this.map.on('mouseup',     this.stopDrawEvent);
     }
 
     clearEvents() {
-        this.map.off('mousedown', this.startDrawEvent);
-        this.map.off('mousemove', this.moveDrawEvent);
-        this.map.off('mouseup',   this.stopDrawEvent);
+        this.map.off('contextmenu', this.voidDrawEvent);
+        this.map.off('mousedown',   this.startDrawEvent);
+        this.map.off('mousemove',   this.moveDrawEvent);
+        this.map.off('mouseup',     this.stopDrawEvent);
     }
 
     makeGeoline(coords)
@@ -136,16 +144,7 @@ export default class LeafletContainer extends Component {
             }
         }
 
-        this.geolines.push(gl);
-    }
-
-    clearGeolines() {
-        if(this.geolines.length) this.geolines.map(function(geoline) {
-            if(geoline && 'remove' in geoline)
-                geoline.remove();
-        });
-
-        this.geolines = new Array();
+        return gl;
     }
 
     /* remove given shape from map */
@@ -206,10 +205,10 @@ export default class LeafletContainer extends Component {
 
             case Types.Polygon:
                 /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
-                let points = new Array(data.length);
+                let points = data;/*new Array(data.length);
                 for(let i = 0; i < data.length; i++) {
-                    points[j] = [ data[i][0], data[i][1] + shift ];
-                }
+                    points.push([ data[i][0], data[i][1] + shift ]);
+                }*/
                 shape = Leaflet.polygon(points, options);
             break;
         }
@@ -265,19 +264,36 @@ export default class LeafletContainer extends Component {
         return null;
     }
 
-    /* update visible areas according to current selection */
-    processSelection() {
+    /* update visible areas according to current state */
+    updateMap() {
         if(! this.props.selection.active) {
+            /* clear geolines */
+            this.geolineHandles.forEach(function(handle) {
+                this.clearShape(handle);
+            }.bind(this));
+
+            /* draw new geolines if they're present */
+            if(Array.isArray(this.props.geolines) && this.props.geolines.length > 0) {
+                this.geolineHandles = new Array();
+
+                this.props.geolines.forEach(function(geoline){
+                    this.geolineHandles.push(this.makeGeoline(geoline));
+                }.bind(this));
+            }
+
+            /* clear old shapes */
             this.clearShapes(this.previewHandles);
 
             this.shapeHandles.forEach(function(handle) {
                 this.clearShapes(handle);
             }.bind(this));
 
+            /* clear old selection points */
             this.pointHandles.forEach(function(point) {
                 this.clearShape(point);
             }.bind(this));
 
+            /* if there's some selection, draw it */
             if(this.props.selection.current > 0) {
                 this.shapeHandles = new Array();
                 this.pointHandles = new Array();
@@ -323,9 +339,7 @@ export default class LeafletContainer extends Component {
         if(this.props.selection.active) {
             let point = this.eventToPoint(e);
 
-            if(this.props.onPreview)
-                this.props.onPreview(point);
-
+            this.ee.emitEvent('nextPoint', point);
             this.previewShape(point);
         }
     }
@@ -343,6 +357,14 @@ export default class LeafletContainer extends Component {
 
             this.props.onSelect.addToSelection(point);
             this.props.onSelect.finishSelection();
+            this.props.onChange.toggleFlush();
+        }
+    }
+
+    voidDrawEvent(event) {
+        if(this.props.selection.active) {
+            this.map.dragging.enable();
+            this.props.onSelect.discardSelection();
             this.props.onChange.toggleFlush();
         }
     }

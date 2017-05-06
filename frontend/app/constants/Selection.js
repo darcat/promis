@@ -2,6 +2,7 @@
 export const Enum = {
     SelectionOpened        : 'SelectionStart',         /* start new selection */
     SelectionClosed        : 'SelectionEnd',           /* finish selection */
+    SelectionCancel        : 'SelectionDiscard',       /* discard without saving */
     SelectionSetType       : 'SelectionSetType',       /* polygon or circle or whatever */
     SelectionPushElement   : 'SelectionPushElement',   /* append element to current selection */
     SelectionDeleteElement : 'SelectionDeleteElement', /* remove last element from current selection */

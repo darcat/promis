@@ -36,7 +36,7 @@ export default class UniversalMap extends Component {
 
     /* next selection point coordinates callback */
     preview(data) {
-        this.props.onPreview(data);
+        //this.props.onPreview(data);
     }
 
     /* make fixed point number from floating point one */
@@ -100,6 +100,7 @@ export default class UniversalMap extends Component {
     }
 
     render() {
+        let geo = this.props.geolines;
         let map = this.props.mapActions;
         let sel = this.selectionActions;
         let options = this.props.options;
@@ -113,9 +114,23 @@ export default class UniversalMap extends Component {
                         <MapZoomBox onChange = {map.changeZoom} defaultZoom = {options.defaultZoom} />
                         <MapToolbox onSelect = {sel} onChange = {map} options = {options} hasSelection = {selection.current > 0} />
                         { options.flat ? (
-                        <LeafletContainer onPreview = {this.preview} onChange = {map} onSelect = {sel} options = {options} selection = {selection} />
+                        <LeafletContainer
+                            onPreview = {this.preview}
+                            onChange = {map}
+                            onSelect = {sel}
+                            options = {options}
+                            geolines = {geo}
+                            selection = {selection}
+                        />
                         ) : (
-                        <CesiumContainer onPreview = {this.preview} onChange = {map} onSelect = {sel} options = {options} selection = {selection} />
+                        <CesiumContainer
+                            onPreview = {this.preview}
+                            onChange = {map}
+                            onSelect = {sel}
+                            options = {options}
+                            geolines = {geo}
+                            selection = {selection}
+                        />
                         ) }
                     </div>
                 </div>

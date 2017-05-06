@@ -28,6 +28,15 @@ export default {
         }
     },
 
+    discardSelection : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SelectionCancel,
+                payload: true
+            })
+        }
+    },
+
     addToSelection : function(newPoint) {
         return function(dispatch) {
             dispatch({

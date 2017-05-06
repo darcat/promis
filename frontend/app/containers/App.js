@@ -90,7 +90,7 @@ class App extends Component {
                     </Well>
                     <Row>
                         <TimeAndPositionPanel
-                            preview = {this.state.previewData}
+                            //preview = {this.state.previewData}
                             options = {this.props.inputOptions}
                             selection = {this.props.selection}
                             selectionActions = {this.props.selActions}
@@ -109,8 +109,9 @@ class App extends Component {
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
                         <MapPanel
-                            onPreview = {this.updatePreview}
+                            //onPreview = {this.updatePreview}
                             selection = {this.props.selection}
+                            geolines = {this.props.search.geolines}
                             options = {this.props.mapOptions}
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}

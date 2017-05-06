@@ -5,6 +5,7 @@ import Viewer from 'cesium/Source/Widgets/Viewer/Viewer';
 import Color from 'cesium/Source/Core/Color';
 import Cartesian3 from 'cesium/Source/Core/Cartesian3';
 import Matrix4 from 'cesium/Source/Core/Matrix4';
+import NearFarScalar from 'cesium/Source/Core/NearFarScalar';
 import Rectangle from 'cesium/Source/Core/Rectangle';
 import defined from 'cesium/Source/Core/defined';
 import BingMapsApi from 'cesium/Source/Core/BingMapsApi';
@@ -14,9 +15,17 @@ import GridImageryProvider from 'cesium/Source/Scene/GridImageryProvider';
 import Cartographic from 'cesium/Source/Core/Cartographic';
 import ScreenSpaceEventHandler from 'cesium/Source/Core/ScreenSpaceEventHandler';
 import ScreenSpaceEventType from 'cesium/Source/Core/ScreenSpaceEventType';
-import CircleOutlineGeometry from 'cesium/Source/Core/CircleOutlineGeometry';
-import PolylineDashMaterialProperty from 'cesium/Source/DataSources/PolylineDashMaterialProperty';
 
+import Material from 'cesium/Source/Scene/Material';
+import Primitive from 'cesium/Source/Scene/Primitive';
+import CircleGeometry from 'cesium/Source/Core/CircleGeometry';
+import PolygonGeometry from 'cesium/Source/Core/PolygonGeometry';
+import GeometryInstance from 'cesium/Source/Core/GeometryInstance';
+import EllipsoidSurfaceAppearance from 'cesium/Source/Scene/EllipsoidSurfaceAppearance';
+
+import PolylineOutlineMaterialProperty from 'cesium/Source/DataSources/PolylineOutlineMaterialProperty';
+
+import EventEmitter from 'wolfy87-eventemitter';
 import { BingKey } from '../constants/Map';
 import { Types } from '../constants/Selection';
 
@@ -41,25 +50,29 @@ export default class CesiumContainer extends Component {
             selectionIndicator: false
         }
 
+        /* ee */
+        this.ee = new EventEmitter();
+
         /* main handle */
         this.viewer = null;
 
         /* object handles */
-        this.geolines = new Array();
         this.pointHandles = new Array();
         this.shapeHandles = new Array();
+        this.geolineHandles = new Array();
         this.previewHandle = null;
 
         /* for render suspension */
         this.lastmove = Date.now();
         this.lastmatrix = new Matrix4();
 
-        /* shape funcs */
+        /* shape funcs & utils */
+        this.safePick = this.safePick.bind(this);
         this.makeShape = this.makeShape.bind(this);
         this.clearShape = this.clearShape.bind(this);
-        this.polyEntity = this.polyEntity.bind(this);
+        this.makeGeoline = this.makeGeoline.bind(this);
         this.previewShape = this.previewShape.bind(this);
-        this.circleCartesian = this.circleCartesian.bind(this);
+        this.pointToRadius = this.pointToRadius.bind(this);
         this.makeSelectionPoint = this.makeSelectionPoint.bind(this);
 
         /* enable render on this events */
@@ -70,9 +83,9 @@ export default class CesiumContainer extends Component {
         // scroll to startpos
         //this.scrollToView(startpos[0], startpos[1]);
         this.repaint = this.repaint.bind(this);
+        this.updateMap = this.updateMap.bind(this);
         this.currentView = this.currentView.bind(this);
         this.currentPosition = this.currentPosition.bind(this);
-        this.processSelection = this.processSelection.bind(this);
 
         /* events */
         this.initEvents = this.initEvents.bind(this);
@@ -80,6 +93,8 @@ export default class CesiumContainer extends Component {
         this.clearEvents = this.clearEvents.bind(this);
         this.justDrawEvent = this.justDrawEvent.bind(this);
         this.moveDrawEvent = this.moveDrawEvent.bind(this);
+        this.stopDrawEvent = this.stopDrawEvent.bind(this);
+        this.voidDrawEvent = this.voidDrawEvent.bind(this);
         
     }
 
@@ -91,7 +106,7 @@ export default class CesiumContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.processSelection();
+        this.updateMap();
         this.repaint();
     }
 
@@ -130,7 +145,7 @@ export default class CesiumContainer extends Component {
         }
 
         this.repaint();
-        this.processSelection();
+        this.updateMap();
     }
 
     repaint() {
@@ -148,6 +163,11 @@ export default class CesiumContainer extends Component {
         return this.ellipsoid.cartesianToCartographic(this.viewer.camera.positionWC, this.cartographic);
     }
 
+    /* ensures picked point doesn't belong to any objects */
+    safePick(position) {
+        return true;//!defined(this.viewer.scene.pick(position));
+    }
+
     /* to be called only when drawing */
     currentPosition(position) {
         let point = this.viewer.camera.pickEllipsoid(position);
@@ -155,8 +175,6 @@ export default class CesiumContainer extends Component {
         let carrad = null;
 
         if(point) {
-            //if(Cesium.defined(pickedObject) && pickedObject.id === go.polygon) {
-            //inside polygon, don't make the point (or make?)
             carrad = this.ellipsoid.cartesianToCartographic(point);
             coords = [
                         this.props.onSelect.fixedPoint(toDegrees(carrad.latitude)),
@@ -170,13 +188,11 @@ export default class CesiumContainer extends Component {
     initEvents() {
         this.eventHandler = new ScreenSpaceEventHandler(this.viewer.canvas);
 
-        this.viewer.scene.camera.moveEnd.addEventListener(function() {
-            //GeoObject.updateSelectionPoints(); // scale selection points
-        });
-
         /* draw events */
         this.eventHandler.setInputAction(this.justDrawEvent, ScreenSpaceEventType.LEFT_CLICK);
         this.eventHandler.setInputAction(this.moveDrawEvent, ScreenSpaceEventType.MOUSE_MOVE);
+        this.eventHandler.setInputAction(this.stopDrawEvent, ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+        this.eventHandler.setInputAction(this.voidDrawEvent, ScreenSpaceEventType.RIGHT_CLICK);
 
         /* shut down render sometimes */
         this.viewer.scene.postRender.addEventListener(this.postRender);
@@ -197,27 +213,50 @@ export default class CesiumContainer extends Component {
 
     justDrawEvent(event) {
         if(this.props.selection.active) {
-            let picked = this.viewer.scene.pick(event.position);
+            let last = this.props.onSelect.getLastPoint();
+            let type = this.props.onSelect.getCurrentType();
             let position = this.currentPosition(event.position);
 
-            if(defined(picked) && picked.id === this.previewHandle) {
-                /* inside polygon, don't make the point */
-            } else {
-                this.props.onSelect.addToSelection(position.coords);
+            if(this.safePick(event.position)) {
+                if(last && type == Types.Circle) {
+                    this.props.onSelect.addToSelection(this.pointToRadius(last, position.point));
+                    this.props.onSelect.finishSelection();
+                    this.props.onChange.toggleFlush();
+                } else {
+                    this.pointHandles.push(this.makeSelectionPoint(position.coords));
+                    this.props.onSelect.addToSelection(position.coords);
+                }
             }
         }
     }
 
     moveDrawEvent(event) {
         if(this.props.selection.active) {
-            let position = this.currentPosition(event.endPosition);
+            let position = this.currentPosition(event.startPosition);
 
             if(position.coords) {
-                if(this.props.onPreview)
-                    this.props.onPreview(position.coords);
-
+                this.ee.emitEvent('nextPoint', position.coords);
                 this.previewShape(position)
             }
+        }
+    }
+
+    stopDrawEvent(event) {
+        if(this.props.selection.active) {
+            let position = this.currentPosition(event.position);
+
+            if(position.coords) {
+                this.props.onSelect.addToSelection(position.coords);
+                this.props.onSelect.finishSelection();
+                this.props.onChange.toggleFlush();
+            }
+        }
+    }
+
+    voidDrawEvent(event) {
+        if(this.props.selection.active) {
+            this.props.onSelect.discardSelection();
+            this.props.onChange.toggleFlush();
         }
     }
 
@@ -238,7 +277,7 @@ export default class CesiumContainer extends Component {
             if (!cameraMovedInLastSecond && !tilesWaiting && scene.tweens.length === 0) {
                 if(this.viewer.useDefaultRenderLoop) {
                     this.viewer.useDefaultRenderLoop = false;
-                console.log('render suspended @' + now);
+                    //console.log('render suspended @' + now);
                 }
             }
         }
@@ -251,39 +290,14 @@ export default class CesiumContainer extends Component {
             this.viewer.entities.remove(shape);
     }
 
-    /* circle to coordinates */
-    circleCartesian (center, radius) {
-        let geometry = CircleOutlineGeometry.createGeometry(new CircleOutlineGeometry({
-            ellipsoid: this.ellipsoid,
-            center: center,
-            radius: radius
-        }));
-
-        let count = 0, value, values = [];
-
-        for(; count < geometry.attributes.position.values.length; count += 3) {
-            value = geometry.attributes.position.values;
-            values.push(new Cartesian3(value[count], value[count + 1], value[count + 2]));
-        }
-
-        return values;
+    /* distance between latlon and cartesian */
+    pointToRadius(first, second) {
+        return Cartesian3.distance(Cartesian3.fromDegrees(first[1], first[0]), second);
     }
 
-    /* polyline entity shortcut */
-    polyEntity(pos, mat) {
-        return new Object({
-            polyline: {
-                positions: pos,
-                width: 4,
-                material: mat
-            }
-        });
-    }
-
-    makeShape(type, data, mat, prev) {
+    makeShape(type, data) {
         let shape = null;
-        let preview = (prev !== undefined ? prev : false);
-        let material = (mat !== undefined ? mat : Color.BLUE.withAlpha(0.6));
+        let material = Color.BLUE.withAlpha(0.6);
 
         switch(type) {
             case Types.Rect:
@@ -292,7 +306,7 @@ export default class CesiumContainer extends Component {
                     east = Math.max(data[1][1], data[1][1]), /* maximal lng */
                    north = Math.max(data[0][0], data[1][0])  /* maximal lat */
 
-                shape = this.viewer.entities.add( preview ? this.polyEntity(Rectangle.fromDegrees(west, south, east, north), material) : {
+                shape = this.viewer.entities.add({
                     rectangle : {
                         coordinates : Rectangle.fromDegrees(west, south, east, north),
                         material : material,
@@ -301,17 +315,16 @@ export default class CesiumContainer extends Component {
             break;
 
             case Types.Circle:
-                let circle = this.circleCartesian(Cartesian3.fromDegrees(data[0][1], data[0][0]), data[1]);
-
-                shape = this.viewer.entities.add( preview ? this.polyEntity(circle, material) : {
-                    position: Cartesian3.fromDegrees(data[0][1], data[0][0]),
-                    ellipse: {
-                        semiMajorAxis: data[1],
-                        semiMinorAxis: data[1],
-                        height: 0,
-                        material: material
+                shape = this.viewer.entities.add({
+                        position: Cartesian3.fromDegrees(data[0][1], data[0][0]),
+                        ellipse: {
+                            semiMajorAxis: data[1],
+                            semiMinorAxis: data[1],
+                            height: 0,
+                            material: material
+                        }
                     }
-                });
+                );
             break;
 
             case Types.Polygon:
@@ -322,7 +335,7 @@ export default class CesiumContainer extends Component {
                     lonlat.push(latlon[0]);
                 });
 
-                shape = this.viewer.entities.add( preview ? this.polyEntity(Cartesian3.fromDegreesArray(lonlat), material) : {
+                shape = this.viewer.entities.add({
                     polygon: {
                         hierarchy : {
                             positions : Cartesian3.fromDegreesArray(lonlat)
@@ -341,6 +354,7 @@ export default class CesiumContainer extends Component {
         let last = this.props.onSelect.getLastPoint();
         let type = this.props.onSelect.getCurrentType();
         let data = this.props.onSelect.getCurrentData();
+        let geometry = null;
 
         if(last) {
             /* ensure we have valid data */
@@ -349,47 +363,122 @@ export default class CesiumContainer extends Component {
             }
 
             /* calc radius for circles or just assign new point */
+            /*
             if(type == Types.Circle) {
-                let a = Cartesian3.fromDegrees(last[1], last[0]);
-                let b = newpoint.point;
-
-                temp = new Array(last, Cartesian3.distance(a, b));
+                temp = new Array(last, );
             } else {
                 temp = data.concat(new Array(newpoint.coords));
-            }
+            }*/
 
             /* clear last preview */
-            this.clearShape(this.previewHandle);
+            this.previewHandle && this.viewer.scene.primitives.remove(this.previewHandle);
 
             /* and make new one */
-            this.previewHandle = 
-                this.makeShape(type,
-                               temp,
-                               Color.WHITE.withAlpha(0.85),
-                               /*new PolylineDashMaterialProperty({
-                                   color: Color.WHITE.withAlpha(0.75)
-                               }),*/ 
-                               false//true
-                );
+            switch(type) {
+                case Types.Circle:
+                    geometry = new CircleGeometry({
+                        center : Cartesian3.fromDegrees(last[1], last[0]),
+                        radius : this.pointToRadius(last, newpoint.point),
+                        vertexFormat : EllipsoidSurfaceAppearance.VERTEX_FORMAT
+                    });
+                break;
+
+                case Types.Polygon:
+                    let deg = new Array();
+
+                    data.concat(new Array(newpoint.coords)).forEach(function(latlon){
+                        deg.push(latlon[1]);
+                        deg.push(latlon[0]);
+                    });
+
+                    geometry = new PolygonGeometry.fromPositions({
+                        positions : Cartesian3.fromDegreesArray(deg),
+                        vertexFormat : EllipsoidSurfaceAppearance.VERTEX_FORMAT
+                    });
+                break;
+            }
+
+            this.previewHandle = new Primitive({
+                geometryInstances : new GeometryInstance({
+                    geometry: geometry,
+                    id: new Object({})
+                }),
+                allowPicking : false,
+                asynchronous : false,
+                appearance : new EllipsoidSurfaceAppearance({
+                    material : Material.fromType('Stripe')
+                })
+            });
+
+            this.viewer.scene.primitives.add(this.previewHandle);
         }
     }
 
-    makeSelectionPoint() {
-
+    makeSelectionPoint(latlon) {
+        return this.viewer.entities.add({
+            position : Cartesian3.fromDegrees(latlon[1], latlon[0]),
+            point : {
+                show : true,
+                color : Color.YELLOW.withAlpha(0.5),
+                pixelSize : 10,
+                scaleByDistance : new NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
+                outlineColor : Color.YELLOW,
+                outlineWidth : 3
+            }
+        });
     }
 
-    processSelection() {
-        if(! this.props.selection.active) {
-            this.clearShape(this.previewHandle);
+    makeGeoline(data) {
+        let cartesians = new Array();
 
+        /* data is [lat, lon, hgt] */
+        data.forEach(function(point) {
+            cartesians.push(Cartesian3.fromDegrees(point[1], point[0], point[2] ? point[2] : 250000));
+        });
+
+        return this.viewer.entities.add({
+            polyline : {
+                positions : cartesians,
+                width : 5,
+                material : new PolylineOutlineMaterialProperty({
+                    color : Color.ORANGE,
+                    outlineWidth : 2,
+                    outlineColor : Color.BLACK
+                })
+            }
+        });
+    }
+
+    updateMap() {
+        if(! this.props.selection.active) {
+            /* clear geolines */
+            this.geolineHandles.forEach(function(handle) {
+                this.clearShape(handle);
+            }.bind(this));
+
+            /* draw new geolines if they're present */
+            if(Array.isArray(this.props.geolines) && this.props.geolines.length > 0) {
+                this.geolineHandles = new Array();
+
+                this.props.geolines.forEach(function(geoline){
+                    this.geolineHandles.push(this.makeGeoline(geoline));
+                }.bind(this));
+            }
+
+            /* clear preview */
+            this.previewHandle && this.viewer.scene.primitives.remove(this.previewHandle);
+
+            /* clear shapes */
             this.shapeHandles.forEach(function(handle) {
                 this.clearShape(handle);
             }.bind(this));
 
+            /* clear selection points */
             this.pointHandles.forEach(function(point) {
                 this.clearShape(point);
             }.bind(this));
 
+            /* render new selection */
             if(this.props.selection.current > 0) {
                 this.shapeHandles = new Array();
                 this.pointHandles = new Array();

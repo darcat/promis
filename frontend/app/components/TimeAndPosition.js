@@ -9,6 +9,7 @@ import Panel from './Panel';
 
 import '../styles/map.css';
 
+import EventEmitter from 'wolfy87-eventemitter';
 import { isSelectionElement } from '../constants/Selection';
 
 class GeoInputForm extends Component {
@@ -176,6 +177,8 @@ export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
 
+        this.ee = new EventEmitter();
+        this.preview = null;
         this.actions = props.genericActions;
 
         this.toggleMap = this.toggleMap.bind(this);
@@ -183,6 +186,19 @@ export default class TimeAndPositionInput extends Component {
         this.dateToChange = this.dateToChange.bind(this);
         this.altFromChange = this.altFromChange.bind(this);
         this.altToChange = this.altToChange.bind(this);
+
+        
+    }
+
+    componentDidMount() {
+        this.ee.addListener('nextPoint', function(data) {
+            //console.log(data);
+            this.preview = data;
+        }.bind(this))
+    }
+
+    componentWillUnmount() {
+
     }
 
     toggleMap() {
@@ -261,7 +277,7 @@ export default class TimeAndPositionInput extends Component {
                         </Col>
                         <Col sm = {10}>
                             { this.props.selection.active &&
-                            <NextPoint data = {this.props.preview} /> }
+                            <NextPoint data = {this.preview} /> }
                             <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }
