@@ -18,7 +18,7 @@ export default class Quicklook extends Component {
         this.formatData = this.formatData.bind(this);
         this.makeFilename = this.makeFilename.bind(this);
         this.makeWatermark = this.makeWatermark.bind(this);
-        this.data = this.formatData(this.props.data);
+        this.data = this.formatData(this.props.data, this.props.time);
     }
 
     componentDidUpdate() {
@@ -88,7 +88,7 @@ export default class Quicklook extends Component {
         } else window.alert('Quicklook is not completely loaded yet!');
     }
 
-    formatData(data) {
+    formatData(data, time) {
         var dataObj = [
         {
             name: 'series3',
@@ -99,8 +99,13 @@ export default class Quicklook extends Component {
         var formatted = new Array();
 
         if(Array.isArray(data)) {
+            /* Adjusting the X axis to the actual duration */
+            /* TODO: do we include the last second? */
+            var data_duration = time.end - time.start + 1;
+            var sec_per_sample = data_duration / data.length;
+
             data.map(function(item, index) {
-                formatted.push({ x: index, y: item });
+                formatted.push({ x: sec_per_sample * index, y: item });
             })
         } else formatted = [{ x: 0, y: 20 }, { x: 1, y: 30 }, { x: 2, y: 10 }, { x: 3, y: 5 }, { x: 4, y: 8 }, { x: 5, y: 15 }, { x: 6, y: 10 }];
 
@@ -111,7 +116,7 @@ export default class Quicklook extends Component {
 
     render() {
         return (
-            <Modal show = {this.props.show} title = 'Quicklook' onClose = {this.props.onClose}>
+            <Modal show = {this.props.show} title = {this.props.timelapse} onClose = {this.props.onClose}>
                 <LineChart
                     ref = { function(node) { this.el = node; }.bind(this) }
                     legend = {false}
@@ -149,6 +154,6 @@ Quicklook.defaultProps = {
     graphHeight: 480,
     watermarkText: 'https://promis.ikd.kiev.ua',
     title: 'Quicklook description',
-    xlabel: 'x axis label',
+    xlabel: 'time (sec)', /* TODO: localisation */
     ylabel: 'y axis label'
 }
