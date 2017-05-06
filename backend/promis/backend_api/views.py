@@ -187,7 +187,7 @@ class DownloadView(viewsets.GenericViewSet):
         # if user_not_authenticated and self.points > max_points_for_this_json * some_coeff:
         #   raise NotAuthenticated
 
-        self.serializer_class = serializer.MeasurementsSerializer
+        self.serializer_class = serializer.QuicklookSerializer
         return self.create_data()
 
     @detail_route(permission_classes = (AllowAny,), # TODO: other permission class

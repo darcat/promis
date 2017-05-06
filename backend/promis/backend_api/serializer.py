@@ -14,6 +14,7 @@ from django.contrib.auth.models import Group
 from backend_api import helpers
 import util.parsers
 import util.unix_time
+import util.stats
 
 class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
@@ -69,7 +70,7 @@ class SessionsSerializer(serializers.ModelSerializer):
     space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
 
     geo_line = serializers.SerializerMethodField()
-    time = serializers.SerializerMethodField()
+    timelapse = serializers.SerializerMethodField()
 
     def get_geo_line(self, obj):
         # Just in case for the future
@@ -78,7 +79,7 @@ class SessionsSerializer(serializers.ModelSerializer):
         # TODO: study whether pre-building the list or JSON would speed up things
         return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
 
-    def get_time(self, obj):
+    def get_timelapse(self, obj):
         # TODO: change to time_start in model for consistency
         return { 'start': util.unix_time.datetime_to_utc(obj.time_begin),
                  'end': util.unix_time.datetime_to_utc(obj.time_end) }
@@ -86,7 +87,7 @@ class SessionsSerializer(serializers.ModelSerializer):
 
     class Meta(LookupById):
         model = models.Session
-        fields = ('id', 'url', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
+        fields = ('id', 'url', 'space_project', 'orbit_code', 'geo_line', 'timelapse', 'measurements')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,6 +95,48 @@ class SessionsSerializer(serializers.ModelSerializer):
         if type(args[0]) is list:
             self.fields.pop('geo_line')
 
+
+class QuicklookSerializer(serializers.Serializer):
+    data = serializers.SerializerMethodField()
+    timelapse = serializers.SerializerMethodField()
+    source = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    def get_source(self, obj):
+        # Preparing the serializer
+        ser_cls = { 'channel': ChannelsSerializer, 'parameter': ParametersSerializer }[ self.source_name() ]
+        res = ser_cls(self.source_obj(), context = self.context).data
+
+        # Injecting some additional information
+        res.update({'type': self.source_name() })
+
+        return res
+
+    def get_timelapse(self, obj):
+        return { 'start': util.unix_time.datetime_to_utc(obj.session.time_begin),
+                 'end': util.unix_time.datetime_to_utc(obj.session.time_end) }
+
+    def get_value(self, obj):
+        src = self.source_obj()
+        return { 'short_name': src.value.short_name,
+                 'name'      : src.value.name,
+                 'units'     : src.value.units.short_name,
+                 'units_name': src.value.units.long_name }
+
+    def get_data(self, obj):
+        # TODO: stub!
+        return util.stats.general_quick_look(obj.parameter_doc.json_data["mv"], npoints = self.context['view'].points)
+
+    def source_name(self):
+        # TODO: swagger should do the default here
+        return self.context['request'].query_params.get('source', 'parameter')
+
+    def source_obj(self):
+        '''Returns a source model object (parameter or channel)'''
+        return getattr(self.instance, self.source_name())
+
+class JSONDataSerializer(QuicklookSerializer):
+    pass
 
 def _context_function_call(self, *args):
     '''
@@ -140,10 +183,10 @@ class QuickLookSerializer(AbstractMeasurementSerializer):
     def prepare_data(self, obj, doc, source):
         return _context_function_call(self, doc.json_data)
 
-class JSONDataSerializer(AbstractMeasurementSerializer):
-    '''Serializes the document (channel or parameter) into rich JSON form'''
-    def prepare_data(self, obj, doc, source):
-        return doc.json_data
+#class JSONDataSerializer(AbstractMeasurementSerializer):
+    #'''Serializes the document (channel or parameter) into rich JSON form'''
+    #def prepare_data(self, obj, doc, source):
+     #   return doc.json_data
 
 # TODO: this pulls unnecessary fields in
 class ExportDataSerializer(AbstractMeasurementSerializer):

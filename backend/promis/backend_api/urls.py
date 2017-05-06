@@ -20,5 +20,3 @@ urlpatterns =  router.urls + userreg.urls + [
     url(r'^user/update/$', views.UserUpdate),
     ] + docrout.urls
 
-for i in urlpatterns:
-    print(i)
