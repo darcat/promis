@@ -26,17 +26,32 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
+import util.unix_time
 
 import datetime
 from rest_framework.decorators import permission_classes
 
+class PromisViewSet(viewsets.ReadOnlyModelViewSet):
+    '''Collects most commonly used View stuff'''
+    lookup_field = 'id'
+    permission_classes = (AllowAny,)
+    # TODO: Is it okay to put it here even for classes that don't need it?
+    filter_backends = (DjangoFilterBackend,)
+
 class SessionFilter(django_filters.rest_framework.FilterSet):
-    time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
-    time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
+    time_begin = django_filters.NumberFilter(method='unix_time_filter')
+    time_end = django_filters.NumberFilter(method='unix_time_filter')
     project = django_filters.ModelChoiceFilter(name='space_project',
                                                queryset = models.Space_project.objects.all())
     satellite = django_filters.ModelChoiceFilter(name='space_project',
                                                  queryset = models.Space_project.objects.all())
+
+    # TODO: make a separate class?
+    def unix_time_filter(self, queryset, name, value):
+        # Composition of the queryset.filter argument depending on which field was used
+        filter_actions = { 'time_begin': 'time_begin__gte', 'time_end': 'time_end__lte' }
+        return queryset.filter(**{ filter_actions[name]: util.unix_time.maketime(value) })
+
 
     class Meta:
         model = models.Session
@@ -48,50 +63,35 @@ class MeasurementsFilter(django_filters.rest_framework.FilterSet):
         model = models.Measurement
         fields = ['session', 'parameter']
 
-class ProjectsView(viewsets.ReadOnlyModelViewSet):
+class ProjectsView(PromisViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
-    permission_classes = (AllowAny,)
 
-class DevicesView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Device.objects.all()
-    serializer_class = serializer.DevicesSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('satellite',)
-    permission_classes = (AllowAny,)
-
-class ChannelsView(viewsets.ReadOnlyModelViewSet):
+class ChannelsView(PromisViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
-    permission_classes = (PromisPermission,)
 
-class SessionsView(viewsets.ReadOnlyModelViewSet):
+class ParametersView(PromisViewSet):
+    queryset = models.Parameter.objects.all()
+    serializer_class = serializer.ParametersSerializer
+    filter_fields = ('channel',)
+
+class DevicesView(PromisViewSet):
+    queryset = models.Device.objects.all()
+    serializer_class = serializer.DevicesSerializer
+    filter_fields = ('space_project',)
+
+
+class SessionsView(PromisViewSet):
     queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer
-    filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (AllowAny,)
 
     def get_queryset(self):
-
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
 
-#commented to allow Anonymous access
-        '''
-        user = self.request.user
-        if not helpers.UserExists(user):
-            return models.Session.objects.none()
-
-        if helpers.UserGroupsNo(user) <= 0:
-            now = datetime.datetime.now()
-            half_year_ago = now - datetime.timedelta(183)
-            ago = datetime.date(1900, 1, 1)
-            queryset = models.Session.objects.filter(time_end__range = (ago, half_year_ago))
-        else:
-            queryset = models.Session.objects.all()
-        '''
 
         if polygon is not None:
             try:
@@ -118,39 +118,13 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
-class ParametersView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('channel',)
-    permission_classes = (AllowAny,)
 
-class MeasurementsView(viewsets.ReadOnlyModelViewSet):
+
+class MeasurementsView(PromisViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (AllowAny,)
     filter_class = MeasurementsFilter
-    filter_backends = (DjangoFilterBackend,)
 
-
-'''
-#TODO: This is used only for debugging, and should be removed
-#======== Added to view db contents. Remove it: ======
-
-class DocumentsView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Document.objects.all()
-    serializer_class = serializer.DocumentsSerializer
-
-class FunctionsView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Function.objects.all()
-    serializer_class = serializer.FunctionsSerializer
-
-class ParameterssView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
-
-#=====================================================
-'''
 
 class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     def _quicklook(self, obj, src_name, src_serializer):
@@ -214,10 +188,6 @@ class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (AllowAny,)
     serializer_class = serializer.MeasurementsSerializer
 
-class DownloadView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Measurement.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = serializer.DownloadViewSerializer
 
 # TODO: make a common base class for this and QuicklookView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer

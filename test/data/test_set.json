@@ -108,7 +108,7 @@
     "model": "backend_api.device",
     "pk": 42000,
     "fields": {
-        "satellite": 42001
+        "space_project": 42001
     }
 },
 {

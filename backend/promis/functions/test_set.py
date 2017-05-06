@@ -19,7 +19,7 @@
 # permissions and limitations under the Licence.
 #
 
-import util.ftp, util.parsers, util.orbit
+import util.ftp, util.parsers, util.unix_time
 from django.contrib.gis.geos import LineString
 import backend_api.models as model
 
@@ -34,8 +34,8 @@ def general_fetch(path, satellite_object, add_measurement=False):
             ftp.cwd(sess_name)
             with ftp.xopen("orbit.csv") as fp:
                 line_gen = [ pt for pt in util.parsers.csv(fp) ]
-                time_start = util.orbit.maketime(timemark)
-                time_end = util.orbit.maketime(timemark + len(line_gen)) # Orbit points are 1 per second
+                time_start = util.unix_time.maketime(timemark)
+                time_end = util.unix_time.maketime(timemark + len(line_gen)) # Orbit points are 1 per second
                 time_dur = time_end - time_start
                 # TODO: maybe let the caller print these diagnostics?
                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )

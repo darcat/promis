@@ -22,14 +22,7 @@
 
 import re, struct
 import util.orbit
-import datetime
-import pytz
-
-def str_to_utc(x):
-    time_fmt = "%Y{0}%m{0}%d %H:%M:%S".format(x[4])
-    ts = datetime.datetime.strptime(x, time_fmt)
-    ts = ts.replace(tzinfo=pytz.timezone("UTC")).timestamp()
-    return int(ts)
+import util.unix_time
 
 # TODO: cull out those which have standard parsers (CSV?)
 # TODO: replace ValueErrors with meaningful exception classes when integrating
@@ -86,7 +79,7 @@ def telemetry(fp):
             m = re.search("^[0-9]* ([0-9.-]*) (2.*)", ln)
             if m:
                 # Yielding a nested tuple e.g. ( "RX", (1, 432.0) ), will be converted to dict
-                yield ( sect, (str_to_utc(m.group(2)), float(m.group(1))) )
+                yield ( sect, (util.unix_time.str_to_utc(m.group(2)), float(m.group(1))) )
             else:
                 raise ValueError("Input inconsistency detected")
 
@@ -146,7 +139,7 @@ def sets(fp, keys=None):
         keys_found.add(key)
 
         # Yield the data
-        yield key, int(value) if key != "utc" else str_to_utc(value)
+        yield key, int(value) if key != "utc" else util.unix_time.str_to_utc(value)
 
         # Reduce the counter of keys to look for and break if necessary
         if keys_left > 0:

@@ -92,21 +92,21 @@
     "model": "backend_api.device",
     "pk": 1,
     "fields": {
-        "satellite": 1
+        "space_project": 1
     }
 },
 {
     "model": "backend_api.device",
     "pk": 2,
     "fields": {
-        "satellite": 1
+        "space_project": 1
     }
 },
 {
     "model": "backend_api.device",
     "pk": 3,
     "fields": {
-        "satellite": 1
+        "space_project": 1
     }
 },
 {

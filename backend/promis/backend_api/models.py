@@ -78,7 +78,7 @@ class Space_project(TranslatableModel):
 
 
 class Device(TranslatableModel):
-    satellite = ForeignKey('Space_project')
+    space_project = ForeignKey('Space_project')
 
     translations = TranslatedFields(
         name = TextField(),

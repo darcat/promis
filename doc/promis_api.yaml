@@ -217,7 +217,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/IdURL'
+              $ref: '#/definitions/SessionCompact'
         default:
           description: Unexpected error
           schema:
@@ -527,7 +527,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
@@ -550,18 +550,22 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
       #- $ref: '#/definitions/IdURL'
       #- $ref: '#/definitions/NameDesc'
       #- properties:
+      space_project:
+        type: string
+        description: API Link to the related Space Project
       channels:
         type: array
         description: Channels the device provides
         items:
-          $ref: '#/definitions/IdURL'
+          type: string
+          description: API Link to the channel provided
 
   Channel:
     type: object
@@ -576,7 +580,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
@@ -596,7 +600,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
     #allOf:
@@ -607,7 +611,8 @@ definitions:
             #allOf:
               #- description: Channel the parameter depends on
               #- $ref: '#/definitions/IdURL'
-        $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the related channel
 
   Session:
     type: object
@@ -637,9 +642,9 @@ definitions:
               #$ref: '#/definitions/IdURL'
           #timelapse:
             #$ref: '#/definitions/Time'
-      project:
-        type: integer
-        description: Related project ID
+      space_project:
+        type: string
+        description: API Link to the related Space Project
       orbit:
         type: number
         description: Orbit representation
@@ -649,7 +654,33 @@ definitions:
         type: array # api links to measurement instances
         description: Available measurements for this session
         items:
-          $ref: '#/definitions/IdURL'
+          type: string
+          description: API Link to the measurement during the session
+      timelapse:
+        $ref: '#/definitions/Time'
+
+  # merge with Session using allOf when #193 is resolved
+  SessionCompact:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Unique numberic identifier
+      url:
+        type: string
+        description: URL location within API
+      space_project:
+        type: string
+        description: API Link to the related Space Project
+      orbit:
+        type: number
+        description: Orbit representation
+      measurements:
+        type: array # api links to measurement instances
+        description: Available measurements for this session
+        items:
+          type: string
+          description: API Link to the measurement during the session
       timelapse:
         $ref: '#/definitions/Time'
 
@@ -693,30 +724,33 @@ definitions:
             #type: string
             #description: URL to parameter data download
       session:
-       $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the related session
       channel:
-       $ref: '#/definitions/IdURL'
+        type: string
+        description: API Link to the measured channel
       parameter:
-       $ref: '#/definitions/IdURL'
-      freq:
-       type: number
-       description: Sampling frequency
-      min_freq:
-       type: number
-      max_freq:
-       type: number
+        type: string
+        description: API Link to the measured parameter
+      sampling_frequency:
+        type: number
+        description: Sampling frequency
+      min_frequency:
+        type: number
+      max_frequency:
+        type: number
       channel_quicklook:
-       type: string
-       description: URL to channel quicklook
+        type: string
+        description: URL to channel quicklook
       channel_download:
-       type: string
-       description: URL to channel data download
+        type: string
+        description: URL to channel data download
       parameter_quicklook:
-       type: string
-       description: URL to parameter quicklook
+        type: string
+        description: URL to parameter quicklook
       parameter_download:
-       type: string
-       description: URL to parameter data download
+        type: string
+        description: URL to parameter data download
 
   Quicklook:
     type: object
@@ -798,7 +832,7 @@ definitions:
       name:
         type: string
         description: Short name
-      desc:
+      description:
         type: string
         description: In-depth description
 
