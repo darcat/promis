@@ -113,8 +113,7 @@ class QuicklookSerializer(serializers.Serializer):
         return res
 
     def get_timelapse(self, obj):
-        return { 'start': util.unix_time.datetime_to_utc(obj.session.time_begin),
-                 'end': util.unix_time.datetime_to_utc(obj.session.time_end) }
+        return SessionsSerializer(obj.session, context = self.context).get_timelapse(obj.session)
 
     def get_value(self, obj):
         src = self.source_obj()
@@ -135,64 +134,13 @@ class QuicklookSerializer(serializers.Serializer):
         '''Returns a source model object (parameter or channel)'''
         return getattr(self.instance, self.source_name())
 
+
 class JSONDataSerializer(QuicklookSerializer):
-    pass
+    geo_line = serializers.SerializerMethodField()
 
-def _context_function_call(self, *args):
-    '''
-    Takes the function stored as self.context['func'] and calls it passing
-    args as positional arguments and self.context['kwargs'] as keyword arguments
-    '''
-    return self.context['func'] (*args, **self.context['kwargs'])
+    def get_geo_line(self, obj):
+        return SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
 
-class AbstractMeasurementSerializer(serializers.ModelSerializer):
-    '''
-    Abstract base class for measurement serializers that include either the
-    channel or the parameter definition and do some work on the document.
-
-    Required stuff in context dictionary:
-    * 'source': the measurement field name where the data comes from.
-      Document attribute name is constructed  as {source}_doc.
-    * 'serializer': serializer class to serialize source with.
-    '''
-    data = serializers.SerializerMethodField()
-    session = serializers.SerializerMethodField()
-    class Meta:
-        model = models.Measurement
-        fields = ('data', 'session')
-
-    def __init__(self, *args, **kwargs):
-        '''Adds an extra source field on construction'''
-        super().__init__(*args, **kwargs)
-        self.fields.update({self.context['source']: self.context['serializer']()})
-
-    def get_data(self, obj):
-        '''
-        Serializes data to JSON. Define the following callback in your derived classes:
-
-        def prepare_data(self, obj, doc, source)
-        '''
-        src = self.context['source']
-        return self.prepare_data(obj, getattr(obj, src + '_doc'), getattr(obj, src))
-
-    def get_session(self, obj):
-        return CompactSessionsSerializer(obj.session, need_geo_line = self.context.get('need_geo_line', True)).data
-
-class QuickLookSerializer(AbstractMeasurementSerializer):
-    '''Calls the quicklook on the JSON data and returns the result'''
-    def prepare_data(self, obj, doc, source):
-        return _context_function_call(self, doc.json_data)
-
-#class JSONDataSerializer(AbstractMeasurementSerializer):
-    #'''Serializes the document (channel or parameter) into rich JSON form'''
-    #def prepare_data(self, obj, doc, source):
-     #   return doc.json_data
-
-# TODO: this pulls unnecessary fields in
-class ExportDataSerializer(AbstractMeasurementSerializer):
-    '''Uses the channel/parameter export function to serialize the document'''
-    def prepare_data(self, obj, doc, source):
-        return _context_function_call(self, doc.json_data, obj.session)
 
 # TODO: move somewhere else
 from rest_framework import renderers

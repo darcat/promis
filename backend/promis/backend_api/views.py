@@ -193,57 +193,13 @@ class DownloadView(viewsets.GenericViewSet):
     @detail_route(permission_classes = (AllowAny,), # TODO: other permission class
                   renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer))
     def data(self, request, id):
-        self.serializer_class = serializer.MeasurementsSerializer
+        self.points = 10
+        self.serializer_class = serializer.JSONDataSerializer
         return self.create_data()
 
     lookup_field = 'id'
     queryset = models.Measurement.objects.all()
 
-
-# TODO: make a common base class for this and QuicklookView
-
-class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
-    renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer)
-
-    def _export(self, obj, src_name, src_serializer):
-        # TODO: comment this code, merge it with quicklook
-        try:
-            fmt = self.request.query_params['format']
-        except KeyError:
-            fmt = 'json'
-
-        # TODO: refactor this mess!!
-        if fmt == 'json' or fmt == 'api':
-            res = serializer.JSONDataSerializer(obj, context = { 'serializer': src_serializer, 'source': src_name } ).data
-        else:
-            export_fun = getattr(obj, src_name).export
-
-            if not export_fun:
-                raise MethodNotAllowed('< no export defined >')
-
-            res = serializer.ExportDataSerializer(obj, context = { 'func': export_fun,
-                                                                    'kwargs': { 'fmt': fmt },
-                                                                    'serializer': src_serializer,
-                                                                    'source': src_name } ).data['data']
-
-        return Response(res)
-
-# TODO: why is it pk here and id above???
-    @detail_route(permission_classes = [PromisPermission,])
-    def channel(self, request, pk):
-        obj = self.queryset.get(pk = pk)
-        self.check_object_permissions(request, obj)
-        return self._export(obj, "channel", serializer.ChannelsSerializer)
-
-    @detail_route(permission_classes = [PromisPermission, IsAuthenticated, Level1Permission])
-    def parameter(self, request, pk):
-        obj = self.queryset.get(pk = pk)
-        self.check_object_permissions(request, obj)
-        return self._export(obj, "parameter", serializer.ParametersSerializer)
-
-    queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission, IsAuthenticated)
-    serializer_class = serializer.MeasurementsSerializer
 
 class UserPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
