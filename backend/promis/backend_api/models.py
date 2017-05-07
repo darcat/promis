@@ -92,6 +92,7 @@ class Device(TranslatableModel):
         return self.name
 
 class Channel(TranslatableModel):
+    value = ForeignKey('Value')
     device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
     quicklook = ForeignKey('Function', related_name = 'ch_ql', blank=True, null=True)
     export = ForeignKey('Function', related_name = 'ch_ex', blank=True, null=True)

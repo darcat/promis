@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from rest_framework.views import APIView
-from rest_framework.generics import  GenericAPIView, ListAPIView
+from rest_framework.generics import  GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import status
@@ -25,6 +25,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 
 import util.unix_time
 
@@ -119,120 +120,86 @@ class SessionsView(PromisViewSet):
         return queryset
 
 
-
 class MeasurementsView(PromisViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
     filter_class = MeasurementsFilter
 
 
-class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    def _quicklook(self, obj, src_name, src_serializer):
-        '''Generalized quicklook function'''
+class DownloadView(viewsets.GenericViewSet):
+    '''
+    Handles data downloads and quicklooks.
+
+    Data source defined by source request parameter
+    which can be either channel or parameter.
+
+    Operation is defined by the last path element
+    which can be either data or quicklook.
+
+    Data method takes a fmt parameter (shared with Django)
+    that determines the output format.
+
+    Quicklook method takes a points parameter which
+    determines the resolution of a quicklook.
+
+    Both accept time_start and time_end parameters in
+    UNIX seconds at UTC to specify data slicing.
+
+    Ideally we could support slicing by a polygon, but not now
+    '''
+    # TODO: seriously? Django displays a docstring?
+
+    # Basically what RetrieveModelMixin does, but without
+    # creating a separate "-detail" view
+    # TODO: when we fix swagger route generation this may be
+    # turned redundant by just inheriting the mixin
+    def create_data(self):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @detail_route(permission_classes = (AllowAny,))
+    def quicklook(self, request, id):
         # TODO: JSON/HTML-ify the responses here?
         # TODO: 422 instead of 404 for incorrect params?
         # TODO: most of the raises here are redundant and should be done
         # in validators.
-
-        # Determining the quicklook function
-        quicklook_fun = getattr(obj, src_name).quicklook
-
-        if not quicklook_fun:
-            raise MethodNotAllowed('< no quicklook defined >')
-
-        # TODO: many stubs here depend on the knowledge of the JSON structure
-        # which varies type to type. Making 100500 functions is unfeasible, so
-        # we might want to wrap this into classes with known interface and
-        # use JSON as pickle/unpickle medium or something. Postponed to post-alpha
-        # see and use #63 for more details.
+        # TODO: determine where exactly should the validation happen
 
         # Determining the quality of a quicklook
         try:
-            npoints = int(self.request.query_params['points'])
+            self.points = int(self.request.query_params['points'])
         except KeyError:
             # TODO: configurable default or per-type setting here
-            npoints = 200
+            self.points = 200
         except ValueError:
             raise NotFound("Amount of points is not a number")
 
         # Various checks on the number received
-        if npoints <= 0:
+        if self.points <= 0:
             raise NotFound("Non-positive amount of points requested")
 
         # TODO: STUB: determine upper cap, that depends on the type in question
-        # if npoints > max_points_for_this_json:
+        # if self.points > max_points_for_this_json:
         #   raise NotFound("Too much points requested")
 
         # TODO: STUB: determine if user is not authenticated, lower the cap for them
-        # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
+        # if user_not_authenticated and self.points > max_points_for_this_json * some_coeff:
         #   raise NotAuthenticated
 
-        ser = serializer.QuickLookSerializer(obj, context = { 'func': quicklook_fun,
-                                                              'kwargs': { 'npoints': npoints },
-                                                              'serializer': src_serializer,
-                                                              'source': src_name,
-                                                              'need_geo_line': False } )
-        return Response(ser.data)
+        self.serializer_class = serializer.QuicklookSerializer
+        return self.create_data()
 
-    @detail_route(permission_classes = [AllowAny,])
-    def channel(self, request, id):
-        obj = self.queryset.get(pk = id)
-        return self._quicklook(obj, "channel", serializer.ChannelsSerializer)
+    @detail_route(permission_classes = (AllowAny,), # TODO: other permission class
+                  renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer))
+    def data(self, request, id):
+        self.points = 10
+        self.serializer_class = serializer.JSONDataSerializer
+        return self.create_data()
 
-    @detail_route(permission_classes = [AllowAny,])
-    def parameter(self, request, id):
-        obj = self.queryset.get(pk = id)
-        return self._quicklook(obj, "parameter", serializer.ParametersSerializer)
-
+    lookup_field = 'id'
     queryset = models.Measurement.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = serializer.MeasurementsSerializer
 
-
-# TODO: make a common base class for this and QuicklookView
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
-class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
-    renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer)
-
-    def _export(self, obj, src_name, src_serializer):
-        # TODO: comment this code, merge it with quicklook
-        try:
-            fmt = self.request.query_params['format']
-        except KeyError:
-            fmt = 'json'
-
-        # TODO: refactor this mess!!
-        if fmt == 'json' or fmt == 'api':
-            res = serializer.JSONDataSerializer(obj, context = { 'serializer': src_serializer, 'source': src_name } ).data
-        else:
-            export_fun = getattr(obj, src_name).export
-
-            if not export_fun:
-                raise MethodNotAllowed('< no export defined >')
-
-            res = serializer.ExportDataSerializer(obj, context = { 'func': export_fun,
-                                                                    'kwargs': { 'fmt': fmt },
-                                                                    'serializer': src_serializer,
-                                                                    'source': src_name } ).data['data']
-
-        return Response(res)
-
-# TODO: why is it pk here and id above???
-    @detail_route(permission_classes = [PromisPermission,])
-    def channel(self, request, pk):
-        obj = self.queryset.get(pk = pk)
-        self.check_object_permissions(request, obj)
-        return self._export(obj, "channel", serializer.ChannelsSerializer)
-
-    @detail_route(permission_classes = [PromisPermission, IsAuthenticated, Level1Permission])
-    def parameter(self, request, pk):
-        obj = self.queryset.get(pk = pk)
-        self.check_object_permissions(request, obj)
-        return self._export(obj, "parameter", serializer.ParametersSerializer)
-
-    queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission, IsAuthenticated)
-    serializer_class = serializer.MeasurementsSerializer
 
 class UserPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
