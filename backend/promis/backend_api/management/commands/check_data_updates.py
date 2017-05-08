@@ -20,7 +20,6 @@
 #
 from django.core.management.base import BaseCommand
 import backend_api.models as model
-from function import get_func_by_name
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
@@ -43,18 +42,17 @@ class Command(BaseCommand):
 
         # Updating the selection
         for sat in space_projects:
-            if sat.data_func:
+            if sat.klass:
                 try:
                     print("=> Checking data for satellite: %s." % sat.name)
-                    check, fetch = get_func_by_name(sat.data_func.django_func)(sat)
+                    sat_obj = sat.instance()
+                    sat_obj.update()
 
-                    # if check() returns None, iterate an empty tuple i.e. don't do anything
-                    for data_id in check() or ():
-                        if data_id:
-                            print("=> Fetching data by id: %s." % data_id)
-                            fetch(data_id)
-                except (ImportError, AttributeError):
-                    print("Error calling data fetch function for satellite: %s." % sat.name)
+                except (ImportError, AttributeError) as e:
+                    print("Error calling data fetch function for satellite %s: %s." % (sat.name, e))
                     print("Please contact the maintainer. Aborting operation")
                     # TODO: roll back the transaction or let it sink?
                     break
+            else:
+                print("No behaviour defined for satellite: %s." % sat.name)
+                break

@@ -19,15 +19,16 @@
 # permissions and limitations under the Licence.
 #
 
-import ftp, parsers, unix_time
+import ftp_helper, parsers, unix_time
 from django.contrib.gis.geos import LineString
 import backend_api.models as model
+from classes.base_project import BaseProject
 
 # TODO: yield/with problem, see potential.py for details
 # TODO: make deploy figure out Docker's bridge IP dynamically
 
 def general_fetch(path, satellite_object, add_measurement=False):
-    with ftp.FTPChecker(path, "172.17.0.1", 2121) as ftp:
+    with ftp_helper.FTPChecker(path, "172.17.0.1", 2121) as ftp:
         # Iterating over all the sessions available
         for sess_name in ftp.nlst():
             timemark = int(sess_name)
@@ -61,33 +62,29 @@ def general_fetch(path, satellite_object, add_measurement=False):
             ftp.cwd("..")
 
 
-def roundabout(satellite_object):
-    """
+class Roundabout(BaseProject):
+    '''
     [en]: Test set FTP data collection service (roundabout)
     [uk]: Сервіс забору тестових даних з FTP (roundabout)
-    """
-    def check():
-        with ftp.FTPChecker("roundabout/", "172.17.0.1", 2121) as ftp:
+    '''
+    def check(self):
+        with ftp_helper.FTPChecker("roundabout/", "172.17.0.1", 2121) as ftp:
             for v in ftp.check():
                 yield v
 
-    def fetch(data_id):
-        general_fetch("roundabout/" + data_id, satellite_object, True)
-
-    return check, fetch
+    def fetch(self, data_id):
+        general_fetch("roundabout/" + data_id, self.project_obj, True)
 
 
-def peace_love(satellite_object):
-    """
+class PeaceLove(BaseProject):
+    '''
     [en]: Test set FTP data collection service (peace & love)
     [uk]: Сервіс забору тестових даних з FTP (peace & love)
-    """
-    def check():
-        with ftp.FTPChecker("peace_love/", "172.17.0.1", 2121) as ftp:
+    '''
+    def check(self):
+        with ftp_helper.FTPChecker("peace_love/", "172.17.0.1", 2121) as ftp:
             for v in ftp.check():
                 yield v
 
-    def fetch(data_id):
-        general_fetch("peace_love/" + data_id, satellite_object)
-
-    return check, fetch
+    def fetch(self, data_id):
+        general_fetch("peace_love/" + data_id, self.project_obj)

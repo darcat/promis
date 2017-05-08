@@ -20,24 +20,24 @@
 #
 from django.core.management.base import BaseCommand
 
-import functions
+import classes
 import re
 import backend_api.models as model
 
 from pkgutil import walk_packages
 from importlib import import_module
-from inspect import getmembers, isfunction
+from inspect import getmembers, isclass
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        # Iterating over the modules in "functions" package
-        for _, modname, _ in walk_packages(path=functions.__path__, prefix=functions.__name__+'.'):
-            # Picking up functions which have docstrings from the module
-            for f in (o for o in getmembers(import_module(modname)) if isfunction(o[1]) and o[1].__doc__):
-                fname = "%s.%s" % (modname, f[0])
+        # Iterating over the modules in "classes" package
+        for _, modname, _ in walk_packages(path=classes.__path__, prefix=classes.__name__+'.'):
+            # Picking up classes which have docstrings from the module
+            for f in (o for o in getmembers(import_module(modname)) if isclass(o[1]) and o[1].__doc__):
+                cls_name = "%s.%s" % (modname, f[0])
 
                 # Only adding a new object if there is nothing like that in the database
-                if model.Function.objects.filter(django_func=fname).count() > 0:
+                if model.Class.objects.filter(name=cls_name).count() > 0:
                     continue
 
                 rexp = r"\[([a-z]{2})\]:(.*?)(?=(\s\[[a-z]{2}\]:|$))"
@@ -46,10 +46,10 @@ class Command(BaseCommand):
                 m = re.search(rexp, f[1].__doc__, flags = re.S)
                 if not m:
                     continue
-                print("=> New function: '%s'" % fname)
+                print("=> New class: '%s'" % cls_name)
 
                 # Creating a first language (usually English) version
-                obj = model.Function.objects.language(m.group(1)).create(django_func = fname, description = m.group(2).strip())
+                obj = model.Class.objects.language(m.group(1)).create(name = cls_name, description = m.group(2).strip())
 
                 # Adding the rest of the translations
                 for mm in re.finditer(rexp, f[1].__doc__[ m.end(): ], flags = re.S):

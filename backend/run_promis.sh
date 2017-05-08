@@ -8,8 +8,9 @@ python $PROMIS_DIR/promis/wait_for_database.py
 python $PROMIS_DIR/promis/manage.py makemigrations --no-input
 python $PROMIS_DIR/promis/manage.py migrate
 
-# Record the available functions
+# Record the available classes
 python $PROMIS_DIR/promis/manage.py collect_functions
+python $PROMIS_DIR/promis/manage.py collect_classes
 
 # Create superuser if needed
 python $PROMIS_DIR/promis/manage.py batch_create_superuser

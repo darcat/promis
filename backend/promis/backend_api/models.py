@@ -15,11 +15,62 @@ from django.contrib.auth.models import Permission
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
 from function import get_func_by_name
+from importlib import import_module
+
+class ClassManager(TranslationManager):
+    def get_by_natural_key(self, name):
+        return self.get(name = name)
+
+
+class Class(TranslatableModel):
+    name = TextField()
+
+    objects = ClassManager()
+
+    translations = TranslatedFields(
+        description = TextField()
+        )
+
+    def natural_key(self):
+        return (self.name,)
+
+    class Meta:
+        db_table = "classes"
+
+    def __str__(self):
+        return self.description
+
+    def get_class_obj(self):
+        '''
+        Returns a Python class object identified by self.name
+
+        No safety checks are executed, make sure to catch stuff.
+        '''
+        # Breaking down to components
+        path_comp = self.name.rsplit(sep=".", maxsplit=1)
+
+        # Importing the module
+        module = import_module(path_comp[0])
+
+        # Looking for the class
+        return getattr(module, path_comp[1])
+
+    def __call__(self, *args, **kwargs):
+        '''
+        Instantiates the class identified by self.name
+        and passes args and kwargs to its constructor
+        '''
+        try:
+            return self.get_class_obj() (*args, **kwargs)
+        except (ImportError, AttributeError) as e:
+            raise MethodNotAllowed(self.name, detail = "Can't create an object of class %s: '%s'. Please contact the maintainer." % (self.name, str(e)))
+
 
 # TODO: is this class necessary?
 class FunctionManager(TranslationManager):
     def get_by_natural_key(self, django_func):
         return self.get(django_func = django_func)
+
 
 class Function(TranslatableModel):
     django_func = TextField()
@@ -45,6 +96,7 @@ class Function(TranslatableModel):
         except (ImportError, AttributeError) as e:
             raise MethodNotAllowed(self.django_func, detail = "Calling %s failed: '%s'. Please contact the maintainer." % (self.django_func, str(e)))
 
+
 class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
@@ -56,7 +108,16 @@ class Session(models.Model):
     class Meta:
         db_table = "sessions"
 
+
 class Space_project(TranslatableModel):
+    klass = ForeignKey('Class', null = True)
+    def instance(self):
+        '''
+        Create a new object of the stored behaviour class and
+        connect it to the calling object.
+        '''
+        return self.klass(self) if self.klass else None
+
     date_start = DateField()
     date_end = DateField()
 
@@ -64,9 +125,6 @@ class Space_project(TranslatableModel):
         name = TextField(),
         description = TextField(blank = True)
         )
-
-    # Function that returns functions to check for updates and fetch them
-    data_func = ForeignKey('Function', null = True)
 
     class Meta:
         db_table = "space_projects"
