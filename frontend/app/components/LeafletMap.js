@@ -6,16 +6,12 @@ import LeafletGeodesy from 'leaflet-geodesy';
 
 import { Types } from '../constants/Selection';
 import { BingKey } from '../constants/Map'
-import EventEmitter from 'wolfy87-eventemitter';
 
 import 'leaflet/dist/leaflet.css';
 
 export default class LeafletContainer extends Component {
     constructor(props) {
         super(props);
-
-        /* ee */
-        this.ee = new EventEmitter();
 
         /* handles */
         this.map = null;
@@ -339,8 +335,11 @@ export default class LeafletContainer extends Component {
         if(this.props.selection.active) {
             let point = this.eventToPoint(e);
 
-            this.ee.emitEvent('nextPoint', point);
             this.previewShape(point);
+
+            if(this.props.onPreview) {
+                this.props.onPreview(point);
+            }
         }
     }
 

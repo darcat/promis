@@ -36,7 +36,7 @@ export default class UniversalMap extends Component {
 
     /* next selection point coordinates callback */
     preview(data) {
-        //this.props.onPreview(data);
+        this.props.ee.emit('nextPoint', data);
     }
 
     /* make fixed point number from floating point one */

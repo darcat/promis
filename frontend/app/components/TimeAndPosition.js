@@ -9,7 +9,6 @@ import Panel from './Panel';
 
 import '../styles/map.css';
 
-import EventEmitter from 'wolfy87-eventemitter';
 import { isSelectionElement } from '../constants/Selection';
 
 class GeoInputForm extends Component {
@@ -164,41 +163,38 @@ class MapSelection extends Component {
     }
 }
 
-function NextPoint(props) {
-    let lat = props.data ? props.data[0] : 0;
-    let lng = props.data ? props.data[1] : 0;
-
-    return (
-        <div>Next point: {lat}, {lng}</div>
-    )
-}
-
 export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
 
-        this.ee = new EventEmitter();
-        this.preview = null;
         this.actions = props.genericActions;
 
+        this.state = {
+            preview: new Array(0, 0)
+        }
+
         this.toggleMap = this.toggleMap.bind(this);
+        this.updatePreview = this.updatePreview.bind(this);
         this.dateFromChange = this.dateFromChange.bind(this);
         this.dateToChange = this.dateToChange.bind(this);
         this.altFromChange = this.altFromChange.bind(this);
         this.altToChange = this.altToChange.bind(this);
-
-        
     }
 
-    componentDidMount() {
-        this.ee.addListener('nextPoint', function(data) {
-            //console.log(data);
-            this.preview = data;
-        }.bind(this))
+    componentWillMount() {
+        this.props.ee.on('nextPoint', this.updatePreview);
     }
 
     componentWillUnmount() {
+        this.props.ee.off('nextPoint', this.updatePreview);
+    }
 
+    updatePreview(data) {
+        this.setState(function() {
+            return {
+                preview: data
+            }
+        });
     }
 
     toggleMap() {
@@ -223,6 +219,7 @@ export default class TimeAndPositionInput extends Component {
 
     render() {
         let opts = this.props.options;
+        let prev = this.state.preview;
 
         return (
             <Panel title = 'Time and position'>
@@ -277,7 +274,7 @@ export default class TimeAndPositionInput extends Component {
                         </Col>
                         <Col sm = {10}>
                             { this.props.selection.active &&
-                            <NextPoint data = {this.preview} /> }
+                            <div>Next point: {prev[0]}, {prev[1]}</div>}
                             <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }

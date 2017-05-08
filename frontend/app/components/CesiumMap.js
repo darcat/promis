@@ -25,7 +25,6 @@ import EllipsoidSurfaceAppearance from 'cesium/Source/Scene/EllipsoidSurfaceAppe
 
 import PolylineOutlineMaterialProperty from 'cesium/Source/DataSources/PolylineOutlineMaterialProperty';
 
-import EventEmitter from 'wolfy87-eventemitter';
 import { BingKey } from '../constants/Map';
 import { Types } from '../constants/Selection';
 
@@ -49,9 +48,6 @@ export default class CesiumContainer extends Component {
             sceneModePicker: false,
             selectionIndicator: false
         }
-
-        /* ee */
-        this.ee = new EventEmitter();
 
         /* main handle */
         this.viewer = null;
@@ -235,8 +231,11 @@ export default class CesiumContainer extends Component {
             let position = this.currentPosition(event.startPosition);
 
             if(position.coords) {
-                this.ee.emitEvent('nextPoint', position.coords);
                 this.previewShape(position)
+
+                if(this.props.onPreview) {
+                    this.props.onPreview(position.coords);
+                }
             }
         }
     }

@@ -18,16 +18,15 @@ import TimeAndPositionPanel from '../components/TimeAndPosition';
 import SearchForm from '../components/SearchForm.js';
 import SearchResults from '../components/SearchResults.js';
 
+import EventEmitter from 'event-emitter';
+
 class App extends Component {
     constructor(props) {
         super(props);
 
-        /* local callback is faster than whole redux state loop */
-        this.state = {
-            previewData: null
-        }
-        this.getPreview = this.getPreview.bind(this);
-        this.updatePreview = this.updatePreview.bind(this);
+        /* redux is too slow here */
+        this.ee = new EventEmitter();
+
         this.updateDimensions = this.updateDimensions.bind(this);
 
         this.props.usrActions.profile();
@@ -42,18 +41,6 @@ class App extends Component {
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.updateDimensions.bind(this));
-    }
-
-    updatePreview(data) {
-        this.setState(function(){
-            return {
-                previewData: data
-            }
-        })
-    }
-
-    getPreview() {
-        return this.previewData;
     }
 
     updateDimensions() {
@@ -90,7 +77,7 @@ class App extends Component {
                     </Well>
                     <Row>
                         <TimeAndPositionPanel
-                            //preview = {this.state.previewData}
+                            ee = {this.ee}
                             options = {this.props.inputOptions}
                             selection = {this.props.selection}
                             selectionActions = {this.props.selActions}
@@ -109,7 +96,7 @@ class App extends Component {
                     <Row>
                         { this.props.inputOptions.mapEnabled &&
                         <MapPanel
-                            //onPreview = {this.updatePreview}
+                            ee = {this.ee}
                             selection = {this.props.selection}
                             geolines = {this.props.search.geolines}
                             options = {this.props.mapOptions}
