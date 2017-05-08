@@ -140,6 +140,10 @@ class JSONDataSerializer(QuicklookSerializer):
     def get_geo_line(self, obj):
         return SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
 
+    def get_data(self, obj):
+        doc_obj = obj.instance(self.source_name())
+        return doc_obj.data()
+
 
 # TODO: move somewhere else
 from rest_framework import renderers

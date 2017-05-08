@@ -76,6 +76,9 @@ class SingleVarTimeSeries(BaseTimeSeries):
     def __getitem__(self, idx):
         return self.doc[idx]
 
+    def data(self):
+        return self.doc
+
     # TODO: propagate upwards?
     def quicklook(self, points):
         '''

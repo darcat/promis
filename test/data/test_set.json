@@ -136,9 +136,7 @@
     "pk": 42000,
     "fields": {
         "value": 42000,
-        "device": 42000,
-        "quicklook": null,
-        "parser_func": null
+        "device": 42000
     }
 },
 {
@@ -219,10 +217,7 @@
     "pk": 42000,
     "fields": {
         "value": 42000,
-        "conversion": null,
-        "conversion_params": "",
-        "channel": 42000,
-        "quicklook": null
+        "channel": 42000
     }
 }
 ]
