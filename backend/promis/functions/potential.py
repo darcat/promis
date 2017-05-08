@@ -22,7 +22,7 @@
 # TODO: maintain 1 continuous FTP object
 
 from django.contrib.gis.geos import LineString
-import util.orbit, util.ftp, util.parsers, util.stats, util.export
+import util.orbit, util.ftp, util.parsers, util.stats, util.export, util.unix_time
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow
@@ -130,17 +130,17 @@ def data_func(satellite_object):
                                 ez_time_end = time_end
 
                                 # Generator for the orbit
-                                line_gen = ( (y.lon, y.lat) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
+                                line_gen = ( (y.lon, y.lat, y.alt) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
                                 # Converting time to python objects for convenience
                                 # This is the point where onboard time gets converted to the UTC
-                                time_start = util.orbit.maketime(time_start)
-                                time_end = util.orbit.maketime(time_end)
+                                time_start = util.unix_time.maketime(time_start)
+                                time_end = util.unix_time.maketime(time_end)
                                 time_dur = time_end - time_start
                                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
 
                                 # Creating a session object
                                 # TODO: make it more readable
-                                ez_sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4326), space_project = satellite_object )
+                                ez_sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4979), space_project = satellite_object )
 
                                 # TODO: record data_id in the object
                                 # TODO: somehow generalise this process maybe

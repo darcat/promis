@@ -45,7 +45,7 @@ round_start = int(time())
 
 # Fake mercator considering Earth is a sphere
 def cord_conv(x,y):
-    return [ float(x),180.0/pi*(2.0*atan(exp(y*pi/180.0))-pi/2.0) ]
+    return [ float(x),180.0/pi*(2.0*atan(exp(y*pi/180.0))-pi/2.0), 400 ]
 
 # Ensures the number doesn't exceed 180
 def clamp180(x):
@@ -82,7 +82,7 @@ def uptick():
 
 # Yes I know this is not how satellites work
 def roundabout():
-    return [ [ clamp180(round_shift*t/pi), 80*sin(t) ]
+    return [ [ clamp180(round_shift*t/pi), 80*sin(t), 300 + 200*cos(t) ]
         for t in ((2*slow_factor*round_turns*pi*i/round_pts)
             for i in range(round_pts))]
 
@@ -111,7 +111,7 @@ def insert_orbit(folder, start_time, gen_func, data_func=None):
 
         with open("%s/orbit.csv" % sessfolder, "w") as fp:
             for pt in v:
-                print(str(pt[0]) + "," + str(pt[1]), file=fp)
+                print(",".join(str(x) for x in pt), file=fp)
 
         # Generate some data
         if data_func:

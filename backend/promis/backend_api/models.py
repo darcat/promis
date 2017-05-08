@@ -48,8 +48,9 @@ class Function(TranslatableModel):
 class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
-    orbit_code = IntegerField(null=True)
-    geo_line = LineStringField()
+    orbit_code = IntegerField(null = True)
+    # TODO: http://spatialreference.org/ref/epsg/4979/postgis/ 
+    geo_line = LineStringField(dim = 3, srid = 4979)
     space_project = ForeignKey('Space_project', null = True)
 
     class Meta:
@@ -77,7 +78,7 @@ class Space_project(TranslatableModel):
 
 
 class Device(TranslatableModel):
-    satellite = ForeignKey('Space_project')
+    space_project = ForeignKey('Space_project')
 
     translations = TranslatedFields(
         name = TextField(),
@@ -91,6 +92,7 @@ class Device(TranslatableModel):
         return self.name
 
 class Channel(TranslatableModel):
+    value = ForeignKey('Value')
     device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
     quicklook = ForeignKey('Function', related_name = 'ch_ql', blank=True, null=True)
     export = ForeignKey('Function', related_name = 'ch_ex', blank=True, null=True)

@@ -22,14 +22,7 @@
 
 import re, struct
 import util.orbit
-import datetime
-import pytz
-
-def str_to_utc(x):
-    time_fmt = "%Y{0}%m{0}%d %H:%M:%S".format(x[4])
-    ts = datetime.datetime.strptime(x, time_fmt)
-    ts = ts.replace(tzinfo=pytz.timezone("UTC")).timestamp()
-    return int(ts)
+import util.unix_time
 
 # TODO: cull out those which have standard parsers (CSV?)
 # TODO: replace ValueErrors with meaningful exception classes when integrating
@@ -39,7 +32,7 @@ def telemetry(fp):
     """
     Parses the telemetry .txt file used in Potential and possibly some other satellites.
 
-    Yields time, (time, lon, lat) pairs.
+    Yields time, (time, lon, lat, alt) tuples.
     """
     # We have a bit of a decision here:
     # 1. Read the file in one try reading each compontent into an in memory list
@@ -86,7 +79,7 @@ def telemetry(fp):
             m = re.search("^[0-9]* ([0-9.-]*) (2.*)", ln)
             if m:
                 # Yielding a nested tuple e.g. ( "RX", (1, 432.0) ), will be converted to dict
-                yield ( sect, (str_to_utc(m.group(2)), float(m.group(1))) )
+                yield ( sect, (util.unix_time.str_to_utc(m.group(2)), float(m.group(1))) )
             else:
                 raise ValueError("Input inconsistency detected")
 
@@ -146,7 +139,7 @@ def sets(fp, keys=None):
         keys_found.add(key)
 
         # Yield the data
-        yield key, int(value) if key != "utc" else str_to_utc(value)
+        yield key, int(value) if key != "utc" else util.unix_time.str_to_utc(value)
 
         # Reduce the counter of keys to look for and break if necessary
         if keys_left > 0:
@@ -186,21 +179,22 @@ def csv(fp, as_type=float):
 
 def wkb(_wkb):
     """
-    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4326
+    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4979
     """
     # TODO: test if we can speed up things if we serialized in JSON on the fly
     # Setting endianness causes struct to use standard type sizes instead of native ones
     endianness = [ ">", "<" ] [ _wkb[0] ]
 
     # Check if we have a 2D Linestring
-    if struct.unpack(endianness + "l", _wkb[1:5]) [0] != 2:
+    # TODO: why this weird literal?
+    if struct.unpack(endianness + "L", _wkb[1:5]) [0] != 0x80000002:
         raise ValueError("WKB parser can only do LineString for now")
 
     # Determine the point count
-    pts_count = struct.unpack(endianness + "l", _wkb[5:5+4]) [0]
+    pts_count = struct.unpack(endianness + "L", _wkb[5:5+4]) [0]
 
     # Get actual data
     for i in range(pts_count):
         # Each data point is 2 8-byte doubles, offset by header (9 bytes)
-        offset = 1 + 4 + 4 + 8 * 2 * i
-        yield struct.unpack(endianness + "dd", _wkb[offset:offset+16])
+        offset = 1 + 4 + 4 + 8 * 3 * i
+        yield struct.unpack(endianness + "ddd", _wkb[offset:offset+8*3])

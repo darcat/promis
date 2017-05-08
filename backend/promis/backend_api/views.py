@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from rest_framework.views import APIView
-from rest_framework.generics import  GenericAPIView, ListAPIView
+from rest_framework.generics import  GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import status
@@ -25,18 +25,34 @@ from django.contrib.auth import get_user_model
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 
+import util.unix_time
 
 import datetime
 from rest_framework.decorators import permission_classes
 
+class PromisViewSet(viewsets.ReadOnlyModelViewSet):
+    '''Collects most commonly used View stuff'''
+    lookup_field = 'id'
+    permission_classes = (AllowAny,)
+    # TODO: Is it okay to put it here even for classes that don't need it?
+    filter_backends = (DjangoFilterBackend,)
+
 class SessionFilter(django_filters.rest_framework.FilterSet):
-    time_begin = django_filters.IsoDateTimeFilter(lookup_expr='gte')
-    time_end = django_filters.IsoDateTimeFilter(lookup_expr='lte')
+    time_begin = django_filters.NumberFilter(method='unix_time_filter')
+    time_end = django_filters.NumberFilter(method='unix_time_filter')
     project = django_filters.ModelChoiceFilter(name='space_project',
                                                queryset = models.Space_project.objects.all())
     satellite = django_filters.ModelChoiceFilter(name='space_project',
                                                  queryset = models.Space_project.objects.all())
+
+    # TODO: make a separate class?
+    def unix_time_filter(self, queryset, name, value):
+        # Composition of the queryset.filter argument depending on which field was used
+        filter_actions = { 'time_begin': 'time_begin__gte', 'time_end': 'time_end__lte' }
+        return queryset.filter(**{ filter_actions[name]: util.unix_time.maketime(value) })
+
 
     class Meta:
         model = models.Session
@@ -48,50 +64,35 @@ class MeasurementsFilter(django_filters.rest_framework.FilterSet):
         model = models.Measurement
         fields = ['session', 'parameter']
 
-class ProjectsView(viewsets.ReadOnlyModelViewSet):
+class ProjectsView(PromisViewSet):
     queryset = models.Space_project.objects.all()
     serializer_class = serializer.SpaceProjectsSerializer
-    permission_classes = (AllowAny,)
 
-class DevicesView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Device.objects.all()
-    serializer_class = serializer.DevicesSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('satellite',)
-    permission_classes = (AllowAny,)
-
-class ChannelsView(viewsets.ReadOnlyModelViewSet):
+class ChannelsView(PromisViewSet):
     queryset = models.Channel.objects.all()
     serializer_class = serializer.ChannelsSerializer
-    permission_classes = (PromisPermission,)
 
-class SessionsView(viewsets.ReadOnlyModelViewSet):
+class ParametersView(PromisViewSet):
+    queryset = models.Parameter.objects.all()
+    serializer_class = serializer.ParametersSerializer
+    filter_fields = ('channel',)
+
+class DevicesView(PromisViewSet):
+    queryset = models.Device.objects.all()
+    serializer_class = serializer.DevicesSerializer
+    filter_fields = ('space_project',)
+
+
+class SessionsView(PromisViewSet):
     queryset = models.Session.objects.all()
     serializer_class = serializer.SessionsSerializer
-    filter_backends = (DjangoFilterBackend,)
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-    permission_classes = (AllowAny,)
 
     def get_queryset(self):
-
         queryset = models.Session.objects.all()
         polygon = self.request.query_params.get('polygon', None)
 
-#commented to allow Anonymous access
-        '''
-        user = self.request.user
-        if not helpers.UserExists(user):
-            return models.Session.objects.none()
-
-        if helpers.UserGroupsNo(user) <= 0:
-            now = datetime.datetime.now()
-            half_year_ago = now - datetime.timedelta(183)
-            ago = datetime.date(1900, 1, 1)
-            queryset = models.Session.objects.filter(time_end__range = (ago, half_year_ago))
-        else:
-            queryset = models.Session.objects.all()
-        '''
 
         if polygon is not None:
             try:
@@ -118,151 +119,87 @@ class SessionsView(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
-class ParametersView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('channel',)
-    permission_classes = (AllowAny,)
 
-class MeasurementsView(viewsets.ReadOnlyModelViewSet):
+class MeasurementsView(PromisViewSet):
     queryset = models.Measurement.objects.all()
     serializer_class = serializer.MeasurementsSerializer
-    permission_classes = (AllowAny,)
     filter_class = MeasurementsFilter
-    filter_backends = (DjangoFilterBackend,)
 
 
-'''
-#TODO: This is used only for debugging, and should be removed
-#======== Added to view db contents. Remove it: ======
+class DownloadView(viewsets.GenericViewSet):
+    '''
+    Handles data downloads and quicklooks.
 
-class DocumentsView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Document.objects.all()
-    serializer_class = serializer.DocumentsSerializer
+    Data source defined by source request parameter
+    which can be either channel or parameter.
 
-class FunctionsView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Function.objects.all()
-    serializer_class = serializer.FunctionsSerializer
+    Operation is defined by the last path element
+    which can be either data or quicklook.
 
-class ParameterssView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Parameter.objects.all()
-    serializer_class = serializer.ParametersSerializer
+    Data method takes a fmt parameter (shared with Django)
+    that determines the output format.
 
-#=====================================================
-'''
+    Quicklook method takes a points parameter which
+    determines the resolution of a quicklook.
 
-class QuicklookView(RetrieveModelMixin, viewsets.GenericViewSet):
-    def _quicklook(self, obj, src_name, src_serializer):
-        '''Generalized quicklook function'''
+    Both accept time_start and time_end parameters in
+    UNIX seconds at UTC to specify data slicing.
+
+    Ideally we could support slicing by a polygon, but not now
+    '''
+    # TODO: seriously? Django displays a docstring?
+
+    # Basically what RetrieveModelMixin does, but without
+    # creating a separate "-detail" view
+    # TODO: when we fix swagger route generation this may be
+    # turned redundant by just inheriting the mixin
+    def create_data(self):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @detail_route(permission_classes = (AllowAny,))
+    def quicklook(self, request, id):
         # TODO: JSON/HTML-ify the responses here?
         # TODO: 422 instead of 404 for incorrect params?
         # TODO: most of the raises here are redundant and should be done
         # in validators.
-
-        # Determining the quicklook function
-        quicklook_fun = getattr(obj, src_name).quicklook
-
-        if not quicklook_fun:
-            raise MethodNotAllowed('< no quicklook defined >')
-
-        # TODO: many stubs here depend on the knowledge of the JSON structure
-        # which varies type to type. Making 100500 functions is unfeasible, so
-        # we might want to wrap this into classes with known interface and
-        # use JSON as pickle/unpickle medium or something. Postponed to post-alpha
-        # see and use #63 for more details.
+        # TODO: determine where exactly should the validation happen
 
         # Determining the quality of a quicklook
         try:
-            npoints = int(self.request.query_params['points'])
+            self.points = int(self.request.query_params['points'])
         except KeyError:
             # TODO: configurable default or per-type setting here
-            npoints = 200
+            self.points = 200
         except ValueError:
             raise NotFound("Amount of points is not a number")
 
         # Various checks on the number received
-        if npoints <= 0:
+        if self.points <= 0:
             raise NotFound("Non-positive amount of points requested")
 
         # TODO: STUB: determine upper cap, that depends on the type in question
-        # if npoints > max_points_for_this_json:
+        # if self.points > max_points_for_this_json:
         #   raise NotFound("Too much points requested")
 
         # TODO: STUB: determine if user is not authenticated, lower the cap for them
-        # if user_not_authenticated and npoints > max_points_for_this_json * some_coeff:
+        # if user_not_authenticated and self.points > max_points_for_this_json * some_coeff:
         #   raise NotAuthenticated
 
-        ser = serializer.QuickLookSerializer(obj, context = { 'func': quicklook_fun,
-                                                              'kwargs': { 'npoints': npoints },
-                                                              'serializer': src_serializer,
-                                                              'source': src_name,
-                                                              'need_geo_line': False } )
-        return Response(ser.data)
+        self.serializer_class = serializer.QuicklookSerializer
+        return self.create_data()
 
-    @detail_route(permission_classes = [AllowAny,])
-    def channel(self, request, id):
-        obj = self.queryset.get(pk = id)
-        return self._quicklook(obj, "channel", serializer.ChannelsSerializer)
+    @detail_route(permission_classes = (AllowAny,), # TODO: other permission class
+                  renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer))
+    def data(self, request, id):
+        self.points = 10
+        self.serializer_class = serializer.JSONDataSerializer
+        return self.create_data()
 
-    @detail_route(permission_classes = [AllowAny,])
-    def parameter(self, request, id):
-        obj = self.queryset.get(pk = id)
-        return self._quicklook(obj, "parameter", serializer.ParametersSerializer)
-
+    lookup_field = 'id'
     queryset = models.Measurement.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = serializer.MeasurementsSerializer
 
-class DownloadView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Measurement.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = serializer.DownloadViewSerializer
-
-# TODO: make a common base class for this and QuicklookView
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
-class DownloadData(RetrieveModelMixin, viewsets.GenericViewSet):
-    renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer)
-
-    def _export(self, obj, src_name, src_serializer):
-        # TODO: comment this code, merge it with quicklook
-        try:
-            fmt = self.request.query_params['format']
-        except KeyError:
-            fmt = 'json'
-
-        # TODO: refactor this mess!!
-        if fmt == 'json' or fmt == 'api':
-            res = serializer.JSONDataSerializer(obj, context = { 'serializer': src_serializer, 'source': src_name } ).data
-        else:
-            export_fun = getattr(obj, src_name).export
-
-            if not export_fun:
-                raise MethodNotAllowed('< no export defined >')
-
-            res = serializer.ExportDataSerializer(obj, context = { 'func': export_fun,
-                                                                    'kwargs': { 'fmt': fmt },
-                                                                    'serializer': src_serializer,
-                                                                    'source': src_name } ).data['data']
-
-        return Response(res)
-
-# TODO: why is it pk here and id above???
-    @detail_route(permission_classes = [PromisPermission,])
-    def channel(self, request, pk):
-        obj = self.queryset.get(pk = pk)
-        self.check_object_permissions(request, obj)
-        return self._export(obj, "channel", serializer.ChannelsSerializer)
-
-    @detail_route(permission_classes = [PromisPermission, IsAuthenticated, Level1Permission])
-    def parameter(self, request, pk):
-        obj = self.queryset.get(pk = pk)
-        self.check_object_permissions(request, obj)
-        return self._export(obj, "parameter", serializer.ParametersSerializer)
-
-    queryset = models.Measurement.objects.all()
-    permission_classes = (PromisPermission, IsAuthenticated)
-    serializer_class = serializer.MeasurementsSerializer
 
 class UserPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):

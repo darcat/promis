@@ -4,7 +4,7 @@ from backend_api import models
 from rest_framework.fields import ReadOnlyField, SerializerMethodField
 from rest_framework.reverse import reverse
 from djsw_wrapper.serializers import SwaggerHyperlinkedRelatedField
-from hvad.contrib.restframework import TranslatableModelSerializer
+from hvad.contrib.restframework import TranslatableModelSerializer, HyperlinkedTranslatableModelSerializer
 from rest_framework_gis.serializers import GeoModelSerializer
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
 import json
@@ -13,26 +13,64 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from backend_api import helpers
 import util.parsers
+import util.unix_time
+import util.stats
+
+class LookupById:
+    '''Shortcut to include extra_kwargs to every Meta class'''
+    extra_kwargs = { 'url': { 'lookup_field': 'id' } }
+
+
+class SpaceProjectsSerializer(TranslatableModelSerializer):
+    timelapse = serializers.SerializerMethodField()
+
+    def get_timelapse(self, obj):
+        # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
+        return { 'start': util.unix_time.datetime_to_utc(obj.date_start),
+                 'end': util.unix_time.datetime_to_utc(obj.date_end) }
+
+    class Meta(LookupById):
+        model = models.Space_project
+        fields = ('id', 'url', 'name', 'description', 'timelapse')
+
+
+class ChannelsSerializer(TranslatableModelSerializer):
+    class Meta(LookupById):
+        fields = ('id', 'url', 'name', 'description')
+        model = models.Channel
+
+
+class ParametersSerializer(TranslatableModelSerializer):
+    channel = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'channel-detail')
+
+    class Meta(LookupById):
+        fields = ('id', 'url', 'name', 'description', 'channel')
+        model = models.Parameter
+
+
+class DevicesSerializer(TranslatableModelSerializer):
+    space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
+    channels = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'channel-detail')
+
+    class Meta(LookupById):
+        model = models.Device
+        fields = ('id', 'url', 'name', 'description', 'space_project', 'channels')
 
 
 class SessionsSerializer(serializers.ModelSerializer):
-#   TODO: Spike! @lyssdod, correct this
-#    measurements = SwaggerHyperlinkedRelatedField(many = True, view_name = 'measurement-detail', read_only = True)
+    # TODO: STUB, see #196
+    #measurements = SwaggerHyperlinkedRelatedField(many = True, read_only = True, view_name = 'measurement-detail')
+    # cut from here:
     measurements = SerializerMethodField()
+    def get_measurements(self, obj):
+        return (self.context['request'].build_absolute_uri('/api/measurements/' + str(m.id))
+                    for m in models.Measurement.objects.filter(session = obj))
+    # to here ^
+
+    space_project = SwaggerHyperlinkedRelatedField(many = False, read_only = True, view_name = 'space_project-detail')
 
     geo_line = serializers.SerializerMethodField()
-    time = serializers.SerializerMethodField()
-
-#   TODO: Spike! @lyssdod, correct this
-    def get_measurements(self, obj):
-        meas = models.Measurement.objects.filter(session = obj)
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        ret_val = []
-        for m in meas:
-            ret_val.append(self.context['request'].build_absolute_uri('/en/api/measurements/' + str(m.id)))
-
-        return ret_val
-
+    timelapse = serializers.SerializerMethodField()
 
     def get_geo_line(self, obj):
         # Just in case for the future
@@ -41,153 +79,68 @@ class SessionsSerializer(serializers.ModelSerializer):
         # TODO: study whether pre-building the list or JSON would speed up things
         return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
 
-    def get_time(self, obj):
-        ret_val = {}
-        ret_val['begin'] = str(obj.time_begin.isoformat())
-        ret_val['end'] = str(obj.time_end.isoformat())
-
-        return ret_val
-
-
-    class Meta:
-        model = models.Session
-        fields = ('id', 'space_project', 'orbit_code', 'geo_line', 'time', 'measurements')
-        geo_field = 'geo_line'
-
-# TODO: merge with the class above
-class CompactSessionsSerializer(serializers.ModelSerializer):
-    time = serializers.SerializerMethodField()
-
-    def get_geo_line(self, obj):
-        return util.parsers.wkb(obj.geo_line.wkb)
-    def get_time(self, obj):
-        return { 'begin': obj.time_begin.isoformat(),
-                 'end': obj.time_end.isoformat() }
-
-    def __init__(self, *args, need_geo_line=True, **kwargs):
-        super().__init__(*args, **kwargs)
-        if need_geo_line:
-            self.fields.update({ "geo_line": serializers.SerializerMethodField() })
-
-    class Meta:
-        model = models.Session
-        fields = ('time',)
-
-class SpaceProjectsSerializer(TranslatableModelSerializer):
-    timelapse = serializers.SerializerMethodField()
-
     def get_timelapse(self, obj):
-        ret_val = {}
-        ret_val['begin'] = str(obj.date_start.isoformat())
-        ret_val['end'] = str(obj.date_end.isoformat())
-
-        return ret_val
-
-    class Meta:
-        model = models.Space_project
-        fields = ('id', 'name', 'description', 'timelapse')
-
-class ChannelsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('id', 'name', 'description',)
-        model = models.Channel
-
-class DevicesSerializer(TranslatableModelSerializer):
-    satellite = SpaceProjectsSerializer(many = False)
-    channels = ChannelsSerializer(many = True)
-
-    class Meta:
-        model = models.Device
-        fields = ('id', 'name', 'description', 'satellite', 'channels')
-
-class FunctionsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Function
-
-class UnitsSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Unit
-
-class ValuesSerializer(TranslatableModelSerializer):
-    class Meta:
-        fields = ('__all__')
-        model = models.Value
-
-class ParametersSerializer(TranslatableModelSerializer):
-# TODO: fix the bug
-#    channel = HyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
-    channel = ChannelsSerializer()
-    class Meta:
-        fields = ('id', 'name', 'description', 'channel')
-        model = models.Parameter
+        # TODO: change to time_start in model for consistency
+        return { 'start': util.unix_time.datetime_to_utc(obj.time_begin),
+                 'end': util.unix_time.datetime_to_utc(obj.time_end) }
 
 
-'''class QuicklookHyperlink(serializers.HyperlinkedRelatedField):
-    view_name = 'document-detail'
-    read_only = True
-
-    queryset = models.Document.objects.all()
-
-    def get_object
-'''
-
-def _context_function_call(self, *args):
-    '''
-    Takes the function stored as self.context['func'] and calls it passing
-    args as positional arguments and self.context['kwargs'] as keyword arguments
-    '''
-    return self.context['func'] (*args, **self.context['kwargs'])
-
-class AbstractMeasurementSerializer(serializers.ModelSerializer):
-    '''
-    Abstract base class for measurement serializers that include either the
-    channel or the parameter definition and do some work on the document.
-
-    Required stuff in context dictionary:
-    * 'source': the measurement field name where the data comes from.
-      Document attribute name is constructed  as {source}_doc.
-    * 'serializer': serializer class to serialize source with.
-    '''
-    data = serializers.SerializerMethodField()
-    session = serializers.SerializerMethodField()
-    class Meta:
-        model = models.Measurement
-        fields = ('data', 'session')
+    class Meta(LookupById):
+        model = models.Session
+        fields = ('id', 'url', 'space_project', 'orbit_code', 'geo_line', 'timelapse', 'measurements')
 
     def __init__(self, *args, **kwargs):
-        '''Adds an extra source field on construction'''
         super().__init__(*args, **kwargs)
-        self.fields.update({self.context['source']: self.context['serializer']()})
+        # If we are serializing a list of sessions, don't include the geo_line
+        if type(args[0]) is list:
+            self.fields.pop('geo_line')
+
+
+class QuicklookSerializer(serializers.Serializer):
+    data = serializers.SerializerMethodField()
+    timelapse = serializers.SerializerMethodField()
+    source = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    def get_source(self, obj):
+        # Preparing the serializer
+        ser_cls = { 'channel': ChannelsSerializer, 'parameter': ParametersSerializer }[ self.source_name() ]
+        res = ser_cls(self.source_obj(), context = self.context).data
+
+        # Injecting some additional information
+        res.update({'type': self.source_name() })
+
+        return res
+
+    def get_timelapse(self, obj):
+        return SessionsSerializer(obj.session, context = self.context).get_timelapse(obj.session)
+
+    def get_value(self, obj):
+        src = self.source_obj()
+        return { 'short_name': src.value.short_name,
+                 'name'      : src.value.name,
+                 'units'     : src.value.units.short_name,
+                 'units_name': src.value.units.long_name }
 
     def get_data(self, obj):
-        '''
-        Serializes data to JSON. Define the following callback in your derived classes:
+        # TODO: stub!
+        return util.stats.general_quick_look(obj.parameter_doc.json_data["mv"], npoints = self.context['view'].points)
 
-        def prepare_data(self, obj, doc, source)
-        '''
-        src = self.context['source']
-        return self.prepare_data(obj, getattr(obj, src + '_doc'), getattr(obj, src))
+    def source_name(self):
+        # TODO: swagger should do the default here
+        return self.context['request'].query_params.get('source', 'parameter')
 
-    def get_session(self, obj):
-        return CompactSessionsSerializer(obj.session, need_geo_line = self.context.get('need_geo_line', True)).data
+    def source_obj(self):
+        '''Returns a source model object (parameter or channel)'''
+        return getattr(self.instance, self.source_name())
 
-class QuickLookSerializer(AbstractMeasurementSerializer):
-    '''Calls the quicklook on the JSON data and returns the result'''
-    def prepare_data(self, obj, doc, source):
-        return _context_function_call(self, doc.json_data)
 
-class JSONDataSerializer(AbstractMeasurementSerializer):
-    '''Serializes the document (channel or parameter) into rich JSON form'''
-    def prepare_data(self, obj, doc, source):
-        return doc.json_data
+class JSONDataSerializer(QuicklookSerializer):
+    geo_line = serializers.SerializerMethodField()
 
-# TODO: this pulls unnecessary fields in
-class ExportDataSerializer(AbstractMeasurementSerializer):
-    '''Uses the channel/parameter export function to serialize the document'''
-    def prepare_data(self, obj, doc, source):
-        return _context_function_call(self, doc.json_data, obj.session)
+    def get_geo_line(self, obj):
+        return SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
+
 
 # TODO: move somewhere else
 from rest_framework import renderers
@@ -199,72 +152,45 @@ class PlainTextRenderer:
     def render(self, data, media_type=None, renderer_context=None):
         return "\n".join(data)
 
-#TODO: class below need some refactoring.....
-class DownloadViewSerializer(serializers.ModelSerializer):
-    chn_quicklook = serializers.SerializerMethodField()
-    par_quicklook = serializers.SerializerMethodField()
-
-    channel_doc = serializers.SerializerMethodField()
-    parameter_doc = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ('chn_quicklook', 'par_quicklook', 'channel_doc', 'parameter_doc')
-        model = models.Measurement
-
-    def get_chn_quicklook(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/channel')
-
-    def get_par_quicklook(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/quicklook/' + str(id) + '/parameter')
-
-    def get_channel_doc(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/channel')
-
-    def get_parameter_doc(self, obj):
-        id = obj.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id) + '/parameter')
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        user = self.context['request'].user
-        if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
-            self.fields.pop('channel_doc')
-            self.fields.pop('chn_quicklook')
 
 class MeasurementsSerializer(serializers.ModelSerializer):
     session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
     channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
     parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
-    data = serializers.SerializerMethodField()
+    channel_quicklook = serializers.SerializerMethodField()
+    channel_download = serializers.SerializerMethodField()
+    parameter_quicklook = serializers.SerializerMethodField()
+    parameter_download = serializers.SerializerMethodField()
 
 
-    class Meta:
-        fields = ('session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'data')
+    class Meta(LookupById):
+        # TODO: add 'url' here, currently it's broken, see #196
+        fields = ('id', 'session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'channel_quicklook', 'channel_download', 'parameter_quicklook', 'parameter_download')
         model = models.Measurement
 
-    def get_data(self, obj):
-        id = obj.channel_doc.id
-        #TODO: SPIKE: remove below hard code and replace to related view path.
-        return self.context['request'].build_absolute_uri('/en/api/download/' + str(id))
+    #TODO: SPIKE: remove below hard code and replace to related view path.
+    def construct_data_url(self, obj, source, action):
+        id = getattr(obj, source + "_doc").id
+        return self.context['request'].build_absolute_uri('/api/download/%d/%s?source=%s' % (id, action, source))
+
+    def get_channel_quicklook(self, obj):
+        return self.construct_data_url(obj, "channel", "quicklook")
+    def get_channel_download(self, obj):
+        return self.construct_data_url(obj, "channel", "download")
+    def get_parameter_quicklook(self, obj):
+        return self.construct_data_url(obj, "parameter", "quicklook")
+    def get_parameter_download(self, obj):
+        return self.construct_data_url(obj, "parameter", "download")
+    # cut here ^
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
-
         user = self.context['request'].user
-
         if not (helpers.UserInGroup(user, 'level1') or helpers.IsSuperUser(user)):
-            self.fields.pop('channel')
+            self.fields.pop('channel_download')
+        if not user.is_authenticated():
+            self.fields.pop('parameter_download')
 
 
 class UserSerializer(serializers.ModelSerializer):

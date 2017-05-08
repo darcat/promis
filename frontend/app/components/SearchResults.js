@@ -3,6 +3,11 @@ import { Form, Button, Glyphicon } from 'react-bootstrap';
 import Tooltip from './Tooltip';
 import Quicklook from './Quicklook';
 
+/* TODO: do you need this shared anywhere? */
+function UnixToISO(unix_ts) {
+    return new Date(unix_ts * 1e3).toISOString();
+}
+
 class DataSection extends Component {
     constructor(props) {
         super(props);
@@ -25,11 +30,15 @@ class DataSection extends Component {
         var mid = this.props.mid;
 
         if(mid) {
-            this.props.actions.makeQuery('/en/api/quicklook/' + mid + '/parameter/?points=100', {}, function(resp) {
+            this.props.actions.makeQuery('/en/api/download/' + mid + '/quicklook?source=parameter&points=100', {}, function(resp) {
                 this.setState(function() {
                     return {
-                        data: resp.data.mv,
-                        desc: resp.parameter.description
+                        main: resp.source.name,
+                        data: resp.data,
+                        desc: resp.source.description,
+                        time: resp.timelapse,
+                        ylab: resp.value.name,
+                        unit: resp.value.units
                     }
                 })
             }.bind(this))
@@ -73,10 +82,11 @@ class DataSection extends Component {
                 <Quicklook
                     data = {this.state.data}
                     title = {this.state.desc}
-                    xlabel = {this.props.xlabel}
-                    ylabel = {this.props.ylabel}
+                    timelapse = {UnixToISO(this.state.time.start) + " – " + UnixToISO(this.state.time.end)}
+                    ylabel = {this.state.ylab + " (" + this.state.unit + ")"}
                     onClose = {this.closeQuicklook}
                     show = {this.state.quicklookStatus}
+                    time = {this.state.time}
                 />
                 }
             </div>

@@ -108,7 +108,7 @@
     "model": "backend_api.device",
     "pk": 42000,
     "fields": {
-        "satellite": 42001
+        "space_project": 42001
     }
 },
 {
@@ -135,6 +135,7 @@
     "model": "backend_api.channel",
     "pk": 42000,
     "fields": {
+        "value": 42000,
         "device": 42000,
         "quicklook": null,
         "parser_func": null

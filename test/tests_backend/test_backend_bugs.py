@@ -36,15 +36,17 @@ def test_per_project_sessions(connie):
 
 def test_super_user_access_level1(superuser):
     '''IonosatMicro/promis-backend#75'''
-    r = superuser.get("/en/api/download/1")
+    r = superuser.get("/en/api/measurements/1")
     assert r.status_code == 200, "Invalid status code"
     json_data = r.json()
-    assert "channel_doc" in json_data, "Can't see channels"
-    assert "parameter_doc" in json_data, "Can't see parameters"
+    assert "channel_quicklook" in json_data, "Can't see channels quicklook"
+    assert "parameter_quicklook" in json_data, "Can't see parameters quicklook"
+    assert "channel_download" in json_data, "Can't see channels"
+    assert "parameter_download" in json_data, "Can't see parameters"
 
 def test_unauth_access(session):
     '''IonosatMicro/promis-backend#78'''
-    r = session.get("/en/api/download/1")
+    r = session.get("/en/api/measurements/1")
     assert r.status_code != 500, "Invalid status code"
     # TODO: this doesn't perfectly verify the described behaviour, but I assume the root cause is the same
 
@@ -85,4 +87,4 @@ def test_per_project_sessions(user, space_project_id, user_name):
     assert "count" in json_data, "Malformed JSON received"
     assert json_data["count"] > 0, "Can't see any session"
     assert "results" in json_data and len(json_data["results"]) > 0, "Malformed JSON received"
-    assert json_data["results"][0]["space_project"] == space_project_id
+    assert "api/projects/%d" % space_project_id in json_data["results"][0]["space_project"]
