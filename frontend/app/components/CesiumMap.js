@@ -39,14 +39,17 @@ export default class CesiumContainer extends Component {
 
         this.options = {
             infoBox: false,
-            animation: false,
             timeline: false,
+            geocoder: false,
+            animation: false,
             homeButton: false,
             scene3DOnly: true,
             fullscreenButton: false,
             baseLayerPicker: false,
             sceneModePicker: false,
-            selectionIndicator: false
+            selectionIndicator: false,
+            navigationHelpButton: false,
+            navigationInstructionsInitiallyVisible: false
         }
 
         /* main handle */

@@ -18,6 +18,7 @@ export default class MapToolBox extends Component {
         this.toggleGrid = this.toggleGrid.bind(this);
         this.toggleRect = this.toggleRect.bind(this);
         this.togglePoly = this.togglePoly.bind(this);
+        this.toggleFlush = this.toggleFlush.bind(this);
         this.toggleRound = this.toggleRound.bind(this);
         this.toggleClean = this.toggleClean.bind(this);
         this.toggleSelect = this.toggleSelect.bind(this);
@@ -31,7 +32,13 @@ export default class MapToolBox extends Component {
         }
     }
 
+    toggleFlush() {
+        this.actions.toggleFlush();
+        this.select.finishSelection();
+    }
+
     toggleFlat() {
+        this.toggleFlush();
         this.actions.toggleFlat(! this.props.options.flat);
     }
 
@@ -46,6 +53,8 @@ export default class MapToolBox extends Component {
     toggleClean() {
         this.select.clearSelection();
     }
+
+    /* TODO: update tools to use local toggleFlush */
 
     /* just tool */
     togglePoly(polyState) {

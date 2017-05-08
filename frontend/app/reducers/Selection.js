@@ -10,6 +10,7 @@ function makeNewSelection() {
 
 export default function SelectionReducer(state = State, action) {
     /* get data from state */
+    let active = state.active;
     let current = state.current;
     let elements = state.elements;
     let selection = elements[current];
@@ -81,32 +82,34 @@ export default function SelectionReducer(state = State, action) {
         break;
 
         case Enum.SelectionClosed:
-            let minimum = 0;
+            if(active) {
+                let minimum = 0;
 
-            /* define minimum element counts for various selection types */
-            switch(elements[current].type) {
-                case Types.Polygon:
-                    minimum = 3;
-                break;
+                /* define minimum element counts for various selection types */
+                switch(selection.type) {
+                    case Types.Polygon:
+                        minimum = 3;
+                    break;
 
-                case Types.Rect:
-                case Types.Circle:
-                    minimum = 2;
-                break;
+                    case Types.Rect:
+                    case Types.Circle:
+                        minimum = 2;
+                    break;
 
-                default:
-                    /* mark unknown selection type as incomplete */
-                    minimum = elements[current].data.length + 1;
-                break;
-            }
+                    default:
+                        /* mark unknown selection type as incomplete */
+                        minimum = elements[current].data.length + 1;
+                    break;
+                }
 
-            /* advance counter if needed... */
-            if(elements[current].data.length >= minimum) {
-                current ++;
-            }
-            /* ...or flush incomplete selection (will also discard unknown type) */
-            else {
-                elements[current] = makeNewSelection();
+                /* advance counter if needed... */
+                if(elements[current].data.length >= minimum) {
+                    current ++;
+                }
+                /* ...or flush incomplete selection (will also discard unknown type) */
+                else {
+                    elements[current] = makeNewSelection();
+                }
             }
 
             return Object.assign({}, state,

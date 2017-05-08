@@ -87,6 +87,12 @@ class GeoInputForm extends Component {
     }
 }
 
+function InfoBox(props) {
+    return (
+        <div>{props.children}</div>
+    )
+}
+
 class MapSelection extends Component {
     constructor(props) {
         super(props);
@@ -94,18 +100,27 @@ class MapSelection extends Component {
 
     render() {
         let selection = this.props.selection;
+        let current = this.props.selection.elements[this.props.selection.current];
         let actions = this.props.actions;
+        let preview = this.props.preview;
 
+        if(selection.active) {
+            return (
+                <InfoBox>{current.type}, next point (lat, lng): {preview[0]}, {preview[1]}</InfoBox>
+            )
+        } 
         if(isSelectionElement(selection.elements[0]) && selection.elements[0].data.length > 0)
         {
             return (
-                <FormGroup controlId = 'selectionControlSelect'>
-                    <ControlLabel>Selection</ControlLabel>
-                        <FormControl componentClass = 'select' placeholder = 'select'>
-                            <option value="select">select</option>
-                            <option value="other">...</option>
-                        </FormControl>
-                    </FormGroup>
+                <FormControl componentClass = 'select' placeholder = 'select'>
+                    { selection.elements.map(function(collection, rootIndex) {
+                        return (
+                            <option key = {rootIndex} value = {rootIndex}>
+                                { '#' + String(rootIndex + 1) + ' : ' + String(collection.type) }
+                            </option>
+                        )
+                    }) }
+                </FormControl>
                     /*
             { selection.elements.map(function(collection, rootIndex) {
                 return (
@@ -273,9 +288,7 @@ export default class TimeAndPositionInput extends Component {
                             Selection
                         </Col>
                         <Col sm = {10}>
-                            { this.props.selection.active &&
-                            <div>Next point: {prev[0]}, {prev[1]}</div>}
-                            <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
+                            <MapSelection preview = {prev} selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }
                 </Form>
