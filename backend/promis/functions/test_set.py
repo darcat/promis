@@ -19,7 +19,7 @@
 # permissions and limitations under the Licence.
 #
 
-import util.ftp, util.parsers, util.unix_time
+import ftp, parsers, unix_time
 from django.contrib.gis.geos import LineString
 import backend_api.models as model
 
@@ -27,15 +27,15 @@ import backend_api.models as model
 # TODO: make deploy figure out Docker's bridge IP dynamically
 
 def general_fetch(path, satellite_object, add_measurement=False):
-    with util.ftp.FTPChecker(path, "172.17.0.1", 2121) as ftp:
+    with ftp.FTPChecker(path, "172.17.0.1", 2121) as ftp:
         # Iterating over all the sessions available
         for sess_name in ftp.nlst():
             timemark = int(sess_name)
             ftp.cwd(sess_name)
             with ftp.xopen("orbit.csv") as fp:
-                line_gen = [ pt for pt in util.parsers.csv(fp) ]
-                time_start = util.unix_time.maketime(timemark)
-                time_end = util.unix_time.maketime(timemark + len(line_gen)) # Orbit points are 1 per second
+                line_gen = [ pt for pt in parsers.csv(fp) ]
+                time_start = unix_time.maketime(timemark)
+                time_end = unix_time.maketime(timemark + len(line_gen)) # Orbit points are 1 per second
                 time_dur = time_end - time_start
                 # TODO: maybe let the caller print these diagnostics?
                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
@@ -67,7 +67,7 @@ def roundabout(satellite_object):
     [uk]: Сервіс забору тестових даних з FTP (roundabout)
     """
     def check():
-        with util.ftp.FTPChecker("roundabout/", "172.17.0.1", 2121) as ftp:
+        with ftp.FTPChecker("roundabout/", "172.17.0.1", 2121) as ftp:
             for v in ftp.check():
                 yield v
 
@@ -83,7 +83,7 @@ def peace_love(satellite_object):
     [uk]: Сервіс забору тестових даних з FTP (peace & love)
     """
     def check():
-        with util.ftp.FTPChecker("peace_love/", "172.17.0.1", 2121) as ftp:
+        with ftp.FTPChecker("peace_love/", "172.17.0.1", 2121) as ftp:
             for v in ftp.check():
                 yield v
 

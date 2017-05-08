@@ -22,7 +22,7 @@
 # TODO: maintain 1 continuous FTP object
 
 from django.contrib.gis.geos import LineString
-import util.orbit, util.ftp, util.parsers, util.stats, util.export, util.unix_time
+import orbit, ftp, parsers, stats, export, unix_time
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow
@@ -51,7 +51,7 @@ def data_func(satellite_object):
                         "knap20120130.rar"
                         }
 
-        with util.ftp.FTPChecker("Potential/DECODED/", "promis.ikd.kiev.ua") as ftp:
+        with ftp.FTPChecker("Potential/DECODED/", "promis.ikd.kiev.ua") as ftp:
             ftp.exceptions = exceptions
 
             # TODO: check that directory exists properly
@@ -61,13 +61,13 @@ def data_func(satellite_object):
 
     def fetch(daydir):
         # TODO: create an FTP object ahead of time and reuse
-        with util.ftp.FTPChecker("Potential/DECODED/{0}/pdata{0}".format(daydir), "promis.ikd.kiev.ua") as ftp:
+        with ftp.FTPChecker("Potential/DECODED/{0}/pdata{0}".format(daydir), "promis.ikd.kiev.ua") as ftp:
             # Fetching orbit telemetry data
             orbit = {}
             for fname in ftp.xlist("^tm.*\.txt$"):
                 with ftp.xopen(fname) as fp:
                     # Retrieving and processing the raw file
-                    rawdata = { t:pt for t, pt in util.parsers.telemetry(fp) }
+                    rawdata = { t:pt for t, pt in parsers.telemetry(fp) }
 
                     # Append the data, assuming no repetitions can happen
                     orbit.update(rawdata)
@@ -119,7 +119,7 @@ def data_func(satellite_object):
 
                         # TODO: generalise with the earlier call
                         with ftp.xopen(mvfile[0]) as fp:
-                            data = { k:v for k,v in util.parsers.sets(fp, {"utc", "samp"}) }
+                            data = { k:v for k,v in parsers.sets(fp, {"utc", "samp"}) }
                             time_start = data["utc"]
                             time_end = data["utc"] + data["samp"] // freqs[freq]
 
@@ -130,11 +130,11 @@ def data_func(satellite_object):
                                 ez_time_end = time_end
 
                                 # Generator for the orbit
-                                line_gen = ( (y.lon, y.lat, y.alt) for _, y, _ in util.orbit.generate_orbit(orbit, time_start, time_end) )
+                                line_gen = ( (y.lon, y.lat, y.alt) for _, y, _ in orbit.generate_orbit(orbit, time_start, time_end) )
                                 # Converting time to python objects for convenience
                                 # This is the point where onboard time gets converted to the UTC
-                                time_start = util.unix_time.maketime(time_start)
-                                time_end = util.unix_time.maketime(time_end)
+                                time_start = unix_time.maketime(time_start)
+                                time_end = unix_time.maketime(time_end)
                                 time_dur = time_end - time_start
                                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
 
@@ -152,7 +152,7 @@ def data_func(satellite_object):
                         # Parse the actual datafile
                         with ftp.xopen(csvfile[0]) as fp:
                             # Creating the JSON document
-                            mv = [ i[0] for i in util.parsers.csv(fp) ]
+                            mv = [ i[0] for i in parsers.csv(fp) ]
                             # TODO: discuss the meaning of last_mod in details
                             doc_obj = model.Document.objects.create(json_data = { "mv": mv } )
 
@@ -175,7 +175,7 @@ def ef_quick_look(doc, npoints = 100):
     [en]: POTENTIAL's electrical field quicklook
     [uk]: Предперегляд електричного поля з ПОТЕНЦІАЛу
     """
-    return { "mv": util.stats.general_quick_look(doc["mv"], npoints) }
+    return { "mv": stats.general_quick_look(doc["mv"], npoints) }
 
 
 def ef_export(doc, session, fmt):
@@ -186,5 +186,5 @@ def ef_export(doc, session, fmt):
     if fmt=="ascii":
         # TODO: take value name and units from parameter?
         # TODO: take parameter from somewhere?
-        tbl = util.export.make_table(doc["mv"], session.time_begin, session.time_end, session.geo_line)
-        return util.export.ascii_export(tbl, "Electric Field", "(mV)")
+        tbl = export.make_table(doc["mv"], session.time_begin, session.time_end, session.geo_line)
+        return export.ascii_export(tbl, "Electric Field", "(mV)")

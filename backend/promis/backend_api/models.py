@@ -14,7 +14,7 @@ from django.contrib.auth.models import Permission
 
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
-from util.functions import get_func_by_name
+from function import get_func_by_name
 
 # TODO: is this class necessary?
 class FunctionManager(TranslationManager):

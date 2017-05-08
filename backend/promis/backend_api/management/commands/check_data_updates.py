@@ -20,7 +20,7 @@
 #
 from django.core.management.base import BaseCommand
 import backend_api.models as model
-from util.functions import get_func_by_name
+from function import get_func_by_name
 
 class Command(BaseCommand):
     def add_arguments(self, parser):

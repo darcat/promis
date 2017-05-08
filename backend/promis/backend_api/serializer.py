@@ -12,9 +12,9 @@ import json
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from backend_api import helpers
-import util.parsers
-import util.unix_time
-import util.stats
+import parsers
+import unix_time
+import stats
 
 class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
@@ -26,8 +26,8 @@ class SpaceProjectsSerializer(TranslatableModelSerializer):
 
     def get_timelapse(self, obj):
         # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
-        return { 'start': util.unix_time.datetime_to_utc(obj.date_start),
-                 'end': util.unix_time.datetime_to_utc(obj.date_end) }
+        return { 'start': unix_time.datetime_to_utc(obj.date_start),
+                 'end': unix_time.datetime_to_utc(obj.date_end) }
 
     class Meta(LookupById):
         model = models.Space_project
@@ -77,12 +77,12 @@ class SessionsSerializer(serializers.ModelSerializer):
         #return obj.geo_line.wkb.hex()
 
         # TODO: study whether pre-building the list or JSON would speed up things
-        return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
+        return parsers.wkb(obj.geo_line.wkb) # <- Generator
 
     def get_timelapse(self, obj):
         # TODO: change to time_start in model for consistency
-        return { 'start': util.unix_time.datetime_to_utc(obj.time_begin),
-                 'end': util.unix_time.datetime_to_utc(obj.time_end) }
+        return { 'start': unix_time.datetime_to_utc(obj.time_begin),
+                 'end': unix_time.datetime_to_utc(obj.time_end) }
 
 
     class Meta(LookupById):
@@ -124,7 +124,7 @@ class QuicklookSerializer(serializers.Serializer):
 
     def get_data(self, obj):
         # TODO: stub!
-        return util.stats.general_quick_look(obj.parameter_doc.json_data["mv"], npoints = self.context['view'].points)
+        return stats.general_quick_look(obj.parameter_doc.json_data["mv"], npoints = self.context['view'].points)
 
     def source_name(self):
         # TODO: swagger should do the default here
