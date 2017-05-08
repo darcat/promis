@@ -14,6 +14,16 @@ ADD package.json /usr/src/promis/
 RUN npm install
 ADD webpack.config.js /usr/src/promis/
 
+# TODO: Where does npm take the SSL certificates though?
+RUN git config --global http.sslverify "false"
+
+# Leaflet-Geodesy is not in NPM
+# TODO: add to the dependencies after it's published
+# TODO: fix stuff and push them upstream at some point
+RUN git clone https://github.com/landswellsong/Leaflet.Geodesic.git
+# RUN git clone https://github.com/henrythasler/Leaflet.Geodesic.git
+RUN npm install ./Leaflet.Geodesic
+
 # Add the post install script
 ADD postinstall.sh /usr/src/promis
 RUN npm run-script postinstall

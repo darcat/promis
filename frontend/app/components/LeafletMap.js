@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 
 import Leaflet from 'leaflet';
 import LeafletBing from 'leaflet-bing-layer';
-import LeafletGeodesy from 'leaflet-geodesy';
+
+/* Leaflet.Geodesic assumes Leaflet is imported as L */
+L = Leaflet
+import 'Leaflet.Geodesic';
 
 import { Types } from '../constants/Selection';
 import { BingKey } from '../constants/Map'
@@ -185,8 +188,13 @@ export default class LeafletContainer extends Component {
         let options = (opts !== undefined ? opts : {
             color: 'blue',
             fillColor: '#0000ff',
-            fillOpacity: 0.8
+            fillOpacity: 0.8,
         });
+
+        /* Circle and polygon use parts option to control how smooth they are.
+         * Currently this is calculated as this much points per 1 km */
+        var parts_per_km = 0.1;
+        options.wrap = false;
 
         switch(type) {
             case Types.Rect:
@@ -196,11 +204,11 @@ export default class LeafletContainer extends Component {
 
             case Types.Circle:
                 let center = [ data[0][0], data[0][1] + shift ];
-                /* Picking up a good amount of points for approximation */
-                /* TODO: currently 1 point pert 10000 meters of radius */
-                options.parts = Math.trunc(data[1] / 10000)
+                options.steps = Math.trunc(2 * Math.PI * data[1] * parts_per_km / 1000.0);
 
-                shape = LeafletGeodesy.circle(center, data[1], options);
+                shape = Leaflet.geodesic([], options);
+                shape.createCircle(center, data[1]);
+                ///*Geodesy*/.circle(center, data[1], options);
             break;
 
             case Types.Polygon:
