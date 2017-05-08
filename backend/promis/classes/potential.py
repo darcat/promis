@@ -156,7 +156,7 @@ class Potential(BaseProject):
                             # Creating the JSON document
                             mv = [ i[0] for i in parsers.csv(fp) ]
                             # TODO: discuss the meaning of last_mod in details
-                            doc_obj = model.Document.objects.create(json_data = { "mv": mv } )
+                            doc_obj = model.Document.objects.create(json_data = mv )
 
                             # Creating a measurement instance
                             # TODO: same doc right now

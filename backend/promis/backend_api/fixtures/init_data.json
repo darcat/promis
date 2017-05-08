@@ -271,9 +271,7 @@
         "value": 1,
         "conversion": null,
         "conversion_params": "",
-        "channel": 1,
-        "quicklook": [ "functions.potential.ef_quick_look" ],
-        "export": [ "functions.potential.ef_export" ]
+        "channel": 1
     }
 },
 {
@@ -283,9 +281,7 @@
         "value": 1,
         "conversion": null,
         "conversion_params": "",
-        "channel": 2,
-        "quicklook": [ "functions.potential.ef_quick_look" ],
-        "export": [ "functions.potential.ef_export" ]
+        "channel": 2
     }
 }
 ]

@@ -17,6 +17,11 @@ from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllow
 from function import get_func_by_name
 from importlib import import_module
 
+class NameAsStrMixin:
+    def __str__(self):
+        return self.name
+
+
 class ClassManager(TranslationManager):
     def get_by_natural_key(self, name):
         return self.get(name = name)
@@ -63,38 +68,8 @@ class Class(TranslatableModel):
         try:
             return self.get_class_obj() (*args, **kwargs)
         except (ImportError, AttributeError) as e:
-            raise MethodNotAllowed(self.name, detail = "Can't create an object of class %s: '%s'. Please contact the maintainer." % (self.name, str(e)))
-
-
-# TODO: is this class necessary?
-class FunctionManager(TranslationManager):
-    def get_by_natural_key(self, django_func):
-        return self.get(django_func = django_func)
-
-
-class Function(TranslatableModel):
-    django_func = TextField()
-
-    objects = FunctionManager()
-
-    translations = TranslatedFields(
-        description = TextField()
-        )
-
-    def natural_key(self):
-        return (self.django_func,)
-
-    class Meta:
-        db_table = "functions"
-
-    def __str__(self):
-        return self.description
-
-    def __call__(self, *args, **kwargs):
-        try:
-            return get_func_by_name(self.django_func)(*args, **kwargs)
-        except (ImportError, AttributeError) as e:
-            raise MethodNotAllowed(self.django_func, detail = "Calling %s failed: '%s'. Please contact the maintainer." % (self.django_func, str(e)))
+            raise MethodNotAllowed(self.name,
+                detail = "Can't create an object of class %s: '%s'. Please contact the maintainer." % (self.name, str(e)))
 
 
 class Session(models.Model):
@@ -109,7 +84,7 @@ class Session(models.Model):
         db_table = "sessions"
 
 
-class Space_project(TranslatableModel):
+class Space_project(TranslatableModel, NameAsStrMixin):
     klass = ForeignKey('Class', null = True)
     def instance(self):
         '''
@@ -131,11 +106,8 @@ class Space_project(TranslatableModel):
         verbose_name = "Space project"
         verbose_name_plural = "Space projects"
 
-    def __str__(self):
-        return self.name
 
-
-class Device(TranslatableModel):
+class Device(TranslatableModel, NameAsStrMixin):
     space_project = ForeignKey('Space_project')
 
     translations = TranslatedFields(
@@ -145,27 +117,6 @@ class Device(TranslatableModel):
 
     class Meta:
         db_table = "devices"
-
-    def __str__(self):
-        return self.name
-
-class Channel(TranslatableModel):
-    value = ForeignKey('Value')
-    device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
-    quicklook = ForeignKey('Function', related_name = 'ch_ql', blank=True, null=True)
-    export = ForeignKey('Function', related_name = 'ch_ex', blank=True, null=True)
-    parser_func = ForeignKey('Function', related_name = 'parser_func', blank=True, null=True)
-
-    translations = TranslatedFields(
-        name = TextField(),
-        description = TextField(blank = True)
-        )
-
-    class Meta:
-        db_table = "channels"
-
-    def __str__(self):
-        return self.name
 
 
 class Unit(TranslatableModel):
@@ -181,7 +132,7 @@ class Unit(TranslatableModel):
         return self.long_name
 
 
-class Value(TranslatableModel):
+class Value(TranslatableModel, NameAsStrMixin):
     short_name = CharField(max_length=100)
     units = ForeignKey('Unit')
 
@@ -193,17 +144,28 @@ class Value(TranslatableModel):
     class Meta:
         db_table = "values"
 
-    def __str__(self):
-        return self.name
+
+# TODO: aaactually maybe we merge channels and parameters in one class?
+class Channel(TranslatableModel, NameAsStrMixin):
+    value = ForeignKey('Value') # TODO: null = True for ultra proprietary devices whose units we just don't know?
+    device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
+    klass = ForeignKey('Class', null = True)
+
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField(blank = True)
+        )
+
+    class Meta:
+        db_table = "channels"
 
 
-class Parameter(TranslatableModel):
+class Parameter(TranslatableModel, NameAsStrMixin):
     value = ForeignKey('Value')
-    conversion = ForeignKey('Function', related_name = 'par_conv', blank=True, null=True)
-    conversion_params = TextField(blank = True)
+    #conversion_params = TextField(blank = True) TODO hmm?
     channel = ForeignKey('Channel')
-    quicklook = ForeignKey('Function', related_name = 'par_ql', blank=True, null=True)
-    export = ForeignKey('Function', related_name = 'par_ex', blank=True, null=True)
+
+    klass = ForeignKey('Class', null = True)
 
     translations = TranslatedFields(
         name = TextField(),
@@ -212,9 +174,6 @@ class Parameter(TranslatableModel):
 
     class Meta:
         db_table = "parameters"
-
-    def __str__(self):
-        return self.name
 
 
 class Document(models.Model):
