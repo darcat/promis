@@ -14,7 +14,6 @@ from django.contrib.auth.models import Group
 from backend_api import helpers
 import parsers
 import unix_time
-import stats
 
 class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
@@ -123,8 +122,8 @@ class QuicklookSerializer(serializers.Serializer):
                  'units_name': src.value.units.long_name }
 
     def get_data(self, obj):
-        # TODO: stub!
-        return stats.general_quick_look(obj.parameter_doc.json_data["mv"], npoints = self.context['view'].points)
+        doc_obj = obj.instance(self.source_name())
+        return doc_obj.quicklook(self.context['view'].points)
 
     def source_name(self):
         # TODO: swagger should do the default here

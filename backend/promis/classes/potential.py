@@ -24,7 +24,7 @@
 from django.contrib.gis.geos import LineString
 from classes.base_project import BaseProject
 
-import orbit, ftp_helper, parsers, stats, export, unix_time
+import orbit, ftp_helper, parsers, export, unix_time
 import backend_api.models as model
 
 # TODO: integrate into ftp.py somehow

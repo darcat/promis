@@ -14,14 +14,26 @@ from django.contrib.auth.models import Permission
 
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
-from function import get_func_by_name
 from importlib import import_module
 
+# TODO: can we do smth like this and inherit all over?
+"""
 class NameAsStrMixin:
     def __str__(self):
         return self.name
 
+class NameDescriptionModel(TranslatableModel):
+    '''Something that has a name and a description'''
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField(blank = True)
+        )
 
+    class Meta:
+        abstract = True
+"""
+
+# Actual classes
 class ClassManager(TranslationManager):
     def get_by_natural_key(self, name):
         return self.get(name = name)
@@ -84,7 +96,7 @@ class Session(models.Model):
         db_table = "sessions"
 
 
-class Space_project(TranslatableModel, NameAsStrMixin):
+class Space_project(TranslatableModel):
     klass = ForeignKey('Class', null = True)
     def instance(self):
         '''
@@ -101,19 +113,25 @@ class Space_project(TranslatableModel, NameAsStrMixin):
         description = TextField(blank = True)
         )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "space_projects"
         verbose_name = "Space project"
         verbose_name_plural = "Space projects"
 
 
-class Device(TranslatableModel, NameAsStrMixin):
+class Device(TranslatableModel):
     space_project = ForeignKey('Space_project')
 
     translations = TranslatedFields(
         name = TextField(),
         description = TextField(blank = True)
         )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "devices"
@@ -132,7 +150,7 @@ class Unit(TranslatableModel):
         return self.long_name
 
 
-class Value(TranslatableModel, NameAsStrMixin):
+class Value(TranslatableModel):
     short_name = CharField(max_length=100)
     units = ForeignKey('Unit')
 
@@ -141,12 +159,14 @@ class Value(TranslatableModel, NameAsStrMixin):
         description = TextField(blank = True)
         )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "values"
 
 
-# TODO: aaactually maybe we merge channels and parameters in one class?
-class Channel(TranslatableModel, NameAsStrMixin):
+class Channel(TranslatableModel):
     value = ForeignKey('Value') # TODO: null = True for ultra proprietary devices whose units we just don't know?
     device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
     klass = ForeignKey('Class', null = True)
@@ -156,21 +176,26 @@ class Channel(TranslatableModel, NameAsStrMixin):
         description = TextField(blank = True)
         )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "channels"
 
 
-class Parameter(TranslatableModel, NameAsStrMixin):
+class Parameter(TranslatableModel):
     value = ForeignKey('Value')
     #conversion_params = TextField(blank = True) TODO hmm?
     channel = ForeignKey('Channel')
-
     klass = ForeignKey('Class', null = True)
 
     translations = TranslatedFields(
         name = TextField(),
         description = TextField(blank = True)
         )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "parameters"
@@ -196,3 +221,12 @@ class Measurement(models.Model):
 
     class Meta:
         db_table = "measurements"
+
+    def instance(self, source = "parameter"):
+        '''
+        Create a new object of type indicated by source's klass field and relate
+        it to the measurement object and the corresponding document's json
+        '''
+        doc = getattr(self, source + "_doc").json_data
+        source_obj = getattr(self, source)
+        return source_obj.klass(doc, source_obj, self) if source_obj.klass else None

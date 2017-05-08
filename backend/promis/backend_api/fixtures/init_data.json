@@ -155,9 +155,7 @@
     "fields": {
         "value": 1,
         "device": 1,
-        "quicklook": null,
-        "parser_func": null,
-        "export": null
+        "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
 },
 {
@@ -166,9 +164,7 @@
     "fields": {
         "value": 1,
         "device": 1,
-        "quicklook": null,
-        "parser_func": null,
-        "export": null
+        "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
 },
 {
@@ -269,9 +265,8 @@
     "pk": 1,
     "fields": {
         "value": 1,
-        "conversion": null,
-        "conversion_params": "",
-        "channel": 1
+        "channel": 1,
+        "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
 },
 {
@@ -279,9 +274,8 @@
     "pk": 2,
     "fields": {
         "value": 1,
-        "conversion": null,
-        "conversion_params": "",
-        "channel": 2
+        "channel": 2,
+        "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
 }
 ]
