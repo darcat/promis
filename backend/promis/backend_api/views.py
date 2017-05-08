@@ -11,7 +11,7 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.decorators import detail_route, api_view
 
 from backend_api import models
-from backend_api import serializer, helpers
+from backend_api import serializer, helpers, renderer
 from backend_api.permission import PromisPermission, SelfProfilePermission, Level1Permission
 
 import django_filters
@@ -191,7 +191,10 @@ class DownloadView(viewsets.GenericViewSet):
         return self.create_data()
 
     @detail_route(permission_classes = (AllowAny,), # TODO: other permission class
-                  renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer))
+                  renderer_classes = (BrowsableAPIRenderer,
+                                      JSONRenderer,
+                                      renderer.AsciiRenderer,
+                                      renderer.CSVRenderer))
     def data(self, request, id):
         self.points = 10
         self.serializer_class = serializer.JSONDataSerializer

@@ -145,17 +145,6 @@ class JSONDataSerializer(QuicklookSerializer):
         return doc_obj.data()
 
 
-# TODO: move somewhere else
-from rest_framework import renderers
-class PlainTextRenderer:
-    media_type = 'text/plain'
-    format = 'ascii'
-    charset = 'utf8'
-
-    def render(self, data, media_type=None, renderer_context=None):
-        return "\n".join(data)
-
-
 class MeasurementsSerializer(serializers.ModelSerializer):
     session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
     channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
