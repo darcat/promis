@@ -25,28 +25,6 @@ import export
 # but in future we will probably need to put this inside the data
 # class hierarchy so that the renderers depend on the data type
 
-# TODO: is this the right place?
-def unit_prefix(e):
-    prefixes = {
-        18:     'E',
-        15:     'P',
-        12:     'T',
-        9:      'G',
-        6:      'M',
-        3:      'k',
-        2:      'h',
-        1:      'da',
-        0:      '',
-        -1:   'd',
-        -2:   'c',
-        -3:   'm',
-        -6:   'μ',
-        -9:   'n',
-        -12:  'p',
-        -15:  'f',
-        -18:  'a'
-    }
-    return prefixes[e] if e in prefixes else "?"
 
 class TextRenderer(renderers.BaseRenderer):
     charset = 'utf8'
@@ -54,7 +32,7 @@ class TextRenderer(renderers.BaseRenderer):
     def render(self, data, media_type=None, renderer_context=None):
         table = export.make_table(data['data'], data['timelapse']['start'], data['timelapse']['end'], data['geo_line'])
         value = data['value']['name']
-        units = unit_prefix(data['value']['exponent']) + data['value']['units']
+        units = data['value']['units']
 
         return "\n".join(self.process(table, value, units))
 
