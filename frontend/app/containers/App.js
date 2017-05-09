@@ -105,7 +105,7 @@ class App extends Component {
                         />
                         // this.props.search.results
                         }
-                        <Panel title = 'Search results'>
+                        <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
                                 results = {this.props.search.results}
                                 onResult = {this.onResult}

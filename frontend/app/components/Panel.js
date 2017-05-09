@@ -18,7 +18,7 @@ export default class AdvancedPanel extends Component {
         return (
             <div>
                 { drag ? (
-                    <Draggable key = {1} handle = '.panel-title'>
+                    <Draggable key = {1} handle = '.panel-title' zIndex={1}>
                         <Col md={6} sm={12}>
                             <Accordion>
                                 <Panel className = {this.props.className} header = {this.props.title}>{this.props.children}</Panel>

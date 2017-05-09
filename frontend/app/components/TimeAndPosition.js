@@ -7,6 +7,8 @@ import DateTime from 'react-bootstrap-datetimepicker';
 import InlineEdit from 'react-edit-inline';
 import Panel from './Panel';
 
+//import {DateTime} from 'react-bootstrap-datetime';
+
 import '../styles/map.css';
 
 import { isSelectionElement, Types } from '../constants/Selection';
