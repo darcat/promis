@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Row, Form, Button, FormGroup, FormControl, Glyphicon, InputGroup, ControlLabel } from 'react-bootstrap';
+import { Col, Row, Form, Table, Button, FormGroup, FormControl, Glyphicon, InputGroup, ControlLabel } from 'react-bootstrap';
 
 import Toggle from 'react-bootstrap-toggle';
 import DateTime from 'react-bootstrap-datetimepicker';
@@ -8,6 +8,8 @@ import InlineEdit from 'react-edit-inline';
 import Panel from './Panel';
 
 import '../styles/map.css';
+
+import { isSelectionElement, Types } from '../constants/Selection';
 
 class GeoInputForm extends Component {
     constructor(props) {
@@ -19,16 +21,6 @@ class GeoInputForm extends Component {
         this.latToChange = this.latToChange.bind(this);
         this.lngFromChange = this.lngFromChange.bind(this);
         this.lngToChange = this.lngToChange.bind(this);
-        this.altFromChange = this.altFromChange.bind(this);
-        this.altToChange = this.altToChange.bind(this);
-    }
-
-    altFromChange(e) {
-        this.actions.altFromInput(parseInt(e.target.value));
-    }
-
-    altToChange(e) {
-        this.actions.altToInput(parseInt(e.target.value));
     }
 
     latFromChange(e) {
@@ -52,23 +44,6 @@ class GeoInputForm extends Component {
 
         return (
             <div>
-                <FormGroup controlId = 'Altitude'>
-                    <Col componentClass={ControlLabel} sm={2}>
-                        Altitude
-                    </Col>
-                    <Col sm={5}>
-                        <InputGroup>
-                            <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
-                        </InputGroup>
-                    </Col>
-                    <Col sm={5}>
-                        <InputGroup>
-                            <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
-                        </InputGroup>
-                    </Col>
-                </FormGroup>
                 <FormGroup controlId = 'Latitude'>
                     <Col componentClass={ControlLabel} sm={2}>
                         Latitude
@@ -77,12 +52,14 @@ class GeoInputForm extends Component {
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
                             <FormControl onChange = {this.latFromChange} value = {opts.latFrom} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
                             <FormControl onChange = {this.latToChange} value = {opts.latTo} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                 </FormGroup>
@@ -94,12 +71,14 @@ class GeoInputForm extends Component {
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
                             <FormControl onChange = {this.lngFromChange} value = {opts.lngFrom} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
                             <FormControl onChange = {this.lngToChange} value = {opts.lngTo} type="number" />
+                            <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                 </FormGroup>
@@ -108,98 +87,183 @@ class GeoInputForm extends Component {
     }
 }
 
-/*
-class InlineNumberEdit extends Component {
+function InfoBox(props) {
+    return (
+        <div className = 'infobox'>{props.children}</div>
+    )
+}
+
+class SelectionElements extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            inner: 
-        }
+        this.deleteMe = this.deleteMe.bind(this);
     }
-}*/
+
+    deleteMe() {
+        this.props.actions.clearSelection(this.props.rootIndex);
+    }
+
+    render() {
+        let active = this.props.selection[this.props.rootIndex];
+        let actions = this.props.actions;
+        let rootIndex = this.props.rootIndex;
+        let tableData = new Array();
+
+
+        switch(active.type) {
+            case Types.Rect:
+                tableData.push(new Array('From', active.data[0][0], active.data[0][1]));
+                tableData.push(new Array('To', active.data[1][0], active.data[1][1]));
+            break;
+
+            case Types.Circle:
+                tableData.push(new Array('Center', active.data[0][0], active.data[0][1]));
+                tableData.push(new Array('Radius', active.data[1]));
+            break;
+
+            case Types.Polygon:
+                active.data.forEach(function(point, index) {
+                    tableData.push(new Array('Point #' + index, point[0], point[1]));
+                });
+            break;
+        }
+
+        return (
+            <div>
+                <Table responsive striped hover>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        { tableData.map(function(row, itemIndex) {
+                            let dsc = row[0];
+                            let lat = String(row[1]);
+                            let rad = String(row[1]);
+                            let lng = String(row[2]);
+
+                            function saveLat(obj) {
+                                actions.editSelection(itemIndex, [parseFloat(obj.value), parseFloat(lng)], rootIndex);
+                            }
+
+                            function saveLng(obj) {
+                                actions.editSelection(itemIndex, [parseFloat(lat), parseFloat(obj.value)], rootIndex);
+                            }
+
+                            function saveRad(obj) {
+                                actions.editSelection(itemIndex, parseFloat(obj.value), rootIndex);
+                            }
+
+                            /* circle radius */
+                            if(row.length == 2)
+                            {
+                                return (
+                                    <tr key = {itemIndex}>
+                                        <td className = 'desc'>{dsc}</td>
+                                        <td className = 'centered' colSpan = {2}>
+                                            <InlineEdit change = {saveRad} text = {rad} paramName = 'value' />
+                                        </td>
+                                    </tr>
+                                )
+                            } else {
+                                return (
+                                    <tr key = {itemIndex}>
+                                        <td className = 'desc'>{dsc}</td>
+                                        <td><InlineEdit change = {saveLat} text = {lat} paramName = 'value' /></td>
+                                        <td><InlineEdit change = {saveLng} text = {lng} paramName = 'value' /></td>
+                                    </tr>
+                                )
+                            }
+                        }) }
+                    </tbody>
+                </Table>
+                <Button bsSize = 'small' bsStyle = 'danger' onClick = {this.deleteMe}>
+                    <Glyphicon glyph = 'remove'/> Delete
+                </Button>
+            </div>
+        )
+    }
+}
 
 class MapSelection extends Component {
     constructor(props) {
         super(props);
+
+        this.empty = -1;
+        this.state = {
+            editableIndex: this.empty
+        }
+
+        this.updateEditable = this.updateEditable.bind(this);
     }
 
+    updateEditable(event) {
+        event.persist();
+
+        let index = parseInt(event.target.value);
+
+        this.setState(function() {
+            return {
+                editableIndex: index
+            }
+        }, this.props.actions.highlightSelection(index));
+    }
 
     render() {
-        var selection = this.props.selection;
-        var actions = this.props.actions;
+        let selection = this.props.selection;
+        let current = this.props.selection.elements[this.props.selection.current];
+        let actions = this.props.actions;
+        let preview = this.props.preview;
 
-        if (Array.isArray(selection.elements) &&
-            selection.elements.length > 0 &&
-            Array.isArray(selection.elements[0]) &&
-            selection.elements[0].length > 0) {
+        if(selection.active) {
             return (
-                <div>
-            { selection.elements.map(function(collection, rootIndex) {
+                <InfoBox>{current.type}, next point (lat, lng): {preview[0]}, {preview[1]}</InfoBox>
+            )
+        } else {
+            if(isSelectionElement(selection.elements[0]) && selection.elements[0].data.length > 0)
+            {
                 return (
-                    <Row key = {rootIndex}>
-                        <Col sm={3}>#{rootIndex + 1}</Col>
-                        <Col sm={9}>
-                            <ul className = 'mapSelectionItems'>
-                                { collection.map(function(item, itemIndex) {
-                                    function saveValue(lat, lng) {
-                                        actions.editSelection(itemIndex, [parseFloat(lat), parseFloat(lng)], rootIndex);
-                                    }
+                    <div>
+                        <FormControl
+                            onChange = {this.updateEditable}
+                            componentClass = 'select'
+                            defaultValue = {this.empty}
+                            placeholder = 'select'
+                        >
+                            <option key = {0} value = {this.empty}>Please select element to edit</option>
+                            { selection.elements.map(function(collection, rootIndex) {
+                                let i = rootIndex + 1;
 
-                                    function deleteValue() {
-                                        actions.removeFromSelection(itemIndex, rootIndex);
-                                    }
-
-                                    if(Array.isArray(item)) {
-                                        var lat = String(item[0]);
-                                        var lng = String(item[1]);
-
-                                        function saveLat(obj) {
-                                            saveValue(obj.value, lng);
-                                        }
-
-                                        function saveLng(obj) {
-                                            saveValue(lat, obj.value);
-                                        }
-
-                                        return (
-                                        <li key = {itemIndex}>
-                                            <Col sm={4}>
-                                                <InlineEdit change = {saveLat} text = {lat} paramName = 'value' />
-                                            </Col>
-                                            <Col sm={4}>
-                                                <InlineEdit change = {saveLng} text = {lng} paramName = 'value' />
-                                            </Col>
-                                            <Col sm={4}>
-                                                <Button bsSize = 'small' bsStyle = 'danger' onClick = {deleteValue}>
-                                                    <Glyphicon glyph = 'remove'/>
-                                                </Button>
-                                            </Col>
-                                        </li>
-                                    ) }
-                                }) }
-                            </ul>
-                        </Col>
-                    </Row>
+                                return (
+                                    <option key = {i} value = {rootIndex}>
+                                        { '#' + String(i) + ' : ' + String(collection.type) }
+                                    </option>
+                                )
+                            }) }
+                        </FormControl>
+                        <br />
+                        { (this.state.editableIndex != this.empty) &&
+                            <SelectionElements
+                                actions = {actions}
+                                rootIndex = {this.state.editableIndex}
+                                selection = {selection.elements}
+                            />
+                        }
+                    </div>
                 );
-            }) }
-        </div>);
-        } else return (
-            <p>Selection is empty</p>
-        );
+            } else {
+                return (
+                    <InfoBox>Selection is empty</InfoBox>
+                );
+            }
+        }
     }
 }
 
-function NextPoint(props) {
-    var data = props.data();
-
-    var lat = data ? props.coords[0] : 0;
-    var lng = data ? props.coords[1] : 0;
-
-    return (
-        <div>Next point: {lat}, {lng}</div>
-    )
-}
 
 export default class TimeAndPositionInput extends Component {
     constructor(props) {
@@ -207,9 +271,32 @@ export default class TimeAndPositionInput extends Component {
 
         this.actions = props.genericActions;
 
+        this.state = {
+            preview: new Array(0, 0)
+        }
+
         this.toggleMap = this.toggleMap.bind(this);
+        this.updatePreview = this.updatePreview.bind(this);
         this.dateFromChange = this.dateFromChange.bind(this);
         this.dateToChange = this.dateToChange.bind(this);
+        this.altFromChange = this.altFromChange.bind(this);
+        this.altToChange = this.altToChange.bind(this);
+    }
+
+    componentWillMount() {
+        this.props.ee.on('nextPoint', this.updatePreview);
+    }
+
+    componentWillUnmount() {
+        this.props.ee.off('nextPoint', this.updatePreview);
+    }
+
+    updatePreview(data) {
+        this.setState(function() {
+            return {
+                preview: data
+            }
+        });
     }
 
     toggleMap() {
@@ -224,8 +311,17 @@ export default class TimeAndPositionInput extends Component {
         this.actions.dateToInput(newTo);
     }
 
+    altFromChange(e) {
+        this.actions.altFromInput(parseInt(e.target.value));
+    }
+
+    altToChange(e) {
+        this.actions.altToInput(parseInt(e.target.value));
+    }
+
     render() {
-        var opts = this.props.options;
+        let opts = this.props.options;
+        let prev = this.state.preview;
 
         return (
             <Panel title = 'Time and position'>
@@ -241,9 +337,28 @@ export default class TimeAndPositionInput extends Component {
                             <DateTime onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
+                    <FormGroup controlId = 'Altitude'>
+                        <Col componentClass={ControlLabel} sm={2}>
+                            Altitude
+                        </Col>
+                        <Col sm={5}>
+                            <InputGroup>
+                                <InputGroup.Addon>From</InputGroup.Addon>
+                                <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
+                                <InputGroup.Addon>m</InputGroup.Addon>
+                            </InputGroup>
+                        </Col>
+                        <Col sm={5}>
+                            <InputGroup>
+                                <InputGroup.Addon>To</InputGroup.Addon>
+                                <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
+                                <InputGroup.Addon>m</InputGroup.Addon>
+                            </InputGroup>
+                        </Col>
+                    </FormGroup>
                     <FormGroup controlId = 'InputType'>
                         <Col componentClass={ControlLabel} sm={2}>
-                            Input
+                            Geo input
                         </Col>
                         <Col sm={10}>
                             <Toggle onClick = {this.toggleMap} 
@@ -260,9 +375,7 @@ export default class TimeAndPositionInput extends Component {
                             Selection
                         </Col>
                         <Col sm = {10}>
-                            { this.props.selection.active &&
-                            <NextPoint data = {this.props.preview} /> }
-                            <MapSelection selection = {this.props.selection} actions = {this.props.selectionActions} />
+                            <MapSelection preview = {prev} selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
                     </FormGroup>) }
                 </Form>

@@ -10,5 +10,6 @@ export const State = {
 	data: null,
 	error: null,
     loading: false,
+    geolines: new Array(),
     results: new Array()
 };

@@ -10,10 +10,28 @@ export default {
         }
     },
 
+    setType : function(selType) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SelectionSetType,
+                payload: selType
+            })
+        }
+    },
+
     finishSelection : function() {
         return function(dispatch) {
             dispatch({
                 type: Enum.SelectionClosed,
+                payload: true
+            })
+        }
+    },
+
+    discardSelection : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SelectionCancel,
                 payload: true
             })
         }
@@ -53,11 +71,20 @@ export default {
         }
     },
 
-    clearSelection : function() {
+    clearSelection : function(index) {
         return function(dispatch) {
             dispatch({
                 type: Enum.SelectionPurge,
-                payload: true
+                payload: (index !== undefined ? index : null)
+            })
+        }
+    },
+
+    highlightSelection : function(index) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SelectionHighlight,
+                payload: (index !== undefined ? index : null)
             })
         }
     }
