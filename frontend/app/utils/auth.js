@@ -24,7 +24,7 @@ AUTH.register = function(login, pass, email) {
 
 AUTH.login = function(user, pass) {
     $('#loginModal .modal-body').find('.alert').remove();
-
+    
     $.post('/en/api-auth/login/', { username : user, password : pass, csrfmiddlewaretoken : Cookies.get('csrftoken') }).
         done(function(res) { var x = $(res).find('.text-error'); if(x.length) { PROMIS.alertError($(x).text(), '#loginModal .modal-body'); } }).
         fail(function(xhr, status, error) { window.location = '/' });

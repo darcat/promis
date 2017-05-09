@@ -156,3 +156,5 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'backend_api.exceptions.promis_exception_handler',
 }
+
+LOGIN_REDIRECT_URL = '/en/user/'

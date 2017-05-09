@@ -2,6 +2,7 @@ import { Enum } from '../constants/User';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
+
 export default {
     login : function(user, pass) {
         return function(dispatch) {
@@ -14,21 +15,27 @@ export default {
 
             // get csrf from page instead of server
             // .....
+   
             axios.get('/en/api-auth/login/').then(function(response) {
                 let regex = /csrfmiddlewaretoken' value='([^']*)/g;
                 let match = regex.exec(response.data);
                 let csrf = match[1];
-
-                axios.post('/en/api-auth/login/', {
-                    username : user,
-                    password : pass,
-                    csrfmiddlewaretoken : csrf
+                                                
+                let data = new FormData();
+                data.append('username', user);
+                data.append('password', pass);
+                data.append('csrfmiddlewaretoken', csrf);
+                
+                axios.post('/en/api-auth/login/', data, { 
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    maxRedirects: 0
                 }).then(function(res)
                 {
                     dispatch({
-                        type: res.status == 302 ? Enum.LoginSuccess : Enum.LoginFailed,
-                        payload: res.status == 302 ? true : loginFailed
+                        type: res.data[0].username ? Enum.LoginSuccess : Enum.LoginFailed,
+                        payload: res.data[0].username ? true : loginFailed
                     });
+                    if (res.data[0].username) window.location = '/';
                 }).catch(function(error) {
                     dispatch({
                         type: Enum.LoginFailed,
