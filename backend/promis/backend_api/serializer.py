@@ -112,7 +112,9 @@ class QuicklookSerializer(serializers.Serializer):
         return res
 
     def get_timelapse(self, obj):
-        return SessionsSerializer(obj.session, context = self.context).get_timelapse(obj.session)
+        time_filter = self.context['view'].time_filter
+        return { 'start': time_filter[0] if time_filter[0] else unix_time.datetime_to_utc(obj.session.time_begin),
+                 'end': time_filter[1] if time_filter[1] else unix_time.datetime_to_utc(obj.session.time_end) }
 
     def get_value(self, obj):
         src = self.source_obj()
@@ -138,7 +140,18 @@ class JSONDataSerializer(QuicklookSerializer):
     geo_line = serializers.SerializerMethodField()
 
     def get_geo_line(self, obj):
-        return SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
+        # Determining which part of the geo_line to cut
+        timelapse = self.get_timelapse(obj)
+        sess_dur  = SessionsSerializer(obj.session, context = self.context).get_timelapse(obj.session)
+        skip_start = timelapse['start'] - sess_dur['start']
+        skip_end = timelapse['end'] - sess_dur['start']
+
+        print(skip_start, skip_end)
+
+        # TODO: pre-cache the computation of the list somewhere?
+        geo_line = SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
+
+        return (v for i, v in enumerate(geo_line) if skip_start <= i < skip_end)
 
     def get_data(self, obj):
         doc_obj = obj.instance(self.source_name())

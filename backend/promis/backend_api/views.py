@@ -155,10 +155,12 @@ class DownloadView(viewsets.GenericViewSet):
     # turned redundant by just inheriting the mixin
     def create_data(self):
         try:
-            self.time_filter = [ self.request.query_params.get(key, None) for key in [ 'time_begin', 'time_end' ] ]
+            self.time_filter = [ self.request.query_params.get(key, None) for key in [ 'time_start', 'time_end' ] ]
             self.time_filter = [ int(x) if x is not None else None for x in self.time_filter ]
         except ValueError:
             raise NotFound("Time filter is not a number")
+
+        # TODO: check that time_filter lies within the session's bounds
 
         instance = self.get_object()
         serializer = self.get_serializer(instance)
