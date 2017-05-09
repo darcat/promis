@@ -7,6 +7,8 @@ from djsw_wrapper.serializers import SwaggerHyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer, HyperlinkedTranslatableModelSerializer
 from rest_framework_gis.serializers import GeoModelSerializer
 from django.contrib.gis.geos import GEOSGeometry, GEOSException
+from django.utils.translation import get_language
+
 import json
 
 from django.contrib.auth.models import User
@@ -14,6 +16,7 @@ from django.contrib.auth.models import Group
 from backend_api import helpers
 import parsers
 import unix_time
+
 
 class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
@@ -101,6 +104,29 @@ class QuicklookSerializer(serializers.Serializer):
     source = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField()
 
+    def unit_prefix(self, e):
+        prefixes = {
+            18: { 'en': 'E', 'uk': 'Е' },
+            15: { 'en': 'P', 'uk': 'П' },
+            12: { 'en': 'T', 'uk': 'Т' },
+            9:  { 'en': 'G', 'uk': 'Г' },
+            6:  { 'en': 'M', 'uk': 'М' },
+            3:  { 'en': 'k', 'uk': 'к' },
+            2:  { 'en': 'h', 'uk': 'г' },
+            1:  { 'en': 'da', 'uk': 'да' },
+            0:  { 'en': '', 'uk': '' },
+            -1: { 'en': 'd', 'uk': 'д' },
+            -2: { 'en': 'c', 'uk': 'с' },
+            -3: { 'en': 'm', 'uk': 'м' },
+            -6: { 'en': 'μ', 'uk': 'мк' },
+            -9: { 'en': 'n', 'uk': 'н' },
+            -12:{ 'en': 'p', 'uk': 'п' },
+            -15:{ 'en': 'f', 'uk': 'ф' },
+            -18:{ 'en': 'a', 'uk': 'а' },
+        }
+        lang = get_language()
+        return prefixes[e]['en' if not lang else lang] if e in prefixes else "?"
+
     def get_source(self, obj):
         # Preparing the serializer
         ser_cls = { 'channel': ChannelsSerializer, 'parameter': ParametersSerializer }[ self.source_name() ]
@@ -118,7 +144,7 @@ class QuicklookSerializer(serializers.Serializer):
         src = self.source_obj()
         return { 'short_name': src.value.short_name,
                  'name'      : src.value.name,
-                 'units'     : src.value.units.short_name,
+                 'units'     : self.unit_prefix(src.exponent) + src.value.units.short_name,
                  'units_name': src.value.units.long_name }
 
     def get_data(self, obj):

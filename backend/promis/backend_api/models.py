@@ -168,6 +168,7 @@ class Value(TranslatableModel):
 
 class Channel(TranslatableModel):
     value = ForeignKey('Value') # TODO: null = True for ultra proprietary devices whose units we just don't know?
+    exponent = IntegerField(default = 0)
     device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
     klass = ForeignKey('Class', null = True)
 
@@ -185,6 +186,7 @@ class Channel(TranslatableModel):
 
 class Parameter(TranslatableModel):
     value = ForeignKey('Value')
+    exponent = IntegerField(default = 0)
     #conversion_params = TextField(blank = True) TODO hmm?
     channel = ForeignKey('Channel')
     klass = ForeignKey('Class', null = True)

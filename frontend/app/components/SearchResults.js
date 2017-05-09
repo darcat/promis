@@ -3,7 +3,7 @@ import { Form, Button, Glyphicon } from 'react-bootstrap';
 import Tooltip from './Tooltip';
 import Quicklook from './Quicklook';
 
-/* TODO: do you need this shared anywhere? */
+/* TODO: do you need these shared anywhere? */
 function UnixToISO(unix_ts) {
     return new Date(unix_ts * 1e3).toISOString();
 }

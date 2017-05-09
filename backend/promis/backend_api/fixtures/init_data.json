@@ -154,6 +154,7 @@
     "pk": 1,
     "fields": {
         "value": 1,
+        "exponent": -3,
         "device": 1,
         "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
@@ -163,6 +164,7 @@
     "pk": 2,
     "fields": {
         "value": 1,
+        "exponent": -3,
         "device": 1,
         "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
@@ -265,6 +267,7 @@
     "pk": 1,
     "fields": {
         "value": 1,
+        "exponent": -3,
         "channel": 1,
         "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
@@ -274,6 +277,7 @@
     "pk": 2,
     "fields": {
         "value": 1,
+        "exponent": -3,
         "channel": 2,
         "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }

@@ -25,19 +25,23 @@ import export
 # but in future we will probably need to put this inside the data
 # class hierarchy so that the renderers depend on the data type
 
+
 class TextRenderer(renderers.BaseRenderer):
     charset = 'utf8'
 
     def render(self, data, media_type=None, renderer_context=None):
         table = export.make_table(data['data'], data['timelapse']['start'], data['timelapse']['end'], data['geo_line'])
-        return "\n".join(self.process(table, data))
+        value = data['value']['name']
+        units = data['value']['units']
+
+        return "\n".join(self.process(table, value, units))
 
 class AsciiRenderer(TextRenderer):
     media_type = 'text/plain'
     format = 'ascii'
 
-    def process(self, table, data):
-        return export.ascii_export(table, data['value']['name'], data['value']['units'])
+    def process(self, table, value, units):
+        return export.ascii_export(table, value, units)
 
 
 class CSVRenderer(TextRenderer):
@@ -45,5 +49,5 @@ class CSVRenderer(TextRenderer):
     format = 'csv'
     charset = 'utf8'
 
-    def process(self, table, data):
-        return export.csv_export(table, data['value']['name'], data['value']['units'])
+    def process(self, table, value, units):
+        return export.csv_export(table, value, units)
