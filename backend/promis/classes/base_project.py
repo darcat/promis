@@ -1,6 +1,4 @@
 #
-# Copyright 2016 Space Research Institute of NASU and SSAU (Ukraine)
-#
 # Licensed under the EUPL, Version 1.1 or – as soon they
 # will be approved by the European Commission - subsequent
 # versions of the EUPL (the "Licence");
@@ -18,21 +16,24 @@
 # See the Licence for the specific language governing
 # permissions and limitations under the Licence.
 #
-from importlib import import_module
 
-def get_func_by_name(path):
-    """
-    Returns the function identified by its fully qualified path string
-    
-    Wrong input may cause ImportError and AttributeErorr to be thrown.
-    """
-    # Breaking down to components
-    path_comp = path.rsplit(sep=".", maxsplit=1)
+class BaseProject:
+    '''
+    Base class for Space Projects.
 
-    # Importing the module
-    module = import_module(path_comp[0])
-    
-    # Looking for the function
-    f = getattr(module, path_comp[1])
+    Derived classes are supposed to implement:
+    TODO: docu
+    '''
 
-    return f
+    def __init__(self, project):
+        self.project_obj = project
+
+
+    def update(self):
+        '''Check if new updates exist and apply them if necessary'''
+
+        # if check() returns None, iterate an empty tuple i.e. don't do anything
+        for data_id in self.check() or ():
+            if data_id:
+                print("=> Fetching data by id: %s." % data_id)
+                self.fetch(data_id)

@@ -1,28 +1,27 @@
 import uuid
+from classes.base_project import BaseProject
 
-# Update check sample
-def bacon(satellite_object):
-    """
+class DummyProject(BaseProject):
+    '''
     [en]: Uplink to astral knowledge
     [uk]: Лінія зв’язку із астралом
-    """
+    '''
 
     # Update check sample
-    def parrot():
+    def check(self):
         for _ in range(5):
             yield str(uuid.uuid4())
 
     # Data fetch sample
-    def swallow(data_identifier):
+    def fetch(self, data_id):
         print("Swallow brings you %s..." % data_identifier)
 
-    return parrot, swallow
 
 # Not exported anywhere because no docstring
-def eggs():
+class eggs():
     pass
 
 # Not exported anywhere because docstring has no language tags
-def spam():
-    """Eggs, bacon, spam and spam with spam"""
+class spam():
+    '''Eggs, bacon, spam and spam with spam'''
     pass

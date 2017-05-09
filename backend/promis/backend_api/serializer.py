@@ -12,9 +12,8 @@ import json
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from backend_api import helpers
-import util.parsers
-import util.unix_time
-import util.stats
+import parsers
+import unix_time
 
 class LookupById:
     '''Shortcut to include extra_kwargs to every Meta class'''
@@ -26,8 +25,8 @@ class SpaceProjectsSerializer(TranslatableModelSerializer):
 
     def get_timelapse(self, obj):
         # TODO: start and end are a DATE not DATETIME, but we convert them implicitly
-        return { 'start': util.unix_time.datetime_to_utc(obj.date_start),
-                 'end': util.unix_time.datetime_to_utc(obj.date_end) }
+        return { 'start': unix_time.datetime_to_utc(obj.date_start),
+                 'end': unix_time.datetime_to_utc(obj.date_end) }
 
     class Meta(LookupById):
         model = models.Space_project
@@ -77,12 +76,12 @@ class SessionsSerializer(serializers.ModelSerializer):
         #return obj.geo_line.wkb.hex()
 
         # TODO: study whether pre-building the list or JSON would speed up things
-        return util.parsers.wkb(obj.geo_line.wkb) # <- Generator
+        return parsers.wkb(obj.geo_line.wkb) # <- Generator
 
     def get_timelapse(self, obj):
         # TODO: change to time_start in model for consistency
-        return { 'start': util.unix_time.datetime_to_utc(obj.time_begin),
-                 'end': util.unix_time.datetime_to_utc(obj.time_end) }
+        return { 'start': unix_time.datetime_to_utc(obj.time_begin),
+                 'end': unix_time.datetime_to_utc(obj.time_end) }
 
 
     class Meta(LookupById):
@@ -123,8 +122,8 @@ class QuicklookSerializer(serializers.Serializer):
                  'units_name': src.value.units.long_name }
 
     def get_data(self, obj):
-        # TODO: stub!
-        return util.stats.general_quick_look(obj.parameter_doc.json_data["mv"], npoints = self.context['view'].points)
+        doc_obj = obj.instance(self.source_name())
+        return doc_obj.quicklook(self.context['view'].points)
 
     def source_name(self):
         # TODO: swagger should do the default here
@@ -141,16 +140,9 @@ class JSONDataSerializer(QuicklookSerializer):
     def get_geo_line(self, obj):
         return SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
 
-
-# TODO: move somewhere else
-from rest_framework import renderers
-class PlainTextRenderer:
-    media_type = 'text/plain'
-    format = 'ascii'
-    charset = 'utf8'
-
-    def render(self, data, media_type=None, renderer_context=None):
-        return "\n".join(data)
+    def get_data(self, obj):
+        doc_obj = obj.instance(self.source_name())
+        return doc_obj.data()
 
 
 class MeasurementsSerializer(serializers.ModelSerializer):

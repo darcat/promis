@@ -137,8 +137,10 @@ insert_orbit("peace_love/uptick", utick_start, uptick)
 def gen_space_temp():
     freq = 100
     amps = [ randint(50,100) for i in range(freq*orbit_sec) ]
-    return { "mV": [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) # pure sine turns to zero too often
-        for i in range(freq*orbit_sec) ] }, { "T": amps }
+    # pure sine turns to zero too often
+    mv = [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) for i in range(freq*orbit_sec) ]
+
+    return mv, amps
 
 # TODO: break into several datapoints ("days")
 # TODO: make short and long sessions

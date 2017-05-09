@@ -14,36 +14,75 @@ from django.contrib.auth.models import Permission
 
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 
-from util.functions import get_func_by_name
+from importlib import import_module
 
-# TODO: is this class necessary?
-class FunctionManager(TranslationManager):
-    def get_by_natural_key(self, django_func):
-        return self.get(django_func = django_func)
+# TODO: can we do smth like this and inherit all over?
+"""
+class NameAsStrMixin:
+    def __str__(self):
+        return self.name
 
-class Function(TranslatableModel):
-    django_func = TextField()
+class NameDescriptionModel(TranslatableModel):
+    '''Something that has a name and a description'''
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField(blank = True)
+        )
 
-    objects = FunctionManager()
+    class Meta:
+        abstract = True
+"""
+
+# Actual classes
+class ClassManager(TranslationManager):
+    def get_by_natural_key(self, name):
+        return self.get(name = name)
+
+
+class Class(TranslatableModel):
+    name = TextField()
+
+    objects = ClassManager()
 
     translations = TranslatedFields(
         description = TextField()
         )
 
     def natural_key(self):
-        return (self.django_func,)
+        return (self.name,)
 
     class Meta:
-        db_table = "functions"
+        db_table = "classes"
 
     def __str__(self):
         return self.description
 
+    def get_class_obj(self):
+        '''
+        Returns a Python class object identified by self.name
+
+        No safety checks are executed, make sure to catch stuff.
+        '''
+        # Breaking down to components
+        path_comp = self.name.rsplit(sep=".", maxsplit=1)
+
+        # Importing the module
+        module = import_module(path_comp[0])
+
+        # Looking for the class
+        return getattr(module, path_comp[1])
+
     def __call__(self, *args, **kwargs):
+        '''
+        Instantiates the class identified by self.name
+        and passes args and kwargs to its constructor
+        '''
         try:
-            return get_func_by_name(self.django_func)(*args, **kwargs)
+            return self.get_class_obj() (*args, **kwargs)
         except (ImportError, AttributeError) as e:
-            raise MethodNotAllowed(self.django_func, detail = "Calling %s failed: '%s'. Please contact the maintainer." % (self.django_func, str(e)))
+            raise MethodNotAllowed(self.name,
+                detail = "Can't create an object of class %s: '%s'. Please contact the maintainer." % (self.name, str(e)))
+
 
 class Session(models.Model):
     time_begin = DateTimeField()
@@ -56,7 +95,16 @@ class Session(models.Model):
     class Meta:
         db_table = "sessions"
 
+
 class Space_project(TranslatableModel):
+    klass = ForeignKey('Class', null = True)
+    def instance(self):
+        '''
+        Create a new object of the stored behaviour class and
+        connect it to the calling object.
+        '''
+        return self.klass(self) if self.klass else None
+
     date_start = DateField()
     date_end = DateField()
 
@@ -65,16 +113,13 @@ class Space_project(TranslatableModel):
         description = TextField(blank = True)
         )
 
-    # Function that returns functions to check for updates and fetch them
-    data_func = ForeignKey('Function', null = True)
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "space_projects"
         verbose_name = "Space project"
         verbose_name_plural = "Space projects"
-
-    def __str__(self):
-        return self.name
 
 
 class Device(TranslatableModel):
@@ -85,29 +130,11 @@ class Device(TranslatableModel):
         description = TextField(blank = True)
         )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "devices"
-
-    def __str__(self):
-        return self.name
-
-class Channel(TranslatableModel):
-    value = ForeignKey('Value')
-    device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
-    quicklook = ForeignKey('Function', related_name = 'ch_ql', blank=True, null=True)
-    export = ForeignKey('Function', related_name = 'ch_ex', blank=True, null=True)
-    parser_func = ForeignKey('Function', related_name = 'parser_func', blank=True, null=True)
-
-    translations = TranslatedFields(
-        name = TextField(),
-        description = TextField(blank = True)
-        )
-
-    class Meta:
-        db_table = "channels"
-
-    def __str__(self):
-        return self.name
 
 
 class Unit(TranslatableModel):
@@ -132,31 +159,46 @@ class Value(TranslatableModel):
         description = TextField(blank = True)
         )
 
-    class Meta:
-        db_table = "values"
-
     def __str__(self):
         return self.name
 
+    class Meta:
+        db_table = "values"
 
-class Parameter(TranslatableModel):
-    value = ForeignKey('Value')
-    conversion = ForeignKey('Function', related_name = 'par_conv', blank=True, null=True)
-    conversion_params = TextField(blank = True)
-    channel = ForeignKey('Channel')
-    quicklook = ForeignKey('Function', related_name = 'par_ql', blank=True, null=True)
-    export = ForeignKey('Function', related_name = 'par_ex', blank=True, null=True)
+
+class Channel(TranslatableModel):
+    value = ForeignKey('Value') # TODO: null = True for ultra proprietary devices whose units we just don't know?
+    device = ForeignKey('Device', related_name = 'channels')  # TODO: <- do we need this?
+    klass = ForeignKey('Class', null = True)
 
     translations = TranslatedFields(
         name = TextField(),
         description = TextField(blank = True)
         )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
-        db_table = "parameters"
+        db_table = "channels"
+
+
+class Parameter(TranslatableModel):
+    value = ForeignKey('Value')
+    #conversion_params = TextField(blank = True) TODO hmm?
+    channel = ForeignKey('Channel')
+    klass = ForeignKey('Class', null = True)
+
+    translations = TranslatedFields(
+        name = TextField(),
+        description = TextField(blank = True)
+        )
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        db_table = "parameters"
 
 
 class Document(models.Model):
@@ -179,3 +221,12 @@ class Measurement(models.Model):
 
     class Meta:
         db_table = "measurements"
+
+    def instance(self, source = "parameter"):
+        '''
+        Create a new object of type indicated by source's klass field and relate
+        it to the measurement object and the corresponding document's json
+        '''
+        doc = getattr(self, source + "_doc").json_data
+        source_obj = getattr(self, source)
+        return source_obj.klass(doc, source_obj, self) if source_obj.klass else None

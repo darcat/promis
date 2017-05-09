@@ -11,7 +11,7 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.decorators import detail_route, api_view
 
 from backend_api import models
-from backend_api import serializer, helpers
+from backend_api import serializer, helpers, renderer
 from backend_api.permission import PromisPermission, SelfProfilePermission, Level1Permission
 
 import django_filters
@@ -27,7 +27,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 
-import util.unix_time
+import unix_time
 
 import datetime
 from rest_framework.decorators import permission_classes
@@ -51,7 +51,7 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
     def unix_time_filter(self, queryset, name, value):
         # Composition of the queryset.filter argument depending on which field was used
         filter_actions = { 'time_begin': 'time_begin__gte', 'time_end': 'time_end__lte' }
-        return queryset.filter(**{ filter_actions[name]: util.unix_time.maketime(value) })
+        return queryset.filter(**{ filter_actions[name]: unix_time.maketime(value) })
 
 
     class Meta:
@@ -191,7 +191,10 @@ class DownloadView(viewsets.GenericViewSet):
         return self.create_data()
 
     @detail_route(permission_classes = (AllowAny,), # TODO: other permission class
-                  renderer_classes = (BrowsableAPIRenderer, JSONRenderer, serializer.PlainTextRenderer))
+                  renderer_classes = (BrowsableAPIRenderer,
+                                      JSONRenderer,
+                                      renderer.AsciiRenderer,
+                                      renderer.CSVRenderer))
     def data(self, request, id):
         self.points = 10
         self.serializer_class = serializer.JSONDataSerializer

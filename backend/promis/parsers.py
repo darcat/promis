@@ -21,8 +21,8 @@
 """Parser functions for the various common file types involved in the project"""
 
 import re, struct
-import util.orbit
-import util.unix_time
+import orbit
+import unix_time
 
 # TODO: cull out those which have standard parsers (CSV?)
 # TODO: replace ValueErrors with meaningful exception classes when integrating
@@ -79,7 +79,7 @@ def telemetry(fp):
             m = re.search("^[0-9]* ([0-9.-]*) (2.*)", ln)
             if m:
                 # Yielding a nested tuple e.g. ( "RX", (1, 432.0) ), will be converted to dict
-                yield ( sect, (util.unix_time.str_to_utc(m.group(2)), float(m.group(1))) )
+                yield ( sect, (unix_time.str_to_utc(m.group(2)), float(m.group(1))) )
             else:
                 raise ValueError("Input inconsistency detected")
 
@@ -100,7 +100,7 @@ def telemetry(fp):
                 for k,v in nextpoint.items():
                     nextpoint[k] = v[1]
 
-                yield timemark, util.orbit.cord_conv(**nextpoint)
+                yield timemark, orbit.cord_conv(**nextpoint)
         except StopIteration:
             pass
 
@@ -139,7 +139,7 @@ def sets(fp, keys=None):
         keys_found.add(key)
 
         # Yield the data
-        yield key, int(value) if key != "utc" else util.unix_time.str_to_utc(value)
+        yield key, int(value) if key != "utc" else unix_time.str_to_utc(value)
 
         # Reduce the counter of keys to look for and break if necessary
         if keys_left > 0:

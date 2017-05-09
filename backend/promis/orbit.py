@@ -22,7 +22,7 @@
 import math
 import collections
 import operator
-import util.cubefit
+import cubefit
 
 _earth_radius = 6371 # km
 
@@ -118,7 +118,7 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
                 if any(180 < abs(src_cmps[0][x] - src_cmps[0][y]) for x in range(4) for y in range(4) if x<y):
                     src_cmps[0] = [ v + 360 if v < 0 else v for v in src_cmps[0] ]
                 # Generating the cubic functions
-                f = [ util.cubefit.cubic_fit(v, cmp) for cmp in src_cmps ]
+                f = [ cubefit.cubic_fit(v, cmp) for cmp in src_cmps ]
 
             res_vals = [ f[i](t - orbit_start) for i in range(3) ]
             # Making sure longitude fits

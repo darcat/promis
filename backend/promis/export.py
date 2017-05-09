@@ -25,7 +25,8 @@ import math
 
 # TODO: currently only one data row
 # TODO: do we need this type or can we just have a tuple?
-ExportEntry = collections.namedtuple("ExportEntry", [ "t", "lon", "lat", "data" ])
+# TODO: generalize the header
+ExportEntry = collections.namedtuple("ExportEntry", [ "t", "lon", "lat", "alt", "data" ])
 
 def make_table(data, start_time, end_time, orbit):
     """
@@ -36,16 +37,20 @@ def make_table(data, start_time, end_time, orbit):
     - frequency is deduced from data length TODO: play around this
     - orbit is a list of orbit points during start_time and end_time, 1 pt per second
     """
-    duration = end_time.timestamp() - start_time.timestamp() + 1
+    duration = end_time - start_time + 1
     samples_sz = len(data)
     assert samples_sz > 4
     freq = samples_sz / duration
+
+    # Ensuring oribit is a list
+    orbit = list(orbit)
+
     for i in range(samples_sz):
         # Computing relative time in sec
         t = i / freq
 
         # TODO currently not interpolating anything
-        lon, lat = orbit[int(t)]
+        lon, lat, alt = orbit[int(t)]
 
         """
 
@@ -72,10 +77,10 @@ def make_table(data, start_time, end_time, orbit):
             # Estimating the cubic function coeffs
         """
 
-        yield ExportEntry(int(1e3 * (start_time.timestamp() + t)), lon, lat, data[i])
+        yield ExportEntry(int(1e3 * (start_time + t)), lon, lat, alt, data[i])
 
 
-def ascii_export(table, datalabel="Data", dataunits="(units)"):
+def ascii_export(table, datalabel="Data", dataunits="units"):
     """
     Takes a table generator from above and constructs an ASCII representation.
 
@@ -86,10 +91,26 @@ def ascii_export(table, datalabel="Data", dataunits="(units)"):
 
     Yields successive lines.
     """
-    yield "{:^15} {:^6} {:^6} {:^10}".format("T", "Lon.", "Lat.", datalabel)
-    yield "{:^15} {:^6} {:^6} {:^10}".format("(ms)", "(deg.)", "(deg.)", dataunits)
+    yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("T", "Lon.", "Lat.", "Alt.", datalabel)
+    yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("(ms)", "(deg.)", "(deg.)", "(km)", "(%s)" % dataunits)
     for row in table:
-        yield "{:>15} {:>6.02f} {:>6.02f} {:>10.06f}".format(row.t, row.lon, row.lat, row.data)
+        yield "{:>15} {:>6.02f} {:>6.02f} {:>6.02f} {:>10.06f}".format(row.t, row.lon, row.lat, row.alt, row.data)
+
+def csv_export(table, datalabel="Data", dataunits="units"):
+    """
+    Takes a table generator from above and constructs an ASCII representation.
+
+    datalabel and dataunits are used for the data column
+    TODO: currently only one data column supported
+    TODO: orbit no
+    TODO: deduce correct field sizes
+
+    Yields successive lines.
+    """
+    yield '"{}","{}","{}","{}","{}"'.format("T (ms)", "Longitude (deg)", "Latitude (deg)", "Altitude (km)", datalabel + "(%s)" % dataunits)
+    for row in table:
+        yield ",".join(str(x) for x in [row.t, row.lon, row.lat, row.alt, row.data])
+
 
 
 # TODO: remove after completion
