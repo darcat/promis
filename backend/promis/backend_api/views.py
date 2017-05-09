@@ -154,6 +154,12 @@ class DownloadView(viewsets.GenericViewSet):
     # TODO: when we fix swagger route generation this may be
     # turned redundant by just inheriting the mixin
     def create_data(self):
+        try:
+            self.time_filter = [ self.request.query_params.get(key, None) for key in [ 'time_begin', 'time_end' ] ]
+            self.time_filter = [ int(x) if x is not None else None for x in self.time_filter ]
+        except ValueError:
+            raise NotFound("Time filter is not a number")
+
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -179,14 +185,6 @@ class DownloadView(viewsets.GenericViewSet):
         if self.points <= 0:
             raise NotFound("Non-positive amount of points requested")
 
-        # TODO: STUB: determine upper cap, that depends on the type in question
-        # if self.points > max_points_for_this_json:
-        #   raise NotFound("Too much points requested")
-
-        # TODO: STUB: determine if user is not authenticated, lower the cap for them
-        # if user_not_authenticated and self.points > max_points_for_this_json * some_coeff:
-        #   raise NotAuthenticated
-
         self.serializer_class = serializer.QuicklookSerializer
         return self.create_data()
 
@@ -196,7 +194,6 @@ class DownloadView(viewsets.GenericViewSet):
                                       renderer.AsciiRenderer,
                                       renderer.CSVRenderer))
     def data(self, request, id):
-        self.points = 10
         self.serializer_class = serializer.JSONDataSerializer
         return self.create_data()
 

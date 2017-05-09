@@ -123,7 +123,7 @@ class QuicklookSerializer(serializers.Serializer):
 
     def get_data(self, obj):
         doc_obj = obj.instance(self.source_name())
-        return doc_obj.quicklook(self.context['view'].points)
+        return doc_obj.quicklook(self.context['view'].points, doc_obj.timeslice(*self.context['view'].time_filter))
 
     def source_name(self):
         # TODO: swagger should do the default here
@@ -142,7 +142,7 @@ class JSONDataSerializer(QuicklookSerializer):
 
     def get_data(self, obj):
         doc_obj = obj.instance(self.source_name())
-        return doc_obj.data()
+        return doc_obj.data(doc_obj.timeslice(*self.context['view'].time_filter))
 
 
 class MeasurementsSerializer(serializers.ModelSerializer):
