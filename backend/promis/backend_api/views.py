@@ -154,9 +154,29 @@ class DownloadView(viewsets.GenericViewSet):
     # TODO: when we fix swagger route generation this may be
     # turned redundant by just inheriting the mixin
     def create_data(self):
+        try:
+            self.time_filter = [ self.request.query_params.get(key, None) for key in [ 'time_start', 'time_end' ] ]
+            self.time_filter = [ int(x) if x is not None else None for x in self.time_filter ]
+        except ValueError:
+            raise NotFound("Time filter is not a number")
+
+        # TODO: check that time_filter lies within the session's bounds
+
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        data = serializer.data
+
+        # Inject additional headers if necessary
+        res = Response(data)
+
+        # If the format is not JSON/API, instruct the browser to download the file
+        fmt = self.request.query_params.get('format')
+        if fmt not in ('api', 'json', None):
+            res['Content-Disposition'] = "attachment; filename={}_{}_{}.{}".format(data['timelapse']['start'],
+                                                                                   data['timelapse']['end'],
+                                                                                   data['value']['short_name'],
+                                                                                   fmt)
+        return res
 
     @detail_route(permission_classes = (AllowAny,))
     def quicklook(self, request, id):
@@ -168,24 +188,14 @@ class DownloadView(viewsets.GenericViewSet):
 
         # Determining the quality of a quicklook
         try:
-            self.points = int(self.request.query_params['points'])
-        except KeyError:
             # TODO: configurable default or per-type setting here
-            self.points = 200
+            self.points = int(request.query_params.get('points', 100))
         except ValueError:
             raise NotFound("Amount of points is not a number")
 
         # Various checks on the number received
         if self.points <= 0:
             raise NotFound("Non-positive amount of points requested")
-
-        # TODO: STUB: determine upper cap, that depends on the type in question
-        # if self.points > max_points_for_this_json:
-        #   raise NotFound("Too much points requested")
-
-        # TODO: STUB: determine if user is not authenticated, lower the cap for them
-        # if user_not_authenticated and self.points > max_points_for_this_json * some_coeff:
-        #   raise NotAuthenticated
 
         self.serializer_class = serializer.QuicklookSerializer
         return self.create_data()
@@ -196,8 +206,8 @@ class DownloadView(viewsets.GenericViewSet):
                                       renderer.AsciiRenderer,
                                       renderer.CSVRenderer))
     def data(self, request, id):
-        self.points = 10
         self.serializer_class = serializer.JSONDataSerializer
+
         return self.create_data()
 
     lookup_field = 'id'

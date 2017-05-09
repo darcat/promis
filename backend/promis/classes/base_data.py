@@ -20,20 +20,9 @@
 #
 '''Base functionality for object-oriented data model'''
 
+import unix_time
+
 class BaseData:
-    def __init__(self, doc, source, measurement):
-        self.doc = doc
-        self.source = source
-        self.measurement = measurement
-
-    def data_start(self):
-        return self.measurement.session.time_begin
-
-    def frequency(self):
-        return self.measurement.sampling_frequency
-
-
-class BaseTimeSeries(BaseData):
     '''
     Derived classes are expected to implement:
     - self.__len__          -- for sample size
@@ -41,28 +30,46 @@ class BaseTimeSeries(BaseData):
     - self.data_start       -- UNIX timestamp
     - self.frequency        -- sampling frequency
     '''
+    def __init__(self, doc, source, measurement):
+        self.doc = doc
+        self.source = source
+        self.measurement = measurement
+
+    def data_start(self):
+        return unix_time.datetime_to_utc(self.measurement.session.time_begin)
+
+    def frequency(self):
+        return self.measurement.sampling_frequency
 
     def timeslice(self, start, end):
         '''
-        Returns data between start and end inclusively.
+        Returns a slice for accessing data between start and end inclusively.
         start and end are UNIX seconds at UTC.
         '''
-        data_end = self.data_start + len(self) // self.frequency
-        if start < self.data_start or end > data_end:
+        data_end = self.data_start() + len(self) // self.frequency()
+
+        # Check for open bounds
+        if end is None:
+            end = data_end
+        if start is None:
+            start = self.data_start()
+
+        if start < self.data_start() or end > data_end:
             raise IndexError
 
         # Shifting the bounds
-        start -= self.data_start
-        end -= self.data_start
+        start -= self.data_start()
+        end -= self.data_start()
 
         # Converting time to samples
-        start *= self.frequency
-        end *= self.frequency
+        start *= self.frequency()
+        end *= self.frequency()
 
-        return self[start:end] # TODO yield?
+        return slice(int(start),int(end))
+
 
 # TODO: expand the scope to include multiple variables
-class SingleVarTimeSeries(BaseTimeSeries):
+class SingleVarTimeSeries(BaseData):
     '''
     [en]: Repeated measurement of a single variable
     [uk]: Періодичне вимірювання єдиної змінної
@@ -76,11 +83,11 @@ class SingleVarTimeSeries(BaseTimeSeries):
     def __getitem__(self, idx):
         return self.doc[idx]
 
-    def data(self):
-        return self.doc
+    def data(self, selection = slice(None)):
+        return self.doc[selection]
 
     # TODO: propagate upwards?
-    def quicklook(self, points):
+    def quicklook(self, points, selection = slice(None)):
         '''
         Generates a quicklook of the time series object sampled at
         given number of points.
@@ -103,17 +110,25 @@ class SingleVarTimeSeries(BaseTimeSeries):
             if ratio > 0.00001:
                 s += l[n + int(span)] * ratio
 
-                return s / span
+            return s / span
+
+        v = self.data(selection)
 
         # If given too much points, return the original data
         # TODO: make configurable somewhere
         # TODO: maybe depend on the user's level?
-        max_points = 0.3 * len(self)
+        max_points = int(0.3 * len(v))
         if points > max_points:
             points = max_points
 
+        # If the above gets us with zero, return None
+        # This makes sense as it prevents the user from loading
+        # all the data by querying 1 sec quicklooks
+        if points <= 0:
+            return
+
         # Determining how many points are averaged
-        span = len(self) / points
+        span = len(v) / points
 
         for i in range(points):
-            yield avg_float(self, int(span * i), span)
+            yield avg_float(v, int(span * i), span)
