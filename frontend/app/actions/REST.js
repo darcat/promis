@@ -1,44 +1,29 @@
-import { Enum } from '../constants/REST';
+import { Enum, RESTState } from '../constants/REST';
 import axios from 'axios';
 
-export default {
-    makeQuery : function(path, params, cb) {
-        return function(dispatch) {
-            dispatch({
-                type: Enum.RequestPending,
-                payload: true
-            });
+function makeQuery(dispatch, name, path, params) {
+    dispatch({
+        type: Enum[name + RESTState.pending],
+        payload: true
+    });
 
-            axios.get( path, params ).then(function(response) {
-                dispatch({
-                    type: Enum.RequestCompleted,
-                    payload: response.data
-                });
-                /*
-                dispatch({
-                    type: Enum.SetField,
-                    payload: {
-                        name: name,
-                        value: response.data
-                    }
-                })*/
-                if(cb) cb(response.data);
-            }).catch(function(error) {
-                dispatch({
-                    type: Enum.RequestFailed,
-                    payload: error.data
-                })
-            })
+    axios.get(path, params).then(function(response) {
+        dispatch({
+            type: Enum[name + RESTState.completed],
+            payload: response.data
+        });
+    }).catch(function(error) {
+        dispatch({
+            type: Enum[name + RESTState.failed],
+            payload: error.response ? error.response.status : error.request
+        });
+    })
+}
+
+export default {
+    getProjects : function() {
+        return function(dispatch) {
+            makeQuery(dispatch, 'Projects', '/en/api/projects/');
         }
     },
-
-    setField : function(value) {
-        //console.log('setting')
-        return function(dispatch) {
-            dispatch({
-                type: Enum.SetField,
-                payload: value
-            })
-        }
-    }
 }

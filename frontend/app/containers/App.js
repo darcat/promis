@@ -85,7 +85,7 @@ class App extends Component {
                         />
                         <Panel title = 'Search'>
                             <SearchForm
-                                status = {this.props.search}
+                                storage = {this.props.storage}
                                 generic = {this.props.inputOptions}
                                 actions = {this.props.rstActions}
                                 selection = {this.props.selection}
@@ -107,7 +107,6 @@ class App extends Component {
                         }
                         <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
-                                results = {this.props.search.results}
                                 onResult = {this.onResult}
                                 restActions = {this.props.rstActions}
                             />
@@ -126,7 +125,7 @@ function mapStateToProps(state) {
         mapOptions: state.Map,
         selection: state.Selection,
         userData: state.User,
-        search: state.REST
+        storage: state.REST
     }
 }
 

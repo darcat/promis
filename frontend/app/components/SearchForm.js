@@ -9,11 +9,8 @@ export default class SearchForm extends Component {
         super(props);
 
         this.state = {
-            desc: '',
+            desc: null,
             project: 0,
-            projects: [],
-            sessions: [],
-            parameters : []
         }
 
         this.doSearch = this.doSearch.bind(this);
@@ -51,14 +48,7 @@ export default class SearchForm extends Component {
     }
 
     queryProjects() {
-        this.props.actions.makeQuery('/en/api/projects', {}, function(projects) {
-            this.setState(function() {
-                return {
-                    project: projects.results[0].id,
-                    projects : projects.results
-                }
-            })
-        }.bind(this));
+        this.props.actions.getProjects();
     }
 
     doSearch(){//(project, from, to, selection) {
@@ -127,36 +117,26 @@ export default class SearchForm extends Component {
     //}
 
     render() {
+        //console.log(this.props.data.projects)
 
-        var proj = this.state.project;
-        var projects = this.state.projects;
-        var desc = this.state.desc; //projects.length ? backproj(projects, proj) : '';// && projects[proj]) ? projects[proj].description : '';
-
-        var sess = this.state.sessions;
-        var slen = sess.length;
-
-        //console.log(active);
         return (
             <div>
                 <FormGroup controlId="projSelect">
                     <ControlLabel>Select project</ControlLabel>
                     <FormControl onChange = {this.updateProject} componentClass="select" placeholder="select">
-                        { projects && projects.map(function(project, key) {
+                        { this.props.storage.projects.data && this.props.storage.projects.data.map(function(project, key) {
                             return (
                                 <option key = {key} value = {project.id}>{project.name}</option>
                             )
                         }.bind(this))}
                     </FormControl>
-                    <div>{ desc }</div>
+                    <div>{ false }</div>
                 </FormGroup>
                 <FormGroup>
                     <Button onClick = {this.doSearch}>
                         <Glyphicon glyph = 'search' /> Search
                     </Button>
                 </FormGroup>
-                { slen && 
-                <div>{sess}</div>        
-                }
             </div>
         )
     }
