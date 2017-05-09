@@ -3,9 +3,35 @@ import { Form, Button, Glyphicon } from 'react-bootstrap';
 import Tooltip from './Tooltip';
 import Quicklook from './Quicklook';
 
-/* TODO: do you need this shared anywhere? */
+/* TODO: do you need these shared anywhere? */
 function UnixToISO(unix_ts) {
     return new Date(unix_ts * 1e3).toISOString();
+}
+
+function UnitPrefix(e) {
+    /* TODO: localisation? */
+    var prefixes = {
+        18:     'E',
+        15:     'P',
+        12:     'T',
+        9:      'G',
+        6:      'M',
+        3:      'k',
+        2:      'h',
+        1:      'da',
+        0:      '',
+        /* JavaScript is hideous */
+        '-1':   'd',
+        '-2':   'c',
+        '-3':   'm',
+        '-6':   'μ',
+        '-9':   'n',
+        '-12':  'p',
+        '-15':  'f',
+        '-18':  'a'
+    };
+
+    return (e in prefixes) ? prefixes[e] : '?';
 }
 
 class DataSection extends Component {
@@ -38,7 +64,7 @@ class DataSection extends Component {
                         desc: resp.source.description,
                         time: resp.timelapse,
                         ylab: resp.value.name,
-                        unit: resp.value.units
+                        unit: UnitPrefix(resp.value.exponent) + resp.value.units
                     }
                 })
             }.bind(this))

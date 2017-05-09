@@ -119,7 +119,8 @@ class QuicklookSerializer(serializers.Serializer):
         return { 'short_name': src.value.short_name,
                  'name'      : src.value.name,
                  'units'     : src.value.units.short_name,
-                 'units_name': src.value.units.long_name }
+                 'units_name': src.value.units.long_name,
+                 'exponent'  : src.exponent }
 
     def get_data(self, obj):
         doc_obj = obj.instance(self.source_name())
