@@ -51,3 +51,15 @@
     
     list-style-type: none;
 }
+
+.infobox {
+    padding-top: 7px;
+}
+
+.centered {
+    text-align: center;
+}
+
+.desc {
+    font-weight: bold;
+}

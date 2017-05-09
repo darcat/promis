@@ -9,7 +9,7 @@ function makeNewSelection() {
 }
 
 export default function SelectionReducer(state = State, action) {
-    /* get data from state */
+    /* get data from the state */
     let active = state.active;
     let current = state.current;
     let elements = state.elements;
@@ -130,7 +130,7 @@ export default function SelectionReducer(state = State, action) {
         case Enum.SelectionEditElement:
         case Enum.SelectionDeleteElement:
             /* check for root index in event payload, use current index otherwise */
-            let rootIndex = (action.payload.root !== undefined && isArray(elements[action.payload.root])) ? action.payload.root : current;
+            let rootIndex = (action.payload.root !== undefined && isSelectionElement(elements[action.payload.root])) ? action.payload.root : current;
 
             /* check if we're in bounds for data array, use 0 if exceed */
             let itemIndex = action.payload.index < elements[rootIndex].data.length ? action.payload.index : 0;
@@ -158,8 +158,29 @@ export default function SelectionReducer(state = State, action) {
             });
         break;
 
+        /* remove selection at given index, or all if index is omitted */
         case Enum.SelectionPurge:
-            return Object.assign({}, state, { current: 0, elements: new Array() });
+            let purgeIndex = (action.payload !== null && isSelectionElement(elements[action.payload])) ? action.payload : null;
+
+            if(purgeIndex !== null) {
+                elements.splice(purgeIndex, 1);
+
+                if(current > 0) {
+                    current --;
+                }
+            }
+            else {
+                current = 0;
+                elements = new Array();
+            }
+
+            return Object.assign({}, state, { current: current, elements: elements });
+        break;
+
+        case Enum.SelectionHighlight:
+            let highlightIndex = (action.payload !== null && isSelectionElement(elements[action.payload])) ? action.payload : null;
+
+            return Object.assign({}, state, { highlight: highlightIndex });
         break;
 
         default:

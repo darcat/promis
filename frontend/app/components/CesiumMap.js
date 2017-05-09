@@ -94,7 +94,13 @@ export default class CesiumContainer extends Component {
         this.moveDrawEvent = this.moveDrawEvent.bind(this);
         this.stopDrawEvent = this.stopDrawEvent.bind(this);
         this.voidDrawEvent = this.voidDrawEvent.bind(this);
-        
+
+        /* materials */
+        this.previewMaterial = Material.fromType('Stripe');
+        this.defaultMaterial = Color.BLUE.withAlpha(0.6);
+        this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.ORANGE, outlineWidth : 2, outlineColor : Color.BLACK });
+        this.highlightMaterial = Color.GREEN.withAlpha(0.6);
+        this.selectionMaterial = Color.YELLOW.withAlpha(0.5);
     }
 
     /* update only for fullscreen toggling */
@@ -105,7 +111,7 @@ export default class CesiumContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.updateMap();
+        this.updateMap(nextProps);
         this.repaint();
     }
 
@@ -297,9 +303,9 @@ export default class CesiumContainer extends Component {
         return Cartesian3.distance(Cartesian3.fromDegrees(first[1], first[0]), second);
     }
 
-    makeShape(type, data) {
+    makeShape(type, data, highlight) {
         let shape = null;
-        let material = Color.BLUE.withAlpha(0.6);
+        let material = highlight ? this.highlightMaterial : this.defaultMaterial;
 
         switch(type) {
             case Types.Rect:
@@ -364,14 +370,6 @@ export default class CesiumContainer extends Component {
                 data = new Array();
             }
 
-            /* calc radius for circles or just assign new point */
-            /*
-            if(type == Types.Circle) {
-                temp = new Array(last, );
-            } else {
-                temp = data.concat(new Array(newpoint.coords));
-            }*/
-
             /* clear last preview */
             this.previewHandle && this.viewer.scene.primitives.remove(this.previewHandle);
 
@@ -408,7 +406,7 @@ export default class CesiumContainer extends Component {
                 allowPicking : false,
                 asynchronous : false,
                 appearance : new EllipsoidSurfaceAppearance({
-                    material : Material.fromType('Stripe')
+                    material : this.previewMaterial
                 })
             });
 
@@ -421,7 +419,7 @@ export default class CesiumContainer extends Component {
             position : Cartesian3.fromDegrees(latlon[1], latlon[0]),
             point : {
                 show : true,
-                color : Color.YELLOW.withAlpha(0.5),
+                color : this.selectionMaterial,
                 pixelSize : 10,
                 scaleByDistance : new NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
                 outlineColor : Color.YELLOW,
@@ -442,27 +440,25 @@ export default class CesiumContainer extends Component {
             polyline : {
                 positions : cartesians,
                 width : 5,
-                material : new PolylineOutlineMaterialProperty({
-                    color : Color.ORANGE,
-                    outlineWidth : 2,
-                    outlineColor : Color.BLACK
-                })
+                material : this.geolineMaterial
             }
         });
     }
 
-    updateMap() {
-        if(! this.props.selection.active) {
+    updateMap(maybeProps) {
+        let props = maybeProps !== undefined ? maybeProps : this.props;
+
+        if(! props.selection.active) {
             /* clear geolines */
             this.geolineHandles.forEach(function(handle) {
                 this.clearShape(handle);
             }.bind(this));
 
             /* draw new geolines if they're present */
-            if(Array.isArray(this.props.geolines) && this.props.geolines.length > 0) {
+            if(Array.isArray(props.geolines) && props.geolines.length > 0) {
                 this.geolineHandles = new Array();
 
-                this.props.geolines.forEach(function(geoline){
+                props.geolines.forEach(function(geoline){
                     this.geolineHandles.push(this.makeGeoline(geoline));
                 }.bind(this));
             }
@@ -481,13 +477,13 @@ export default class CesiumContainer extends Component {
             }.bind(this));
 
             /* render new selection */
-            if(this.props.selection.current > 0) {
+            if(props.selection.current > 0) {
                 this.shapeHandles = new Array();
                 this.pointHandles = new Array();
 
-                this.props.selection.elements.forEach(function(selection, rootIndex) {
+                props.selection.elements.forEach(function(selection, rootIndex) {
                     if(selection.data.length) {
-                        this.shapeHandles.push(this.makeShape(selection.type, selection.data));
+                        this.shapeHandles.push(this.makeShape(selection.type, selection.data, props.selection.highlight == rootIndex));
 
                         selection.data.every(function(point, itemIndex) {
                             this.pointHandles.push(this.makeSelectionPoint(point));

@@ -5,7 +5,7 @@ import LeafletBing from 'leaflet-bing-layer';
 import LeafletGeodesy from 'leaflet-geodesy';
 
 import { Types } from '../constants/Selection';
-import { BingKey } from '../constants/Map'
+import { BingKey } from '../constants/Map';
 
 import 'leaflet/dist/leaflet.css';
 
@@ -44,6 +44,13 @@ export default class LeafletContainer extends Component {
         this.makeGeoline = this.makeGeoline.bind(this);
         this.previewShape = this.previewShape.bind(this);
         this.makeSelectionPoint = this.makeSelectionPoint.bind(this);
+
+        /* colors */
+        this.previewColor = { color: 'white', dashArray: '5, 10' };
+        this.defaultColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.8 };
+        this.geolineColor = { color: 'red' };
+        this.highlightColor = { color: 'green', fillColor: '#00ff00', fillOpacity: 0.8 };
+        this.selectionColor = { weight: 2, color: 'yellow', fillColor: '#ffff00', fillOpacity: 0.5 };
     }
 
     /* update only for fullscreen toggling */
@@ -60,7 +67,7 @@ export default class LeafletContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.updateMap();
+        this.updateMap(nextProps);
         this.repaint();
     }
 
@@ -128,9 +135,7 @@ export default class LeafletContainer extends Component {
             /* Adding the segment, then the same one shifted +360°/-360° */
             var segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
             for (var j = 0; j < segs.length; j++) {
-              var gl = Leaflet.polyline(this.invertCoords(segs[j]), {
-                 color: 'red'
-              });
+              var gl = Leaflet.polyline(this.invertCoords(segs[j]), this.geolineColor);
               gl.addTo(this.leaflethandle);
               //this.invertCoords(segs[j])
             }
@@ -178,11 +183,7 @@ export default class LeafletContainer extends Component {
     /* make shape from current selection */
     makeShape(type, data, opts, shift = 0) {
         let shape = null;
-        let options = (opts !== undefined ? opts : {
-            color: 'blue',
-            fillColor: '#0000ff',
-            fillOpacity: 0.8
-        });
+        let options = (opts !== undefined ? opts : this.defaultColor);
 
         switch(type) {
             case Types.Rect:
@@ -234,22 +235,14 @@ export default class LeafletContainer extends Component {
             this.clearShapes(this.previewHandles);
 
             /* and make new one */
-            this.previewHandles = this.makeShapes(type, new Array(last, temp), {
-                color: 'white',
-                dashArray: '5, 10'
-            });
+            this.previewHandles = this.makeShapes(type, new Array(last, temp), this.previewColor);
         }
     }
 
     /* make anchor point of selection */
     makeSelectionPoint(location) {
         if(location) {
-            let point = Leaflet.circleMarker(location, {
-                weight: 2,
-                color: 'yellow',
-                fillColor: '#ffff00',
-                fillOpacity: 0.5
-            });
+            let point = Leaflet.circleMarker(location, this.selectionColor);
 
             point.setRadius(4);
             point.addTo(this.map);
@@ -261,15 +254,17 @@ export default class LeafletContainer extends Component {
     }
 
     /* update visible areas according to current state */
-    updateMap() {
-        if(! this.props.selection.active) {
+    updateMap(maybeProps) {
+        let props = maybeProps !== undefined ? maybeProps : this.props;
+
+        if(! props.selection.active) {
             /* clear geolines */
             this.geolineHandles.forEach(function(handle) {
                 this.clearShape(handle);
             }.bind(this));
 
             /* draw new geolines if they're present */
-            if(Array.isArray(this.props.geolines) && this.props.geolines.length > 0) {
+            if(Array.isArray(props.geolines) && props.geolines.length > 0) {
                 this.geolineHandles = new Array();
 
                 this.props.geolines.forEach(function(geoline){
@@ -290,13 +285,14 @@ export default class LeafletContainer extends Component {
             }.bind(this));
 
             /* if there's some selection, draw it */
-            if(this.props.selection.current > 0) {
+            if(props.selection.current > 0) {
                 this.shapeHandles = new Array();
                 this.pointHandles = new Array();
 
-                this.props.selection.elements.forEach(function(selection, rootIndex) {
+                props.selection.elements.forEach(function(selection, rootIndex) {
                     if(selection.data.length) {
-                        this.shapeHandles.push(this.makeShapes(selection.type, selection.data));
+                        let selected = (rootIndex == props.selection.highlight ? this.highlightColor : undefined);
+                        this.shapeHandles.push(this.makeShapes(selection.type, selection.data, selected));
 
                         selection.data.every(function(point, itemIndex) {
                             this.pointHandles.push(this.makeSelectionPoint(point));

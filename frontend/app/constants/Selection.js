@@ -7,6 +7,7 @@ export const Enum = {
     SelectionPushElement   : 'SelectionPushElement',   /* append element to current selection */
     SelectionDeleteElement : 'SelectionDeleteElement', /* remove last element from current selection */
     SelectionEditElement   : 'SelectionEditElement',   /* change element at given index */
+    SelectionHighlight     : 'SelectionHighlight',     /* highlight element when editing */
     SelectionPurge         : 'SelectionPurge'          /* clear all selections */
 };
 
@@ -19,7 +20,8 @@ export const Types = {
 
 export const State = {
     active : false,         /* when selection tool is active */
-    current : 0,            /* current selection index */
+    current : 0,            /* current selection element index */
+    highlight : null,       /* which selection element to highlight when editing */
     elements : new Array()  /* map and ui-friendly storage */
                             /* { type : <Types>, data : Array } */
 };

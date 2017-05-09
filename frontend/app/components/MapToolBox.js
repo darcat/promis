@@ -51,6 +51,7 @@ export default class MapToolBox extends Component {
     }
 
     toggleClean() {
+        this.toggleFlush();
         this.select.clearSelection();
     }
 

@@ -71,11 +71,20 @@ export default {
         }
     },
 
-    clearSelection : function() {
+    clearSelection : function(index) {
         return function(dispatch) {
             dispatch({
                 type: Enum.SelectionPurge,
-                payload: true
+                payload: (index !== undefined ? index : null)
+            })
+        }
+    },
+
+    highlightSelection : function(index) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SelectionHighlight,
+                payload: (index !== undefined ? index : null)
             })
         }
     }
