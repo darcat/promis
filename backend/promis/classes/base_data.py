@@ -110,17 +110,25 @@ class SingleVarTimeSeries(BaseData):
             if ratio > 0.00001:
                 s += l[n + int(span)] * ratio
 
-                return s / span
+            return s / span
+
+        v = self.data(selection)
 
         # If given too much points, return the original data
         # TODO: make configurable somewhere
         # TODO: maybe depend on the user's level?
-        max_points = 0.3 * len(self)
+        max_points = int(0.3 * len(v))
         if points > max_points:
             points = max_points
 
+        # If the above gets us with zero, return None
+        # This makes sense as it prevents the user from loading
+        # all the data by querying 1 sec quicklooks
+        if points <= 0:
+            return
+
         # Determining how many points are averaged
-        span = len(self) / points
+        span = len(v) / points
 
         for i in range(points):
-            yield avg_float(self.data(selection), int(span * i), span)
+            yield avg_float(v, int(span * i), span)
