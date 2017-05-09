@@ -42,6 +42,20 @@ export default function MapReducer(state = State, action) {
             });
         break;
 
+        case Enum.PushGeoline:
+            let geo = state.geolines;
+
+            if(Array.isArray(action.payload)) {
+                geo.push(action.payload);
+            }
+
+            return Object.assign({}, state, { geolines: geo });
+        break;
+
+        case Enum.FlushGeolines:
+            return Object.assign({}, state, { geolines: new Array() });
+        break;
+
         default:
             return state;
         break;

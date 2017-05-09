@@ -304,11 +304,11 @@ export default class TimeAndPositionInput extends Component {
     }
 
     dateFromChange(newFrom) {
-        this.actions.dateFromInput(newFrom);
+        this.actions.dateFromInput(parseInt(newFrom));
     }
 
     dateToChange(newTo) {
-        this.actions.dateToInput(newTo);
+        this.actions.dateToInput(parseInt(newTo));
     }
 
     altFromChange(e) {

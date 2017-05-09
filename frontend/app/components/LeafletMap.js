@@ -264,10 +264,10 @@ export default class LeafletContainer extends Component {
             }.bind(this));
 
             /* draw new geolines if they're present */
-            if(Array.isArray(props.geolines) && props.geolines.length > 0) {
+            if(Array.isArray(props.options.geolines) && props.options.geolines.length > 0) {
                 this.geolineHandles = new Array();
 
-                this.props.geolines.forEach(function(geoline){
+                this.props.options.geolines.forEach(function(geoline){
                     this.geolineHandles.push(this.makeGeoline(geoline));
                 }.bind(this));
             }

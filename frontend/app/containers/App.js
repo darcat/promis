@@ -79,11 +79,12 @@ class App extends Component {
                         />
                         <Panel title = 'Search'>
                             <SearchForm
-                                storage = {this.props.storage}
-                                options = {this.props.inputOptions}
-                                actions = {this.props.rstActions}
-                                generic = {this.props.genActions}
-                                selection = {this.props.selection}
+                                storage = {this.props.storage}        /* generic storage for api data */
+                                options = {this.props.inputOptions}   /* general options, datetime, etc */
+                                mapped  = {this.props.mapActions}     /* for geoline management */
+                                actions = {this.props.rstActions}     /* api-related actions */
+                                generic = {this.props.genActions}     /* for setting time back */
+                                selection = {this.props.selection}    /* selection array */
                             />
                         </Panel>
                     </Row>
@@ -92,7 +93,6 @@ class App extends Component {
                         <MapPanel
                             ee = {this.ee}
                             selection = {this.props.selection}
-                            geolines = {this.props.search.geolines}
                             options = {this.props.mapOptions}
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}

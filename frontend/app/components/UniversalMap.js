@@ -119,7 +119,6 @@ export default class UniversalMap extends Component {
                             onChange = {map}
                             onSelect = {sel}
                             options = {options}
-                            geolines = {geo}
                             selection = {selection}
                         />
                         ) : (
@@ -128,7 +127,6 @@ export default class UniversalMap extends Component {
                             onChange = {map}
                             onSelect = {sel}
                             options = {options}
-                            geolines = {geo}
                             selection = {selection}
                         />
                         ) }
