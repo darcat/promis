@@ -29,3 +29,24 @@ export const Enum = Endpoints.reduce(function(obj, ep) {
 
     return obj;
 }, new Object({}));
+
+/* search array by object id */
+/* can be substituted by ES2015' Array.prototype.find */
+export function getById(array, id) {
+    let item  = null;
+    let found = false;
+
+    if(Array.isArray(array)) {
+        array.every(function(it) {
+            found = (parseInt(it.id) == parseInt(id));
+
+            if(found) {
+                item = it;
+            }
+
+            return !found;
+        })
+    }
+
+    return item;
+}

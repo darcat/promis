@@ -10,7 +10,7 @@ function makeQuery(dispatch, name, path, params) {
     axios.get(path, params).then(function(response) {
         dispatch({
             type: Enum[name + RESTState.completed],
-            payload: response.data
+            payload: response.data.results
         });
     }).catch(function(error) {
         dispatch({
@@ -26,4 +26,14 @@ export default {
             makeQuery(dispatch, 'Projects', '/en/api/projects/');
         }
     },
+
+    getSessions : function(project, begin, end) {
+        return function(dispatch) {
+            makeQuery(dispatch, 'Sessions', '/en/api/sessions/', {
+                space_project: project,
+                time_begin: begin,
+                time_end: end
+            });
+        }
+    }
 }

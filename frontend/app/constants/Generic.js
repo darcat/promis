@@ -11,8 +11,8 @@ export const Enum = {
 };
 
 export const State = {
-    dateFrom : '',
-    dateTo : '',
+    dateFrom : 0,
+    dateTo : 0,
     latFrom : 41.33,
     latTo : 42.11,
     lngFrom : 14.22,

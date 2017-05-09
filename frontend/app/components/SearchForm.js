@@ -4,6 +4,8 @@ import Spinner from 'react-spinjs';
 import stringify from 'wellknown';
 import moment  from 'moment';
 
+import { getById } from '../constants/REST';
+
 export default class SearchForm extends Component {
     constructor(props) {
         super(props);
@@ -15,40 +17,31 @@ export default class SearchForm extends Component {
 
         this.doSearch = this.doSearch.bind(this);
         this.updateProject = this.updateProject.bind(this);
-        this.queryProjects = this.queryProjects.bind(this);
         //this.querySessions = this.querySessions.bind(this);
     }
 
     componentDidMount() {
-        this.queryProjects();
+        this.props.actions.getProjects();
     }
 
-    updateProject(data) {
-        var id = parseInt(data.target ? data.target.value : data);
+    updateProject(event) {
+        event.persist();
 
-        function backproj (proj, id) {
-            var z = false;
-            proj.map(function(p) {
-                if(parseInt(p.id) == parseInt(id)) {
-                    z = p.description;
+        let selected = parseInt(event.target.value);
+        let project = getById(this.props.storage.projects.data, selected);
+
+        if(project) {
+            this.setState(function() {
+                return {
+                    desc: project.description,
+                    project: selected
                 }
             });
 
-            return z;
+            /* update datetime fields according to project (up to seconds) */
+            this.props.generic.dateFromInput(project.timelapse.start * 1000);
+            this.props.generic.dateToInput(project.timelapse.end * 1000);
         }
-
-        var desc = backproj(this.state.projects, id);
-
-        this.setState(function() {
-            return {
-                desc: desc ? desc : '',
-                project: id ? id : this.state.projects[0]
-            }
-        }.bind(this))
-    }
-
-    queryProjects() {
-        this.props.actions.getProjects();
     }
 
     doSearch(){//(project, from, to, selection) {
@@ -130,7 +123,7 @@ export default class SearchForm extends Component {
                             )
                         }.bind(this))}
                     </FormControl>
-                    <div>{ false }</div>
+                    <div>{ this.state.desc }</div>
                 </FormGroup>
                 <FormGroup>
                     <Button onClick = {this.doSearch}>

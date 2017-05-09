@@ -7,8 +7,6 @@ import DateTime from 'react-bootstrap-datetimepicker';
 import InlineEdit from 'react-edit-inline';
 import Panel from './Panel';
 
-//import {DateTime} from 'react-bootstrap-datetime';
-
 import '../styles/map.css';
 
 import { isSelectionElement, Types } from '../constants/Selection';
@@ -333,10 +331,10 @@ export default class TimeAndPositionInput extends Component {
                             Interval
                         </Col>
                         <Col sm={5}>
-                            <DateTime onChange = {this.dateFromChange} />
+                            <DateTime dateTime = {opts.dateFrom} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateFromChange} />
                         </Col>
                         <Col sm={5}>
-                            <DateTime onChange = {this.dateToChange} />
+                            <DateTime dateTime = {opts.dateTo} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'Altitude'>

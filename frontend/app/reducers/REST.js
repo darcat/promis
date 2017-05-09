@@ -14,7 +14,6 @@ function genericReducer(name, state, action) {
         break;
 
         case Enum[String(name + RESTState.failed)]:
-            console.log('got error', obj)
             return Object.assign({}, state, { [obj] : { fetch: false, data: null, error: action.payload } });
         break;
 
@@ -25,8 +24,6 @@ function genericReducer(name, state, action) {
 }
 
 export default function RESTReducer(state = State, action) {
-    console.log(action);
-
     let newState = null;
 
     Endpoints.forEach(function(endpoint) {

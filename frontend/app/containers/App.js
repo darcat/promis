@@ -30,7 +30,6 @@ class App extends Component {
         this.updateDimensions = this.updateDimensions.bind(this);
 
         this.props.usrActions.profile();
-        this.onResult = this.onResult.bind(this);
     }
 
     componentDidMount() {
@@ -50,12 +49,7 @@ class App extends Component {
             height: window.innerHeight
         }
 
-        //if(this.props.mapOptions.full)
         this.props.mapActions.toggleDims(dims);
-    }
-
-    onResult(data) {
-        return data;
     }
 
     render() {
@@ -86,10 +80,10 @@ class App extends Component {
                         <Panel title = 'Search'>
                             <SearchForm
                                 storage = {this.props.storage}
-                                generic = {this.props.inputOptions}
+                                options = {this.props.inputOptions}
                                 actions = {this.props.rstActions}
+                                generic = {this.props.genActions}
                                 selection = {this.props.selection}
-                                onResult = {this.onResult}
                             />
                         </Panel>
                     </Row>
@@ -103,11 +97,10 @@ class App extends Component {
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}
                         />
-                        // this.props.search.results
                         }
                         <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
-                                onResult = {this.onResult}
+                                storage = {this.props.storage}
                                 restActions = {this.props.rstActions}
                             />
                         </Panel>
