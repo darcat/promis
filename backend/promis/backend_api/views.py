@@ -162,7 +162,19 @@ class DownloadView(viewsets.GenericViewSet):
 
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        data = serializer.data
+
+        # Inject additional headers if necessary
+        res = Response(data)
+
+        # If the format is not JSON/API, instruct the browser to download the file
+        fmt = self.request.query_params.get('format')
+        if fmt not in ('api', 'json', None):
+            res['Content-Disposition'] = "attachment; filename={}_{}_{}.{}".format(data['timelapse']['start'],
+                                                                                   data['timelapse']['end'],
+                                                                                   data['value']['short_name'],
+                                                                                   fmt)
+        return res
 
     @detail_route(permission_classes = (AllowAny,))
     def quicklook(self, request, id):
@@ -174,10 +186,8 @@ class DownloadView(viewsets.GenericViewSet):
 
         # Determining the quality of a quicklook
         try:
-            self.points = int(self.request.query_params['points'])
-        except KeyError:
             # TODO: configurable default or per-type setting here
-            self.points = 200
+            self.points = int(request.query_params.get('points', 100))
         except ValueError:
             raise NotFound("Amount of points is not a number")
 
@@ -195,6 +205,7 @@ class DownloadView(viewsets.GenericViewSet):
                                       renderer.CSVRenderer))
     def data(self, request, id):
         self.serializer_class = serializer.JSONDataSerializer
+
         return self.create_data()
 
     lookup_field = 'id'

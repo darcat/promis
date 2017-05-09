@@ -34,7 +34,7 @@ class TextRenderer(renderers.BaseRenderer):
 
 class AsciiRenderer(TextRenderer):
     media_type = 'text/plain'
-    format = 'ascii'
+    format = 'txt'
 
     def process(self, table, data):
         return export.ascii_export(table, data['value']['name'], data['value']['units'])
