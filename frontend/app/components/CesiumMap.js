@@ -433,7 +433,7 @@ export default class CesiumContainer extends Component {
 
         /* data is [lat, lon, hgt] */
         data.forEach(function(point) {
-            cartesians.push(Cartesian3.fromDegrees(point[1], point[0], point[2] ? point[2] : 250000));
+            cartesians.push(Cartesian3.fromDegrees(point[0], point[1], point[2] ? point[2] : 250000));
         });
 
         return this.viewer.entities.add({
