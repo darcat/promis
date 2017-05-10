@@ -46,7 +46,8 @@ export const Enum = Endpoints.reduce(function(obj, ep) {
 
     return obj;
 }, new Object({
-    ResetData : 'RESTResetData'
+    ResetData : 'RESTResetData',
+    PushMeasurement : 'RESTStubPushMeasurement'
 }));
 
 /* search array by object id */
