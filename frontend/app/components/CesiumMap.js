@@ -499,7 +499,7 @@ export default class CesiumContainer extends Component {
     }
 
     render() {
-        var height = {height: this.props.options.full ? this.props.options.dims.height : 300};
+        var height = {height: this.props.options.full ? this.props.options.dims.height : 350};
 
         return (
             <div>
