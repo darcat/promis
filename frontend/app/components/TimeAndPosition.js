@@ -119,7 +119,7 @@ class SelectionElements extends Component {
 
             case Types.Circle:
                 tableData.push(new Array('Center', active.data[0][0], active.data[0][1]));
-                tableData.push(new Array('Radius', active.data[1]));
+                tableData.push(new Array('Radius', Math.round(active.data[1])));
             break;
 
             case Types.Polygon:

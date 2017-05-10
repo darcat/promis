@@ -21,7 +21,7 @@ export default class LeafletContainer extends Component {
         this.previewHandles = null;
 
         /* options */
-        this.mapParams = { center: [51.5, 10.2], zoom: 4, zoomControl: false, minZoom: 1, worldCopyJump: true };
+        this.mapParams = { center: [31.5, 10.2], zoom: 1, zoomControl: false, minZoom: 1, worldCopyJump: true};
         this.bingParams = { bingMapsKey : BingKey, imagerySet : 'AerialWithLabels' };
 
         /* events handling */
@@ -375,7 +375,7 @@ export default class LeafletContainer extends Component {
 
     render() {
         var zoom = this.props.options.zoom;
-        var height = {height: this.props.options.full ? this.props.options.dims.height : 300};
+        var height = {height: this.props.options.full ? this.props.options.dims.height : 350};
 
         return (
             <div>
