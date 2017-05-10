@@ -106,7 +106,7 @@ export default class LeafletContainer extends Component {
 
     makeGeoline(xcoords)
     {
-        let coords = xcoords.map(function(x) { return [x[1], x[0], x[2]]; });
+        let coords = xcoords.map(function(x) { return [x[1], x[0]]; });
 
         /* shifted geoline components */
         let lines = new Array();
