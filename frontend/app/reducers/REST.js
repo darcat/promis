@@ -1,28 +1,51 @@
-import { Enum, State } from '../constants/REST';
+import { Enum, Endpoints, State, RESTState, makeEmptyState } from '../constants/REST';
 
-export default function RESTReducer(state = State, action) {
+/* wrap single endpoint operation into one reducer */
+function genericReducer(name, state, action) {
+    let obj = name.toLowerCase();
+
     switch(action.type) {
-        case Enum.RequestPending:
-            return Object.assign({}, state, { loading : true });
+        case Enum[String(name + RESTState.pending)]:
+            return Object.assign({}, state, { [obj] : { fetch: true } });
         break;
 
-        case Enum.RequestCompleted:
-            return Object.assign({}, state, { loading : false, data : action.payload });
+        case Enum[String(name + RESTState.completed)]:
+            return Object.assign({}, state, { [obj] : { fetch: false, data: action.payload, error: null } });
         break;
 
-        case Enum.RequestFailed:
-            return Object.assign({}, state, { loading : false, error: action.payload });
+        case Enum[String(name + RESTState.failed)]:
+            return Object.assign({}, state, { [obj] : { fetch: false, data: null, error: action.payload } });
         break;
 
-        case Enum.SetField:
-            var updated = state.results;
-
-            updated.push(action.payload);
-            //updated[action.payload.name] = action.payload.value;
-            //console.log('assign');
-            return Object.assign({}, state, { results: updated });
+        default:
+            return null;
         break;
     }
+}
 
-    return state;
+export default function RESTReducer(state = State, action) {
+    let newState = null;
+
+    /* endpoint handling */
+    Endpoints.forEach(function(endpoint) {
+        let reduced = genericReducer(endpoint, state, action);
+
+        if(reduced !== null) newState = reduced;
+    });
+
+    /* action not related to endpoints */
+    if(! newState) {
+        switch(action.type) {
+            case Enum.ResetData:
+                newState = Object.assign({}, state, {
+                    sessions : makeEmptyState(),
+                    channels : makeEmptyState(),
+                    parameters : makeEmptyState(),
+                    measurements : makeEmptyState()
+                })
+            break;
+        }
+    }
+
+    return newState || state;
 }

@@ -83,5 +83,23 @@ export default {
                 payload: true
             })
         }
+    },
+
+    pushGeolines : function(geolines) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.PushGeolines,
+                payload: geolines
+            })
+        }
+    },
+
+    clearGeolines : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.FlushGeolines,
+                payload: true
+            })
+        }
     }
 };

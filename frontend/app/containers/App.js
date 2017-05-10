@@ -30,7 +30,6 @@ class App extends Component {
         this.updateDimensions = this.updateDimensions.bind(this);
 
         this.props.usrActions.profile();
-        this.onResult = this.onResult.bind(this);
     }
 
     componentDidMount() {
@@ -50,12 +49,7 @@ class App extends Component {
             height: window.innerHeight
         }
 
-        //if(this.props.mapOptions.full)
         this.props.mapActions.toggleDims(dims);
-    }
-
-    onResult(data) {
-        return data;
     }
 
     render() {
@@ -85,11 +79,12 @@ class App extends Component {
                         />
                         <Panel title = 'Search'>
                             <SearchForm
-                                status = {this.props.search}
-                                generic = {this.props.inputOptions}
-                                actions = {this.props.rstActions}
-                                selection = {this.props.selection}
-                                onResult = {this.onResult}
+                                storage = {this.props.storage}        /* generic storage for api data */
+                                options = {this.props.inputOptions}   /* general options, datetime, etc */
+                                mapped  = {this.props.mapActions}     /* for geoline management */
+                                actions = {this.props.rstActions}     /* api-related actions */
+                                generic = {this.props.genActions}     /* for setting time back */
+                                selection = {this.props.selection}    /* selection array */
                             />
                         </Panel>
                     </Row>
@@ -98,18 +93,15 @@ class App extends Component {
                         <MapPanel
                             ee = {this.ee}
                             selection = {this.props.selection}
-                            geolines = {this.props.search.geolines}
                             options = {this.props.mapOptions}
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}
                         />
-                        // this.props.search.results
                         }
-                        <Panel title = 'Search results'>
+                        <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
-                                results = {this.props.search.results}
-                                onResult = {this.onResult}
-                                restActions = {this.props.rstActions}
+                                results = {this.props.storage.measurements.data}
+                                actions = {this.props.rstActions}
                             />
                         </Panel>
                     </Row>
@@ -126,7 +118,7 @@ function mapStateToProps(state) {
         mapOptions: state.Map,
         selection: state.Selection,
         userData: state.User,
-        search: state.REST
+        storage: state.REST
     }
 }
 
