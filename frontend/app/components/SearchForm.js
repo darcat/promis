@@ -202,7 +202,7 @@ class MeasurementsTrigger extends Component {
     }
 
     getMeasurements() {
-        //this.props.actions.getMeasurements(this.props.options.project);
+        this.props.actions.getMeasurements(this.props.storage.sessions.data, new Array(1, 2));//this.props.options.project);
     }
 
     render() {

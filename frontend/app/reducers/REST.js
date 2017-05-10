@@ -42,7 +42,17 @@ export default function RESTReducer(state = State, action) {
                     channels : makeEmptyState(),
                     parameters : makeEmptyState(),
                     measurements : makeEmptyState()
-                })
+                });
+            break;
+
+            case Enum.PushMeasurement:
+                let meas = state.measurements;
+
+                if(Array.isArray(meas.data)) {
+                    meas.data.push(action.payload);
+                }
+
+                newState = Object.assign({}, state, { measurements : meas });
             break;
         }
     }

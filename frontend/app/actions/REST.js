@@ -71,5 +71,60 @@ export default {
                 }
             });
         }
+    },
+
+    /* disabled until proper backend filter */
+    /*
+    getMeasurements : function() {
+        return function(dispatch) {
+            makeQuery(dispatch, 'Measurements', '/en/api/measurements', {
+                params: {
+
+                }
+            });
+        }
+    }*/
+
+    getMeasurements : function(sessions, params) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum['Measurements' + RESTState.pending],
+                payload: true
+            });
+
+            let promises = new Array();
+            let measurements = new Array();
+
+            sessions.forEach(function(session) {
+                params.forEach(function(param) {
+                    promises.push(axios.get('/en/api/measurements', {
+                        params: {
+                            /* warn: needs proper backend filter */
+                            channel: param,
+                            session: session.id,
+                            parameter: param
+                        }
+                    }));
+                })
+            });
+
+            axios.all(promises).then(axios.spread(function(...responses) {
+                responses.forEach(function(response) {
+                    if(Array.isArray(response.data.results) && response.data.results.length > 0) {
+                        /*dispatch({
+                            type: Enum.PushMeasurement,
+                            payload: response.data.results[0].id
+                        })*/
+                        measurements.push(response.data.results[0].id);
+                    }
+                });
+            })).then(function(){
+                dispatch({
+                    type: Enum['Measurements' + RESTState.completed],
+                    payload: measurements
+                });
+
+            });
+        }
     }
 }

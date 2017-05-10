@@ -331,10 +331,10 @@ export default class TimeAndPositionInput extends Component {
                             Interval
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {String(opts.dateFrom * 1000)} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateFromChange} />
+                            <DateTime dateTime = {String(opts.dateFrom * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateFromChange} />
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {String(opts.dateTo * 1000)} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateToChange} />
+                            <DateTime dateTime = {String(opts.dateTo * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'Altitude'>

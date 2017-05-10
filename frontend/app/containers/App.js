@@ -100,7 +100,7 @@ class App extends Component {
                         }
                         <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
-                                results = {this.props.storage.measurements.data}
+                                results = {this.props.storage.measurements}
                                 actions = {this.props.rstActions}
                             />
                         </Panel>

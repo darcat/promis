@@ -18,6 +18,7 @@ class DataSection extends Component {
             quicklookStatus: false
         }
 
+        console.log('at least');
         this.fetchData = this.fetchData.bind(this);
         this.downloadResult = this.downloadResult.bind(this);
         this.closeQuicklook = this.closeQuicklook.bind(this);
@@ -27,10 +28,11 @@ class DataSection extends Component {
     }
 
     fetchData() {
+        console.log('fetching');
         var mid = this.props.mid;
 
         if(mid) {
-            this.props.actions.makeQuery('/en/api/download/' + mid + '/quicklook?source=parameter&points=100', {}, function(resp) {
+            this.props.actions.getSingle('/en/api/download/' + mid + '/quicklook?source=parameter&points=100', {}, function(resp) {
                 this.setState(function() {
                     return {
                         main: resp.source.name,
@@ -45,8 +47,16 @@ class DataSection extends Component {
         }
     }
 
+    /* only ascii for now */
     downloadResult() {
-        window.alert('Not implemented yet');
+        if(this.props.mid) {
+            let a = document.createElement('a');
+
+            a.download = this.state.main + '.txt';
+            a.href = '/en/api/download/' + this.props.mid + '/data/?format=ascii&source=parameter';
+            a.click();
+        }
+        // http://localhost:8081/en/api/download/29/data/?format=ascii&source=parameter
     }
 
     showQuicklook() {
@@ -102,51 +112,52 @@ export default class SearchResults extends Component {
     render() {
         var results = this.props.results;
 
-        if(results && results.length) {
-            return (
-                <div>
-                <span>Found {results.length} result(s)</span>
-                <table className = 'table table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Channel/Parameter name</th>
-                            <th>Data size (approx)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        { results.map(function(result, index) {
-                            var date = result[0].date;
-                            var mid = result[0].mid;
-                            var name = result[0].name;
-                            var size = 'size unknown'; // result.size
-
-                            return (
-                                <tr key = {index} data-name = 'mw1'>
-                                    <td>{date}</td>
-                                    <td>{name}</td>
-                                    <td>{size}</td>
-                                    <td>
-                                        <DataSection
-                                            mid = {index + 1}
-                                            actions = {this.props.restActions}
-                                            xlabel = {'x data label'}
-                                            ylabel = {'y data label'}
-                                        />
-                                    </td>
-                                </tr>
-                            )
-                        }.bind(this))
-                        }
-                    </tbody>
-                </table>
-                </div>
-            )
+        if(this.props.results.fetch) {
+            return (<div>Fetching data, please wait...</div>);
         } else {
-            return (
-                <span>Nothing has been found</span>
-            )
+            if(Array.isArray(results.data) && results.data.length > 0) {
+                return (
+                    <div>
+                    <span>Found {results.data.length} result(s)</span>
+                    <table className = 'table table-hover'>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Channel/Parameter name</th>
+                                <th>Data size (approx)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            { results.data.map(function(mid, index) {
+                                var date = 1;//result[0].date;
+                                var name = 'name';//result[0].name;
+                                var size = 'size unknown'; // result.size
+
+                                return (
+                                    <tr key = {index} data-name = 'mw1'>
+                                        <td>{date}</td>
+                                        <td>{name}</td>
+                                        <td>{size}</td>
+                                        <td>
+                                            <DataSection
+                                                mid = {mid}
+                                                actions = {this.props.actions}
+                                            />
+                                        </td>
+                                    </tr>
+                                )
+                            }.bind(this))
+                            }
+                        </tbody>
+                    </table>
+                    </div>
+                )
+            } else {
+                return (
+                    <span>Nothing has been found</span>
+                )
+            }
         }
     }
 }
