@@ -80,5 +80,14 @@ export default {
                 payload: value
             })
         }
+    },
+
+    setCurrentProject : function(proj) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.SetProject,
+                payload: proj
+            })
+        }
     }
 };

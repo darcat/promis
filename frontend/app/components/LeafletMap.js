@@ -106,46 +106,51 @@ export default class LeafletContainer extends Component {
 
     makeGeoline(coords)
     {
-        var gl = null;
+        /* shifted geoline components */
+        let lines = new Array();
 
         /* First point of the segment that we're currently adding */
-        var anchor = 0;
-        for (var i = 1; i < coords.length; i++) {
-          /* If it's the last point or there is a -180/180 jump, add what we have */
-          if (i + 1 == coords.length || Math.abs(coords[i][1] - coords[i - 1][1]) > 90) {
-            var sliced = coords.slice(anchor, i);
+        let anchor = 0;
 
-            /* If we are not adding the final segment, add the current point
-               mirrored, e.g. -170 is +190 and so on. */
-            if (i + 1 < coords.length) {
-              var mirror = coords[i].slice();
-              var s = Math.sign(mirror[1]);
-              mirror[1] = mirror[1] - s * 360;
-              sliced.push(mirror)
-            }
+        for (let i = 1; i < coords.length; i++) {
+            /* If it's the last point or there is a -180/180 jump, add what we have */
+            if (i + 1 == coords.length || Math.abs(coords[i][1] - coords[i - 1][1]) > 90) {
+                let sliced = coords.slice(anchor, i);
+
+                /* If we are not adding the final segment, add the current point
+                    mirrored, e.g. -170 is +190 and so on. */
+                if (i + 1 < coords.length) {
+                    let mirror = coords[i].slice();
+                    let s = Math.sign(mirror[1]);
+
+                    mirror[1] = mirror[1] - s * 360;
+                    sliced.push(mirror)
+                }
 
 
-            /* Utility that creates shift functions for longitude */
-            var shifter = function(s) {
-              return function(x) {
-                return [ x[0], x[1] + s ];
-              };
-            }
+                /* Utility that creates shift functions for longitude */
+                let shifter = function(s) {
+                    return function(x) {
+                        return [ x[0], x[1] + s ];
+                    };
+                }
 
-            /* Adding the segment, then the same one shifted +360°/-360° */
-            var segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
-            for (var j = 0; j < segs.length; j++) {
-              var gl = Leaflet.polyline(this.invertCoords(segs[j]), this.geolineColor);
-              gl.addTo(this.leaflethandle);
-              //this.invertCoords(segs[j])
-            }
+                /* Adding the segment, then the same one shifted +360°/-360° */
+                let segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
 
-            /* Recording new anchor, if it was the last point it wouldn't matter anyway */
-            anchor = i;
+                for (let j = 0; j < segs.length; j++) {
+                    let line = Leaflet.polyline(segs[j], this.geolineColor);
+
+                    lines.push(line);
+                    line.addTo(this.map);
+                }
+
+                /* Recording new anchor, if it was the last point it wouldn't matter anyway */
+                anchor = i;
             }
         }
 
-        return gl;
+        return lines;
     }
 
     /* remove given shape from map */
@@ -267,8 +272,10 @@ export default class LeafletContainer extends Component {
             if(Array.isArray(props.options.geolines) && props.options.geolines.length > 0) {
                 this.geolineHandles = new Array();
 
-                this.props.options.geolines.forEach(function(geoline){
-                    this.geolineHandles.push(this.makeGeoline(geoline));
+                props.options.geolines.forEach(function(geoline) {
+                    this.makeGeoline(geoline).forEach(function(handle) {
+                        this.geolineHandles.push(handle);
+                    }.bind(this));
                 }.bind(this));
             }
 

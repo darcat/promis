@@ -85,11 +85,11 @@ export default {
         }
     },
 
-    addGeoline : function(geoline) {
+    pushGeolines : function(geolines) {
         return function(dispatch) {
             dispatch({
-                type: Enum.PushGeoline,
-                payload: geoline
+                type: Enum.PushGeolines,
+                payload: geolines
             })
         }
     },

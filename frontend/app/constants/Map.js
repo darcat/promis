@@ -8,7 +8,7 @@ export const Enum = {
     PolyChanged      : 'MapPolyChanged',
     RoundChanged     : 'MapRoundChanged',
     FlushTools       : 'MapFlushTools',
-    PushGeoline      : 'MapPushGeoline',
+    PushGeolines     : 'MapPushGeolines',
     FlushGeolines    : 'MapFlushGeolines',
     SelectionUpdated : 'MapSelectionUpdated'
 };

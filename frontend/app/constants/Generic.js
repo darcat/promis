@@ -7,7 +7,10 @@ export const Enum = {
     LngToChanged : 'GenericLngFinishChanged',
     AltFromChanged : 'GenericAltFromChanged',
     AltToChanged : 'GenericAltToChanged',
-    SelectionModeChanged : 'GenericSelectionModeChanged'
+    SelectionModeChanged : 'GenericSelectionModeChanged',
+
+
+    SetProject : 'GenericSetProject'
 };
 
 export const State = {
@@ -19,5 +22,6 @@ export const State = {
     lngTo : 17.31,
     altFrom : 0,
     altTo : 100,
+    project : 0,
     mapEnabled : false
 };

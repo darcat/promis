@@ -1,4 +1,4 @@
-import { Enum, Endpoints, State, RESTState } from '../constants/REST';
+import { Enum, Endpoints, State, RESTState, makeEmptyState } from '../constants/REST';
 
 /* wrap single endpoint operation into one reducer */
 function genericReducer(name, state, action) {
@@ -26,11 +26,26 @@ function genericReducer(name, state, action) {
 export default function RESTReducer(state = State, action) {
     let newState = null;
 
+    /* endpoint handling */
     Endpoints.forEach(function(endpoint) {
         let reduced = genericReducer(endpoint, state, action);
 
         if(reduced !== null) newState = reduced;
     });
+
+    /* action not related to endpoints */
+    if(! newState) {
+        switch(action.type) {
+            case Enum.ResetData:
+                newState = Object.assign({}, state, {
+                    sessions : makeEmptyState(),
+                    channels : makeEmptyState(),
+                    parameters : makeEmptyState(),
+                    measurements : makeEmptyState()
+                })
+            break;
+        }
+    }
 
     return newState || state;
 }

@@ -38,6 +38,12 @@ export default function GenericReducer(state = State, action) {
             return Object.assign({}, state, { altTo: action.payload });
         break;
 
+
+
+        case Enum.SetProject:
+            return Object.assign({}, state, { project: action.payload });
+        break;
+
         default:
             return state;
         break;
