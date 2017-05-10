@@ -304,11 +304,11 @@ export default class TimeAndPositionInput extends Component {
     }
 
     dateFromChange(newFrom) {
-        this.actions.dateFromInput(parseInt(newFrom));
+        this.actions.dateFromInput(parseInt(newFrom) / 1000);
     }
 
     dateToChange(newTo) {
-        this.actions.dateToInput(parseInt(newTo));
+        this.actions.dateToInput(parseInt(newTo) / 1000);
     }
 
     altFromChange(e) {
@@ -331,10 +331,10 @@ export default class TimeAndPositionInput extends Component {
                             Interval
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {opts.dateFrom} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateFromChange} />
+                            <DateTime dateTime = {String(opts.dateFrom * 1000)} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateFromChange} />
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {opts.dateTo} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateToChange} />
+                            <DateTime dateTime = {String(opts.dateTo * 1000)} inputFormat = "DD/MM/YY HH:MM:SS" onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'Altitude'>

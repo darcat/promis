@@ -104,8 +104,10 @@ export default class LeafletContainer extends Component {
         this.map.off('mouseup',     this.stopDrawEvent);
     }
 
-    makeGeoline(coords)
+    makeGeoline(xcoords)
     {
+        let coords = xcoords.map(function(x) { return [x[1], x[0], x[2]]; });
+
         /* shifted geoline components */
         let lines = new Array();
 

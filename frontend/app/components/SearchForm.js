@@ -33,8 +33,8 @@ class ProjectSelector extends Component {
             this.props.generic.setCurrentProject(selected);
 
             /* update datetime fields according to project (up to seconds) */
-            this.props.generic.dateFromInput(project.timelapse.start * 1000);
-            this.props.generic.dateToInput(project.timelapse.end * 1000);
+            this.props.generic.dateFromInput(project.timelapse.start);
+            this.props.generic.dateToInput(project.timelapse.end);
 
             /* reset data */
             this.props.actions.resetData();

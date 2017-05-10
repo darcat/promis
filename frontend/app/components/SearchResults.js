@@ -100,9 +100,7 @@ export default class SearchResults extends Component {
     }
 
     render() {
-        var results = this.props.results;//onResult();
-
-        //console.log('FFFF', results);
+        var results = this.props.results;
 
         if(results && results.length) {
             return (
