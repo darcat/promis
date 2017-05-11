@@ -23,6 +23,7 @@ import ftp_helper, parsers, unix_time
 from django.contrib.gis.geos import LineString
 import backend_api.models as model
 from classes.base_project import BaseProject
+import json
 
 # TODO: yield/with problem, see potential.py for details
 # TODO: make deploy figure out Docker's bridge IP dynamically
@@ -48,7 +49,7 @@ def general_fetch(path, satellite_object, add_measurement=False):
                 docs = []
                 for fname in [ "channel", "parameter" ]:
                     with ftp.xopen(fname + ".json") as fp:
-                        docs.append(model.Document.objects.create(json_data = fp.getvalue()) )
+                        docs.append(model.Document.objects.create(json_data = json.loads(fp.getvalue())) )
 
                 # Locating channels/parameters
                 # TODO: natural keys

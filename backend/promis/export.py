@@ -32,12 +32,12 @@ def make_table(data, start_time, end_time, orbit):
     """
     Yields rows of ExportEntries for data in data generator that is presumed to yield values.
 
-    - Both start and end time are inclusive
+    - start_time is inclusive, end_time is not
     - data list must only have data between start_time and end_time
     - frequency is deduced from data length TODO: play around this
     - orbit is a list of orbit points during start_time and end_time, 1 pt per second
     """
-    duration = end_time - start_time + 1
+    duration = end_time - start_time
     samples_sz = len(data)
     assert samples_sz > 4
     freq = samples_sz / duration
@@ -48,7 +48,7 @@ def make_table(data, start_time, end_time, orbit):
     for i in range(samples_sz):
         # Computing relative time in sec
         t = i / freq
-
+    
         # TODO currently not interpolating anything
         lon, lat, alt = orbit[int(t)]
 

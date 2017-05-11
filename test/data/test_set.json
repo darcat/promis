@@ -135,8 +135,10 @@
     "model": "backend_api.channel",
     "pk": 42000,
     "fields": {
-        "value": 42000,
-        "device": 42000
+        "value": 1,
+        "device": 42000,
+        "exponent": -6,
+        "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
 },
 {
@@ -217,7 +219,9 @@
     "pk": 42000,
     "fields": {
         "value": 42000,
-        "channel": 42000
+        "channel": 42000,
+        "exponent": 0,
+        "klass": [ "classes.base_data.SingleVarTimeSeries" ]
     }
 }
 ]

@@ -172,8 +172,6 @@ class JSONDataSerializer(QuicklookSerializer):
         skip_start = timelapse['start'] - sess_dur['start']
         skip_end = timelapse['end'] - sess_dur['start']
 
-        print(skip_start, skip_end)
-
         # TODO: pre-cache the computation of the list somewhere?
         geo_line = SessionsSerializer(obj.session, context = self.context).get_geo_line(obj.session)
 
