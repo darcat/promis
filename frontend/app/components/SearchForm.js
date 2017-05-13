@@ -18,7 +18,7 @@ class SessionsTrigger extends Component {
     }
 
     getSessions() {
-        this.props.actions.getSessions(this.props.options.project);
+        this.props.actions.getSessions(this.props.options.query.project);
     }
 
     render() {
