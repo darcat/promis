@@ -14,6 +14,7 @@ export const Enum = {
 };
 
 export const State = {
+    mapEnabled : false,
     dateFrom : 0,
     dateTo : 0,
     latFrom : 41.33,
@@ -23,5 +24,16 @@ export const State = {
     altFrom : 0,
     altTo : 100,
     project : 0,
-    mapEnabled : false
+
+    /* new structure, to be refactored */
+    timelapse: {
+        begin: 0,
+        end: 0,
+    },
+    fields : {  /* search fields, can be arrays */
+        project: 0,
+        device: 0,
+        channel: 0,
+        parameter: 0,
+    }
 };
