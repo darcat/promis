@@ -13,7 +13,9 @@ export const Enum = {
     QuerySetProject : 'GenericSetProject',
     QuerySetDevice : 'GenericSetDevice',
     QuerySetChannel : 'GenericSetChannel',
-    QuerySetParameter : 'GenericSetParameter'
+    QueryClearChannel : 'GenericClearChannel',
+    QuerySetParameter : 'GenericSetParameter',
+    QueryClearParameter : 'GenericClearParameter'
 };
 
 export const State = {
@@ -35,11 +37,10 @@ export const State = {
     },
 
     /* API-related search fields (ids), can be arrays */
-    /* null if field is omitted (for example, parameter/channel) */
     query : {
-        project:   0,
-        device:    0,
-        channel:   0,
-        parameter: 0,
+        project:    0,
+        devices:    new Array(),
+        channels:   new Array(),
+        parameters: new Array(),
     }
 };

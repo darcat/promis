@@ -15,14 +15,8 @@ export default class ProjectSelector extends Component {
         this.updateProject = this.updateProject.bind(this);
     }
 
-    componentDidMount() {
-        //this.updateProject();
-    }
-
     componentWillReceiveProps(nextProps) {
-        if(Array.isArray(nextProps.storage.projects.data) &&
-             (nextProps.storage.projects.data.length > 0) &&
-                          (this.state.selected === null)) {
+        if(isActiveState(nextProps.storage.projects) && (this.state.selected === null)) {
             this.updateProject();
         }
     }

@@ -118,4 +118,21 @@ export default {
         }
     },
 
+    clearChannel : function(ch) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QueryClearChannel,
+                payload: ch
+            })
+        }
+    },
+
+    clearParameter : function(p) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QueryClearParameter,
+                payload: p
+            })
+        }
+    }
 };

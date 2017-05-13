@@ -39,8 +39,8 @@ export default function RESTReducer(state = State, action) {
             case Enum.ResetData:
                 newState = Object.assign({}, state, {
                     sessions : makeEmptyState(),
-                    channels : makeEmptyState(),
-                    parameters : makeEmptyState(),
+                    //channels : makeEmptyState(),
+                    //parameters : makeEmptyState(),
                     measurements : makeEmptyState()
                 });
             break;

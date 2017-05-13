@@ -1,6 +1,20 @@
 import { Enum, State } from '../constants/Generic';
 
 export default function GenericReducer(state = State, action) {
+    let query = state.query;
+
+    if(! Array.isArray(query.channels)) {
+        query.channels = new Array();
+    }
+
+    if(! Array.isArray(query.parameters)) {
+        query.parameters = new Array();
+    }
+
+    if(! Array.isArray(query.devices)) {
+        query.devices = new Array();
+    }
+
     switch(action.type) {
         case Enum.SelectionModeChanged:
             return Object.assign({}, state, { mapEnabled: action.payload });
@@ -41,34 +55,50 @@ export default function GenericReducer(state = State, action) {
 
 
         case Enum.QuerySetProject:
+            query.project = action.payload;
+
             return Object.assign({}, state, {
-                query: {
-                    project: action.payload
-                }
+                query: query
             });
         break;
 
         case Enum.QuerySetDevice:
+            query.devices.push(action.payload);
+
             return Object.assign({}, state, {
-                query: {
-                    device: action.payload
-                }
+                query: query
             });
         break;
 
         case Enum.QuerySetChannel:
+            query.channels.push(action.payload);
+
             return Object.assign({}, state, {
-                query: {
-                    channel: action.payload
-                }
+                query: query
+            });
+        break;
+
+        case Enum.QueryClearChannel:
+            query.channels = query.channels.filter(function(e) { return e !== action.payload })
+
+            return Object.assign({}, state, {
+                query: query
             });
         break;
 
         case Enum.QuerySetParameter:
+            query.parameters.push(action.payload);
+
             return Object.assign({}, state, {
-                query: {
-                    parameter: action.payload
-                }
+                query: query
+            });
+        break;
+
+        case Enum.QueryClearParameter:
+            query.parameters = query.parameters.filter(function(e) { return e !== action.payload })
+
+            return Object.assign({}, state, {
+                query: query
             });
         break;
 

@@ -111,6 +111,8 @@ export default class SearchForm extends Component {
                 <ChannelParameterPicker
                     generic = {this.props.generic}
                     actions = {this.props.actions}
+                    storage = {this.props.storage}
+                    options = {this.props.options}
                 />
                 <SessionList
                     mapped  = {this.props.mapped}
