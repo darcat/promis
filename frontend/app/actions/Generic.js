@@ -82,12 +82,40 @@ export default {
         }
     },
 
-    setCurrentProject : function(proj) {
+    setProject : function(proj) {
         return function(dispatch) {
             dispatch({
-                type: Enum.SetProject,
+                type: Enum.QuerySetProject,
                 payload: proj
             })
         }
-    }
+    },
+
+    setDevice : function(dev) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetDevice,
+                payload: dev
+            })
+        }
+    },
+
+    setChannel : function(ch) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetChannel,
+                payload: ch
+            })
+        }
+    },
+
+    setParameter : function(param) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetParameter,
+                payload: param
+            })
+        }
+    },
+
 };

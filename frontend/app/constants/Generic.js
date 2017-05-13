@@ -10,7 +10,10 @@ export const Enum = {
     SelectionModeChanged : 'GenericSelectionModeChanged',
 
 
-    SetProject : 'GenericSetProject'
+    QuerySetProject : 'GenericSetProject',
+    QuerySetDevice : 'GenericSetDevice',
+    QuerySetChannel : 'GenericSetChannel',
+    QuerySetParameter : 'GenericSetParameter'
 };
 
 export const State = {
@@ -30,10 +33,13 @@ export const State = {
         begin: 0,
         end: 0,
     },
-    fields : {  /* search fields, can be arrays */
-        project: 0,
-        device: 0,
-        channel: 0,
+
+    /* API-related search fields (ids), can be arrays */
+    /* null if field is omitted (for example, parameter/channel) */
+    query : {
+        project:   0,
+        device:    0,
+        channel:   0,
         parameter: 0,
     }
 };

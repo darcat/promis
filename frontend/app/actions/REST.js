@@ -13,6 +13,7 @@ function makeQuery(dispatch, name, path, params) {
             payload: response.data.results
         });
     }).catch(function(error) {
+        console.log(error)
         dispatch({
             type: Enum[name + RESTState.failed],
             payload: error.response ? error.response.status : error.request

@@ -40,8 +40,36 @@ export default function GenericReducer(state = State, action) {
 
 
 
-        case Enum.SetProject:
-            return Object.assign({}, state, { project: action.payload });
+        case Enum.QuerySetProject:
+            return Object.assign({}, state, {
+                query: {
+                    project: action.payload
+                }
+            });
+        break;
+
+        case Enum.QuerySetDevice:
+            return Object.assign({}, state, {
+                query: {
+                    device: action.payload
+                }
+            });
+        break;
+
+        case Enum.QuerySetChannel:
+            return Object.assign({}, state, {
+                query: {
+                    channel: action.payload
+                }
+            });
+        break;
+
+        case Enum.QuerySetParameter:
+            return Object.assign({}, state, {
+                query: {
+                    parameter: action.payload
+                }
+            });
         break;
 
         default:
