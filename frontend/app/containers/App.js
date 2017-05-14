@@ -89,7 +89,7 @@ class App extends Component {
                         </Panel>
                     </Row>
                     <Row>
-                        { this.props.inputOptions.mapEnabled &&
+                        { this.props.inputOptions.useMap &&
                         <MapPanel
                             ee = {this.ee}
                             selection = {this.props.selection}

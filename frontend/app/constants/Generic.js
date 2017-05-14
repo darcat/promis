@@ -19,18 +19,19 @@ export const Enum = {
 };
 
 export const State = {
-    mapEnabled : false,
-    dateFrom : 0,
-    dateTo : 0,
+    useMap : false,
     latFrom : 41.33,
     latTo : 42.11,
     lngFrom : 14.22,
     lngTo : 17.31,
-    altFrom : 0,
-    altTo : 100,
-    project : 0,
 
-    /* new structure, to be refactored */
+    /* altitude */
+    altitude : {
+        begin: 0,
+        end: 100
+    },
+
+    /* data interval */
     timelapse: {
         begin: 0,
         end: 0,

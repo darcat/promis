@@ -62,7 +62,7 @@ export default {
         }
     },
 
-    getSessions : function(project, begin, end) {
+    getSessions : function(project, geo, begin, end) {
         return function(dispatch) {
             makeQuery(dispatch, 'Sessions', '/en/api/sessions/', {
                 params: {

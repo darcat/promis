@@ -9,8 +9,7 @@ import ProjectSelector from './ProjectSelector';
 import ChannelParameterPicker from './ChannelParameterPicker';
 
 import { isActiveState } from '../constants/REST';
-
-import { selectionToPolygon, selectionToWKT } from '../utils/Selection';
+import { selectionToWKT } from '../constants/Selection';
 
 class SessionsTrigger extends Component {
     constructor(props) {
@@ -20,8 +19,23 @@ class SessionsTrigger extends Component {
     }
 
     getSessions() {
-        console.log(selectionToWKT(this.props.selection))
-        this.props.actions.getSessions(this.props.options.query.project);
+        /* format selection */
+        let wkt = null;
+        let poly = null;
+        let data = null;
+
+        if(this.props.options.useMap) {
+            data = this.props.selection;
+        } else {
+            data = this.props.selection;
+        }
+
+        this.props.actions.getSessions(
+            this.props.options.query.project,
+            selectionToWKT(data),
+            this.props.options.timelapse.begin,
+            this.props.options.timelapse.end
+        );
     }
 
     render() {

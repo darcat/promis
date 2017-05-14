@@ -2,6 +2,8 @@ import { Enum, State } from '../constants/Generic';
 
 export default function GenericReducer(state = State, action) {
     let query = state.query;
+    let altitude = state.altitude;
+    let timelapse = state.timelapse;
 
     if(! Array.isArray(query.channels)) {
         query.channels = new Array();
@@ -17,15 +19,20 @@ export default function GenericReducer(state = State, action) {
 
     switch(action.type) {
         case Enum.SelectionModeChanged:
-            return Object.assign({}, state, { mapEnabled: action.payload });
+            return Object.assign({}, state, { useMap: action.payload });
         break;
 
+        /* timelapse handling */
         case Enum.DateFromChanged:
-            return Object.assign({}, state, { dateFrom: action.payload });
+            timelapse.begin = action.payload;
+
+            return Object.assign({}, state, { timelapse : timelapse });
         break;
 
         case Enum.DateToChanged:
-            return Object.assign({}, state, { dateTo: action.payload });
+            timelapse.end = action.payload;
+
+            return Object.assign({}, state, { timelapse : timelapse });
         break;
 
         case Enum.LatFromChanged:
@@ -44,16 +51,21 @@ export default function GenericReducer(state = State, action) {
             return Object.assign({}, state, { lngTo: action.payload });
         break;
 
+        /* altitude handling */
         case Enum.AltFromChanged:
-            return Object.assign({}, state, { altFrom: action.payload });
+            altitude.begin = action.payload;
+
+            return Object.assign({}, state, { altitude : altitude });
         break;
 
         case Enum.AltToChanged:
-            return Object.assign({}, state, { altTo: action.payload });
+            altitude.end = action.payload;
+
+            return Object.assign({}, state, { altitude : altitude });
         break;
 
 
-
+        /* query handling */
         case Enum.QuerySetProject:
             query.project = action.payload;
 
@@ -79,7 +91,7 @@ export default function GenericReducer(state = State, action) {
         break;
 
         case Enum.QueryClearChannel:
-            query.channels = query.channels.filter(function(e) { return e !== action.payload })
+            query.channels = query.channels.filter(function(e) { return e !== action.payload });
 
             return Object.assign({}, state, {
                 query: query
@@ -95,7 +107,7 @@ export default function GenericReducer(state = State, action) {
         break;
 
         case Enum.QueryClearParameter:
-            query.parameters = query.parameters.filter(function(e) { return e !== action.payload })
+            query.parameters = query.parameters.filter(function(e) { return e !== action.payload });
 
             return Object.assign({}, state, {
                 query: query

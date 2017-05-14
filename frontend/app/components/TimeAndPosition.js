@@ -300,7 +300,7 @@ export default class TimeAndPositionInput extends Component {
     }
 
     toggleMap() {
-        this.actions.mapToggled(! this.props.options.mapEnabled);
+        this.actions.mapToggled(! this.props.options.useMap);
     }
 
     dateFromChange(newFrom) {
@@ -331,10 +331,10 @@ export default class TimeAndPositionInput extends Component {
                             Interval
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {String(opts.dateFrom * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateFromChange} />
+                            <DateTime dateTime = {String(opts.timelapse.begin * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateFromChange} />
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {String(opts.dateTo * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateToChange} />
+                            <DateTime dateTime = {String(opts.timelapse.end * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'Altitude'>
@@ -364,11 +364,11 @@ export default class TimeAndPositionInput extends Component {
                             <Toggle onClick = {this.toggleMap} 
                                 on = {<span><Glyphicon glyph = 'screenshot' /> Use map</span>}
                                 off = {<span><Glyphicon glyph = 'list-alt' /> Manual</span>}
-                                active = {opts.mapEnabled} 
+                                active = {opts.useMap}
                             />
                         </Col>
                     </FormGroup>
-                    { ! opts.mapEnabled ? (
+                    { ! opts.useMap ? (
                     <GeoInputForm actions = {this.actions} options = {opts} />) : (
                     <FormGroup controlId = 'MapSelection'>
                         <Col componentClass = {ControlLabel} sm = {2}>
