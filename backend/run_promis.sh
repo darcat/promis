@@ -3,7 +3,7 @@ PROMIS_DIR=`dirname $0`
 
 # Wait until the database is up and insert the SRID 4979 definition for 3D points
 # TODO: currently not in use #222
-python $PROMIS_DIR/promis/prepare_db.py < $PROMIS_DIR/add_srid_4979.sql
+python $PROMIS_DIR/prepare_db.py < $PROMIS_DIR/add_srid_4979.sql
 
 # Migrate data if needed
 python $PROMIS_DIR/promis/manage.py makemigrations --no-input
