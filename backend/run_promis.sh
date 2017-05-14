@@ -2,7 +2,7 @@
 PROMIS_DIR=`dirname $0`
 
 # Wait until the database is up
-python $PROMIS_DIR/promis/wait_for_database.py
+python $PROMIS_DIR/promis/prepare_db.py $PROMIS_DIR/add_srid_4979.sql
 
 # Migrate data if needed
 python $PROMIS_DIR/promis/manage.py makemigrations --no-input
