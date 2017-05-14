@@ -179,13 +179,15 @@ def csv(fp, as_type=float):
 
 def wkb(_wkb):
     """
-    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4979
+    Parses Well-Known Binary and yields successive points. NOTE: Geometry input is assumed to be a single LineString, SRID=4326
     """
+    # TODO: srid should be 4979 see #222
+
     # TODO: test if we can speed up things if we serialized in JSON on the fly
     # Setting endianness causes struct to use standard type sizes instead of native ones
     endianness = [ ">", "<" ] [ _wkb[0] ]
 
-    # Check if we have a 2D Linestring
+    # Check if we have a 3D Linestring
     # TODO: why this weird literal?
     if struct.unpack(endianness + "L", _wkb[1:5]) [0] != 0x80000002:
         raise ValueError("WKB parser can only do LineString for now")

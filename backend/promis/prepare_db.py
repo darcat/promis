@@ -35,7 +35,7 @@ nametrans = { "NAME": "dbname", "HOST": "host", "PORT": "port", "USER": "user", 
 dbargs = { nametrans[k]:v for k,v in dj_database_url.config().items() if k in nametrans }
 
 # TODO: maybe a set of SQL files to auto-run
-sql = sys.stdin.read()
+sql = stdin.read()
 
 # Try connecting, if it fails, pause by 3 seconds
 while True:

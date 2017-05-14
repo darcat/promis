@@ -41,8 +41,8 @@ def general_fetch(path, satellite_object, add_measurement=False):
                 time_dur = time_end - time_start
                 # TODO: maybe let the caller print these diagnostics?
                 print("\tSession: [ %s, %s ] (%s)." % (time_start.isoformat(), time_end.isoformat(), str(time_dur)) )
-
-                sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4979), space_project = satellite_object )
+                # TODO: srid should be 4979 see #222
+                sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4326), space_project = satellite_object )
 
             if add_measurement:
                 # Fetching JSON documents from the FTP
