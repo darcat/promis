@@ -19,11 +19,14 @@ export const Enum = {
 };
 
 export const State = {
+    /* map or manual input */
     useMap : false,
-    latFrom : 41.33,
-    latTo : 42.11,
-    lngFrom : 14.22,
-    lngTo : 17.31,
+
+    /* manual input bounds (LatLng format) */
+    polygon : {
+        begin : new Array(41.33, 42.11),
+        end : new Array(14.22, 17.31)
+    },
 
     /* altitude */
     altitude : {

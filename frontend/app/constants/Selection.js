@@ -73,7 +73,6 @@ export function selectionToPolygon(selection) {
             points = circle.getLatLngs();
 
             points[0].forEach(function(point) {
-                //console.log(point.lat, point.lng)
                 coords.push(new Array(fixedPoint(point.lng), fixedPoint(point.lat)));
             });
         break;

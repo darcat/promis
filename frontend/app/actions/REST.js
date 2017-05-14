@@ -68,7 +68,8 @@ export default {
                 params: {
                     space_project: project,
                     time_begin: begin,
-                    time_end: end
+                    time_end: end,
+                    polygon: geo
                 }
             });
         }

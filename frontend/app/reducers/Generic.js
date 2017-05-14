@@ -2,6 +2,7 @@ import { Enum, State } from '../constants/Generic';
 
 export default function GenericReducer(state = State, action) {
     let query = state.query;
+    let polygon = state.polygon;
     let altitude = state.altitude;
     let timelapse = state.timelapse;
 
@@ -18,11 +19,12 @@ export default function GenericReducer(state = State, action) {
     }
 
     switch(action.type) {
+        /* map/manual input mode */
         case Enum.SelectionModeChanged:
             return Object.assign({}, state, { useMap: action.payload });
         break;
 
-        /* timelapse handling */
+        /* timelapse */
         case Enum.DateFromChanged:
             timelapse.begin = action.payload;
 
@@ -35,23 +37,32 @@ export default function GenericReducer(state = State, action) {
             return Object.assign({}, state, { timelapse : timelapse });
         break;
 
+        /* manual polygon */
         case Enum.LatFromChanged:
-            return Object.assign({}, state, { latFrom: action.payload });
+            polygon.begin[0] = action.payload;
+
+            return Object.assign({}, state, { polygon : polygon });
         break;
 
         case Enum.LatToChanged:
-            return Object.assign({}, state, { latTo: action.payload });
+            polygon.end[0] = action.payload;
+
+            return Object.assign({}, state, { polygon : polygon });
         break;
 
         case Enum.LngFromChanged:
-            return Object.assign({}, state, { lngFrom: action.payload });
+            polygon.begin[1] = action.payload;
+
+            return Object.assign({}, state, { polygon : polygon });
         break;
 
         case Enum.LngToChanged:
-            return Object.assign({}, state, { lngTo: action.payload });
+            polygon.end[1] = action.payload;
+
+            return Object.assign({}, state, { polygon : polygon });
         break;
 
-        /* altitude handling */
+        /* altitude */
         case Enum.AltFromChanged:
             altitude.begin = action.payload;
 

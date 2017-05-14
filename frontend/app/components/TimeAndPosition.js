@@ -51,14 +51,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.latFromChange} value = {opts.latFrom} type="number" />
+                            <FormControl onChange = {this.latFromChange} value = {opts.polygon.begin[0]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.latToChange} value = {opts.latTo} type="number" />
+                            <FormControl onChange = {this.latToChange} value = {opts.polygon.end[0]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -70,14 +70,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.lngFromChange} value = {opts.lngFrom} type="number" />
+                            <FormControl onChange = {this.lngFromChange} value = {opts.polygon.begin[1]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.lngToChange} value = {opts.lngTo} type="number" />
+                            <FormControl onChange = {this.lngToChange} value = {opts.polygon.end[1]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>

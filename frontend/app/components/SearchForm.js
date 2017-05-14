@@ -9,7 +9,7 @@ import ProjectSelector from './ProjectSelector';
 import ChannelParameterPicker from './ChannelParameterPicker';
 
 import { isActiveState } from '../constants/REST';
-import { selectionToWKT } from '../constants/Selection';
+import { Types, selectionToWKT } from '../constants/Selection';
 
 class SessionsTrigger extends Component {
     constructor(props) {
@@ -19,22 +19,30 @@ class SessionsTrigger extends Component {
     }
 
     getSessions() {
-        /* format selection */
-        let wkt = null;
-        let poly = null;
         let data = null;
+        let time = this.props.options.timelapse;
 
+        /* format selection */
         if(this.props.options.useMap) {
             data = this.props.selection;
         } else {
-            data = this.props.selection;
+            /* create single selection element */
+            data = new Object({
+                elements: new Array(
+                    new Object({
+                        type: Types.Polygon,
+                        data: new Array(this.props.options.polygon.begin, this.props.options.polygon.end)
+                    })
+                )
+            });
         }
 
         this.props.actions.getSessions(
             this.props.options.query.project,
             selectionToWKT(data),
-            this.props.options.timelapse.begin,
-            this.props.options.timelapse.end
+            /* workaround for projects with missing time intervals */
+            time.begin > 0 ? time.begin : undefined,
+            time.end > 0 ? time.end : undefined
         );
     }
 
@@ -125,12 +133,6 @@ export default class SearchForm extends Component {
                     options = {this.props.options}
                     actions = {this.props.actions}
                 />
-                <ChannelParameterPicker
-                    generic = {this.props.generic}
-                    actions = {this.props.actions}
-                    storage = {this.props.storage}
-                    options = {this.props.options}
-                />
                 <SessionList
                     mapped  = {this.props.mapped}
                     actions = {this.props.actions}
@@ -142,6 +144,12 @@ export default class SearchForm extends Component {
                     options = {this.props.options}
                     actions = {this.props.actions}
                     selection = {this.props.selection}
+                />
+                <ChannelParameterPicker
+                    generic = {this.props.generic}
+                    actions = {this.props.actions}
+                    storage = {this.props.storage}
+                    options = {this.props.options}
                 />
                 <MeasurementsTrigger
                     storage = {this.props.storage}
