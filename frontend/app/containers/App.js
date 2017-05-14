@@ -84,6 +84,7 @@ class App extends Component {
                                 mapped  = {this.props.mapActions}     /* for geoline management */
                                 actions = {this.props.rstActions}     /* api-related actions */
                                 generic = {this.props.genActions}     /* for setting time back */
+                                selected = {this.props.selActions}    /* for flushing selection */
                                 selection = {this.props.selection}    /* selection array */
                             />
                         </Panel>
@@ -101,6 +102,8 @@ class App extends Component {
                         <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
                                 results = {this.props.storage.measurements}
+                                options = {this.props.inputOptions}
+                                storage = {this.props.storage}
                                 actions = {this.props.rstActions}
                             />
                         </Panel>

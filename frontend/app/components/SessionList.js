@@ -54,7 +54,7 @@ export default class SessionList extends Component {
         }.bind(this));
 
         this.props.mapped.pushGeolines(geolines);
-        
+
         /* open the map if not opened already */
         this.props.generic.mapToggled(true);
     }
@@ -81,7 +81,7 @@ export default class SessionList extends Component {
             );
         } else {
             //this.props.mapped.clearGeolines()
-
+            //console.log('clear geolines');
             return(<div className = 'infobox'>None found</div>);
         }
     }

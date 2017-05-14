@@ -34,6 +34,9 @@ export default class UniversalMap extends Component {
         this.selectionActions.getCurrentIndex = this.getCurrentIndex;
     }
 
+    componentWillReceiveProps(nextProps) {
+    }
+
     /* next selection point coordinates callback */
     preview(data) {
         this.props.ee.emit('nextPoint', data);

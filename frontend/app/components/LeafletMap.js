@@ -67,6 +67,7 @@ export default class LeafletContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        //console.log('new propz');
         this.updateMap(nextProps);
         this.repaint();
     }

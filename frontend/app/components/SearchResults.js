@@ -18,7 +18,6 @@ class DataSection extends Component {
             quicklookStatus: false
         }
 
-        console.log('at least');
         this.fetchData = this.fetchData.bind(this);
         this.downloadResult = this.downloadResult.bind(this);
         this.closeQuicklook = this.closeQuicklook.bind(this);
@@ -28,7 +27,6 @@ class DataSection extends Component {
     }
 
     fetchData() {
-        console.log('fetching');
         var mid = this.props.mid;
 
         if(mid) {
@@ -53,7 +51,7 @@ class DataSection extends Component {
             let a = document.createElement('a');
 
             a.download = this.state.main + '.txt';
-            a.href = '/en/api/download/' + this.props.mid + '/data/?format=ascii&source=parameter';
+            a.href = '/en/api/download/' + this.props.mid + '/data/?format=txt&source=' + (this.props.channeled ? 'channel' : 'parameter');
             a.click();
         }
         // http://localhost:8081/en/api/download/29/data/?format=ascii&source=parameter
@@ -116,33 +114,48 @@ export default class SearchResults extends Component {
             return (<div>Fetching data, please wait...</div>);
         } else {
             if(Array.isArray(results.data) && results.data.length > 0) {
+                let channels = this.props.options.useChannels;
+
                 return (
                     <div>
                     <span>Found {results.data.length} result(s)</span>
                     <table className = 'table table-hover'>
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Channel/Parameter name</th>
+                                <th>Date from</th>
+                                <th>{ channels ? 'Channel' : 'Parameter' }</th>
                                 <th>Data size (approx)</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            { results.data.map(function(mid, index) {
-                                var date = 1;//result[0].date;
-                                var name = 'name';//result[0].name;
-                                var size = 'size unknown'; // result.size
+                            { results.data.map(function(measurement, index) {
+                                let mid = measurement.id;
+
+                                let session = this.props.storage.sessions.data.find(function(s) {
+                                    return s.url == measurement.session;
+                                });
+
+                                let storage = (channels ?
+                                    this.props.storage.channels.data :
+                                    this.props.storage.parameters.data);
+
+                                let data = storage.find(function(d) {
+                                    return (channels ? (d.url == measurement.channel) : (d.url == measurement.parameter));
+                                });
+
+                                let size = 'size unknown';
 
                                 return (
-                                    <tr key = {index} data-name = 'mw1'>
-                                        <td>{date}</td>
-                                        <td>{name}</td>
+                                    <tr key = {index}>
+                                        <td>{UnixToISO(session.timelapse.start)}</td>
+                                        <td>{data.name}</td>
                                         <td>{size}</td>
                                         <td>
                                             <DataSection
                                                 mid = {mid}
                                                 actions = {this.props.actions}
+                                                channeled = {channels}
                                             />
                                         </td>
                                     </tr>

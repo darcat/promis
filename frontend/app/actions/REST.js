@@ -174,7 +174,7 @@ export default {
                             type: Enum.PushMeasurement,
                             payload: response.data.results[0].id
                         })*/
-                        measurements.push(response.data.results[0].id);
+                        measurements.push(response.data.results[0]);
                     }
                 });
             })).then(function(){

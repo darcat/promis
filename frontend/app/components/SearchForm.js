@@ -52,6 +52,9 @@ class SearchTrigger extends Component {
                     })
                 )
             });
+
+            /* flush possible selection */
+            this.props.selected.clearSelection();
         }
 
         this.props.actions.getSessions(
@@ -173,6 +176,7 @@ export default class SearchForm extends Component {
                                 storage = {this.props.storage}
                                 options = {this.props.options}
                                 actions = {this.props.actions}
+                                selected = {this.props.selected}
                                 selection = {this.props.selection}
                             />
                         </Col>
