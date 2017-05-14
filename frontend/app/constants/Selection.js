@@ -59,30 +59,36 @@ export function selectionToPolygon(selection) {
     switch(selection.type) {
         case Types.Rect:
             let bounds = Leaflet.latLngBounds(selection.data[0], selection.data[1]);
+            //let center = bounds.getCenter();
 
-            points = new Array(bounds.getNorthEast(), bounds.getNorthWest(), bounds.getSouthWest(), bounds.getSouthEast());
-
-            points.forEach(function(point) {
-                coords.push(new Array(fixedPoint(point.lng), fixedPoint(point.lat)));
-            });
+            points.push(bounds.getSouthWest());
+            points.push(bounds.getSouthEast());
+            points.push(bounds.getNorthEast());
+            points.push(bounds.getNorthWest());
         break;
 
         case Types.Circle:
             let circle = LeafletGeodesy.circle(selection.data[0], selection.data[1]);
 
             points = circle.getLatLngs();
-
-            points[0].forEach(function(point) {
-                coords.push(new Array(fixedPoint(point.lng), fixedPoint(point.lat)));
-            });
+            points = points[0];
         break;
 
         case Types.Polygon:
-            selection.data.forEach(function(point) {
-                coords.push(new Array(fixedPoint(point[1]), fixedPoint(point[0])));
-            });
+            points = selection.data;
         break;
     }
+
+    /* notice: WKT requires last polygon point be the same as first to close polygon */
+    /* https://my.vertica.com/docs/7.1.x/HTML/Content/Authoring/Place/Spatial_Definitions/WellknownTextWKT.htm */
+    points.push(points[0]);
+
+    points.forEach(function(point) {
+        let lat = fixedPoint(point.lat ? point.lat : point[0]);
+        let lng = fixedPoint(point.lng ? point.lng : point[1]);
+
+        coords.push(new Array(lat, lng));
+    });
 
     return coords;
 }
@@ -101,5 +107,6 @@ export function selectionToWKT(obj) {
         });
     });
 
-    return stringify(baseObj);
+    let x= stringify(baseObj);
+    console.log(x)
 }

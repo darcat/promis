@@ -2,8 +2,8 @@ import { Enum, State } from '../constants/Generic';
 
 export default function GenericReducer(state = State, action) {
     let query = state.query;
-    let polygon = state.polygon;
     let altitude = state.altitude;
+    let rectangle = state.rectangle;
     let timelapse = state.timelapse;
 
     if(! Array.isArray(query.channels)) {
@@ -39,27 +39,27 @@ export default function GenericReducer(state = State, action) {
 
         /* manual polygon */
         case Enum.LatFromChanged:
-            polygon.begin[0] = action.payload;
+            rectangle.begin[0] = action.payload;
 
-            return Object.assign({}, state, { polygon : polygon });
+            return Object.assign({}, state, { rectangle : rectangle });
         break;
 
         case Enum.LatToChanged:
-            polygon.end[0] = action.payload;
+            rectangle.end[0] = action.payload;
 
-            return Object.assign({}, state, { polygon : polygon });
+            return Object.assign({}, state, { rectangle : rectangle });
         break;
 
         case Enum.LngFromChanged:
-            polygon.begin[1] = action.payload;
+            rectangle.begin[1] = action.payload;
 
-            return Object.assign({}, state, { polygon : polygon });
+            return Object.assign({}, state, { rectangle : rectangle });
         break;
 
         case Enum.LngToChanged:
-            polygon.end[1] = action.payload;
+            rectangle.end[1] = action.payload;
 
-            return Object.assign({}, state, { polygon : polygon });
+            return Object.assign({}, state, { rectangle : rectangle });
         break;
 
         /* altitude */

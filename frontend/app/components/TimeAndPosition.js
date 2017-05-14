@@ -51,14 +51,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.latFromChange} value = {opts.polygon.begin[0]} type="number" />
+                            <FormControl onChange = {this.latFromChange} value = {opts.rectangle.begin[0]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.latToChange} value = {opts.polygon.end[0]} type="number" />
+                            <FormControl onChange = {this.latToChange} value = {opts.rectangle.end[0]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -70,14 +70,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.lngFromChange} value = {opts.polygon.begin[1]} type="number" />
+                            <FormControl onChange = {this.lngFromChange} value = {opts.rectangle.begin[1]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.lngToChange} value = {opts.polygon.end[1]} type="number" />
+                            <FormControl onChange = {this.lngToChange} value = {opts.rectangle.end[1]} type="number" />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -344,14 +344,14 @@ export default class TimeAndPositionInput extends Component {
                         <Col sm={5}>
                             <InputGroup>
                                 <InputGroup.Addon>From</InputGroup.Addon>
-                                <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
+                                <FormControl onChange = {this.altFromChange} value = {opts.altitude.begin} type="number" />
                                 <InputGroup.Addon>m</InputGroup.Addon>
                             </InputGroup>
                         </Col>
                         <Col sm={5}>
                             <InputGroup>
                                 <InputGroup.Addon>To</InputGroup.Addon>
-                                <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
+                                <FormControl onChange = {this.altToChange} value = {opts.altitude.end} type="number" />
                                 <InputGroup.Addon>m</InputGroup.Addon>
                             </InputGroup>
                         </Col>

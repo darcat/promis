@@ -26,12 +26,15 @@ class SessionsTrigger extends Component {
         if(this.props.options.useMap) {
             data = this.props.selection;
         } else {
-            /* create single selection element */
+            /* create single rectangular selection element */
             data = new Object({
                 elements: new Array(
                     new Object({
-                        type: Types.Polygon,
-                        data: new Array(this.props.options.polygon.begin, this.props.options.polygon.end)
+                        type: Types.Rect,
+                        data: new Array(
+                            this.props.options.rectangle.begin,
+                            this.props.options.rectangle.end,
+                        )
                     })
                 )
             });

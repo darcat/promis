@@ -23,7 +23,7 @@ export const State = {
     useMap : false,
 
     /* manual input bounds (LatLng format) */
-    polygon : {
+    rectangle : {
         begin : new Array(41.33, 42.11),
         end : new Array(14.22, 17.31)
     },
