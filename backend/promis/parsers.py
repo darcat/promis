@@ -197,4 +197,7 @@ def wkb(_wkb):
     for i in range(pts_count):
         # Each data point is 2 8-byte doubles, offset by header (9 bytes)
         offset = 1 + 4 + 4 + 8 * 3 * i
-        yield struct.unpack(endianness + "ddd", _wkb[offset:offset+8*3])
+
+        # Reorder lon, lat, alt to lat, lon, alt
+        v = struct.unpack(endianness + "ddd", _wkb[offset:offset+8*3])
+        yield v[1], v[0], v[2]
