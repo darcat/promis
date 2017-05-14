@@ -38,3 +38,11 @@ export function isArray(arr) {
 export function isSelectionElement(element) {
     return isObject(element) && isArray(element.data);
 }
+
+/* desired fixed point precision */
+const precision = 3;
+
+/* make fixed point number from floating point one */
+export function fixedPoint(number) {
+    return parseFloat(number.toFixed(precision));
+}

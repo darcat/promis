@@ -1,15 +1,16 @@
 import { stringify } from 'wellknown';
-import { Types } from '../constants/Selection';
+import { Types, fixedPoint } from '../constants/Selection';
 import Leaflet from 'leaflet';
+import LeafletGeodesy from 'leaflet-geodesy';
 
-const circlePoints = 18;
 
+//export const function polygon(lat1, lng1, lat2, lng2)
 
 /* transform selection element to pure coordinates array (LngLat format) */
-export const function selectionToPolygon(map, selection) {
+export function selectionToPolygon(selection) {
     let coords = new Array();
     let points = new Array();
-    let fixed = this.props.onSelect.fixedPoint;
+    //let fixed = this.props.onSelect.fixedPoint;
 
     switch(selection.type) {
         case Types.Rect:
@@ -18,50 +19,24 @@ export const function selectionToPolygon(map, selection) {
             points = new Array(bounds.getNorthEast(), bounds.getNorthWest(), bounds.getSouthWest(), bounds.getSouthEast());
 
             points.forEach(function(point) {
-                coords.push(new Array(fixed(point.lng), fixed(point.lat)));
+                coords.push(new Array(fixedPoint(point.lng), fixedPoint(point.lat)));
             });
         break;
 
         case Types.Circle:
-            let crs = map.options.crs;
-            let temp = null;
-            let angle = 0.0;
-            let point = null;
-            let project = null;
-            let segments = 18;
-            let unproject = null;
+            let circle = LeafletGeodesy.circle(selection.data[0], selection.data[1]);
 
-            if (crs === Leaflet.CRS.EPSG3857) {
-                project = map.latLngToLayerPoint.bind(map);
-                unproject = map.layerPointToLatLng.bind(map);
-            } else { // especially if we are using Proj4Leaflet
-                project = crs.projection.project.bind(crs.projection);
-                unproject = crs.projection.unproject.bind(crs.projection);
-            }
+            points = circle.getLatLngs();
 
-            let projectedCentroid = project(selection.data[0]);
-
-            for (let i = 0; i < circlePoints - 1; i++) {
-                angle -= (Math.PI * 2 / circlePoints); // clockwise
-                point = new Leaflet.Point(
-                    projectedCentroid.x + (selection.data[1] * Math.cos(angle)),
-                    projectedCentroid.y + (selection.data[1] * Math.sin(angle))
-                );
-
-                if (i > 0 && point.equals(points[i - 1])) {
-                    continue;
-                }
-
-                temp = unproject(point);
-                points.push(temp);
-                console.log(temp);
-                coords.push(new Array(fixed(temp.lng), fixed(temp.lat)));
-            }
+            points.forEach(function(point) {
+                console.log(point.lat, point.lng)
+                if(point.lat && point.lng) coords.push(new Array(fixedPoint(point.lng), fixedPoint(point.lat)));
+            });
         break;
 
         case Types.Polygon:
             selection.data.forEach(function(point) {
-                coords.push(new Array(fixed(point[1]), fixed(point[0])));
+                coords.push(new Array(fixedPoint(point[1]), fixedPoint(point[0])));
             });
         break;
     }
@@ -70,18 +45,18 @@ export const function selectionToPolygon(map, selection) {
 }
 
 /* GeoJSON coordinate format: [longitude, latitude, elevation] */
-export const function selectionToWKT(obj) {
+export function selectionToWKT(obj) {
     let baseObj = { 
         type : 'GeometryCollection',
         geometries : new Array()
     };
 
-    for(element in obj.elements) {
+    obj.elements.forEach(function(element) {
         baseObj.geometries.push( {
             type : 'Polygon',
-            coordinates : new Array( new Array( elementToCoordinates(element) ) )
+            coordinates : new Array( new Array( selectionToPolygon(element) ) )
         });
-    }
+    });
 
     return stringify(baseObj);
 }

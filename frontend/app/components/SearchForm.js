@@ -10,6 +10,8 @@ import ChannelParameterPicker from './ChannelParameterPicker';
 
 import { isActiveState } from '../constants/REST';
 
+import { selectionToPolygon, selectionToWKT } from '../utils/Selection';
+
 class SessionsTrigger extends Component {
     constructor(props) {
         super(props);
@@ -18,6 +20,7 @@ class SessionsTrigger extends Component {
     }
 
     getSessions() {
+        console.log(selectionToWKT(this.props.selection))
         this.props.actions.getSessions(this.props.options.query.project);
     }
 
@@ -124,6 +127,7 @@ export default class SearchForm extends Component {
                     storage = {this.props.storage}
                     options = {this.props.options}
                     actions = {this.props.actions}
+                    selection = {this.props.selection}
                 />
                 <MeasurementsTrigger
                     storage = {this.props.storage}

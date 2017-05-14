@@ -6,16 +6,14 @@ import MapZoomBox from './MapZoomBox';
 import MapToolbox from './MapToolBox';
 import Panel from './Panel';
 
+import { fixedPoint } from '../constants/Selection';
+
 export default class UniversalMap extends Component {
     constructor(props) {
         super(props);
 
-        this.precision = 3;       /* fixed point precision */
-        this.circleSegments = 18; /* number of polygon vertices to transform circle to */
-
         /* bind this */
         this.preview = this.preview.bind(this);
-        this.fixedPoint = this.fixedPoint.bind(this);
         this.getSelection = this.getSelection.bind(this);
         this.getLastPoint = this.getLastPoint.bind(this);
         this.determineStyle = this.determineStyle.bind(this);
@@ -26,7 +24,7 @@ export default class UniversalMap extends Component {
         this.selectionActions = this.props.selectionActions;
 
         /* and extend that copy */
-        this.selectionActions.fixedPoint = this.fixedPoint;
+        this.selectionActions.fixedPoint = fixedPoint;
         this.selectionActions.getLastPoint = this.getLastPoint;
         this.selectionActions.getSelection = this.getSelection;
         this.selectionActions.getCurrentType = this.getCurrentType;
@@ -37,11 +35,6 @@ export default class UniversalMap extends Component {
     /* next selection point coordinates callback */
     preview(data) {
         this.props.ee.emit('nextPoint', data);
-    }
-
-    /* make fixed point number from floating point one */
-    fixedPoint(number) {
-        return parseFloat(number.toFixed(this.precision));
     }
 
     /* get (current) selection item */
