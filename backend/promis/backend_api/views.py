@@ -97,7 +97,6 @@ class SessionsView(PromisViewSet):
         if polygon is not None:
             try:
                 geoobj = GEOSGeometry(polygon, srid = 4326)
-                print(geoobj)
 
                 if geoobj.valid:
                     objs = []
