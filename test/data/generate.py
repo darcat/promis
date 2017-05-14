@@ -45,7 +45,7 @@ round_start = int(time())
 
 # Fake mercator considering Earth is a sphere
 def cord_conv(y, x):
-    return [ 180.0/pi*(2.0*atan(exp(y*pi/180.0))-pi/2.0), float(x), 400 ]
+    return [ float(x), 180.0/pi*(2.0*atan(exp(y*pi/180.0))-pi/2.0), 400 ]
 
 # Ensures the number doesn't exceed 180
 def clamp180(x):
@@ -82,7 +82,7 @@ def uptick():
 
 # Yes I know this is not how satellites work
 def roundabout():
-    return [ [ 80*sin(t), clamp180(round_shift*t/pi), 300 + 200*cos(t) ]
+    return [ [ clamp180(round_shift*t/pi), 80*sin(t), 300 + 200*cos(t) ]
         for t in ((2*slow_factor*round_turns*pi*i/round_pts)
             for i in range(round_pts))]
 
@@ -104,7 +104,6 @@ def insert_orbit(folder, start_time, gen_func, data_func=None):
     for v in chunks(gen_func(), orbit_pts):
         new_time = time + orbit_pts * orbit_sec
         # TODO: orbit_code is defaulted to NULL
-        # TODO: 4326 is seemingly the SRID corresponding to [-90;90]x[-180;180] lat/long coordinate system, verify this assumption
         sessfolder = "%s/%010d/" % (folder, time)
 
         ensuredir(sessfolder)

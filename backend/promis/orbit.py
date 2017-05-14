@@ -33,14 +33,15 @@ def sign(x):
 OrbitPoint = collections.namedtuple("OrbitPoint", [ "lat", "lon", "alt" ])
 
 def cord_conv(RX, RY, RZ, **kwargs):
-    """Converts coordinates in ECEF cartesian system to longitude, latitude and altitude."""
+    """Converts coordinates in ECEF cartesian system to latitude, longitude and altitude."""
     # TODO: is rotation included?
-    # TODO: resulting tuple only has lon/lat, add fields if necessary
-    r = math.sqrt(RX**2 + RY**2 + RZ**2)
-    φ = math.pi/2 - math.acos(RZ/r)
-    ρ = math.acos(RX/(r*math.sin(math.pi/2 - φ))) * sign(RY)
-    # Vector from Longitude, Latitude, Altitude
-    return OrbitPoint(math.degrees(φ), math.degrees(ρ), r - _earth_radius)
+    # TODO: resulting tuple only has lat/lon/h, add fields if necessary
+    ρ = math.sqrt(RX**2 + RY**2 + RZ**2)
+    φ = math.pi/2 - math.acos(RZ/ρ)
+    λ = math.acos(RX/(ρ * math.sin(math.pi/2 - φ))) * sign(RY)
+    # Vector from Latitude, Longitude, Altitude
+    # TODO: EPGS:4979 has altitude in meters, not kilometers
+    return OrbitPoint(math.degrees(φ), math.degrees(λ), ρ - _earth_radius)
 
 # Generating an orbit point every 1 second, discarding extra point and filling the gaps
 def generate_orbit(datapoints, orbit_start, orbit_end):
