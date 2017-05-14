@@ -75,22 +75,14 @@ export default class SessionList extends Component {
             }
 
             return (
-                <FormGroup controlId = 'SessionGroup'>
-                    <Col componentClass = {ControlLabel} sm={2}>
-                        Sessions
-                    </Col>
-                    <Col sm={5}>
-                        <p>{sessions.length} sessions found</p>
-                    </Col>
-                    <Col sm={5}>
-                        { Control }
-                    </Col>
-                </FormGroup>
+                <div>
+                    {this.props.storage.sessions.data.length} session(s) found  { Control }
+                </div>
             );
         } else {
-            //this.eraseGeolines();
+            //this.props.mapped.clearGeolines()
 
-            return(<div></div>);
+            return(<div className = 'infobox'>None found</div>);
         }
     }
 }

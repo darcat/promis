@@ -144,7 +144,7 @@ export default {
     },
 
     /* also used until backend fix */
-    getMeasurements : function(sessions, params) {
+    getMeasurements : function(sessions, channels, data) {
         return function(dispatch) {
             dispatch({
                 type: Enum['Measurements' + RESTState.pending],
@@ -155,7 +155,7 @@ export default {
             let measurements = new Array();
 
             sessions.forEach(function(session) {
-                params.forEach(function(param) {
+                data.forEach(function(param) {
                     promises.push(axios.get('/en/api/measurements', {
                         params: {
                             /* warn: needs proper backend filter */

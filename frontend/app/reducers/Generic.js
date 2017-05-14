@@ -75,6 +75,10 @@ export default function GenericReducer(state = State, action) {
             return Object.assign({}, state, { altitude : altitude });
         break;
 
+        /* channels/parameters */
+        case Enum.ChannelsModeChanged:
+            return Object.assign({}, state, { useChannels: action.payload });
+        break;
 
         /* query handling */
         case Enum.QuerySetProject:

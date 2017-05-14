@@ -6,6 +6,8 @@ import MapZoomBox from './MapZoomBox';
 import MapToolbox from './MapToolBox';
 import Panel from './Panel';
 
+import '../styles/map.css';
+
 import { fixedPoint } from '../constants/Selection';
 
 export default class UniversalMap extends Component {

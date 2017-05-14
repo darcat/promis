@@ -58,8 +58,7 @@ export default class ProjectSelector extends Component {
         let desc = proj ? proj.description : 'No description available';
 
         return (
-            <FormGroup controlId="projSelect">
-                <ControlLabel>Select project</ControlLabel>
+            <div>
                 <FormControl onChange = {this.handleChange} componentClass="select" placeholder="select">
                     { this.props.storage.projects.data && this.props.storage.projects.data.map(function(project, key) {
                         return (
@@ -68,11 +67,11 @@ export default class ProjectSelector extends Component {
                     }.bind(this))}
                 </FormControl>
                 <div>
-                    <p>
+                    <p><br />
                         { desc }
                     </p>
                 </div>
-            </FormGroup>
+            </div>
         );
     }
 }

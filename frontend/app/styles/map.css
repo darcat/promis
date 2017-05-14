@@ -63,16 +63,3 @@
 .desc {
     font-weight: bold;
 }
-
-.bootstrap-datetimepicker-widget .list-unstyled {
-    min-width: 250px;
-}
-
-.bootstrap-datetimepicker-widget .list-unstyled li {
-    display: inline;
-    float: left;
-}
-
-.bootstrap-datetimepicker-widget .datepicker-months .month {
-    padding: 0px 3px;
-}

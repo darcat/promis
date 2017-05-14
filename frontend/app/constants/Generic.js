@@ -8,7 +8,7 @@ export const Enum = {
     AltFromChanged : 'GenericAltFromChanged',
     AltToChanged : 'GenericAltToChanged',
     SelectionModeChanged : 'GenericSelectionModeChanged',
-
+    ChannelsModeChanged : 'GenericChannelsModeChanged',
 
     QuerySetProject : 'GenericSetProject',
     QuerySetDevice : 'GenericSetDevice',
@@ -21,6 +21,9 @@ export const Enum = {
 export const State = {
     /* map or manual input */
     useMap : false,
+
+    /* query: channels or parameters */
+    useChannels : false,
 
     /* manual input bounds (LatLng format) */
     rectangle : {

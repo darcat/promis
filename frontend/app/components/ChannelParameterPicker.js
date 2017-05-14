@@ -8,31 +8,23 @@ export default class ChannelParameterPicker extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            channels: false
-        }
-
         this.toggleChannels = this.toggleChannels.bind(this);
     }
 
     toggleChannels() {
-        this.setState(function(){
-            return {
-                channels: ! this.state.channels
-            }
-        });
+        this.props.generic.toggleChannels(! this.props.options.useChannels);
     }
 
     render() {
-        let data = this.state.channels ? this.props.storage.channels.data : this.props.storage.parameters.data;
-        let option = this.state.channels ? this.props.options.query.channels : this.props.options.query.parameters;
+        let data = this.props.options.useChannels ? this.props.storage.channels.data : this.props.storage.parameters.data;
+        let option = this.props.options.useChannels ? this.props.options.query.channels : this.props.options.query.parameters;
 
         return (
             <div>
                 <Toggle onClick = {this.toggleChannels} 
                     on = {<span>Channels</span>}
                     off = {<span>Parameters</span>}
-                    active = {this.state.channels}
+                    active = {this.props.options.useChannels}
                 />
                 <div>
                     { Array.isArray(data) && data.map(function(dataElement, index) {
@@ -40,12 +32,12 @@ export default class ChannelParameterPicker extends Component {
                         let obj = this;
 
                         function unmark() {
-                            obj.state.channels ? obj.props.generic.clearChannel(dataElement.id) :
+                            obj.props.options.useChannels ? obj.props.generic.clearChannel(dataElement.id) :
                                 obj.props.generic.clearParameter(dataElement.id);
                         }
 
                         function mark() {
-                            obj.state.channels ? obj.props.generic.setChannel(dataElement.id) :
+                            obj.props.options.useChannels ? obj.props.generic.setChannel(dataElement.id) :
                                 obj.props.generic.setParameter(dataElement.id);
                         }
 
@@ -55,9 +47,9 @@ export default class ChannelParameterPicker extends Component {
                         }
 
                         return (
-                            <FormGroup key = {index}>
+                            <div key = {index}>
                                 <Checkbox checked = {checked} onClick = {makeChoice}>{dataElement.name}</Checkbox>
-                            </FormGroup>
+                            </div>
                         );
                     }.bind(this)) }
                 </div>

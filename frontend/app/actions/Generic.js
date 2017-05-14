@@ -82,6 +82,15 @@ export default {
         }
     },
 
+    toggleChannels : function(ch) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.ChannelsModeChanged,
+                payload: ch
+            })
+        }
+    },
+
     setProject : function(proj) {
         return function(dispatch) {
             dispatch({

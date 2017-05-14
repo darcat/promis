@@ -87,7 +87,7 @@ export function selectionToPolygon(selection) {
         let lat = fixedPoint(point.lat ? point.lat : point[0]);
         let lng = fixedPoint(point.lng ? point.lng : point[1]);
 
-        coords.push(new Array(lat, lng));
+        coords.push(new Array(lng, lat));
     });
 
     return coords;
@@ -95,18 +95,23 @@ export function selectionToPolygon(selection) {
 
 /* GeoJSON coordinate format: [longitude, latitude, elevation] */
 export function selectionToWKT(obj) {
-    let baseObj = {
-        type : 'GeometryCollection',
-        geometries : new Array()
-    };
+    let wkt = 'MULTIPOLYGON(';
+    let items = new Array();
 
+    /* maybe another wkt writer here, construct by hand for now */
     obj.elements.forEach(function(element) {
-        baseObj.geometries.push( {
-            type : 'Polygon',
-            coordinates : new Array( new Array( selectionToPolygon(element) ) )
+        /* prepare coords */
+        let flat = selectionToPolygon(element).map(function(point) {
+            return point.join(' ');
         });
+
+        /* assemble coords */
+        items.push('((' + flat.join() + '))');
     });
 
-    let x= stringify(baseObj);
-    console.log(x)
+    wkt += (items.join() + ')');
+
+    console.log(wkt)
+
+    return wkt;
 }

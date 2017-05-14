@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Button, Glyphicon, FormGroup, FormControl, ControlLabel, ProgressBar } from 'react-bootstrap';
+import { Row, Col, Form, Button, Glyphicon, FormGroup, FormControl, ControlLabel, ProgressBar } from 'react-bootstrap';
 import Spinner from 'react-spinjs';
 import stringify from 'wellknown';
 import moment  from 'moment';
@@ -11,11 +11,25 @@ import ChannelParameterPicker from './ChannelParameterPicker';
 import { isActiveState } from '../constants/REST';
 import { Types, selectionToWKT } from '../constants/Selection';
 
-class SessionsTrigger extends Component {
+import '../styles/search.css';
+
+class SearchTrigger extends Component {
     constructor(props) {
         super(props);
 
+        this.doSearch = this.doSearch.bind(this);
         this.getSessions = this.getSessions.bind(this);
+        this.getMeasurements = this.getMeasurements.bind(this);
+    }
+
+    getMeasurements() {
+        let channels = this.props.options.useChannels;
+
+        this.props.actions.getMeasurements(
+            this.props.storage.sessions.data,
+            channels,
+            channels ? this.props.options.query.channels : this.props.options.query.parameters
+        );
     }
 
     getSessions() {
@@ -49,44 +63,30 @@ class SessionsTrigger extends Component {
         );
     }
 
-    render() {
+    doSearch() {
         if(! isActiveState(this.props.storage.sessions)) {
-            return (
-                <FormGroup>
-                    <Button onClick = {this.getSessions}>
-                        <Glyphicon glyph = 'search' /> Get sessions
-                    </Button>
-                </FormGroup>
-            )
+            this.getSessions();
         } else {
-            return (<div></div>);
+            if( ! isActiveState(this.props.storage.measurements)) {
+                this.getMeasurements();
+            }
         }
-    }
-}
-
-class MeasurementsTrigger extends Component {
-    constructor(props) {
-        super(props);
-
-        this.getMeasurements = this.getMeasurements.bind(this);
-    }
-
-    getMeasurements() {
-        this.props.actions.getMeasurements(this.props.storage.sessions.data, new Array(1, 2));//this.props.options.project);
     }
 
     render() {
-        if(! isActiveState(this.props.storage.measurements) && isActiveState(this.props.storage.sessions)) {
-            return (
-                <FormGroup>
-                    <Button onClick = {this.getMeasurements}>
-                        <Glyphicon glyph = 'search' /> Get measurements
-                    </Button>
-                </FormGroup>
-            )
+        let label = 'Dummy';
+
+        if(! isActiveState(this.props.storage.sessions)) {
+            label = 'Search';
         } else {
-            return (<div></div>);
+            label = 'Continue';
         }
+
+        return (
+            <Button onClick = {this.doSearch}>
+                <Glyphicon glyph = 'search' /> {label}
+            </Button>
+        )
     }
 }
 
@@ -102,14 +102,11 @@ class ResetTrigger extends Component {
     }
 
     render() {
-        if( isActiveState(this.props.storage.sessions) || isActiveState(this.props.storage.channels) ||
-            isActiveState(this.props.storage.parameters) || isActiveState(this.props.storage.measurements) ) {
+        if( isActiveState(this.props.storage.sessions) || isActiveState(this.props.storage.measurements) ) {
             return (
-                <FormGroup>
-                    <Button onClick = {this.resetData}>
-                        <Glyphicon glyph = 'trash' /> Reset search
-                    </Button>
-                </FormGroup>
+                <Button onClick = {this.resetData}>
+                    <Glyphicon glyph = 'trash' /> Reset search
+                </Button>
             )
         } else {
             return (<div></div>);
@@ -129,39 +126,64 @@ export default class SearchForm extends Component {
     render() {
         return (
             <div>
-                <ProjectSelector
-                    mapped  = {this.props.mapped}
-                    generic = {this.props.generic}
-                    storage = {this.props.storage}
-                    options = {this.props.options}
-                    actions = {this.props.actions}
-                />
-                <SessionList
-                    mapped  = {this.props.mapped}
-                    actions = {this.props.actions}
-                    storage = {this.props.storage}
-                    generic = {this.props.generic}
-                />
-                <SessionsTrigger
-                    storage = {this.props.storage}
-                    options = {this.props.options}
-                    actions = {this.props.actions}
-                    selection = {this.props.selection}
-                />
-                <ChannelParameterPicker
-                    generic = {this.props.generic}
-                    actions = {this.props.actions}
-                    storage = {this.props.storage}
-                    options = {this.props.options}
-                />
-                <MeasurementsTrigger
-                    storage = {this.props.storage}
-                    actions = {this.props.actions}
-                />
-                <ResetTrigger
-                    storage = {this.props.storage}
-                    actions = {this.props.actions}
-                />
+                <Form horizontal>
+                    <FormGroup controlId = 'Projects'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Project
+                        </Col>
+                        <Col sm = {10}>
+                            <ProjectSelector
+                                mapped  = {this.props.mapped}
+                                generic = {this.props.generic}
+                                storage = {this.props.storage}
+                                options = {this.props.options}
+                                actions = {this.props.actions}
+                            />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup controlId = 'DataSource'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Query by
+                        </Col>
+                        <Col sm = {10}>
+                            <ChannelParameterPicker
+                                generic = {this.props.generic}
+                                actions = {this.props.actions}
+                                storage = {this.props.storage}
+                                options = {this.props.options}
+                            />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup controlId = 'Sessions'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Sessions
+                        </Col>
+                        <Col sm = {10}>
+                            <SessionList
+                                mapped  = {this.props.mapped}
+                                actions = {this.props.actions}
+                                storage = {this.props.storage}
+                                generic = {this.props.generic}
+                            />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup>
+                        <Col sm = {6}>
+                            <SearchTrigger
+                                storage = {this.props.storage}
+                                options = {this.props.options}
+                                actions = {this.props.actions}
+                                selection = {this.props.selection}
+                            />
+                        </Col>
+                        <Col sm = {6}>
+                            <ResetTrigger
+                                storage = {this.props.storage}
+                                actions = {this.props.actions}
+                            />
+                        </Col>
+                    </FormGroup>
+                </Form>
             </div>
         )
     }
