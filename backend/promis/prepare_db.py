@@ -28,16 +28,14 @@ import psycopg2
 import dj_database_url
 from time import sleep
 from os import environ
-from sys import argv
+from sys import stdin
 
 # Parsing the URL
 nametrans = { "NAME": "dbname", "HOST": "host", "PORT": "port", "USER": "user", "PASSWORD": "password" }
 dbargs = { nametrans[k]:v for k,v in dj_database_url.config().items() if k in nametrans }
 
-# Retrieving the SQL from the file specified as 1st argument
 # TODO: maybe a set of SQL files to auto-run
-with open(argv[1]) as f:
-    sql = f.read()
+sql = sys.stdin.read()
 
 # Try connecting, if it fails, pause by 3 seconds
 while True:
