@@ -13,7 +13,7 @@ export default class AdvancedPanel extends Component {
     }
 
     render() {
-        var drag = !this.props.disableDrag;
+        var drag = false;//!this.props.disableDrag;
 
         return (
             <div>
