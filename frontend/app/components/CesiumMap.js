@@ -76,7 +76,7 @@ export default class CesiumContainer extends Component {
 
         /* enable render on this events */
         this.eventHandler = null;
-        this.renderEvents = new Array('mousemove', 'mousedown', 'mouseup', 'mousewheel', 'mouseclick', 'wheel', 
+        this.renderEvents = new Array('mousemove', 'mousedown', 'mouseup', 'mousewheel', 'mouseclick', 'wheel',
                                       'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup');
 
         // scroll to startpos
@@ -294,7 +294,7 @@ export default class CesiumContainer extends Component {
     }
 
     clearShape(shape) {
-        if(defined(shape)) 
+        if(defined(shape))
             this.viewer.entities.remove(shape);
     }
 
@@ -433,7 +433,7 @@ export default class CesiumContainer extends Component {
 
         /* data is [lat, lon, hgt] */
         data.forEach(function(point) {
-            cartesians.push(Cartesian3.fromDegrees(point[0], point[1], point[2] ? point[2] : 250000));
+            cartesians.push(Cartesian3.fromDegrees(point[1], point[0], point[2] ? point[2] : 250000));
         });
 
         return this.viewer.entities.add({

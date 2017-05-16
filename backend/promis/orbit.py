@@ -30,17 +30,18 @@ def sign(x):
     """Returns 1 for non-negative arguments and -1 otherwise."""
     return 1 if x>=0 else -1
 
-OrbitPoint = collections.namedtuple("OrbitPoint", [ "lon", "lat", "alt" ])
+OrbitPoint = collections.namedtuple("OrbitPoint", [ "lat", "lon", "alt" ])
 
 def cord_conv(RX, RY, RZ, **kwargs):
-    """Converts coordinates in ECEF cartesian system to longitude, latitude and altitude."""
+    """Converts coordinates in ECEF cartesian system to latitude, longitude and altitude."""
     # TODO: is rotation included?
-    # TODO: resulting tuple only has lon/lat, add fields if necessary
-    r   = math.sqrt(RX**2 + RY**2 + RZ**2)
-    phi = math.pi/2 - math.acos(RZ/r)
-    rho = math.acos(RX/(r*math.sin(math.pi/2 - phi))) * sign(RY)
-    # Vector from Longitude, Latitude, Altitude
-    return OrbitPoint(math.degrees(rho), math.degrees(phi), r - _earth_radius)
+    # TODO: resulting tuple only has lat/lon/h, add fields if necessary
+    ρ = math.sqrt(RX**2 + RY**2 + RZ**2)
+    φ = math.pi/2 - math.acos(RZ/ρ)
+    λ = math.acos(RX/(ρ * math.sin(math.pi/2 - φ))) * sign(RY)
+    # Vector from Latitude, Longitude, Altitude
+    # TODO: EPGS:4979 has altitude in meters, not kilometers
+    return OrbitPoint(math.degrees(φ), math.degrees(λ), ρ - _earth_radius)
 
 # Generating an orbit point every 1 second, discarding extra point and filling the gaps
 def generate_orbit(datapoints, orbit_start, orbit_end):
@@ -115,8 +116,8 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
                 # Source points and components
                 src_cmps = [ [ pt[i] for pt in (datapoints[z] for z in anchor[l]) ] for i in range(3) ] # NOTE: hardcode
                 # If we are dealing with longitudes around 180°/-180°, shift the negatives upwards
-                if any(180 < abs(src_cmps[0][x] - src_cmps[0][y]) for x in range(4) for y in range(4) if x<y):
-                    src_cmps[0] = [ v + 360 if v < 0 else v for v in src_cmps[0] ]
+                if any(180 < abs(src_cmps[1][x] - src_cmps[1][y]) for x in range(4) for y in range(4) if x<y):
+                    src_cmps[1] = [ v + 360 if v < 0 else v for v in src_cmps[1] ]
                 # Generating the cubic functions
                 f = [ cubefit.cubic_fit(v, cmp) for cmp in src_cmps ]
 

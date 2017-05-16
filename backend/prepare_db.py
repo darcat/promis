@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # Copyright 2016 Space Research Institute of NASU and SSAU (Ukraine)
 #
@@ -29,17 +28,23 @@ import psycopg2
 import dj_database_url
 from time import sleep
 from os import environ
+from sys import stdin
 
 # Parsing the URL
 nametrans = { "NAME": "dbname", "HOST": "host", "PORT": "port", "USER": "user", "PASSWORD": "password" }
 dbargs = { nametrans[k]:v for k,v in dj_database_url.config().items() if k in nametrans }
+
+# TODO: maybe a set of SQL files to auto-run
+sql = stdin.read()
 
 # Try connecting, if it fails, pause by 3 seconds
 while True:
     try:
         with psycopg2.connect(**dbargs) as conn:
             with conn.cursor() as curs:
-                curs.execute("select * from county;") # POSTGIS thing
+                # Initial query, tries to insert a 4979 srid into the database
+                # updates on conflict
+                curs.execute(sql)
                 break
         
     except psycopg2.OperationalError:

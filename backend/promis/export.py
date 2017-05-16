@@ -26,7 +26,7 @@ import math
 # TODO: currently only one data row
 # TODO: do we need this type or can we just have a tuple?
 # TODO: generalize the header
-ExportEntry = collections.namedtuple("ExportEntry", [ "t", "lon", "lat", "alt", "data" ])
+ExportEntry = collections.namedtuple("ExportEntry", [ "t", "lat", "lon", "alt", "data" ])
 
 def make_table(data, start_time, end_time, orbit):
     """
@@ -50,13 +50,13 @@ def make_table(data, start_time, end_time, orbit):
         t = i / freq
     
         # TODO currently not interpolating anything
-        lon, lat, alt = orbit[int(t)]
+        lat, lon, alt = orbit[int(t)]
 
         """
 
         # On integer number of seconds we can just take the value from the table
         if t == int(t):
-            lon, lat = orbit[t]
+            lat, lon = orbit[t]
         else:
             # Picking the anchor points for interpolation
             f, c = math.floor(t), math.ceil(t)
@@ -77,7 +77,7 @@ def make_table(data, start_time, end_time, orbit):
             # Estimating the cubic function coeffs
         """
 
-        yield ExportEntry(int(1e3 * (start_time + t)), lon, lat, alt, data[i])
+        yield ExportEntry(int(1e3 * (start_time + t)), lat, lon, alt, data[i])
 
 
 def ascii_export(table, datalabel="Data", dataunits="units"):
@@ -91,10 +91,10 @@ def ascii_export(table, datalabel="Data", dataunits="units"):
 
     Yields successive lines.
     """
-    yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("T", "Lon.", "Lat.", "Alt.", datalabel)
+    yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("T", "Lat.", "Lon.", "Alt.", datalabel)
     yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("(ms)", "(deg.)", "(deg.)", "(km)", "(%s)" % dataunits)
     for row in table:
-        yield "{:>15} {:>6.02f} {:>6.02f} {:>6.02f} {:>10.06f}".format(row.t, row.lon, row.lat, row.alt, row.data)
+        yield "{:>15} {:>6.02f} {:>6.02f} {:>6.02f} {:>10.06f}".format(row.t, row.lat, row.lon, row.alt, row.data)
 
 def csv_export(table, datalabel="Data", dataunits="units"):
     """

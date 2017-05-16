@@ -88,8 +88,10 @@ class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
     orbit_code = IntegerField(null = True)
-    # TODO: http://spatialreference.org/ref/epsg/4979/postgis/ 
-    geo_line = LineStringField(dim = 3, srid = 4979)
+    # Setting the field to geography type decreases performance somewhat
+    # but ensures distances and intersections are caclulated correctly
+    # TODO: srid should eventually be 4979 see #222
+    geo_line = LineStringField(dim = 3, srid = 4326, geography=True)
     space_project = ForeignKey('Space_project', null = True)
 
     class Meta:
