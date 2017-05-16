@@ -51,14 +51,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.latFromChange} value = {opts.rectangle.begin[0]} type="number" />
+                            <FormControl min = '-90' max = '90' onChange = {this.latFromChange} value = {opts.rectangle.begin[0]} type = 'number' />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.latToChange} value = {opts.rectangle.end[0]} type="number" />
+                            <FormControl min = '-90' max = '90' onChange = {this.latToChange} value = {opts.rectangle.end[0]} type = 'number' />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -70,14 +70,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.lngFromChange} value = {opts.rectangle.begin[1]} type="number" />
+                            <FormControl min = '-180' max = '180' onChange = {this.lngFromChange} value = {opts.rectangle.begin[1]} type = 'number' />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.lngToChange} value = {opts.rectangle.end[1]} type="number" />
+                            <FormControl min = '-180' max = '180' onChange = {this.lngToChange} value = {opts.rectangle.end[1]} type = 'number' />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
