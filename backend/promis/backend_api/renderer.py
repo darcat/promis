@@ -34,7 +34,7 @@ class TextRenderer(renderers.BaseRenderer):
         value = data['value']['name']
         units = data['value']['units']
 
-        return "\n".join(self.process(table, value, units))
+        return "\r\n".join(self.process(table, value, units))
 
 class AsciiRenderer(TextRenderer):
     media_type = 'text/plain'
