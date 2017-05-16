@@ -75,9 +75,13 @@ export default {
         }
     },
 
-    getChannels : function() {
+    getChannels : function(project) {
         return function(dispatch) {
-            makeQuery(dispatch, 'Channels', '/en/api/channels/');
+            makeQuery(dispatch, 'Channels', '/en/api/channels/', {
+                params: {
+                    space_project: project
+                }
+            });
         }
     },
 
@@ -102,7 +106,7 @@ export default {
     }*/
 
     /* used until backend fix */
-    getParameters : function(channels) {
+    getParameters : function(channels, project) {
         return function(dispatch) {
             dispatch({
                 type: Enum['Parameters' + RESTState.pending],
@@ -117,7 +121,8 @@ export default {
                     response.data.results.forEach(function(channel) {
                         promises.push(axios.get('/en/api/parameters', {
                             params: {
-                                channel: channel.id
+                                channel: channel.id,
+                                space_project: project
                             }
                         }));
                     });

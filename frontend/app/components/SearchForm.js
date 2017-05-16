@@ -122,8 +122,16 @@ export default class SearchForm extends Component {
         super(props);
 
         this.props.actions.getProjects();
-        this.props.actions.getChannels();
-        this.props.actions.getParameters();
+
+        this.props.actions.getChannels(this.props.options.query.project);
+        this.props.actions.getParameters(this.props.options.query.project);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.options.query.project !== nextProps.options.query.project) {
+            this.props.actions.getChannels(this.props.options.query.project);
+            this.props.actions.getParameters(this.props.options.query.project);
+        }
     }
 
     render() {
