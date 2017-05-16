@@ -106,7 +106,7 @@ export default {
     }*/
 
     /* used until backend fix */
-    getParameters : function(channels, project) {
+    getParameters : function(project) {
         return function(dispatch) {
             dispatch({
                 type: Enum['Parameters' + RESTState.pending],
@@ -116,7 +116,11 @@ export default {
             let promises = new Array();
             let parameters = new Array();
 
-            axios.get('/en/api/channels').then(function(response) {
+            axios.get('/en/api/channels', {
+                params: {
+                    space_project: project
+                }
+            }).then(function(response) {
                 if(Array.isArray(response.data.results) && response.data.results.length > 0) {
                     response.data.results.forEach(function(channel) {
                         promises.push(axios.get('/en/api/parameters', {
@@ -149,7 +153,7 @@ export default {
     },
 
     /* also used until backend fix */
-    getMeasurements : function(sessions, channels, data) {
+    getMeasurements : function(sessions, usechannels, data) {
         return function(dispatch) {
             dispatch({
                 type: Enum['Measurements' + RESTState.pending],
@@ -164,7 +168,7 @@ export default {
                     promises.push(axios.get('/en/api/measurements', {
                         params: {
                             /* warn: needs proper backend filter */
-                            channel: param,
+                            channel: 0, /* << filter still works */
                             session: session.id,
                             parameter: param
                         }

@@ -37,7 +37,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 rectangle: {
                     ...state.rectangle,
-                    begin: new Array(action.payload, state.rectangle.begin[1])
+                    begin: [action.payload, state.rectangle.begin[1]]
                 }
             };
         break;
@@ -47,7 +47,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 rectangle: {
                     ...state.rectangle,
-                    end: new Array(action.payload, state.rectangle.end[1])
+                    end: [action.payload, state.rectangle.end[1]]
                 }
             }
         break;
@@ -57,7 +57,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 rectangle: {
                     ...state.rectangle,
-                    begin: new Array(state.rectangle.begin[0], action.payload)
+                    begin: [state.rectangle.begin[0], action.payload]
                 }
             }
         break;
@@ -67,7 +67,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 rectangle: {
                     ...state.rectangle,
-                    end: new Array(state.rectangle.end[0], action.payload)
+                    end: [state.rectangle.end[0], action.payload]
                 }
             }
         break;
@@ -117,7 +117,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 query: {
                     ...state.query,
-                    devices: new Array(...state.query.devices, action.payload)
+                    devices: [...state.query.devices, action.payload]
                 }
             };
         break;
@@ -127,7 +127,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 query: {
                     ...state.query,
-                    channels: new Array(...state.query.channels, action.payload)
+                    channels: [...state.query.channels, action.payload]
                 }
             };
         break;
@@ -137,7 +137,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 query: {
                     ...state.query,
-                    channels: state.query.channels.filter(function(e) { return e !== action.payload })
+                    channels: state.query.channels.filter((e) => e !== action.payload)
                 }
             };
         break;
@@ -147,7 +147,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 query: {
                     ...state.query,
-                    parameters: new Array(...state.query.parameters, action.payload)
+                    parameters: [...state.query.parameters, action.payload]
                 }
             }
         break;
@@ -157,7 +157,7 @@ export default function SearchReducer(state = State, action) {
                 ...state,
                 query: {
                     ...state.query,
-                    parameters: state.query.parameters.filter(function(e) { return e !== action.payload })
+                    parameters: state.query.parameters.filter((e) => e !== action.payload)
                 }
             };
         break;

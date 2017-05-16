@@ -10,27 +10,20 @@ export default class ChannelParameterPicker extends Component {
 
         this.fetchData = this.fetchData.bind(this);
         this.toggleChannels = this.toggleChannels.bind(this);
-
     }
 
-    fetchData() {
-        console.log('fet')
-        this.props.actions.getChannels(this.props.options.query.project);
-        this.props.actions.getParameters(this.props.options.query.project);
+    fetchData(project) {
+        this.props.actions.getChannels(project);
+        this.props.actions.getParameters(project);
     }
 
     toggleChannels() {
         this.props.search.toggleChannels(! this.props.options.useChannels);
     }
 
-    componentDidMount() {
-        this.fetchData();
-    }
-
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.options.query.project, this.props.options.query.project);
         if(this.props.options.query.project != nextProps.options.query.project) {
-            this.fetchData();
+            this.fetchData(nextProps.options.query.project);
         }
     }
 
