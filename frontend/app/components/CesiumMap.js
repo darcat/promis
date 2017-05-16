@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { toDegrees } from 'cesium/Source/Core/Math';
+import { toDegrees, toRadians, convertLongitudeRange, negativePiToPi } from 'cesium/Source/Core/Math';
 import Viewer from 'cesium/Source/Widgets/Viewer/Viewer';
 import Color from 'cesium/Source/Core/Color';
 import Cartesian3 from 'cesium/Source/Core/Cartesian3';
@@ -309,14 +309,15 @@ export default class CesiumContainer extends Component {
 
         switch(type) {
             case Types.Rect:
-                let west = Math.min(data[0][1], data[1][1]), /* minimal lng */
-                   south = Math.min(data[0][0], data[1][0]), /* minimal lat */
-                    east = Math.max(data[1][1], data[1][1]), /* maximal lng */
-                   north = Math.max(data[0][0], data[1][0])  /* maximal lat */
+                let west = convertLongitudeRange(toRadians(Math.min(data[0][1], data[1][1]))), /* minimal lng */
+                   south = negativePiToPi(toRadians(Math.min(data[0][0], data[1][0]))),        /* minimal lat */
+                    east = convertLongitudeRange(toRadians(Math.max(data[0][1], data[1][1]))), /* maximal lng */
+                   north = negativePiToPi(toRadians(Math.max(data[0][0], data[1][0])))         /* maximal lat */
 
+                   console.log(west, south, east, north);
                 shape = this.viewer.entities.add({
                     rectangle : {
-                        coordinates : Rectangle.fromDegrees(west, south, east, north),
+                        coordinates : new Rectangle(west, south, east, north),
                         material : material,
                     }
                 });
