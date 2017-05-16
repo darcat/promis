@@ -1,132 +1,165 @@
 import { Enum, State } from '../constants/Search';
 
 export default function SearchReducer(state = State, action) {
-    let query = state.query;
-    let altitude = state.altitude;
-    let rectangle = state.rectangle;
-    let timelapse = state.timelapse;
-
-    if(! Array.isArray(query.channels)) {
-        query.channels = new Array();
-    }
-
-    if(! Array.isArray(query.parameters)) {
-        query.parameters = new Array();
-    }
-
-    if(! Array.isArray(query.devices)) {
-        query.devices = new Array();
-    }
-
     switch(action.type) {
         /* map/manual input mode */
         case Enum.SelectionModeChanged:
-            return Object.assign({}, state, { useMap: action.payload });
+            return {
+                ...state,
+                useMap: action.payload
+            };
         break;
 
         /* timelapse */
         case Enum.DateFromChanged:
-            timelapse.begin = action.payload;
-
-            return Object.assign({}, state, { timelapse : timelapse });
+            return {
+                ...state,
+                timelapse: {
+                    ...state.timelapse,
+                    begin: action.payload
+                }
+            };
         break;
 
         case Enum.DateToChanged:
-            timelapse.end = action.payload;
-
-            return Object.assign({}, state, { timelapse : timelapse });
+            return {
+                ...state,
+                timelapse: {
+                    ...state.timelapse,
+                    end: action.payload
+                }
+            };
         break;
 
         /* manual polygon */
         case Enum.LatFromChanged:
-            rectangle.begin[0] = action.payload;
-
-            return Object.assign({}, state, { rectangle : rectangle });
+            return {
+                ...state,
+                rectangle: {
+                    ...state.rectangle,
+                    begin: new Array(action.payload, state.rectangle.begin[1])
+                }
+            };
         break;
 
         case Enum.LatToChanged:
-            rectangle.end[0] = action.payload;
-
-            return Object.assign({}, state, { rectangle : rectangle });
+            return {
+                ...state,
+                rectangle: {
+                    ...state.rectangle,
+                    end: new Array(action.payload, state.rectangle.end[1])
+                }
+            }
         break;
 
         case Enum.LngFromChanged:
-            rectangle.begin[1] = action.payload;
-
-            return Object.assign({}, state, { rectangle : rectangle });
+            return {
+                ...state,
+                rectangle: {
+                    ...state.rectangle,
+                    begin: new Array(state.rectangle.begin[0], action.payload)
+                }
+            }
         break;
 
         case Enum.LngToChanged:
-            rectangle.end[1] = action.payload;
-
-            return Object.assign({}, state, { rectangle : rectangle });
+            return {
+                ...state,
+                rectangle: {
+                    ...state.rectangle,
+                    end: new Array(state.rectangle.end[0], action.payload)
+                }
+            }
         break;
 
         /* altitude */
         case Enum.AltFromChanged:
-            altitude.begin = action.payload;
-
-            return Object.assign({}, state, { altitude : altitude });
+            return {
+                ...state,
+                altitude: {
+                    ...state.altitude,
+                    begin: action.payload
+                }
+            }
         break;
 
         case Enum.AltToChanged:
-            altitude.end = action.payload;
-
-            return Object.assign({}, state, { altitude : altitude });
+            return {
+                ...state,
+                altitude: {
+                    ...state.altitude,
+                    end: action.payload
+                }
+            }
         break;
 
         /* channels/parameters */
         case Enum.ChannelsModeChanged:
-            return Object.assign({}, state, { useChannels: action.payload });
+            return {
+                ...state,
+                useChannels: action.payload
+            }
         break;
 
         /* query handling */
         case Enum.QuerySetProject:
-            query.project = action.payload;
-
-            return Object.assign({}, state, {
-                query: query
-            });
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    project: action.payload
+                }
+            };
         break;
 
         case Enum.QuerySetDevice:
-            query.devices.push(action.payload);
-
-            return Object.assign({}, state, {
-                query: query
-            });
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    devices: new Array(...state.query.devices, action.payload)
+                }
+            };
         break;
 
         case Enum.QuerySetChannel:
-            query.channels.push(action.payload);
-
-            return Object.assign({}, state, {
-                query: query
-            });
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    channels: new Array(...state.query.channels, action.payload)
+                }
+            };
         break;
 
         case Enum.QueryClearChannel:
-            query.channels = query.channels.filter(function(e) { return e !== action.payload });
-
-            return Object.assign({}, state, {
-                query: query
-            });
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    channels: state.query.channels.filter(function(e) { return e !== action.payload })
+                }
+            };
         break;
 
         case Enum.QuerySetParameter:
-            query.parameters.push(action.payload);
-
-            return Object.assign({}, state, {
-                query: query
-            });
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    parameters: new Array(...state.query.parameters, action.payload)
+                }
+            }
         break;
 
         case Enum.QueryClearParameter:
-            query.parameters = query.parameters.filter(function(e) { return e !== action.payload });
-
-            return Object.assign({}, state, {
-                query: query
-            });
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    parameters: state.query.parameters.filter(function(e) { return e !== action.payload })
+                }
+            };
         break;
 
         default:
