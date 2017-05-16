@@ -269,7 +269,7 @@ export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
 
-        this.actions = props.genericActions;
+        this.actions = props.searchActions;
 
         this.state = {
             preview: new Array(0, 0)

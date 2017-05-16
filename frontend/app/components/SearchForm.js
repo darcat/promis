@@ -23,12 +23,11 @@ class SearchTrigger extends Component {
     }
 
     getMeasurements() {
-        let channels = this.props.options.useChannels;
-
         this.props.actions.getMeasurements(
             this.props.storage.sessions.data,
-            channels,
-            channels ? this.props.options.query.channels : this.props.options.query.parameters
+            this.props.options.useChannels,
+            /* until backend is fixed, filter by params only */
+            this.props.options.query.parameters
         );
     }
 
@@ -122,16 +121,6 @@ export default class SearchForm extends Component {
         super(props);
 
         this.props.actions.getProjects();
-
-        this.props.actions.getChannels(this.props.options.query.project);
-        this.props.actions.getParameters(this.props.options.query.project);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if(this.props.options.query.project !== nextProps.options.query.project) {
-            this.props.actions.getChannels(this.props.options.query.project);
-            this.props.actions.getParameters(this.props.options.query.project);
-        }
     }
 
     render() {
@@ -145,7 +134,7 @@ export default class SearchForm extends Component {
                         <Col sm = {10}>
                             <ProjectSelector
                                 mapped  = {this.props.mapped}
-                                generic = {this.props.generic}
+                                search  = {this.props.search}
                                 storage = {this.props.storage}
                                 options = {this.props.options}
                                 actions = {this.props.actions}
@@ -158,7 +147,7 @@ export default class SearchForm extends Component {
                         </Col>
                         <Col sm = {10}>
                             <ChannelParameterPicker
-                                generic = {this.props.generic}
+                                search = {this.props.search}
                                 actions = {this.props.actions}
                                 storage = {this.props.storage}
                                 options = {this.props.options}
@@ -174,7 +163,7 @@ export default class SearchForm extends Component {
                                 mapped  = {this.props.mapped}
                                 actions = {this.props.actions}
                                 storage = {this.props.storage}
-                                generic = {this.props.generic}
+                                search = {this.props.search}
                             />
                         </Col>
                     </FormGroup>

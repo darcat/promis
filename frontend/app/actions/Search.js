@@ -1,4 +1,4 @@
-import { Enum } from '../constants/Generic';
+import { Enum } from '../constants/Search';
 
 export default {
     dateFromInput : function(value) {

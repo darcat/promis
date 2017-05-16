@@ -8,11 +8,23 @@ export default class ChannelParameterPicker extends Component {
     constructor(props) {
         super(props);
 
+        this.fetchData = this.fetchData.bind(this);
         this.toggleChannels = this.toggleChannels.bind(this);
     }
 
+    fetchData(project) {
+        this.props.actions.getChannels(project);
+        this.props.actions.getParameters(project);
+    }
+
     toggleChannels() {
-        this.props.generic.toggleChannels(! this.props.options.useChannels);
+        this.props.search.toggleChannels(! this.props.options.useChannels);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.options.query.project != nextProps.options.query.project) {
+            this.fetchData(nextProps.options.query.project);
+        }
     }
 
     render() {
@@ -32,13 +44,13 @@ export default class ChannelParameterPicker extends Component {
                         let obj = this;
 
                         function unmark() {
-                            obj.props.options.useChannels ? obj.props.generic.clearChannel(dataElement.id) :
-                                obj.props.generic.clearParameter(dataElement.id);
+                            obj.props.options.useChannels ? obj.props.search.clearChannel(dataElement.id) :
+                                obj.props.search.clearParameter(dataElement.id);
                         }
 
                         function mark() {
-                            obj.props.options.useChannels ? obj.props.generic.setChannel(dataElement.id) :
-                                obj.props.generic.setParameter(dataElement.id);
+                            obj.props.options.useChannels ? obj.props.search.setChannel(dataElement.id) :
+                                obj.props.search.setParameter(dataElement.id);
                         }
 
                         function makeChoice() {
