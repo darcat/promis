@@ -1,6 +1,6 @@
-import { Enum, State } from '../constants/Generic';
+import { Enum, State } from '../constants/Search';
 
-export default function GenericReducer(state = State, action) {
+export default function SearchReducer(state = State, action) {
     let query = state.query;
     let altitude = state.altitude;
     let rectangle = state.rectangle;

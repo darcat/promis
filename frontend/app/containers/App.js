@@ -7,10 +7,10 @@ import Nav from '../components/Nav';
 import Panel from '../components/Panel';
 
 import mapActionsCreators from '../actions/Map';
-import usrActionsCreators from '../actions/User';
-import rstActionsCreators from '../actions/REST';
-import genActionsCreators from '../actions/Generic';
-import selActionsCreators from '../actions/Selection';
+import userActionsCreators from '../actions/User';
+import RESTActionsCreators from '../actions/REST';
+import searchActionsCreators from '../actions/Search';
+import selectionActionsCreators from '../actions/Selection';
 
 import MapPanel from '../components/UniversalMap';
 import TimeAndPositionPanel from '../components/TimeAndPosition';
@@ -29,7 +29,7 @@ class App extends Component {
 
         this.updateDimensions = this.updateDimensions.bind(this);
 
-        this.props.usrActions.profile();
+        this.props.userActions.profile();
     }
 
     componentDidMount() {
@@ -63,7 +63,7 @@ class App extends Component {
 
         return (
             <div>
-                <Nav actions = {this.props.usrActions} userData = {this.props.userData} />
+                <Nav actions = {this.props.userActions} userData = {this.props.userData} />
                 <div style = {style}>
                     <Well bsSize="large">
                         <h3>Ionosat PROMIS</h3>
@@ -72,39 +72,39 @@ class App extends Component {
                     <Row>
                         <TimeAndPositionPanel
                             ee = {this.ee}
-                            options = {this.props.inputOptions}
+                            options = {this.props.searchOptions}
                             selection = {this.props.selection}
-                            selectionActions = {this.props.selActions}
-                            genericActions = {this.props.genActions}
+                            selectionActions = {this.props.selectionActions}
+                            searchActions = {this.props.searchActions}
                         />
                         <Panel title = 'Search'>
                             <SearchForm
                                 storage = {this.props.storage}        /* generic storage for api data */
-                                options = {this.props.inputOptions}   /* general options, datetime, etc */
+                                options = {this.props.searchOptions}   /* general options, datetime, etc */
                                 mapped  = {this.props.mapActions}     /* for geoline management */
-                                actions = {this.props.rstActions}     /* api-related actions */
-                                generic = {this.props.genActions}     /* for setting time back */
-                                selected = {this.props.selActions}    /* for flushing selection */
+                                actions = {this.props.RESTActions}     /* api-related actions */
+                                search = {this.props.searchActions}     /* for setting time back */
+                                selected = {this.props.selectionActions}    /* for flushing selection */
                                 selection = {this.props.selection}    /* selection array */
                             />
                         </Panel>
                     </Row>
                     <Row>
-                        { this.props.inputOptions.useMap &&
+                        { this.props.searchOptions.useMap &&
                         <MapPanel
                             ee = {this.ee}
                             selection = {this.props.selection}
                             options = {this.props.mapOptions}
                             mapActions = {this.props.mapActions}
-                            selectionActions = {this.props.selActions}
+                            selectionActions = {this.props.selectionActions}
                         />
                         }
                         <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
                                 results = {this.props.storage.measurements}
-                                options = {this.props.inputOptions}
+                                options = {this.props.searchOptions}
                                 storage = {this.props.storage}
-                                actions = {this.props.rstActions}
+                                actions = {this.props.RESTActions}
                             />
                         </Panel>
                     </Row>
@@ -117,7 +117,7 @@ class App extends Component {
 /* Redux state to App props */
 function mapStateToProps(state) {
     return {
-        inputOptions: state.Generic,
+        searchOptions: state.Search,
         mapOptions: state.Map,
         selection: state.Selection,
         userData: state.User,
@@ -128,11 +128,11 @@ function mapStateToProps(state) {
 /* Bind actions(events) to dispatch (allow event flow via Redux */
 function mapDispatchToProps(dispatch) {
     return {
-        mapActions : bindActionCreators(mapActionsCreators, dispatch),
-        genActions : bindActionCreators(genActionsCreators, dispatch),
-        selActions : bindActionCreators(selActionsCreators, dispatch),
-        rstActions : bindActionCreators(rstActionsCreators, dispatch),
-        usrActions : bindActionCreators(usrActionsCreators, dispatch)
+        mapActions       : bindActionCreators(mapActionsCreators, dispatch),
+        searchActions    : bindActionCreators(searchActionsCreators, dispatch),
+        selectionActions : bindActionCreators(selectionActionsCreators, dispatch),
+        RESTActions      : bindActionCreators(RESTActionsCreators, dispatch),
+        userActions      : bindActionCreators(userActionsCreators, dispatch)
     }
 }
 
