@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Row, Well } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
 
 import Nav from '../components/Nav';
 import Panel from '../components/Panel';
@@ -65,10 +65,6 @@ class App extends Component {
             <div>
                 <Nav actions = {this.props.usrActions} userData = {this.props.userData} />
                 <div style = {style}>
-                    <Well bsSize="large">
-                        <h3>Ionosat PROMIS</h3>
-                        <p>We are glad to welcome you on this page. Please use the filters below to refine your search!</p>
-                    </Well>
                     <Row>
                         <TimeAndPositionPanel
                             ee = {this.ee}
@@ -90,7 +86,6 @@ class App extends Component {
                         </Panel>
                     </Row>
                     <Row>
-                        { this.props.inputOptions.useMap &&
                         <MapPanel
                             ee = {this.ee}
                             selection = {this.props.selection}
@@ -98,7 +93,6 @@ class App extends Component {
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selActions}
                         />
-                        }
                         <Panel title = 'Search results' className = 'margined'>
                             <SearchResults
                                 results = {this.props.storage.measurements}

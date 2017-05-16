@@ -7,7 +7,6 @@ export const Enum = {
     LngToChanged : 'GenericLngFinishChanged',
     AltFromChanged : 'GenericAltFromChanged',
     AltToChanged : 'GenericAltToChanged',
-    SelectionModeChanged : 'GenericSelectionModeChanged',
     ChannelsModeChanged : 'GenericChannelsModeChanged',
 
     QuerySetProject : 'GenericSetProject',
@@ -19,22 +18,19 @@ export const Enum = {
 };
 
 export const State = {
-    /* map or manual input */
-    useMap : false,
-
     /* query: channels or parameters */
     useChannels : false,
 
     /* manual input bounds (LatLng format) */
     rectangle : {
-        begin : new Array(41.33, 42.11),
-        end : new Array(14.22, 17.31)
+        begin : new Array(-90.0, -180),
+        end : new Array(90.0, 180)
     },
 
     /* altitude */
     altitude : {
         begin: 0,
-        end: 100
+        end: 800
     },
 
     /* data interval */

@@ -37,7 +37,7 @@ class SearchTrigger extends Component {
         let time = this.props.options.timelapse;
 
         /* format selection */
-        if(this.props.options.useMap) {
+        if(false) {
             data = this.props.selection;
         } else {
             /* create single rectangular selection element */

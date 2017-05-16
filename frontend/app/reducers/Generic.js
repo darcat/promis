@@ -19,11 +19,6 @@ export default function GenericReducer(state = State, action) {
     }
 
     switch(action.type) {
-        /* map/manual input mode */
-        case Enum.SelectionModeChanged:
-            return Object.assign({}, state, { useMap: action.payload });
-        break;
-
         /* timelapse */
         case Enum.DateFromChanged:
             timelapse.begin = action.payload;
