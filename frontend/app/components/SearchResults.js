@@ -27,10 +27,10 @@ class DataSection extends Component {
     }
 
     fetchData() {
-        var mid = this.props.mid;
+        let mid = this.props.mid;
 
         if(mid) {
-            this.props.actions.getSingle('/en/api/download/' + mid + '/quicklook?source=parameter&points=100', {}, function(resp) {
+            this.props.actions.getSingle('/en/api/download/' + mid + '/quicklook?source=' + this.props.source + '&points=100', {}, function(resp) {
                 this.setState(function() {
                     return {
                         main: resp.source.name,
@@ -51,7 +51,7 @@ class DataSection extends Component {
             let a = document.createElement('a');
 
             a.download = this.state.main + '.txt';
-            a.href = '/en/api/download/' + this.props.mid + '/data/?format=txt&source=' + (this.props.channeled ? 'channel' : 'parameter');
+            a.href = '/en/api/download/' + this.props.mid + '/data/?format=txt&source=' + this.props.source
             a.click();
         }
         // http://localhost:8081/en/api/download/29/data/?format=ascii&source=parameter
@@ -155,7 +155,7 @@ export default class SearchResults extends Component {
                                             <DataSection
                                                 mid = {mid}
                                                 actions = {this.props.actions}
-                                                channeled = {channels}
+                                                source = {(channels ? 'channel' : 'parameter')}
                                             />
                                         </td>
                                     </tr>

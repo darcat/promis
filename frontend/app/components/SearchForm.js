@@ -23,11 +23,12 @@ class SearchTrigger extends Component {
     }
 
     getMeasurements() {
+        let useChannels = this.props.options.useChannels;
+
         this.props.actions.getMeasurements(
             this.props.storage.sessions.data,
-            this.props.options.useChannels,
-            /* until backend is fixed, filter by params only */
-            this.props.options.query.parameters
+            useChannels,
+            useChannels ? this.props.options.query.channels : this.props.options.query.parameters
         );
     }
 
