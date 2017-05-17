@@ -322,7 +322,7 @@ export default class LeafletContainer extends Component {
             /* if there is a manual input on geography filter, draw it */
             this.clearShapes(this.latlngHandles);
 
-            let latlng = latlngRectangle(this.props.searchOptions.rectangle);
+            let latlng = latlngRectangle(props.searchOptions.rectangle);
             if(latlng) {
                 this.latlngHandles = this.makeShapes(latlng.type, latlng.data, this.latlngColor);
             }

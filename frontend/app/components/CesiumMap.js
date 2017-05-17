@@ -501,7 +501,7 @@ export default class CesiumContainer extends Component {
             /* if there is a manual input on geography filter, draw it */
             this.clearShape(this.latlngHandle);
 
-            let latlng = latlngRectangle(this.props.searchOptions.rectangle);
+            let latlng = latlngRectangle(props.searchOptions.rectangle);
             if(latlng) {
                 // TODO: pass this.latlngMaterial
                 this.latlngHandle = this.makeShape(latlng.type, latlng.data, false);
