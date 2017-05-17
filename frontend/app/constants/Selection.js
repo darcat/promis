@@ -99,7 +99,7 @@ export function selectionToWKT(obj) {
     let items = new Array();
 
     /* maybe another wkt writer here, construct by hand for now */
-    obj.elements.forEach(function(element) {
+    obj.forEach(function(element) {
         /* prepare coords */
         let flat = selectionToPolygon(element).map(function(point) {
             return point.join(' ');
@@ -114,4 +114,20 @@ export function selectionToWKT(obj) {
     console.log(wkt)
 
     return wkt;
+}
+
+/* convert manual lat/lng entry to a shape object or null if full map is selected */
+export function latlngRectangle(obj) {
+    let geo_SW = obj.begin;
+    let geo_NE = obj.end;
+
+    if(geo_SW[0] == -90 && geo_SW[1] == -180 &&
+       geo_NE[0] == 90 && geo_NE[1] == 180) {
+        return null;
+    }
+
+    return new Object({
+        type: Types.Rect,
+        data: new Array(geo_SW, geo_NE)
+    });
 }
