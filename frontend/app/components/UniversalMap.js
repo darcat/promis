@@ -102,6 +102,7 @@ export default class UniversalMap extends Component {
         let map = this.props.mapActions;
         let sel = this.selectionActions;
         let options = this.props.options;
+        let searchOptions = this.props.searchOptions;
         let selection = this.props.selection;
         let mapStyles = this.determineStyle(options);
 
@@ -118,6 +119,7 @@ export default class UniversalMap extends Component {
                             onSelect = {sel}
                             options = {options}
                             selection = {selection}
+                            searchOptions = {searchOptions}
                         />
                         ) : (
                         <CesiumContainer
@@ -126,6 +128,7 @@ export default class UniversalMap extends Component {
                             onSelect = {sel}
                             options = {options}
                             selection = {selection}
+                            searchOptions = {searchOptions}
                         />
                         ) }
                     </div>

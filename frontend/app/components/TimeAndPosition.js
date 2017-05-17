@@ -339,7 +339,6 @@ export default class TimeAndPositionInput extends Component {
             preview: new Array(0, 0)
         }
 
-        this.toggleMap = this.toggleMap.bind(this);
         this.updatePreview = this.updatePreview.bind(this);
         this.dateFromChange = this.dateFromChange.bind(this);
         this.dateToChange = this.dateToChange.bind(this);
@@ -361,10 +360,6 @@ export default class TimeAndPositionInput extends Component {
                 preview: data
             }
         });
-    }
-
-    toggleMap() {
-        this.actions.mapToggled(! this.props.options.useMap);
     }
 
     dateFromChange(newFrom) {
@@ -409,31 +404,18 @@ export default class TimeAndPositionInput extends Component {
                             <InputGroup>
                                 <InputGroup.Addon>From</InputGroup.Addon>
                                 <FormControl onChange = {this.altFromChange} value = {opts.altitude.begin} type="number" />
-                                <InputGroup.Addon>m</InputGroup.Addon>
+                                <InputGroup.Addon>km</InputGroup.Addon>
                             </InputGroup>
                         </Col>
                         <Col sm={5}>
                             <InputGroup>
                                 <InputGroup.Addon>To</InputGroup.Addon>
                                 <FormControl onChange = {this.altToChange} value = {opts.altitude.end} type="number" />
-                                <InputGroup.Addon>m</InputGroup.Addon>
+                                <InputGroup.Addon>km</InputGroup.Addon>
                             </InputGroup>
                         </Col>
                     </FormGroup>
-                    <FormGroup controlId = 'InputType'>
-                        <Col componentClass={ControlLabel} sm={2}>
-                            Geo input
-                        </Col>
-                        <Col sm={10}>
-                            <Toggle onClick = {this.toggleMap} 
-                                on = {<span><Glyphicon glyph = 'screenshot' /> Use map</span>}
-                                off = {<span><Glyphicon glyph = 'list-alt' /> Manual</span>}
-                                active = {opts.useMap}
-                            />
-                        </Col>
-                    </FormGroup>
-                    { ! opts.useMap ? (
-                    <GeoInputForm actions = {this.actions} options = {opts} />) : (
+                    <GeoInputForm actions = {this.actions} options = {opts} />
                     <FormGroup controlId = 'MapSelection'>
                         <Col componentClass = {ControlLabel} sm = {2}>
                             Selection
@@ -441,7 +423,7 @@ export default class TimeAndPositionInput extends Component {
                         <Col sm = {10}>
                             <MapSelection preview = {prev} selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
-                    </FormGroup>) }
+                    </FormGroup>
                 </Form>
             </Panel>
         );

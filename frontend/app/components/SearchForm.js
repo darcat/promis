@@ -9,7 +9,7 @@ import ProjectSelector from './ProjectSelector';
 import ChannelParameterPicker from './ChannelParameterPicker';
 
 import { isActiveState } from '../constants/REST';
-import { Types, selectionToWKT } from '../constants/Selection';
+import { Types, selectionToWKT, latlngRectangle } from '../constants/Selection';
 
 import '../styles/search.css';
 
@@ -33,33 +33,27 @@ class SearchTrigger extends Component {
     }
 
     getSessions() {
-        let data = null;
+        let selection = null;
         let time = this.props.options.timelapse;
 
-        /* format selection */
-        if(this.props.options.useMap) {
-            data = this.props.selection;
-        } else {
-            /* create single rectangular selection element */
-            data = new Object({
-                elements: new Array(
-                    new Object({
-                        type: Types.Rect,
-                        data: new Array(
-                            this.props.options.rectangle.begin,
-                            this.props.options.rectangle.end,
-                        )
-                    })
-                )
-            });
+        /* add selection if any */
+        selection = this.props.selection.elements.length > 0 ?
+            this.props.selection.elements.slice() : [];
 
-            /* flush possible selection */
-            this.props.selected.clearSelection();
+        /* TODO: discuss if we need a union of the selections or an intersection */
+
+        /* add a rectangle based on lat/lon input if the selection is not the whole globe */
+        let latlng = latlngRectangle(this.props.options.rectangle);
+        if(latlng){
+            selection.push(latlng);
         }
+
+        /* create the WKT representation or replace with null */
+        let geo_polygon = selection.length > 0 ? selectionToWKT(selection) : null;
 
         this.props.actions.getSessions(
             this.props.options.query.project,
-            selectionToWKT(data),
+            geo_polygon,
             /* workaround for projects with missing time intervals */
             time.begin > 0 ? time.begin : undefined,
             time.end > 0 ? time.end : undefined

@@ -1,15 +1,6 @@
 import { Enum } from '../constants/Search';
 
 export default {
-    mapToggled : function(newMode) {
-        return function(dispatch) {
-            dispatch({
-                type: Enum.SelectionModeChanged,
-                payload: newMode
-            })
-        }
-    },
-
     dateFromInput : function(value) {
         return function(dispatch) {
             dispatch({

@@ -54,9 +54,6 @@ export default class SessionList extends Component {
         }.bind(this));
 
         this.props.mapped.pushGeolines(geolines);
-
-        /* open the map if not opened already */
-        this.props.search.mapToggled(true);
     }
 
     render() {
