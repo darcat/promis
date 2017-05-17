@@ -82,6 +82,15 @@ export default {
         }
     },
 
+    clearQuery : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QueryClearData,
+                payload: true
+            })
+        }
+    },
+
     setProject : function(proj) {
         return function(dispatch) {
             dispatch({

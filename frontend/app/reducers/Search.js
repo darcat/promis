@@ -94,6 +94,18 @@ export default function SearchReducer(state = State, action) {
         break;
 
         /* query handling */
+        case Enum.QueryClearData:
+            return {
+                ...state,
+                query: {
+                    ...state.query,
+                    devices: new Array(),
+                    channels: new Array(),
+                    parameters: new Array()
+                }
+            }
+        break;
+
         case Enum.QuerySetProject:
             return {
                 ...state,

@@ -13,13 +13,22 @@ import { Types, selectionToWKT, latlngRectangle } from '../constants/Selection';
 
 import '../styles/search.css';
 
-class SearchTrigger extends Component {
+export default class SearchForm extends Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            enabled: true
+        };
+
         this.doSearch = this.doSearch.bind(this);
+        this.resetSearch = this.resetSearch.bind(this);
         this.getSessions = this.getSessions.bind(this);
         this.getMeasurements = this.getMeasurements.bind(this);
+    }
+
+    componentDidMount() {
+        this.props.actions.getProjects();
     }
 
     getMeasurements() {
@@ -48,6 +57,8 @@ class SearchTrigger extends Component {
             selection.push(latlng);
         }
 
+        //console.log(selection);
+
         /* create the WKT representation or replace with null */
         let geo_polygon = selection.length > 0 ? selectionToWKT(selection) : null;
 
@@ -61,64 +72,40 @@ class SearchTrigger extends Component {
     }
 
     doSearch() {
-        if(! isActiveState(this.props.storage.sessions)) {
+        if(! isActiveState(this.props.storage.sessions))
             this.getSessions();
-        } else {
-            if( ! isActiveState(this.props.storage.measurements)) {
-                this.getMeasurements();
-            }
-        }
+
+        if(! isActiveState(this.props.storage.measurements))
+            this.getMeasurements();
     }
 
-    render() {
-        let label = 'Dummy';
-
-        if(! isActiveState(this.props.storage.sessions)) {
-            label = 'Search';
-        } else {
-            label = 'Continue';
-        }
-
-        return (
-            <Button onClick = {this.doSearch}>
-                <Glyphicon glyph = 'search' /> {label}
-            </Button>
-        )
-    }
-}
-
-class ResetTrigger extends Component {
-    constructor(props) {
-        super(props);
-
-        this.resetData = this.resetData.bind(this);
-    }
-
-    resetData() {
+    resetSearch() {
+        this.props.search.clearQuery();
         this.props.actions.resetData();
     }
 
     render() {
-        if( isActiveState(this.props.storage.sessions) || isActiveState(this.props.storage.measurements) ) {
-            return (
-                <Button onClick = {this.resetData}>
+        let active = true;
+        let Control = null;
+
+        let sessions = isActiveState(this.props.storage.sessions);
+        let measurements = isActiveState(this.props.storage.measurements);
+
+        if(! sessions || ! measurements) {
+            Control = (
+                <Button onClick = {this.doSearch}>
+                    <Glyphicon glyph = 'search' /> { (sessions ? 'Continue' : 'Search') }
+                </Button>
+            );
+        } else {
+            active = false;
+            Control = (
+                <Button onClick = {this.resetSearch}>
                     <Glyphicon glyph = 'trash' /> Reset search
                 </Button>
-            )
-        } else {
-            return (<div></div>);
+            );
         }
-    }
-}
 
-export default class SearchForm extends Component {
-    constructor(props) {
-        super(props);
-
-        this.props.actions.getProjects();
-    }
-
-    render() {
         return (
             <div>
                 <Form horizontal>
@@ -142,6 +129,7 @@ export default class SearchForm extends Component {
                         </Col>
                         <Col sm = {10}>
                             <ChannelParameterPicker
+                                active = {active}
                                 search = {this.props.search}
                                 actions = {this.props.actions}
                                 storage = {this.props.storage}
@@ -163,20 +151,8 @@ export default class SearchForm extends Component {
                         </Col>
                     </FormGroup>
                     <FormGroup>
-                        <Col sm = {6}>
-                            <SearchTrigger
-                                storage = {this.props.storage}
-                                options = {this.props.options}
-                                actions = {this.props.actions}
-                                selected = {this.props.selected}
-                                selection = {this.props.selection}
-                            />
-                        </Col>
-                        <Col sm = {6}>
-                            <ResetTrigger
-                                storage = {this.props.storage}
-                                actions = {this.props.actions}
-                            />
+                        <Col sm = {12}>
+                            { Control }
                         </Col>
                     </FormGroup>
                 </Form>

@@ -33,10 +33,12 @@ export default class ChannelParameterPicker extends Component {
 
         return (
             <div>
-                <Toggle onClick = {this.toggleChannels} 
+                <Toggle
                     on = {<span>Channels</span>}
                     off = {<span>Parameters</span>}
                     active = {this.props.options.useChannels}
+                    onClick = {this.toggleChannels}
+                    disabled = {! this.props.active}
                 />
                 <div>
                     { Array.isArray(data) && data.map(function(dataElement, index) {
@@ -60,7 +62,12 @@ export default class ChannelParameterPicker extends Component {
 
                         return (
                             <div key = {index}>
-                                <Checkbox checked = {checked} onClick = {makeChoice}>{dataElement.name}</Checkbox>
+                                <Checkbox
+                                    disabled = {! this.props.active}
+                                    checked = {checked}
+                                    onClick = {makeChoice}>
+                                    {dataElement.name}
+                                </Checkbox>
                             </div>
                         );
                     }.bind(this)) }
@@ -69,3 +76,7 @@ export default class ChannelParameterPicker extends Component {
         );
     }
 }
+
+ChannelParameterPicker.defaultProps = {
+    active: true
+};

@@ -9,6 +9,7 @@ export const Enum = {
     AltToChanged : 'SearchAltToChanged',
     ChannelsModeChanged : 'SearchChannelsModeChanged',
 
+    QueryClearData : 'SearchQueryClearData',
     QuerySetProject : 'SearchSetProject',
     QuerySetDevice : 'SearchSetDevice',
     QuerySetChannel : 'SearchSetChannel',

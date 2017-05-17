@@ -48,6 +48,7 @@ export default class ProjectSelector extends Component {
 
                 /* reset data */
                 this.props.actions.resetData();
+                this.props.search.clearQuery();
                 this.props.mapped.clearGeolines();
             });
         }
