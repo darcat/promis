@@ -11,6 +11,70 @@ import '../styles/search.css';
 
 import { isSelectionElement, Types } from '../constants/Selection';
 
+
+class LimitedNumericField extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.value
+        };
+
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleInput = this.handleInput.bind(this);
+        this.handleCallback = this.handleCallback.bind(this);
+    }
+
+    handleCallback(value) {
+        if(this.props.onChange) {
+            this.props.onChange(value);
+        }
+    }
+
+    handleInput(e) {
+        /* fire callbacks without waiting for state change */
+        if(e.target.validity.valid) {
+            let val = (e.target.value !== '' ? e.target.value : '0');
+
+            this.setState({
+                value: val
+            });
+
+            this.handleCallback(val);
+        } else if(this.state.value.charAt(0) == '-' && this.state.value.length == 2) {
+            this.setState({
+                value: '0'
+            });
+
+            this.handleCallback('0')
+        }
+    }
+
+    handleBlur(e) {
+        if(! e.target.validity.valid || e.target.value == '') {
+            this.setState({
+                value: this.props.value
+            })
+        }
+    }
+
+    render() {
+        return (
+            <span>
+            <FormControl
+                step = 'any'
+                type = 'number'
+                min = {-this.props.limit}
+                max = {this.props.limit}
+                onChange = {this.handleInput}
+                onBlur = {this.handleBlur}
+                value = {this.state.value}
+                type = 'number' />
+            </span>
+        );
+    }
+}
+
 class GeoInputForm extends Component {
     constructor(props) {
         super(props);
@@ -23,20 +87,20 @@ class GeoInputForm extends Component {
         this.lngToChange = this.lngToChange.bind(this);
     }
 
-    latFromChange(e) {
-        this.actions.latFromInput(parseFloat(e.target.value));
+    latFromChange(value) {
+        this.actions.latFromInput(parseFloat(value));
     }
 
-    latToChange(e) {
-        this.actions.latToInput(parseFloat(e.target.value));
+    latToChange(value) {
+        this.actions.latToInput(parseFloat(value));
     }
 
-    lngFromChange(e) {
-        this.actions.lngFromInput(parseFloat(e.target.value));
+    lngFromChange(value) {
+        this.actions.lngFromInput(parseFloat(value));
     }
 
-    lngToChange(e) {
-        this.actions.lngToInput(parseFloat(e.target.value));
+    lngToChange(value) {
+        this.actions.lngToInput(parseFloat(value));
     }
 
     render() {
@@ -51,14 +115,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl min = '-90' max = '90' onChange = {this.latFromChange} value = {opts.rectangle.begin[0]} type = 'number' />
+                            <LimitedNumericField limit = {90} onChange = {this.latFromChange} value = {opts.rectangle.begin[0]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl min = '-90' max = '90' onChange = {this.latToChange} value = {opts.rectangle.end[0]} type = 'number' />
+                            <LimitedNumericField limit = {90} onChange = {this.latToChange} value = {opts.rectangle.end[0]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -70,14 +134,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl min = '-180' max = '180' onChange = {this.lngFromChange} value = {opts.rectangle.begin[1]} type = 'number' />
+                            <LimitedNumericField limit = {180} onChange = {this.lngFromChange} value = {opts.rectangle.begin[1]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl min = '-180' max = '180' onChange = {this.lngToChange} value = {opts.rectangle.end[1]} type = 'number' />
+                            <LimitedNumericField limit = {180} onChange = {this.lngToChange} value = {opts.rectangle.end[1]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
