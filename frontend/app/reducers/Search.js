@@ -2,14 +2,6 @@ import { Enum, State } from '../constants/Search';
 
 export default function SearchReducer(state = State, action) {
     switch(action.type) {
-        /* map/manual input mode */
-        case Enum.SelectionModeChanged:
-            return {
-                ...state,
-                useMap: action.payload
-            };
-        break;
-
         /* timelapse */
         case Enum.DateFromChanged:
             return {

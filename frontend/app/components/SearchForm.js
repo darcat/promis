@@ -32,33 +32,32 @@ class SearchTrigger extends Component {
     }
 
     getSessions() {
-        let data = null;
+        let selection = null;
         let time = this.props.options.timelapse;
+        let geo_SW = this.props.options.rectangle.begin;
+        let geo_NE = this.props.options.rectangle.end;
 
-        /* format selection */
-        if(false) {
-            data = this.props.selection;
-        } else {
-            /* create single rectangular selection element */
-            data = new Object({
-                elements: new Array(
-                    new Object({
-                        type: Types.Rect,
-                        data: new Array(
-                            this.props.options.rectangle.begin,
-                            this.props.options.rectangle.end,
-                        )
-                    })
-                )
-            });
+        /* add selection if any */
+        selection = this.props.selection.elements.length > 0 ?
+            this.props.selection.elements.slice() : [];
 
-            /* flush possible selection */
-            this.props.selected.clearSelection();
+        /* TODO: discuss if we need a union of the selections or an intersection */
+
+        /* add a rectangle based on lat/lon input if the selection is not the whole globe */
+        if( !( geo_SW[0] == -90 && geo_SW[1] == -180 &&
+               geo_NE[0] == 90 && geo_NE[1] == 180) ) {
+            selection.push(new Object({
+                            type: Types.Rect,
+                            data: new Array(geo_SW, geo_NE)
+            }));
         }
+
+        /* create the WKT representation or replace with null */
+        let geo_polygon = selection.length > 0 ? selectionToWKT(selection) : null;
 
         this.props.actions.getSessions(
             this.props.options.query.project,
-            selectionToWKT(data),
+            geo_polygon,
             /* workaround for projects with missing time intervals */
             time.begin > 0 ? time.begin : undefined,
             time.end > 0 ? time.end : undefined

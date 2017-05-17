@@ -99,7 +99,7 @@ export function selectionToWKT(obj) {
     let items = new Array();
 
     /* maybe another wkt writer here, construct by hand for now */
-    obj.elements.forEach(function(element) {
+    obj.forEach(function(element) {
         /* prepare coords */
         let flat = selectionToPolygon(element).map(function(point) {
             return point.join(' ');

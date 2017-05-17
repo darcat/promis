@@ -7,7 +7,6 @@ export const Enum = {
     LngToChanged : 'SearchLngFinishChanged',
     AltFromChanged : 'SearchAltFromChanged',
     AltToChanged : 'SearchAltToChanged',
-    SelectionModeChanged : 'SearchSelectionModeChanged',
     ChannelsModeChanged : 'SearchChannelsModeChanged',
 
     QuerySetProject : 'SearchSetProject',
@@ -27,14 +26,14 @@ export const State = {
 
     /* manual input bounds (LatLng format) */
     rectangle : {
-        begin : new Array(41.33, 42.11),
-        end : new Array(14.22, 17.31)
+        begin : new Array(-90.0, -180.0),
+        end : new Array(90.0, 180.0)
     },
 
     /* altitude */
     altitude : {
         begin: 0,
-        end: 100
+        end: 800
     },
 
     /* data interval */
