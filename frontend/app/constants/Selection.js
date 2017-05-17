@@ -115,3 +115,19 @@ export function selectionToWKT(obj) {
 
     return wkt;
 }
+
+/* convert manual lat/lng entry to a shape object or null if full map is selected */
+export function latlngRectangle(obj) {
+    let geo_SW = obj.begin;
+    let geo_NE = obj.end;
+
+    if(geo_SW[0] == -90 && geo_SW[1] == -180 &&
+       geo_NE[0] == 90 && geo_NE[1] == 180) {
+        return null;
+    }
+
+    return new Object({
+        type: Types.Rect,
+        data: new Array(geo_SW, geo_NE)
+    });
+}

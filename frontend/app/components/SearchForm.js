@@ -9,7 +9,7 @@ import ProjectSelector from './ProjectSelector';
 import ChannelParameterPicker from './ChannelParameterPicker';
 
 import { isActiveState } from '../constants/REST';
-import { Types, selectionToWKT } from '../constants/Selection';
+import { Types, selectionToWKT, latlngRectangle } from '../constants/Selection';
 
 import '../styles/search.css';
 
@@ -34,8 +34,6 @@ class SearchTrigger extends Component {
     getSessions() {
         let selection = null;
         let time = this.props.options.timelapse;
-        let geo_SW = this.props.options.rectangle.begin;
-        let geo_NE = this.props.options.rectangle.end;
 
         /* add selection if any */
         selection = this.props.selection.elements.length > 0 ?
@@ -44,12 +42,9 @@ class SearchTrigger extends Component {
         /* TODO: discuss if we need a union of the selections or an intersection */
 
         /* add a rectangle based on lat/lon input if the selection is not the whole globe */
-        if( !( geo_SW[0] == -90 && geo_SW[1] == -180 &&
-               geo_NE[0] == 90 && geo_NE[1] == 180) ) {
-            selection.push(new Object({
-                            type: Types.Rect,
-                            data: new Array(geo_SW, geo_NE)
-            }));
+        let latlng = latlngRectangle(this.props.options.rectangle);
+        if(latlng){
+            selection.push(latlng);
         }
 
         /* create the WKT representation or replace with null */

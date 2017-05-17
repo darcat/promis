@@ -90,6 +90,7 @@ class App extends Component {
                             ee = {this.ee}
                             selection = {this.props.selection}
                             options = {this.props.mapOptions}
+                            searchOptions = {this.props.searchOptions}
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selectionActions}
                         />
