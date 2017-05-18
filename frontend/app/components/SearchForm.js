@@ -82,6 +82,7 @@ export default class SearchForm extends Component {
     resetSearch() {
         this.props.search.clearQuery();
         this.props.actions.resetData();
+        this.props.mapped.clearGeolines();
     }
 
     render() {
