@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { toDegrees, toRadians, convertLongitudeRange, negativePiToPi } from 'cesium/Source/Core/Math';
+import { toDegrees } from 'cesium/Source/Core/Math';
 import Viewer from 'cesium/Source/Widgets/Viewer/Viewer';
 import Color from 'cesium/Source/Core/Color';
 import Cartesian3 from 'cesium/Source/Core/Cartesian3';
@@ -311,15 +311,32 @@ export default class CesiumContainer extends Component {
 
         switch(type) {
             case Types.Rect:
-                let west = convertLongitudeRange(toRadians(Math.min(data[0][1], data[1][1]))), /* minimal lng */
-                   south = negativePiToPi(toRadians(Math.min(data[0][0], data[1][0]))),        /* minimal lat */
-                    east = convertLongitudeRange(toRadians(Math.max(data[0][1], data[1][1]))), /* maximal lng */
-                   north = negativePiToPi(toRadians(Math.max(data[0][0], data[1][0])))         /* maximal lat */
+                /* pick the correct ranges */
+                let south = Math.min(data[0][0], data[1][0]),
+                    north = Math.max(data[0][0], data[1][0]);
 
-                   console.log(west, south, east, north);
+                let west = Math.min(data[0][1], data[1][1]),
+                    east = Math.max(data[0][1], data[1][1]);
+
+                /* for rectangles spanning the Earth more than once,
+                   replace with full longitude range */
+                if(east - west >= 360) {
+                    west = -180;
+                    east = 180;
+                } else { /* otherwise wrap the coordinates */
+                    function wrap(d) {
+                        let sgn = Math.sign(d);
+                        return (d + sgn * 180) % 360 - sgn * 180;
+                    }
+
+                    west = wrap(west);
+                    east = wrap(east);
+                }
+
+                console.log(west, south, east, north);
                 shape = this.viewer.entities.add({
                     rectangle : {
-                        coordinates : new Rectangle(west, south, east, north),
+                        coordinates : Rectangle.fromDegrees(west, south, east, north),
                         material : material,
                     }
                 });
