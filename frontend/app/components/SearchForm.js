@@ -105,15 +105,15 @@ export default class SearchForm extends Component {
                 </Button>
             );
         }
-
+        /* TODO: "Measurements" word is too long and 3/9 ratio for the columns seems too sparse */
         return (
             <div>
                 <Form horizontal>
                     <FormGroup controlId = 'Projects'>
-                        <Col componentClass = {ControlLabel} sm = {2}>
+                        <Col componentClass = {ControlLabel} sm = {3}>
                             Project
                         </Col>
-                        <Col sm = {10}>
+                        <Col sm = {9}>
                             <ProjectSelector
                                 mapped  = {this.props.mapped}
                                 search  = {this.props.search}
@@ -124,10 +124,10 @@ export default class SearchForm extends Component {
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'DataSource'>
-                        <Col componentClass = {ControlLabel} sm = {2}>
-                            Query by
+                        <Col componentClass = {ControlLabel} sm = {3}>
+                            Measurements
                         </Col>
-                        <Col sm = {10}>
+                        <Col sm = {9}>
                             <ChannelParameterPicker
                                 active = {active}
                                 search = {this.props.search}
@@ -138,10 +138,10 @@ export default class SearchForm extends Component {
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'Sessions'>
-                        <Col componentClass = {ControlLabel} sm = {2}>
+                        <Col componentClass = {ControlLabel} sm = {3}>
                             Sessions
                         </Col>
-                        <Col sm = {10}>
+                        <Col sm = {9}>
                             <SessionList
                                 mapped  = {this.props.mapped}
                                 actions = {this.props.actions}

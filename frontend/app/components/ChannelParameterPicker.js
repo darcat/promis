@@ -34,8 +34,8 @@ export default class ChannelParameterPicker extends Component {
         return (
             <div>
                 <Toggle
-                    on = {<span>Channels</span>}
-                    off = {<span>Parameters</span>}
+                    on = {<span>Level 1</span>}
+                    off = {<span>Level 2</span>}
                     active = {this.props.options.useChannels}
                     onClick = {this.toggleChannels}
                     disabled = {! this.props.active}
