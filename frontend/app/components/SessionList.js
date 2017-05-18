@@ -48,12 +48,11 @@ export default class SessionList extends Component {
                         progress : ++now
                     }
                 }, function() {
-                    geolines.push(data.geo_line)
+                    geolines.push(data.geo_line);
+                    this.props.mapped.pushGeolines(geolines);
                 });
             }.bind(this));
         }.bind(this));
-
-        this.props.mapped.pushGeolines(geolines);
     }
 
     render() {
