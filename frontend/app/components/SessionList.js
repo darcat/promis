@@ -41,6 +41,12 @@ export default class SessionList extends Component {
         let total = this.props.storage.sessions.data.length;
         let geolines = new Array();
 
+        /* TODO: stub, showing 25%, 50% and full amount */
+        let displayPts = [ Math.floor(total*0.25),
+                           Math.floor(total*0.5),
+                           total
+                         ];
+
         this.props.storage.sessions.data.forEach(function(session, index) {
             this.props.actions.getSingle(session.url, null, function(data) {
                 this.setState(function() {
@@ -49,7 +55,10 @@ export default class SessionList extends Component {
                     }
                 }, function() {
                     geolines.push(data.geo_line);
-                    this.props.mapped.pushGeolines(geolines);
+                    /* TODO: stub, will be replaced with a more flexible approach */
+                    if(displayPts.indexOf(now) > 0) {
+                        this.props.mapped.pushGeolines(geolines);
+                    }
                 });
             }.bind(this));
         }.bind(this));
