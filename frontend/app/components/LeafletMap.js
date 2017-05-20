@@ -4,7 +4,7 @@ import Leaflet from 'leaflet';
 import LeafletBing from 'leaflet-bing-layer';
 import LeafletGeodesy from 'leaflet-geodesy';
 
-import { Types } from '../constants/Selection';
+import { Types, latlngRectangle } from '../constants/Selection';
 import { BingKey } from '../constants/Map';
 
 import 'leaflet/dist/leaflet.css';
@@ -19,6 +19,7 @@ export default class LeafletContainer extends Component {
         this.shapeHandles = new Array();
         this.geolineHandles = new Array();
         this.previewHandles = null;
+        this.latlngHandles = null;
 
         /* options */
         this.mapParams = { center: [31.5, 10.2], zoom: 1, zoomControl: false, minZoom: 1, worldCopyJump: true};
@@ -48,6 +49,7 @@ export default class LeafletContainer extends Component {
         /* colors */
         this.previewColor = { color: 'white', dashArray: '5, 10' };
         this.defaultColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.8 };
+        this.latlngColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.3 };
         this.geolineColor = { color: 'red' };
         this.highlightColor = { color: 'green', fillColor: '#00ff00', fillOpacity: 0.8 };
         this.selectionColor = { weight: 2, color: 'yellow', fillColor: '#ffff00', fillOpacity: 0.5 };
@@ -67,6 +69,7 @@ export default class LeafletContainer extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        //console.log('new propz');
         this.updateMap(nextProps);
         this.repaint();
     }
@@ -262,6 +265,8 @@ export default class LeafletContainer extends Component {
 
     /* update visible areas according to current state */
     updateMap(maybeProps) {
+        // TODO: rewrite this mess, use setLatLng to update existing elements rather than adding and deleting
+        // in order to reduce flickering
         let props = maybeProps !== undefined ? maybeProps : this.props;
 
         if(! props.selection.active) {
@@ -312,6 +317,14 @@ export default class LeafletContainer extends Component {
                         }.bind(this));
                     }
                 }.bind(this));
+            }
+
+            /* if there is a manual input on geography filter, draw it */
+            this.clearShapes(this.latlngHandles);
+
+            let latlng = latlngRectangle(props.searchOptions.rectangle);
+            if(latlng) {
+                this.latlngHandles = this.makeShapes(latlng.type, latlng.data, this.latlngColor);
             }
         }
     }

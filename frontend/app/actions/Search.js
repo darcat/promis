@@ -1,15 +1,6 @@
-import { Enum } from '../constants/Generic';
+import { Enum } from '../constants/Search';
 
 export default {
-    mapToggled : function(newMode) {
-        return function(dispatch) {
-            dispatch({
-                type: Enum.SelectionModeChanged,
-                payload: newMode
-            })
-        }
-    },
-
     dateFromInput : function(value) {
         return function(dispatch) {
             dispatch({
@@ -82,11 +73,74 @@ export default {
         }
     },
 
-    setCurrentProject : function(proj) {
+    toggleChannels : function(ch) {
         return function(dispatch) {
             dispatch({
-                type: Enum.SetProject,
+                type: Enum.ChannelsModeChanged,
+                payload: ch
+            })
+        }
+    },
+
+    clearQuery : function() {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QueryClearData,
+                payload: true
+            })
+        }
+    },
+
+    setProject : function(proj) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetProject,
                 payload: proj
+            })
+        }
+    },
+
+    setDevice : function(dev) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetDevice,
+                payload: dev
+            })
+        }
+    },
+
+    setChannel : function(ch) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetChannel,
+                payload: ch
+            })
+        }
+    },
+
+    setParameter : function(param) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QuerySetParameter,
+                payload: param
+            })
+        }
+    },
+
+    clearChannel : function(ch) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QueryClearChannel,
+                payload: ch
+            })
+        }
+    },
+
+    clearParameter : function(p) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.QueryClearParameter,
+                payload: p
             })
         }
     }

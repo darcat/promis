@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { toDegrees } from 'cesium/Source/Core/Math';
+import { toDegrees, toRadians, convertLongitudeRange, negativePiToPi } from 'cesium/Source/Core/Math';
 import Viewer from 'cesium/Source/Widgets/Viewer/Viewer';
 import Color from 'cesium/Source/Core/Color';
 import Cartesian3 from 'cesium/Source/Core/Cartesian3';
@@ -26,7 +26,7 @@ import EllipsoidSurfaceAppearance from 'cesium/Source/Scene/EllipsoidSurfaceAppe
 import PolylineOutlineMaterialProperty from 'cesium/Source/DataSources/PolylineOutlineMaterialProperty';
 
 import { BingKey } from '../constants/Map';
-import { Types } from '../constants/Selection';
+import { Types, latlngRectangle } from '../constants/Selection';
 
 import 'cesium/Source/Widgets/widgets.css';
 
@@ -60,6 +60,7 @@ export default class CesiumContainer extends Component {
         this.shapeHandles = new Array();
         this.geolineHandles = new Array();
         this.previewHandle = null;
+        this.latlngHandle = null;
 
         /* for render suspension */
         this.lastmove = Date.now();
@@ -101,6 +102,7 @@ export default class CesiumContainer extends Component {
         this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.ORANGE, outlineWidth : 2, outlineColor : Color.BLACK });
         this.highlightMaterial = Color.GREEN.withAlpha(0.6);
         this.selectionMaterial = Color.YELLOW.withAlpha(0.5);
+        this.latlngMaterial = Color.BLUE.withAlpha(0.3);
     }
 
     /* update only for fullscreen toggling */
@@ -309,14 +311,15 @@ export default class CesiumContainer extends Component {
 
         switch(type) {
             case Types.Rect:
-                let west = Math.min(data[0][1], data[1][1]), /* minimal lng */
-                   south = Math.min(data[0][0], data[1][0]), /* minimal lat */
-                    east = Math.max(data[1][1], data[1][1]), /* maximal lng */
-                   north = Math.max(data[0][0], data[1][0])  /* maximal lat */
+                let west = convertLongitudeRange(toRadians(Math.min(data[0][1], data[1][1]))), /* minimal lng */
+                   south = negativePiToPi(toRadians(Math.min(data[0][0], data[1][0]))),        /* minimal lat */
+                    east = convertLongitudeRange(toRadians(Math.max(data[0][1], data[1][1]))), /* maximal lng */
+                   north = negativePiToPi(toRadians(Math.max(data[0][0], data[1][0])))         /* maximal lat */
 
+                   console.log(west, south, east, north);
                 shape = this.viewer.entities.add({
                     rectangle : {
-                        coordinates : Rectangle.fromDegrees(west, south, east, north),
+                        coordinates : new Rectangle(west, south, east, north),
                         material : material,
                     }
                 });
@@ -494,6 +497,15 @@ export default class CesiumContainer extends Component {
                         }.bind(this));
                     }
                 }.bind(this));
+            }
+
+            /* if there is a manual input on geography filter, draw it */
+            this.clearShape(this.latlngHandle);
+
+            let latlng = latlngRectangle(props.searchOptions.rectangle);
+            if(latlng) {
+                // TODO: pass this.latlngMaterial
+                this.latlngHandle = this.makeShape(latlng.type, latlng.data, false);
             }
         }
     }

@@ -1,332 +1,161 @@
 import React, { Component } from 'react';
-import { Row, Col, Button, Glyphicon, FormGroup, FormControl, ControlLabel, ProgressBar } from 'react-bootstrap';
+import { Row, Col, Form, Button, Glyphicon, FormGroup, FormControl, ControlLabel, ProgressBar } from 'react-bootstrap';
 import Spinner from 'react-spinjs';
 import stringify from 'wellknown';
 import moment  from 'moment';
 
-import { getById, isActiveState } from '../constants/REST';
+import SessionList from './SessionList';
+import ProjectSelector from './ProjectSelector';
+import ChannelParameterPicker from './ChannelParameterPicker';
 
-class ProjectSelector extends Component {
-    constructor(props) {
-        super(props);
+import { isActiveState } from '../constants/REST';
+import { Types, selectionToWKT, latlngRectangle } from '../constants/Selection';
 
-        this.updateProject = this.updateProject.bind(this);
-    }
-
-    componentDidMount() {
-        this.updateProject();
-    }
-
-    updateProject(event) {
-        let selected = null;
-
-        if(event) {
-            event.persist();
-            selected = parseInt(event.target.value);
-        }
-
-        let project = getById(this.props.storage.projects.data, selected, selected === null);
-
-        //console.log(project);
-        if(project) {
-            /* update selected project */
-            this.props.generic.setCurrentProject(selected);
-
-            /* update datetime fields according to project (up to seconds) */
-            this.props.generic.dateFromInput(project.timelapse.start);
-            this.props.generic.dateToInput(project.timelapse.end);
-
-            /* reset data */
-            this.props.actions.resetData();
-            this.props.mapped.clearGeolines();
-        }
-    }
-
-    render() {
-        let proj = getById(this.props.storage.projects.data, this.props.options.project, true);
-        let desc = proj ? proj.description : 'No description available';
-
-        return (
-            <FormGroup controlId="projSelect">
-                <ControlLabel>Select project</ControlLabel>
-                <FormControl onChange = {this.updateProject} componentClass="select" placeholder="select">
-                    { this.props.storage.projects.data && this.props.storage.projects.data.map(function(project, key) {
-                        return (
-                            <option key = {key} value = {project.id}>{project.name}</option>
-                        )
-                    }.bind(this))}
-                </FormControl>
-                <div>
-                    <p>
-                        { desc }
-                    </p>
-                </div>
-            </FormGroup>
-        );
-    }
-}
-
-class ChannelParameterList extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (<div>chan params</div>);
-    }
-}
-
-class SessionList extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            progress  : -1
-        }
-
-        this.eraseGeolines = this.eraseGeolines.bind(this);
-        this.displayGeolines = this.displayGeolines.bind(this);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if( ! isActiveState(nextProps.storage.sessions)) {
-            this.setState(function() {
-                return {
-                    progress: -1
-                }
-            })
-        }
-    }
-
-    eraseGeolines() {
-        this.setState(function(){
-            return {
-                progress : -1
-            }
-        });
-
-        this.props.mapped.clearGeolines();
-    }
-
-    displayGeolines() {
-        /* slow, proper version needs map rework */
-        let now = 0;
-        let total = this.props.storage.sessions.data.length;
-        let geolines = new Array();
-
-        this.props.storage.sessions.data.forEach(function(session, index) {
-            this.props.actions.getSingle(session.url, null, function(data) {
-                this.setState(function() {
-                    return {
-                        progress : ++now
-                    }
-                }, function() {
-                    geolines.push(data.geo_line)
-                });
-            }.bind(this));
-        }.bind(this));
-
-        this.props.mapped.pushGeolines(geolines);
-
-        /* open the map if not opened already */
-        this.props.generic.mapToggled(true);
-    }
-
-    render() {
-        if( isActiveState(this.props.storage.sessions)) {
-            let sessions = this.props.storage.sessions.data;
-            let Control = null;
-
-            if(this.state.progress == sessions.length) {
-                Control = <Button onClick = {this.eraseGeolines}>Clear map</Button>;
-            } else {
-                if(this.state.progress != -1) {
-                    Control = <ProgressBar active now = {this.state.progress} max = {sessions.length} />;
-                } else {
-                    Control = <Button onClick = {this.displayGeolines}>Display on map</Button>;
-                }
-            }
-
-            return (
-                <FormGroup controlId = 'SessionGroup'>
-                    <Col componentClass = {ControlLabel} sm={2}>
-                        Sessions
-                    </Col>
-                    <Col sm={5}>
-                        <p>{sessions.length} sessions found</p>
-                    </Col>
-                    <Col sm={5}>
-                        { Control }
-                    </Col>
-                </FormGroup>
-            );
-        } else {
-            //this.eraseGeolines();
-
-            return(<div></div>);
-        }
-    }
-}
-
-class SessionsTrigger extends Component {
-    constructor(props) {
-        super(props);
-
-        this.getSessions = this.getSessions.bind(this);
-    }
-
-    getSessions() {
-        this.props.actions.getSessions(this.props.options.project);
-    }
-
-    render() {
-        if(! isActiveState(this.props.storage.sessions)) {
-            return (
-                <FormGroup>
-                    <Button onClick = {this.getSessions}>
-                        <Glyphicon glyph = 'search' /> Get sessions
-                    </Button>
-                </FormGroup>
-            )
-        } else {
-            return (<div></div>);
-        }
-    }
-}
-
-class MeasurementsTrigger extends Component {
-    constructor(props) {
-        super(props);
-
-        this.getMeasurements = this.getMeasurements.bind(this);
-    }
-
-    getMeasurements() {
-        this.props.actions.getMeasurements(this.props.storage.sessions.data, new Array(1, 2));//this.props.options.project);
-    }
-
-    render() {
-        if(! isActiveState(this.props.storage.measurements) && isActiveState(this.props.storage.sessions)) {
-            return (
-                <FormGroup>
-                    <Button onClick = {this.getMeasurements}>
-                        <Glyphicon glyph = 'search' /> Get measurements
-                    </Button>
-                </FormGroup>
-            )
-        } else {
-            return (<div></div>);
-        }
-    }
-}
-
-class ResetTrigger extends Component {
-    constructor(props) {
-        super(props);
-
-        this.resetData = this.resetData.bind(this);
-    }
-
-    resetData() {
-        this.props.actions.resetData();
-    }
-
-    render() {
-        if( isActiveState(this.props.storage.sessions) || isActiveState(this.props.storage.channels) ||
-            isActiveState(this.props.storage.parameters) || isActiveState(this.props.storage.measurements) ) {
-            return (
-                <FormGroup>
-                    <Button onClick = {this.resetData}>
-                        <Glyphicon glyph = 'trash' /> Reset search
-                    </Button>
-                </FormGroup>
-            )
-        } else {
-            return (<div></div>);
-        }
-    }
-}
+import '../styles/search.css';
 
 export default class SearchForm extends Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            enabled: true
+        };
+
+        this.doSearch = this.doSearch.bind(this);
+        this.resetSearch = this.resetSearch.bind(this);
+        this.getSessions = this.getSessions.bind(this);
+        this.getMeasurements = this.getMeasurements.bind(this);
+    }
+
+    componentDidMount() {
         this.props.actions.getProjects();
     }
 
+    getMeasurements() {
+        let useChannels = this.props.options.useChannels;
+
+        this.props.actions.getMeasurements(
+            this.props.storage.sessions.data,
+            useChannels,
+            useChannels ? this.props.options.query.channels : this.props.options.query.parameters
+        );
+    }
+
+    getSessions() {
+        let selection = null;
+        let time = this.props.options.timelapse;
+
+        /* add selection if any */
+        selection = this.props.selection.elements.length > 0 ?
+            this.props.selection.elements.slice() : [];
+
+        /* TODO: discuss if we need a union of the selections or an intersection */
+
+        /* add a rectangle based on lat/lon input if the selection is not the whole globe */
+        let latlng = latlngRectangle(this.props.options.rectangle);
+        if(latlng){
+            selection.push(latlng);
+        }
+
+        //console.log(selection);
+
+        /* create the WKT representation or replace with null */
+        let geo_polygon = selection.length > 0 ? selectionToWKT(selection) : null;
+
+        this.props.actions.getSessions(
+            this.props.options.query.project,
+            geo_polygon,
+            /* workaround for projects with missing time intervals */
+            time.begin > 0 ? time.begin : undefined,
+            time.end > 0 ? time.end : undefined
+        );
+    }
 
     doSearch() {
+        if(! isActiveState(this.props.storage.sessions))
+            this.getSessions();
 
-        /*this.props.actions.makeQuery('/en/api/sessions', {params}, function(sessions) {
-            var res = new Array();
+        if(! isActiveState(this.props.storage.measurements))
+            this.getMeasurements();
+    }
 
-            function idfromurl(url) {
-                let r = /.*\/([0-9]+)/g;
-                let m = r.exec(url);
-                return m[1];
-            }
-
-            sessions.results.map(function(session) {
-                if(Array.isArray(session.measurements)) {
-                    session.measurements.map(function(url) {
-                        //this.props.actions.makeQuery()
-                        let mid = idfromurl(url);
-                        let dm = moment(session.time_begin);
-
-                        this.props.actions.setField([
-                            {
-                                name: 'Measurement #' + mid,
-                                date: String(dm.day() + '.' + dm.month() + '.' + dm.year()),
-                                mid: mid
-                            }]);
-                        //console.log(mid);
-                    }.bind(this));
-                }
-                //this.props.actions.
-            }.bind(this));
-
-            //this.props.actions.setField([{sessions: 'date', mid: 1, name: 'sdfsdf'}]);
-
-            //console.log(sessions);
-            
-
-            
-        }.bind(this));*/
+    resetSearch() {
+        this.props.search.clearQuery();
+        this.props.actions.resetData();
     }
 
     render() {
+        let active = true;
+        let Control = null;
+
+        let sessions = isActiveState(this.props.storage.sessions);
+        let measurements = isActiveState(this.props.storage.measurements);
+
+        if(! sessions || ! measurements) {
+            Control = (
+                <Button onClick = {this.doSearch}>
+                    <Glyphicon glyph = 'search' /> { (sessions ? 'Continue' : 'Search') }
+                </Button>
+            );
+        } else {
+            active = false;
+            Control = (
+                <Button onClick = {this.resetSearch}>
+                    <Glyphicon glyph = 'trash' /> Reset search
+                </Button>
+            );
+        }
+
         return (
             <div>
-                <ProjectSelector
-                    mapped  = {this.props.mapped}
-                    generic = {this.props.generic}
-                    storage = {this.props.storage}
-                    options = {this.props.options}
-                    actions = {this.props.actions}
-                />
-                <ChannelParameterList
-                    generic = {this.props.generic}
-                    actions = {this.props.actions}
-                />
-                <SessionList
-                    mapped  = {this.props.mapped}
-                    actions = {this.props.actions}
-                    storage = {this.props.storage}
-                    generic = {this.props.generic}
-                />
-                <SessionsTrigger
-                    storage = {this.props.storage}
-                    options = {this.props.options}
-                    actions = {this.props.actions}
-                />
-                <MeasurementsTrigger
-                    storage = {this.props.storage}
-                    actions = {this.props.actions}
-                />
-                <ResetTrigger
-                    storage = {this.props.storage}
-                    actions = {this.props.actions}
-                />
+                <Form horizontal>
+                    <FormGroup controlId = 'Projects'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Project
+                        </Col>
+                        <Col sm = {10}>
+                            <ProjectSelector
+                                mapped  = {this.props.mapped}
+                                search  = {this.props.search}
+                                storage = {this.props.storage}
+                                options = {this.props.options}
+                                actions = {this.props.actions}
+                            />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup controlId = 'DataSource'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Query by
+                        </Col>
+                        <Col sm = {10}>
+                            <ChannelParameterPicker
+                                active = {active}
+                                search = {this.props.search}
+                                actions = {this.props.actions}
+                                storage = {this.props.storage}
+                                options = {this.props.options}
+                            />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup controlId = 'Sessions'>
+                        <Col componentClass = {ControlLabel} sm = {2}>
+                            Sessions
+                        </Col>
+                        <Col sm = {10}>
+                            <SessionList
+                                mapped  = {this.props.mapped}
+                                actions = {this.props.actions}
+                                storage = {this.props.storage}
+                                search = {this.props.search}
+                            />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup>
+                        <Col sm = {12}>
+                            { Control }
+                        </Col>
+                    </FormGroup>
+                </Form>
             </div>
         )
     }

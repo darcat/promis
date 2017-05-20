@@ -7,9 +7,73 @@ import DateTime from 'react-bootstrap-datetimepicker';
 import InlineEdit from 'react-edit-inline';
 import Panel from './Panel';
 
-import '../styles/map.css';
+import '../styles/search.css';
 
 import { isSelectionElement, Types } from '../constants/Selection';
+
+
+class LimitedNumericField extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.value
+        };
+
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleInput = this.handleInput.bind(this);
+        this.handleCallback = this.handleCallback.bind(this);
+    }
+
+    handleCallback(value) {
+        if(this.props.onChange) {
+            this.props.onChange(value);
+        }
+    }
+
+    handleInput(e) {
+        /* fire callbacks without waiting for state change */
+        if(e.target.validity.valid) {
+            let val = (e.target.value !== '' ? e.target.value : '0');
+
+            this.setState({
+                value: val
+            });
+
+            this.handleCallback(val);
+        } else if(this.state.value.charAt(0) == '-' && this.state.value.length == 2) {
+            this.setState({
+                value: '0'
+            });
+
+            this.handleCallback('0')
+        }
+    }
+
+    handleBlur(e) {
+        if(! e.target.validity.valid || e.target.value == '') {
+            this.setState({
+                value: this.props.value
+            })
+        }
+    }
+
+    render() {
+        return (
+            <span>
+            <FormControl
+                step = 'any'
+                type = 'number'
+                min = {-this.props.limit}
+                max = {this.props.limit}
+                onChange = {this.handleInput}
+                onBlur = {this.handleBlur}
+                value = {this.state.value}
+                type = 'number' />
+            </span>
+        );
+    }
+}
 
 class GeoInputForm extends Component {
     constructor(props) {
@@ -23,20 +87,20 @@ class GeoInputForm extends Component {
         this.lngToChange = this.lngToChange.bind(this);
     }
 
-    latFromChange(e) {
-        this.actions.latFromInput(parseFloat(e.target.value));
+    latFromChange(value) {
+        this.actions.latFromInput(parseFloat(value));
     }
 
-    latToChange(e) {
-        this.actions.latToInput(parseFloat(e.target.value));
+    latToChange(value) {
+        this.actions.latToInput(parseFloat(value));
     }
 
-    lngFromChange(e) {
-        this.actions.lngFromInput(parseFloat(e.target.value));
+    lngFromChange(value) {
+        this.actions.lngFromInput(parseFloat(value));
     }
 
-    lngToChange(e) {
-        this.actions.lngToInput(parseFloat(e.target.value));
+    lngToChange(value) {
+        this.actions.lngToInput(parseFloat(value));
     }
 
     render() {
@@ -51,14 +115,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.latFromChange} value = {opts.latFrom} type="number" />
+                            <LimitedNumericField limit = {90} onChange = {this.latFromChange} value = {opts.rectangle.begin[0]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.latToChange} value = {opts.latTo} type="number" />
+                            <LimitedNumericField limit = {90} onChange = {this.latToChange} value = {opts.rectangle.end[0]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -70,14 +134,14 @@ class GeoInputForm extends Component {
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>From</InputGroup.Addon>
-                            <FormControl onChange = {this.lngFromChange} value = {opts.lngFrom} type="number" />
+                            <LimitedNumericField limit = {180} onChange = {this.lngFromChange} value = {opts.rectangle.begin[1]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
                     <Col sm={5}>
                         <InputGroup>
                             <InputGroup.Addon>To</InputGroup.Addon>
-                            <FormControl onChange = {this.lngToChange} value = {opts.lngTo} type="number" />
+                            <LimitedNumericField limit = {180} onChange = {this.lngToChange} value = {opts.rectangle.end[1]} />
                             <InputGroup.Addon>&deg;</InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -269,13 +333,12 @@ export default class TimeAndPositionInput extends Component {
     constructor(props) {
         super(props);
 
-        this.actions = props.genericActions;
+        this.actions = props.searchActions;
 
         this.state = {
             preview: new Array(0, 0)
         }
 
-        this.toggleMap = this.toggleMap.bind(this);
         this.updatePreview = this.updatePreview.bind(this);
         this.dateFromChange = this.dateFromChange.bind(this);
         this.dateToChange = this.dateToChange.bind(this);
@@ -297,10 +360,6 @@ export default class TimeAndPositionInput extends Component {
                 preview: data
             }
         });
-    }
-
-    toggleMap() {
-        this.actions.mapToggled(! this.props.options.mapEnabled);
     }
 
     dateFromChange(newFrom) {
@@ -331,10 +390,10 @@ export default class TimeAndPositionInput extends Component {
                             Interval
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {String(opts.dateFrom * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateFromChange} />
+                            <DateTime dateTime = {String(opts.timelapse.begin * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateFromChange} />
                         </Col>
                         <Col sm={5}>
-                            <DateTime dateTime = {String(opts.dateTo * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateToChange} />
+                            <DateTime dateTime = {String(opts.timelapse.end * 1000)} inputFormat = "DD/MM/YYYY HH:MM:SS" onChange = {this.dateToChange} />
                         </Col>
                     </FormGroup>
                     <FormGroup controlId = 'Altitude'>
@@ -344,32 +403,19 @@ export default class TimeAndPositionInput extends Component {
                         <Col sm={5}>
                             <InputGroup>
                                 <InputGroup.Addon>From</InputGroup.Addon>
-                                <FormControl onChange = {this.altFromChange} value = {opts.altFrom} type="number" />
-                                <InputGroup.Addon>m</InputGroup.Addon>
+                                <FormControl onChange = {this.altFromChange} value = {opts.altitude.begin} type="number" />
+                                <InputGroup.Addon>km</InputGroup.Addon>
                             </InputGroup>
                         </Col>
                         <Col sm={5}>
                             <InputGroup>
                                 <InputGroup.Addon>To</InputGroup.Addon>
-                                <FormControl onChange = {this.altToChange} value = {opts.altTo} type="number" />
-                                <InputGroup.Addon>m</InputGroup.Addon>
+                                <FormControl onChange = {this.altToChange} value = {opts.altitude.end} type="number" />
+                                <InputGroup.Addon>km</InputGroup.Addon>
                             </InputGroup>
                         </Col>
                     </FormGroup>
-                    <FormGroup controlId = 'InputType'>
-                        <Col componentClass={ControlLabel} sm={2}>
-                            Geo input
-                        </Col>
-                        <Col sm={10}>
-                            <Toggle onClick = {this.toggleMap} 
-                                on = {<span><Glyphicon glyph = 'screenshot' /> Use map</span>}
-                                off = {<span><Glyphicon glyph = 'list-alt' /> Manual</span>}
-                                active = {opts.mapEnabled} 
-                            />
-                        </Col>
-                    </FormGroup>
-                    { ! opts.mapEnabled ? (
-                    <GeoInputForm actions = {this.actions} options = {opts} />) : (
+                    <GeoInputForm actions = {this.actions} options = {opts} />
                     <FormGroup controlId = 'MapSelection'>
                         <Col componentClass = {ControlLabel} sm = {2}>
                             Selection
@@ -377,7 +423,7 @@ export default class TimeAndPositionInput extends Component {
                         <Col sm = {10}>
                             <MapSelection preview = {prev} selection = {this.props.selection} actions = {this.props.selectionActions} />
                         </Col>
-                    </FormGroup>) }
+                    </FormGroup>
                 </Form>
             </Panel>
         );

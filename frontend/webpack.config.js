@@ -38,7 +38,7 @@ var config = {
                     presets: [
                         ['es2015', { 'modules': false }],
                         ['react']],
-                    plugins: ['lodash']
+                    plugins: ['lodash', 'transform-object-rest-spread']
                     
                 }
         } }, {
