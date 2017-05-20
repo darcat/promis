@@ -98,9 +98,9 @@ export default class CesiumContainer extends Component {
 
         /* materials */
         this.previewMaterial = Material.fromType('Stripe');
-        this.defaultMaterial = Color.BLUE.withAlpha(0.6);
-        this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.ORANGE, outlineWidth : 2, outlineColor : Color.BLACK });
-        this.highlightMaterial = Color.GREEN.withAlpha(0.6);
+        this.defaultMaterial = Color.BLUE.withAlpha(0.3);
+        this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.RED, outlineWidth : 2, outlineColor : Color.BLACK });
+        this.highlightMaterial = Color.GREEN.withAlpha(0.5);
         this.selectionMaterial = Color.YELLOW.withAlpha(0.5);
         this.latlngMaterial = Color.BLUE.withAlpha(0.3);
     }
