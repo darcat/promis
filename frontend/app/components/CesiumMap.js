@@ -469,20 +469,6 @@ export default class CesiumContainer extends Component {
         let props = maybeProps !== undefined ? maybeProps : this.props;
 
         if(! props.selection.active) {
-            /* clear geolines */
-            this.geolineHandles.forEach(function(handle) {
-                this.clearShape(handle);
-            }.bind(this));
-
-            /* draw new geolines if they're present */
-            if(Array.isArray(props.options.geolines) && props.options.geolines.length > 0) {
-                this.geolineHandles = new Array();
-
-                props.options.geolines.forEach(function(geoline){
-                    this.geolineHandles.push(this.makeGeoline(geoline));
-                }.bind(this));
-            }
-
             /* clear preview */
             this.previewHandle && this.viewer.scene.primitives.remove(this.previewHandle);
 
@@ -523,6 +509,20 @@ export default class CesiumContainer extends Component {
             if(latlng) {
                 // TODO: pass this.latlngMaterial
                 this.latlngHandle = this.makeShape(latlng.type, latlng.data, false);
+            }
+
+            /* clear geolines */
+            this.geolineHandles.forEach(function(handle) {
+                this.clearShape(handle);
+            }.bind(this));
+
+            /* draw new geolines if they're present */
+            if(Array.isArray(props.options.geolines) && props.options.geolines.length > 0) {
+                this.geolineHandles = new Array();
+
+                props.options.geolines.forEach(function(geoline){
+                    this.geolineHandles.push(this.makeGeoline(geoline));
+                }.bind(this));
             }
         }
     }
