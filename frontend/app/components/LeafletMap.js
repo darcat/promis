@@ -212,10 +212,10 @@ export default class LeafletContainer extends Component {
 
             case Types.Polygon:
                 /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
-                let points = data;/*new Array(data.length);
+                let points = new Array(data.length);
                 for(let i = 0; i < data.length; i++) {
-                    points.push([ data[i][0], data[i][1] + shift ]);
-                }*/
+                    points[i] = [ data[i][0], data[i][1] + shift ];
+                }
                 shape = Leaflet.polygon(points, options);
             break;
         }
