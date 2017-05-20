@@ -48,10 +48,10 @@ export default class LeafletContainer extends Component {
 
         /* colors */
         this.previewColor = { color: 'white', dashArray: '5, 10' };
-        this.defaultColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.8 };
+        this.defaultColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.3 };
         this.latlngColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.3 };
         this.geolineColor = { color: 'red' };
-        this.highlightColor = { color: 'green', fillColor: '#00ff00', fillOpacity: 0.8 };
+        this.highlightColor = { color: 'green', fillColor: '#00ff00', fillOpacity: 0.5 };
         this.selectionColor = { weight: 2, color: 'yellow', fillColor: '#ffff00', fillOpacity: 0.5 };
     }
 
@@ -212,10 +212,10 @@ export default class LeafletContainer extends Component {
 
             case Types.Polygon:
                 /* TODO: we only support normal polygons w/o holes and multipolygons okay? */
-                let points = data;/*new Array(data.length);
+                let points = new Array(data.length);
                 for(let i = 0; i < data.length; i++) {
-                    points.push([ data[i][0], data[i][1] + shift ]);
-                }*/
+                    points[i] = [ data[i][0], data[i][1] + shift ];
+                }
                 shape = Leaflet.polygon(points, options);
             break;
         }

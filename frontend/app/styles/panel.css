@@ -24,7 +24,3 @@
 .react-draggable:before, .react-draggable:after {
 	transform: translateZ(-1em);
 }
-
-.margined {
-	margin-top: 30px;
-}

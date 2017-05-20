@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { toDegrees, toRadians, convertLongitudeRange, negativePiToPi } from 'cesium/Source/Core/Math';
+import { toDegrees } from 'cesium/Source/Core/Math';
 import Viewer from 'cesium/Source/Widgets/Viewer/Viewer';
 import Color from 'cesium/Source/Core/Color';
 import Cartesian3 from 'cesium/Source/Core/Cartesian3';
@@ -98,9 +98,9 @@ export default class CesiumContainer extends Component {
 
         /* materials */
         this.previewMaterial = Material.fromType('Stripe');
-        this.defaultMaterial = Color.BLUE.withAlpha(0.6);
-        this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.ORANGE, outlineWidth : 2, outlineColor : Color.BLACK });
-        this.highlightMaterial = Color.GREEN.withAlpha(0.6);
+        this.defaultMaterial = Color.BLUE.withAlpha(0.3);
+        this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.RED, outlineWidth : 2, outlineColor : Color.BLACK });
+        this.highlightMaterial = Color.GREEN.withAlpha(0.5);
         this.selectionMaterial = Color.YELLOW.withAlpha(0.5);
         this.latlngMaterial = Color.BLUE.withAlpha(0.3);
     }
@@ -311,15 +311,32 @@ export default class CesiumContainer extends Component {
 
         switch(type) {
             case Types.Rect:
-                let west = convertLongitudeRange(toRadians(Math.min(data[0][1], data[1][1]))), /* minimal lng */
-                   south = negativePiToPi(toRadians(Math.min(data[0][0], data[1][0]))),        /* minimal lat */
-                    east = convertLongitudeRange(toRadians(Math.max(data[0][1], data[1][1]))), /* maximal lng */
-                   north = negativePiToPi(toRadians(Math.max(data[0][0], data[1][0])))         /* maximal lat */
+                /* pick the correct ranges */
+                let south = Math.min(data[0][0], data[1][0]),
+                    north = Math.max(data[0][0], data[1][0]);
 
-                   console.log(west, south, east, north);
+                let west = Math.min(data[0][1], data[1][1]),
+                    east = Math.max(data[0][1], data[1][1]);
+
+                /* for rectangles spanning the Earth more than once,
+                   replace with full longitude range */
+                if(east - west >= 360) {
+                    west = -180;
+                    east = 180;
+                } else { /* otherwise wrap the coordinates */
+                    function wrap(d) {
+                        let sgn = Math.sign(d);
+                        return (d + sgn * 180) % 360 - sgn * 180;
+                    }
+
+                    west = wrap(west);
+                    east = wrap(east);
+                }
+
+                console.log(west, south, east, north);
                 shape = this.viewer.entities.add({
                     rectangle : {
-                        coordinates : new Rectangle(west, south, east, north),
+                        coordinates : Rectangle.fromDegrees(west, south, east, north),
                         material : material,
                     }
                 });
@@ -452,20 +469,6 @@ export default class CesiumContainer extends Component {
         let props = maybeProps !== undefined ? maybeProps : this.props;
 
         if(! props.selection.active) {
-            /* clear geolines */
-            this.geolineHandles.forEach(function(handle) {
-                this.clearShape(handle);
-            }.bind(this));
-
-            /* draw new geolines if they're present */
-            if(Array.isArray(props.options.geolines) && props.options.geolines.length > 0) {
-                this.geolineHandles = new Array();
-
-                props.options.geolines.forEach(function(geoline){
-                    this.geolineHandles.push(this.makeGeoline(geoline));
-                }.bind(this));
-            }
-
             /* clear preview */
             this.previewHandle && this.viewer.scene.primitives.remove(this.previewHandle);
 
@@ -506,6 +509,20 @@ export default class CesiumContainer extends Component {
             if(latlng) {
                 // TODO: pass this.latlngMaterial
                 this.latlngHandle = this.makeShape(latlng.type, latlng.data, false);
+            }
+
+            /* clear geolines */
+            this.geolineHandles.forEach(function(handle) {
+                this.clearShape(handle);
+            }.bind(this));
+
+            /* draw new geolines if they're present */
+            if(Array.isArray(props.options.geolines) && props.options.geolines.length > 0) {
+                this.geolineHandles = new Array();
+
+                props.options.geolines.forEach(function(geoline){
+                    this.geolineHandles.push(this.makeGeoline(geoline));
+                }.bind(this));
             }
         }
     }

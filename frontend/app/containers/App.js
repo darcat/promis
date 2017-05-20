@@ -94,7 +94,7 @@ class App extends Component {
                             mapActions = {this.props.mapActions}
                             selectionActions = {this.props.selectionActions}
                         />
-                        <Panel title = 'Search results' className = 'margined'>
+                        <Panel title = 'Search results'>
                             <SearchResults
                                 results = {this.props.storage.measurements}
                                 options = {this.props.searchOptions}
