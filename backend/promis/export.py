@@ -22,11 +22,12 @@
 
 import collections
 import math
+import unix_time
 
 # TODO: currently only one data row
 # TODO: do we need this type or can we just have a tuple?
 # TODO: generalize the header
-ExportEntry = collections.namedtuple("ExportEntry", [ "t", "lat", "lon", "alt", "data" ])
+ExportEntry = collections.namedtuple("ExportEntry", [ "date", "ut", "lat", "lon", "alt", "data" ])
 
 def make_table(data, start_time, end_time, orbit):
     """
@@ -77,7 +78,12 @@ def make_table(data, start_time, end_time, orbit):
             # Estimating the cubic function coeffs
         """
 
-        yield ExportEntry(int(1e3 * (start_time + t)), lat, lon, alt, data[i])
+        # Splitting time to days and seconds
+        tm = start_time + t
+        ut = tm % (60 * 60 * 24)
+        date = unix_time.maketime(int(tm)).strftime("%Y%j")
+
+        yield ExportEntry(date, int(1e3 * ut), lat, lon, alt, data[i])
 
 
 def ascii_export(table, datalabel="Data", dataunits="units"):
@@ -91,10 +97,10 @@ def ascii_export(table, datalabel="Data", dataunits="units"):
 
     Yields successive lines.
     """
-    yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("T", "Lat.", "Lon.", "Alt.", datalabel)
-    yield "{:^15} {:^6} {:^6} {:^6} {:^10}".format("(ms)", "(deg.)", "(deg.)", "(km)", "(%s)" % dataunits)
+    yield "{:^10} {:^10} {:^6} {:^6} {:^6} {:^15}".format("Date", "UT", "Lat.", "Lon.", "Alt.", datalabel)
+    yield "{:^10} {:^10} {:^6} {:^6} {:^6} {:^15}".format("(YYYYDDD)", "(ms)", "(deg.)", "(deg.)", "(km)", "(%s)" % dataunits)
     for row in table:
-        yield "{:>15} {:>6.02f} {:>6.02f} {:>6.02f} {:>10.06f}".format(row.t, row.lat, row.lon, row.alt, row.data)
+        yield "{:>10} {:>10} {:>6.02f} {:>6.02f} {:>6.02f} {:>15.06f}".format(row.date, row.ut, row.lat, row.lon, row.alt, row.data)
 
 def csv_export(table, datalabel="Data", dataunits="units"):
     """
@@ -107,9 +113,9 @@ def csv_export(table, datalabel="Data", dataunits="units"):
 
     Yields successive lines.
     """
-    yield '"{}","{}","{}","{}","{}"'.format("T (ms)", "Longitude (deg)", "Latitude (deg)", "Altitude (km)", datalabel + "(%s)" % dataunits)
+    yield '"{}","{}","{}","{}","{}","{}"'.format("Date (YYYYDDD)", "UT (ms)", "Longitude (deg)", "Latitude (deg)", "Altitude (km)", datalabel + "(%s)" % dataunits)
     for row in table:
-        yield ",".join(str(x) for x in [row.t, row.lon, row.lat, row.alt, row.data])
+        yield ",".join(str(x) for x in [row.date, row.ut, row.lon, row.lat, row.alt, row.data])
 
 
 
