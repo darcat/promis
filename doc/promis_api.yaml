@@ -244,6 +244,12 @@ paths:
           type: integer
           required: true
           description: Unique numerical identifier
+        - name: polygon
+          description: WKT polygon with desired search area
+          in: query
+          type: string
+        # TODO: cut parameter that deterines how to highlight the session
+        # see: serializer.py
         # $ref: '#/parameters/Id' # #193
       responses:
         200:

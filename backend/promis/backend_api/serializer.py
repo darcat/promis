@@ -78,8 +78,19 @@ class SessionsSerializer(serializers.ModelSerializer):
         # Just in case for the future
         #return obj.geo_line.wkb.hex()
 
+        poly = self.context['request'].query_params.get('polygon')
+
+        # Convert polygon to GEOS object as intersection doesn't auto-convert
+        if poly:
+            try:
+                poly = GEOSGeometry(poly, srid = 4326)
+            except ValueError:
+                raise NotFound("Invalid WKT for polygon selection")
+
+        geo_line = obj.geo_line if not poly else obj.geo_line.intersection(poly)
+
         # TODO: study whether pre-building the list or JSON would speed up things
-        return parsers.wkb(obj.geo_line.wkb) # <- Generator
+        return parsers.wkb(geo_line.wkb) # <- Generator
 
     def get_timelapse(self, obj):
         # TODO: change to time_start in model for consistency
