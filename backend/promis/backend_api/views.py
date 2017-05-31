@@ -19,7 +19,6 @@ import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.pagination import LimitOffsetPagination
-from django.contrib.gis.geos import GEOSGeometry, GEOSException
 
 from django.contrib.auth import get_user_model
 
@@ -55,16 +54,9 @@ class SessionFilter(django_filters.rest_framework.FilterSet):
 
     def geography_filter(self, queryset, name, value):
         try:
-            geoobj = GEOSGeometry(value, srid = 4326)
-
-            if not geoobj.valid:
-                raise NotFound("Invalid WKT for polygon filter")
-
-            return queryset.filter(geo_line__intersects = geoobj)
-
-        except GEOSException as e:
-            raise NotFound("GIS exception occurred: %s" % str(e))
-
+            return queryset.filter(geo_line__intersects = value)
+        except ValueError:
+            raise NotFound("Invalid WKT for polygon filter")
 
     class Meta:
         model = models.Session
