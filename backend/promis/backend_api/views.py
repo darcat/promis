@@ -40,14 +40,30 @@ class PromisViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
 
 class SessionFilter(django_filters.rest_framework.FilterSet):
+    # TODO: provide alternatives in human readable dates
     time_begin = django_filters.NumberFilter(method='unix_time_filter')
     time_end = django_filters.NumberFilter(method='unix_time_filter')
+
+    # TODO: some kind of WKT editing class for the UI?
+    polygon = django_filters.CharFilter(method='geography_filter')
 
     # TODO: make a separate class?
     def unix_time_filter(self, queryset, name, value):
         # Composition of the queryset.filter argument depending on which field was used
         filter_actions = { 'time_begin': 'time_begin__gte', 'time_end': 'time_end__lte' }
         return queryset.filter(**{ filter_actions[name]: unix_time.maketime(value) })
+
+    def geography_filter(self, queryset, name, value):
+        try:
+            geoobj = GEOSGeometry(value, srid = 4326)
+
+            if not geoobj.valid:
+                raise NotFound("Invalid WKT for polygon filter")
+
+            return queryset.filter(geo_line__intersects = geoobj)
+
+        except GEOSException as e:
+            raise NotFound("GIS exception occurred: %s" % str(e))
 
 
     class Meta:
@@ -106,36 +122,6 @@ class SessionsView(PromisViewSet):
     serializer_class = serializer.SessionsSerializer
     filter_class = SessionFilter
     pagination_class = LimitOffsetPagination
-
-    def get_queryset(self):
-        queryset = models.Session.objects.all()
-        polygon = self.request.query_params.get('polygon', None)
-
-
-        if polygon is not None:
-            try:
-                geoobj = GEOSGeometry(polygon, srid = 4326)
-
-                if geoobj.valid:
-                    objs = []
-                    for obj in queryset:
-                        geoline = obj.geo_line
-                        if geoobj.crosses(geoline):
-                            objs.append(obj.id)
-
-                    queryset = models.Session.objects.filter(pk__in = objs)
-
-                return queryset
-
-            except ValueError:
-                pass
-
-            except GEOSException:
-                pass
-
-            return models.Session.objects.none()
-
-        return queryset
 
 
 class MeasurementsView(PromisViewSet):
