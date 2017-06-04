@@ -35,7 +35,7 @@ def general_fetch(path, satellite_object):
             timemark = int(sess_name)
             ftp.cwd(sess_name)
             with ftp.xopen("orbit.csv") as fp:
-                line_gen = [ pt for pt in parsers.csv(fp) ]
+                line_gen = [ (*pt, t) for pt, t in enumerate(parsers.csv(fp)) ]
                 time_start = unix_time.maketime(timemark)
                 time_end = unix_time.maketime(timemark + len(line_gen)) # Orbit points are 1 per second
                 time_dur = time_end - time_start

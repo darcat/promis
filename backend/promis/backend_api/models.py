@@ -88,10 +88,12 @@ class Session(models.Model):
     time_begin = DateTimeField()
     time_end = DateTimeField()
     orbit_code = IntegerField(null = True)
+
     # Setting the field to geography type decreases performance somewhat
     # but ensures distances and intersections are caclulated correctly
+    # 4th dimension is time in seconds since the start of the session
     # TODO: srid should eventually be 4979 see #222
-    geo_line = LineStringField(dim = 3, srid = 4326, geography=True)
+    geo_line = LineStringField(dim = 4, srid = 4326, geography=True)
     space_project = ForeignKey('Space_project', null = True)
 
     class Meta:
