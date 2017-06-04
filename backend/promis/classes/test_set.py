@@ -28,7 +28,7 @@ import json
 # TODO: yield/with problem, see potential.py for details
 # TODO: make deploy figure out Docker's bridge IP dynamically
 
-def general_fetch(path, satellite_object, add_measurement=False):
+def general_fetch(path, satellite_object):
     with ftp_helper.FTPChecker(path, "172.17.0.1", 2121) as ftp:
         # Iterating over all the sessions available
         for sess_name in ftp.nlst():
@@ -44,21 +44,21 @@ def general_fetch(path, satellite_object, add_measurement=False):
                 # TODO: srid should be 4979 see #222
                 sess_obj = model.Session.objects.create(time_begin = time_start, time_end = time_end, geo_line = LineString(*line_gen, srid = 4326), space_project = satellite_object )
 
-            if add_measurement:
-                # Fetching JSON documents from the FTP
-                docs = []
-                for fname in [ "channel", "parameter" ]:
-                    with ftp.xopen(fname + ".json") as fp:
-                        docs.append(model.Document.objects.create(json_data = json.loads(fp.getvalue())) )
+            # Fetching JSON documents from the FTP
+            docs = []
+            for fname in [ "channel", "parameter" ]:
+                with ftp.xopen(fname + ".json") as fp:
+                    docs.append(model.Document.objects.create(json_data = json.loads(fp.getvalue())) )
 
-                # Locating channels/parameters
-                # TODO: natural keys
-                chan_obj    = model.Channel.objects.language('en').filter(description = "Termometer reading")[0]
-                par_obj     = model.Parameter.objects.language('en').filter(name = "Measured Space Temperature")[0]
+            # Locating channels/parameters
+            # TODO: natural keys
+            # TODO: both use same things for now
+            chan_obj    = model.Channel.objects.language('en').filter(description = "Termometer reading (%d)" % satellite_object.id)[0]
+            par_obj     = model.Parameter.objects.language('en').filter(name = "Measured Space Temperature (%d)" % satellite_object.id)[0]
 
-                # Creating the measurement object
-                # TODO: frequencies?
-                model.Measurement.objects.create(session = sess_obj, parameter = par_obj, channel = chan_obj, channel_doc = docs[0], parameter_doc = docs[1], sampling_frequency = 1, max_frequency = 1, min_frequency = 1)
+            # Creating the measurement object
+            # TODO: frequencies?
+            model.Measurement.objects.create(session = sess_obj, parameter = par_obj, channel = chan_obj, channel_doc = docs[0], parameter_doc = docs[1], sampling_frequency = 1, max_frequency = 1, min_frequency = 1)
 
             ftp.cwd("..")
 
@@ -74,7 +74,7 @@ class Roundabout(BaseProject):
                 yield v
 
     def fetch(self, data_id):
-        general_fetch("roundabout/" + data_id, self.project_obj, True)
+        general_fetch("roundabout/" + data_id, self.project_obj)
 
 
 class PeaceLove(BaseProject):

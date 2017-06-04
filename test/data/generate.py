@@ -124,15 +124,6 @@ def insert_orbit(folder, start_time, gen_func, data_func=None):
 
         time = new_time
 
-# Seed the PRNG
-seed(random_seed)
-
-# Ready, steady, go!
-insert_orbit("peace_love/heart", heart_start, heart)
-insert_orbit("peace_love/circle", peace_start, circle)
-insert_orbit("peace_love/vline", lines_start, vline)
-insert_orbit("peace_love/uptick", utick_start, uptick)
-
 def gen_space_temp():
     freq = 100
     amps = [ randint(50,100) for i in range(freq*orbit_sec) ]
@@ -140,6 +131,15 @@ def gen_space_temp():
     mv = [ amps[i]*(2+sin(4*2*pi*i/(freq*orbit_sec))) for i in range(freq*orbit_sec) ]
 
     return mv, amps
+
+# Seed the PRNG
+seed(random_seed)
+
+# Ready, steady, go!
+insert_orbit("peace_love/heart", heart_start, heart, gen_space_temp)
+insert_orbit("peace_love/circle", peace_start, circle, gen_space_temp)
+insert_orbit("peace_love/vline", lines_start, vline, gen_space_temp)
+insert_orbit("peace_love/uptick", utick_start, uptick, gen_space_temp)
 
 # TODO: break into several datapoints ("days")
 # TODO: make short and long sessions

@@ -26,6 +26,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 
+from django.contrib.gis.geos import GEOSGeometry
+
 import unix_time
 
 import datetime
@@ -274,11 +276,11 @@ class DataView(PromisViewSet):
 
         time_begin = self.request.query_params.get('time_begin')
         if time_begin:
-            filter_opts['session__time_begin__gte'] = unix_time.maketime(time_begin)
+            filter_opts['session__time_begin__gte'] = unix_time.maketime(int(time_begin))
 
         time_end = self.request.query_params.get('time_end')
-        if time_begin:
-            filter_opts['session__time_end__lte'] = unix_time.maketime(time_end)
+        if time_end:
+            filter_opts['session__time_end__lte'] = unix_time.maketime(int(time_end))
 
         # NOTE: channels and filters are combined as *AND* not *OR* at the moment
         # so they are mutually exclusive in a sense, but this won't be a problem for alpha
