@@ -100,11 +100,6 @@ export default class CesiumContainer extends Component {
 
         /* materials */
         this.previewMaterial = Material.fromType('Stripe');
-        this.defaultMaterial = Color.BLUE.withAlpha(0.3);
-        this.geolineMaterial = new PolylineOutlineMaterialProperty({ color : Color.RED, outlineWidth : 2, outlineColor : Color.BLACK });
-        this.highlightMaterial = Color.GREEN.withAlpha(0.5);
-        this.selectionMaterial = Color.YELLOW.withAlpha(0.5);
-        this.latlngMaterial = Color.BLUE.withAlpha(0.3);
     }
 
     /* update only for fullscreen toggling */
@@ -463,24 +458,10 @@ export default class CesiumContainer extends Component {
             cartesians.push(Cartesian3.fromDegrees(point[1], point[0], point[2] ? point[2] : 250000));
         });
 
-        /* generating the polyline style */
-        let styleref = MapStyle.Session;
-        let style = this.getStyle(styleref);
-        let material = styleref.dashed ?
-            new PolylineDashMaterialProperty({
-                color : style.outlineColor,
-                dashLength: 10,
-                }) :
-            new PolylineOutlineMaterialProperty({
-                color : style.outlineColor,
-                outlineWidth : 2,
-                outlineColor : Color.BLACK });
-
         return this.viewer.entities.add({
             polyline : {
                 positions : cartesians,
-                width: style.outlineWidth,
-                material: material
+                ...this.getStyle(MapStyle.Session)
             }
         });
     }
@@ -561,18 +542,29 @@ export default class CesiumContainer extends Component {
     getStyle(style) {
         var st = {};
 
-        st.outline = true;
-        st.outlineWidth = style.width * 2;
-        st.outlineColor = Color.fromCssColorString(style.stroke).withAlpha(style.strokeAlpha);
+        /* if fill is not present, generate a special version of a material for polyline use */
+        if(!style.fill) {
+            let stroke = Color.fromCssColorString(style.stroke).withAlpha(style.strokeAlpha);
 
-        /* only including the fill and stroke options if they are not false */
-        if(style.fill) {
+            st.material = style.dashed ?
+                new PolylineDashMaterialProperty({
+                    color : stroke,
+                    dashLength: 10,
+                }) :
+                new PolylineOutlineMaterialProperty({
+                    color : stroke,
+                    outlineWidth : 2,
+                    outlineColor : Color.BLACK });
+
+            st.width = style.width * 2;
+        }
+        else {
             st.fill = true;
             st.material = Color.fromCssColorString(style.fill).withAlpha(style.fillAlpha);
-        }
-
-        if(style.dashed) {
-            // TODO: I don't really know how to do it with Cesium yet :)
+            st.outline = true;
+            st.outlineWidth = style.width * 2;
+            st.outlineColor = Color.fromCssColorString(style.stroke).withAlpha(style.strokeAlpha);
+            // TODO: can we do a dashed outline?
         }
 
         return st;
