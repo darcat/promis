@@ -14,7 +14,8 @@ userreg.register(r'user', views.UserViewSet)
 docrout = SimpleRouter()
 # TODO: maaaybe we go as far as /measurements/<id>/quicklook ?
 docrout.register(r'api/download', views.DownloadView)
-
+# TODO: playground code below, swaggerise & combine REFACTOR
+docrout.register(r'api/data', views.DataView)
 
 urlpatterns =  router.urls + userreg.urls + [
     url('^api-auth/', include('rest_framework.urls', namespace = 'rest_framework')),

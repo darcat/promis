@@ -257,3 +257,52 @@ def UserUpdate(request):
                 return Response(ser.data, status=status.HTTP_202_ACCEPTED)
             else:
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# TODO: playground code for the alpha REFACTOR
+# TODO: create a proper filterset
+# TODO: make use of Q() to help django understand the request
+class DataView(PromisViewSet):
+    serializer_class = serializer.MeasurementsSerializer
+    # TODO: only to prevent Django from asking for base_name
+    queryset = models.Measurement.objects.all()
+
+    def get_queryset(self):
+        # TODO: ensure this works as one SQL query
+
+        # Composing the filter
+        filter_opts = {}
+
+        time_begin = self.request.query_params.get('time_begin')
+        if time_begin:
+            filter_opts['session__time_begin__gte'] = unix_time.maketime(time_begin)
+
+        time_end = self.request.query_params.get('time_end')
+        if time_begin:
+            filter_opts['session__time_end__lte'] = unix_time.maketime(time_end)
+
+        # NOTE: channels and filters are combined as *AND* not *OR* at the moment
+        # so they are mutually exclusive in a sense, but this won't be a problem for alpha
+        # because the UI can only show either parameters or channels
+        # TODO: fix this in a more advanced version
+        parameters = self.request.query_params.get('parameters')
+        if parameters:
+            filter_opts['parameter__in'] =  [ int(x) for x in parameters.split(',') ]
+
+        channels = self.request.query_params.get('channels')
+        if channels:
+            filter_opts['channel__in'] =  [ int(x) for x in channels.split(',') ]
+
+        poly = self.request.query_params.get('polygon')
+
+        # Convert polygon to GEOS object as intersection doesn't auto-convert
+        if poly:
+            try:
+                poly = GEOSGeometry(poly, srid = 4326)
+                filter_opts['session__geo_line__intersects'] = poly
+            except ValueError:
+                raise NotFound("Invalid WKT for polygon selection")
+
+        # Applying the filter
+        qs = models.Measurement.objects.filter(**filter_opts)
+
+        return qs
