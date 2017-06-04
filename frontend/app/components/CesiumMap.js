@@ -437,15 +437,19 @@ export default class CesiumContainer extends Component {
     }
 
     makeSelectionPoint(latlon) {
+        /* points seem to be styled differently, color instead of material
+         * and outlines need to be 2 times thinner to match other shapes */
+        let st = this.getStyle(MapStyle.SelectionHandle);
+        st.color = st.material;
+        st.outlineWidth /= 2;
+
         return this.viewer.entities.add({
             position : Cartesian3.fromDegrees(latlon[1], latlon[0]),
             point : {
                 show : true,
-                color : this.selectionMaterial,
                 pixelSize : 10,
                 scaleByDistance : new NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
-                outlineColor : Color.YELLOW,
-                outlineWidth : 3
+                ...st
             }
         });
     }

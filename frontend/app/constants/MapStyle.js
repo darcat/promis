@@ -34,6 +34,15 @@ export const SelectionHighlight = {
     fill:           "#00ff00"
 };
 
+/* selection handles which can be used for editing */
+export const SelectionHandle = {
+    ...Default,
+    stroke:         "#ffff00",
+    strokeAlpha:    1,
+    fill:           "#ffff00",
+    fillAlpha:      0.5,
+};
+
 /* parts of the session that match selection criteria */
 export const Session = {
     ...Default,
