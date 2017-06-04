@@ -560,13 +560,13 @@ export default class CesiumContainer extends Component {
                     outlineWidth : 2,
                     outlineColor : Color.BLACK });
 
-            st.width = style.width * 2;
+            st.width = style.width;
         }
         else {
             st.fill = true;
             st.material = Color.fromCssColorString(style.fill).withAlpha(style.fillAlpha);
             st.outline = true;
-            st.outlineWidth = style.width * 2;
+            st.outlineWidth = style.width;
             st.outlineColor = Color.fromCssColorString(style.stroke).withAlpha(style.strokeAlpha);
             // TODO: can we do a dashed outline?
         }

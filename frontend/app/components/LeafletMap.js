@@ -7,6 +7,8 @@ import LeafletGeodesy from 'leaflet-geodesy';
 import { Types, latlngRectangle } from '../constants/Selection';
 import { BingKey } from '../constants/Map';
 
+import * as MapStyle from '../constants/MapStyle';
+
 import 'leaflet/dist/leaflet.css';
 
 export default class LeafletContainer extends Component {
@@ -45,14 +47,6 @@ export default class LeafletContainer extends Component {
         this.makeGeoline = this.makeGeoline.bind(this);
         this.previewShape = this.previewShape.bind(this);
         this.makeSelectionPoint = this.makeSelectionPoint.bind(this);
-
-        /* colors */
-        this.previewColor = { color: 'white', dashArray: '5, 10' };
-        this.defaultColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.3 };
-        this.latlngColor = { color: 'blue', fillColor: '#0000ff', fillOpacity: 0.3 };
-        this.geolineColor = { color: 'red' };
-        this.highlightColor = { color: 'green', fillColor: '#00ff00', fillOpacity: 0.5 };
-        this.selectionColor = { weight: 2, color: 'yellow', fillColor: '#ffff00', fillOpacity: 0.5 };
     }
 
     /* update only for fullscreen toggling */
@@ -144,7 +138,7 @@ export default class LeafletContainer extends Component {
                 let segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
 
                 for (let j = 0; j < segs.length; j++) {
-                    let line = Leaflet.polyline(segs[j], this.geolineColor);
+                    let line = Leaflet.polyline(segs[j], this.getStyle(MapStyle.Session));
 
                     lines.push(line);
                     line.addTo(this.map);
@@ -193,7 +187,7 @@ export default class LeafletContainer extends Component {
     /* make shape from current selection */
     makeShape(type, data, opts, shift = 0) {
         let shape = null;
-        let options = (opts !== undefined ? opts : this.defaultColor);
+        let options = (opts !== undefined ? opts : this.getStyle(MapStyle.Selection));
 
         switch(type) {
             case Types.Rect:
@@ -245,14 +239,14 @@ export default class LeafletContainer extends Component {
             this.clearShapes(this.previewHandles);
 
             /* and make new one */
-            this.previewHandles = this.makeShapes(type, new Array(last, temp), this.previewColor);
+            this.previewHandles = this.makeShapes(type, new Array(last, temp), this.getStyle(MapStyle.SelectionPreview));
         }
     }
 
     /* make anchor point of selection */
     makeSelectionPoint(location) {
         if(location) {
-            let point = Leaflet.circleMarker(location, this.selectionColor);
+            let point = Leaflet.circleMarker(location, this.getStyle(MapStyle.SelectionHandle));
 
             point.setRadius(4);
             point.addTo(this.map);
@@ -305,7 +299,7 @@ export default class LeafletContainer extends Component {
 
                 props.selection.elements.forEach(function(selection, rootIndex) {
                     if(selection.data.length) {
-                        let selected = (rootIndex == props.selection.highlight ? this.highlightColor : undefined);
+                        let selected = (rootIndex == props.selection.highlight ? this.getStyle(MapStyle.SelectionHighlight) : undefined);
                         this.shapeHandles.push(this.makeShapes(selection.type, selection.data, selected));
 
                         selection.data.every(function(point, itemIndex) {
@@ -324,7 +318,7 @@ export default class LeafletContainer extends Component {
 
             let latlng = latlngRectangle(props.searchOptions.rectangle);
             if(latlng) {
-                this.latlngHandles = this.makeShapes(latlng.type, latlng.data, this.latlngColor);
+                this.latlngHandles = this.makeShapes(latlng.type, latlng.data, this.getStyle(MapStyle.Selection));
             }
         }
     }
@@ -395,5 +389,25 @@ export default class LeafletContainer extends Component {
                 <div style = {height} ref = { function(node) { this.mapNode = node; }.bind(this) } id = 'leaflet'></div>
             </div>
         )
+    }
+
+    /* convert the Constants/Map style notation to leaflet style */
+    getStyle(style) {
+        var st = {};
+
+        st.color = style.stroke;
+        st.weight = style.width;
+        st.opacity = style.strokeAlpha;
+
+        if(style.fill) {
+            st.fillColor = style.fill;
+            st.fillOpacity = style.fillAlpha;
+        }
+
+        if(style.dashed) {
+            st.dashArray = '5, 10';
+        }
+
+        return st;
     }
 }

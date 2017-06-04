@@ -6,7 +6,7 @@ export const Default = {
     fill:           false,      /* fill style */
     fillAlpha:      1,
     dashed:         false,      /* whether stroke needs to be dashed */
-    width:          2           /* stroke width in px(?) */
+    width:          4           /* stroke width in px(?) */
 
 };
 
@@ -53,7 +53,7 @@ export const Session = {
 export const SessionHighlight = {
     ...Default,
     stroke:         "#ff0000",
-    width:          3
+    width:          6
 };
 
 /* leftover parts of the session */
@@ -61,7 +61,7 @@ export const SessionLeftovers = {
     ...Default,
     stroke:         "#ffffff",
     dashed:         true,
-    width:          1
+    width:          2
 };
 
 /* TODO: grid elements */
