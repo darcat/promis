@@ -24,9 +24,11 @@ import GeometryInstance from 'cesium/Source/Core/GeometryInstance';
 import EllipsoidSurfaceAppearance from 'cesium/Source/Scene/EllipsoidSurfaceAppearance';
 
 import PolylineOutlineMaterialProperty from 'cesium/Source/DataSources/PolylineOutlineMaterialProperty';
+import PolylineDashMaterialProperty from 'cesium/Source/DataSources/PolylineDashMaterialProperty';
 
 import { BingKey } from '../constants/Map';
 import { Types, latlngRectangle } from '../constants/Selection';
+import * as MapStyle from '../constants/MapStyle';
 
 import 'cesium/Source/Widgets/widgets.css';
 
@@ -307,7 +309,10 @@ export default class CesiumContainer extends Component {
 
     makeShape(type, data, highlight) {
         let shape = null;
-        let material = highlight ? this.highlightMaterial : this.defaultMaterial;
+        let style = this.getStyle(highlight ? MapStyle.SelectionHighlight : MapStyle.Selection);
+
+        /* height: 0 instructs cesium to draw on flat surface and not do terrain
+         * this is needed for outlines to work correctly */
 
         switch(type) {
             case Types.Rect:
@@ -337,7 +342,8 @@ export default class CesiumContainer extends Component {
                 shape = this.viewer.entities.add({
                     rectangle : {
                         coordinates : Rectangle.fromDegrees(west, south, east, north),
-                        material : material,
+                        height: 0,
+                        ...style
                     }
                 });
             break;
@@ -349,7 +355,7 @@ export default class CesiumContainer extends Component {
                             semiMajorAxis: data[1],
                             semiMinorAxis: data[1],
                             height: 0,
-                            material: material
+                            ...style
                         }
                     }
                 );
@@ -368,7 +374,8 @@ export default class CesiumContainer extends Component {
                         hierarchy : {
                             positions : Cartesian3.fromDegreesArray(lonlat)
                         },
-                        material: material
+                        height: 0,
+                        ...style
                     }
                 });
             break;
@@ -456,11 +463,24 @@ export default class CesiumContainer extends Component {
             cartesians.push(Cartesian3.fromDegrees(point[1], point[0], point[2] ? point[2] : 250000));
         });
 
+        /* generating the polyline style */
+        let styleref = MapStyle.Session;
+        let style = this.getStyle(styleref);
+        let material = styleref.dashed ?
+            new PolylineDashMaterialProperty({
+                color : style.outlineColor,
+                dashLength: 10,
+                }) :
+            new PolylineOutlineMaterialProperty({
+                color : style.outlineColor,
+                outlineWidth : 2,
+                outlineColor : Color.BLACK });
+
         return this.viewer.entities.add({
             polyline : {
                 positions : cartesians,
-                width : 5,
-                material : this.geolineMaterial
+                width: style.outlineWidth,
+                material: material
             }
         });
     }
@@ -535,5 +555,26 @@ export default class CesiumContainer extends Component {
                 <div style = {height} ref={ function(node) { this.mapNode = node; }.bind(this) } id = 'cesium'></div>
             </div>
         )
+    }
+
+    /* convert the Constants/Map style notation to cesium material */
+    getStyle(style) {
+        var st = {};
+
+        st.outline = true;
+        st.outlineWidth = style.width * 2;
+        st.outlineColor = Color.fromCssColorString(style.stroke).withAlpha(style.strokeAlpha);
+
+        /* only including the fill and stroke options if they are not false */
+        if(style.fill) {
+            st.fill = true;
+            st.material = Color.fromCssColorString(style.fill).withAlpha(style.fillAlpha);
+        }
+
+        if(style.dashed) {
+            // TODO: I don't really know how to do it with Cesium yet :)
+        }
+
+        return st;
     }
 }
