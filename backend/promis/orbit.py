@@ -126,4 +126,4 @@ def generate_orbit(datapoints, orbit_start, orbit_end):
             res_vals[0] = ( res_vals[0] + 180 ) % 360 - 180
             return OrbitPoint(*res_vals)
 
-        yield j, datapoints[j] if j in datapoints else predict(j), False if j in datapoints else True
+        yield j - orbit_start, datapoints[j] if j in datapoints else predict(j), False if j in datapoints else True

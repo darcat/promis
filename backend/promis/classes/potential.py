@@ -132,7 +132,7 @@ class Potential(BaseProject):
                                 ez_time_end = time_end
 
                                 # Generator for the orbit
-                                line_gen = ( (y.lon, y.lat, y.alt) for _, y, _ in orbit.generate_orbit(orbit_path, time_start, time_end) )
+                                line_gen = ( (y.lon, y.lat, t) for t, y, _ in orbit.generate_orbit(orbit_path, time_start, time_end) )
                                 # Converting time to python objects for convenience
                                 # This is the point where onboard time gets converted to the UTC
                                 time_start = unix_time.maketime(time_start)

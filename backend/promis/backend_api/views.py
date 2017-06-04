@@ -26,8 +26,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotAuthenticated, NotFound, MethodNotAllowed
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 
-from django.contrib.gis.geos import GEOSGeometry
-
 import unix_time
 
 import datetime
@@ -264,7 +262,7 @@ def UserUpdate(request):
 # TODO: create a proper filterset
 # TODO: make use of Q() to help django understand the request
 class DataView(PromisViewSet):
-    serializer_class = serializer.MeasurementsSerializer
+    serializer_class = serializer.DataSerializer
     # TODO: only to prevent Django from asking for base_name
     queryset = models.Measurement.objects.all()
 
@@ -274,13 +272,14 @@ class DataView(PromisViewSet):
         # Composing the filter
         filter_opts = {}
 
+        # Begin-End's are reversed: we are looking for session that overlap the time selection
         time_begin = self.request.query_params.get('time_begin')
         if time_begin:
-            filter_opts['session__time_begin__gte'] = unix_time.maketime(int(time_begin))
+            filter_opts['session__time_end__gte'] = unix_time.maketime(int(time_begin))
 
         time_end = self.request.query_params.get('time_end')
         if time_end:
-            filter_opts['session__time_end__lte'] = unix_time.maketime(int(time_end))
+            filter_opts['session__time_begin__lte'] = unix_time.maketime(int(time_end))
 
         # NOTE: channels and filters are combined as *AND* not *OR* at the moment
         # so they are mutually exclusive in a sense, but this won't be a problem for alpha
@@ -296,15 +295,11 @@ class DataView(PromisViewSet):
 
         poly = self.request.query_params.get('polygon')
 
-        # Convert polygon to GEOS object as intersection doesn't auto-convert
         if poly:
             try:
-                poly = GEOSGeometry(poly, srid = 4326)
                 filter_opts['session__geo_line__intersects'] = poly
             except ValueError:
                 raise NotFound("Invalid WKT for polygon selection")
 
         # Applying the filter
-        qs = models.Measurement.objects.filter(**filter_opts)
-
-        return qs
+        return models.Measurement.objects.filter(**filter_opts)

@@ -16,6 +16,7 @@ from django.contrib.auth.models import Group
 from backend_api import helpers
 import parsers
 import unix_time
+import math
 
 
 class LookupById:
@@ -78,19 +79,8 @@ class SessionsSerializer(serializers.ModelSerializer):
         # Just in case for the future
         #return obj.geo_line.wkb.hex()
 
-        poly = self.context['request'].query_params.get('polygon')
-
-        # Convert polygon to GEOS object as intersection doesn't auto-convert
-        if poly:
-            try:
-                poly = GEOSGeometry(poly, srid = 4326)
-            except ValueError:
-                raise NotFound("Invalid WKT for polygon selection")
-
-        geo_line = obj.geo_line if not poly else obj.geo_line.intersection(poly)
-
         # TODO: study whether pre-building the list or JSON would speed up things
-        return parsers.wkb(geo_line.wkb) # <- Generator
+        return parsers.wkb(obj.geo_line.wkb) # <- Generator
 
     def get_timelapse(self, obj):
         # TODO: change to time_start in model for consistency
@@ -260,3 +250,67 @@ class UserSerializer(serializers.ModelSerializer):
             password = validated_data.pop('password')
             instance.set_password(password)
         return super().update(instance, validated_data)
+
+# TODO: REFACTOR, alpha code below
+class DataSerializer(serializers.ModelSerializer):
+    session = SwaggerHyperlinkedRelatedField(many = False, view_name = 'session-detail', read_only = True)
+    channel = SwaggerHyperlinkedRelatedField(many = False, view_name = 'channel-detail', read_only = True)
+    parameter = SwaggerHyperlinkedRelatedField(many = False, view_name = 'parameter-detail', read_only = True)
+    selection = serializers.SerializerMethodField()
+
+
+    class Meta(LookupById):
+        # TODO: add 'url' here, currently it's broken, see #196
+        fields = ('id', 'session', 'parameter', 'channel', 'sampling_frequency', 'min_frequency', 'max_frequency', 'selection')
+        model = models.Measurement
+
+    def get_selection(self, obj):
+        def gen_selection():
+            # Extracting request information
+            poly = self.context['request'].query_params.get('polygon')
+            time_begin = self.context['request'].query_params.get('time_begin')
+            time_end = self.context['request'].query_params.get('time_end')
+
+            # Agreeing on time boundaries
+            session_start = unix_time.datetime_to_utc(obj.session.time_begin)
+            session_end = unix_time.datetime_to_utc(obj.session.time_end)
+            time_begin = int(time_begin) if time_begin else session_start
+            time_end = int(time_end) if time_end else session_end
+
+            # Convert polygon to GEOS object as intersection doesn't auto-convert
+            if poly:
+                try:
+                    poly = GEOSGeometry(poly, srid = 4326)
+
+                    # FIXME: Django's GEOS implementation
+                    # doesn't support 4D linestrings
+                    # TODO: patch upstream, it's horrible!
+
+                    # Intersection of search polygon and the orbit
+                    for sect in obj.session.geo_line.intersection(poly):
+                        # NOTE: taking the first and last point within the selection
+                        sect_start = math.ceil(sect[0][2]) + session_start
+                        sect_end = math.floor(sect[-1][2]) + session_start
+
+                        # TODO: if you ever catch this assert, call me
+                        assert sect_end >= sect_start
+
+                        print(sect_start, sect_end)
+                        print(time_begin, time_end)
+
+                        # If the data not within time selection, skip completely
+                        if sect_end < time_begin or sect_start > time_end:
+                            continue
+
+                        yield { 'start': max(time_begin, sect_start), 'end': min(time_end, sect_end) }
+
+
+                except ValueError:
+                    raise NotFound("Invalid WKT for polygon selection")
+            # Otherwise take the whole session, just make sure to trim the time values
+            else:
+                yield { 'start': max(time_begin, session_start),
+                        'end': min(time_end, session_end) }
+
+        # TODO: data links
+        return [ x for x in gen_selection() ]
