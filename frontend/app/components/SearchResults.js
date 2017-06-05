@@ -126,7 +126,7 @@ export default class SearchResults extends Component {
             let geolines = new Array();
             results.data.forEach(function(measurement, index) {
                 this.props.actions.getSingle(measurement.session, null, function(data) {
-                    geolines.push(data.geo_line);
+                    geolines.push({ geo_line: data.geo_line, selection: measurement.selection, offset: data.timelapse.start });
                     let now = this.props.map.loaded + 1;
                     this.props.mapped.updateLoaded(now);
 

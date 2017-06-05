@@ -101,7 +101,7 @@ export default class LeafletContainer extends Component {
         this.map.off('mouseup',     this.stopDrawEvent);
     }
 
-    makeGeoline(xcoords)
+    makeGeoline(xcoords, style)
     {
         let coords = xcoords.map(function(x) { return [x[0], x[1]]; });
 
@@ -138,7 +138,7 @@ export default class LeafletContainer extends Component {
                 let segs = [ sliced, sliced.map(shifter(360)), sliced.map(shifter(-360)) ];
 
                 for (let j = 0; j < segs.length; j++) {
-                    let line = Leaflet.polyline(segs[j], this.getStyle(MapStyle.Session));
+                    let line = Leaflet.polyline(segs[j], this.getStyle(style));
 
                     lines.push(line);
                     line.addTo(this.map);
@@ -274,10 +274,36 @@ export default class LeafletContainer extends Component {
                 this.geolineHandles = new Array();
 
                 props.options.geolines.forEach(function(geoline) {
-                    this.makeGeoline(geoline).forEach(function(handle) {
-                        this.geolineHandles.push(handle);
+                    // TODO generalise to UniversalMap
+                    // TODO stub code
+                    let last = 0;
+                    geoline.selection.forEach(function(segment) {
+                        let seg = { start: segment.start - geoline.offset,
+                                    end: segment.end - geoline.offset };
+
+                        // +2 because timelapse is inclusive and slice is exclusive
+                        if(seg.start - last > 0) {
+                            this.makeGeoline(geoline.geo_line.slice(last, seg.start + 2), MapStyle.SessionLeftovers).forEach(function(handle) {
+                                this.geolineHandles.push(handle);
+                            }.bind(this));
+                        }
+
+                        if(seg.end - seg.start > 0) {
+                            this.makeGeoline(geoline.geo_line.slice(seg.start, seg.end + 2), MapStyle.Session).forEach(function(handle) {
+                                this.geolineHandles.push(handle);
+                            }.bind(this));
+                        }
+
+                        last = seg.end;
                     }.bind(this));
+
+                    if(geoline.geo_line.length - 1 - last > 0) {
+                        this.makeGeoline(geoline.geo_line.slice(last), MapStyle.SessionLeftovers).forEach(function(handle) {
+                            this.geolineHandles.push(handle);
+                        }.bind(this));
+                    }
                 }.bind(this));
+                // TODO end of stub code
             }
 
             /* clear old shapes */

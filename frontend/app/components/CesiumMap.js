@@ -454,7 +454,7 @@ export default class CesiumContainer extends Component {
         });
     }
 
-    makeGeoline(data) {
+    makeGeoline(data, style) {
         let cartesians = new Array();
 
         /* data is [lat, lon, hgt] */
@@ -465,7 +465,7 @@ export default class CesiumContainer extends Component {
         return this.viewer.entities.add({
             polyline : {
                 positions : cartesians,
-                ...this.getStyle(MapStyle.Session)
+                ...this.getStyle(style)
             }
         });
     }
@@ -526,7 +526,31 @@ export default class CesiumContainer extends Component {
                 this.geolineHandles = new Array();
 
                 props.options.geolines.forEach(function(geoline){
-                    this.geolineHandles.push(this.makeGeoline(geoline));
+                    // TODO generalise to UniversalMap
+                    // TODO stub code
+                    let last = 0;
+                    geoline.selection.forEach(function(segment) {
+                        let seg = { start: segment.start - geoline.offset,
+                                    end: segment.end - geoline.offset };
+
+                        // +2 because timelapse is inclusive and slice is exclusive
+                        if(seg.start - last > 0) {
+                            this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(last, seg.start + 2), MapStyle.SessionLeftovers));
+                        }
+
+                        if(seg.end - seg.start > 0) {
+                            this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(seg.start, seg.end + 2), MapStyle.Session));
+                        }
+
+                        last = seg.end;
+                    }.bind(this));
+
+                    if(geoline.geo_line.length - 1 - last > 0) {
+                        this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(last), MapStyle.SessionLeftovers));
+                    }
+                // TODO end of stub code
+
+                    this.geolineHandles.push(this.makeGeoline(geoline.geo_line));
                 }.bind(this));
             }
         }
