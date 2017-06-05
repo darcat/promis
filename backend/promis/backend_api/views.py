@@ -293,6 +293,10 @@ class DataView(PromisViewSet):
         if channels:
             filter_opts['channel__in'] =  [ int(x) for x in channels.split(',') ]
 
+        space_project = self.request.query_params.get('space_project')
+        if space_project:
+            filter_opts['channel__device__space_project'] = int(space_project)
+
         poly = self.request.query_params.get('polygon')
 
         if poly:
