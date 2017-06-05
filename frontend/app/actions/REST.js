@@ -201,6 +201,9 @@ export default {
 
     /* TODO: rename to getMeasurements afterwards */
     getData : function(project, geo, begin, end, channels, parameters) {
+        let channel_list = channels.length == 0 ? undefined : channels.join(',');
+        let parameter_list = parameters.length == 0 ? undefined : parameters.join(',');
+
         return function(dispatch) {
             makeQuery(dispatch, 'Measurements', '/en/api/data/', {
                 params: {
@@ -208,8 +211,8 @@ export default {
                     time_begin: begin,
                     time_end: end,
                     polygon: geo,
-                    channels: channels,
-                    parameters: parameters
+                    channels: channel_list,
+                    parameters: parameter_list
                 }
             });
         }
