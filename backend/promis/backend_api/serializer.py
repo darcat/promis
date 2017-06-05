@@ -6,8 +6,11 @@ from rest_framework.reverse import reverse
 from djsw_wrapper.serializers import SwaggerHyperlinkedRelatedField
 from hvad.contrib.restframework import TranslatableModelSerializer, HyperlinkedTranslatableModelSerializer
 from rest_framework_gis.serializers import GeoModelSerializer
-from django.contrib.gis.geos import GEOSGeometry, GEOSException
+
 from django.utils.translation import get_language
+
+from django.contrib.gis.geos.collections import MultiLineString
+from django.contrib.gis.geos import GEOSGeometry, GEOSException
 
 import json
 
@@ -287,7 +290,13 @@ class DataSerializer(serializers.ModelSerializer):
                     # TODO: patch upstream, it's horrible!
 
                     # Intersection of search polygon and the orbit
-                    for sect in obj.session.geo_line.intersection(poly):
+                    isect = obj.session.geo_line.intersection(poly)
+
+                    # Making sure isect is a collection of geolines, not a single one
+                    if type(isect) is not MultiLineString:
+                        isect = [ isect ]
+
+                    for sect in isect:
                         # NOTE: taking the first and last point within the selection
                         sect_start = math.ceil(sect[0][2]) + session_start
                         sect_end = math.floor(sect[-1][2]) + session_start

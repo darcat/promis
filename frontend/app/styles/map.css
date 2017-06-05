@@ -16,7 +16,8 @@
 }
 
 .mapZoomBox,
-.mapToolBox {
+.mapToolBox,
+.mapProgressBar {
     position: absolute;
     z-index: 1000
 }
@@ -31,7 +32,8 @@
     left: 12px;
 }
 
-.mapToolBox {
+.mapToolBox,
+.mapProgressBar {
     top: 12px;
     left: 0;
     right: 0;
@@ -41,6 +43,10 @@
     max-width: 400px;
     margin: 0 auto;
     text-align: center;
+}
+
+.mapProgressBar {
+    top: 75%;
 }
 
 .mapSelectionItems {

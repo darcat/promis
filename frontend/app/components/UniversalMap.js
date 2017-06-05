@@ -6,6 +6,8 @@ import MapZoomBox from './MapZoomBox';
 import MapToolbox from './MapToolBox';
 import Panel from './Panel';
 
+import { ProgressBar } from 'react-bootstrap';
+
 import '../styles/map.css';
 
 import { fixedPoint } from '../constants/Selection';
@@ -106,6 +108,14 @@ export default class UniversalMap extends Component {
         let selection = this.props.selection;
         let mapStyles = this.determineStyle(options);
 
+        /* creating a progressbar if needed */
+        let loaded = this.props.options.geolines.length;
+        let total = this.props.options.total;
+        let Progress = (loaded < total) ? (
+            <div className = 'mapProgressBar'>
+                <ProgressBar active now = {loaded} max = {total} />
+            </div> ) : null ;
+
         return (
             <Panel disableDrag = {options.full} title = 'Map' className = 'mapPanel'>
                 <div style = {mapStyles}>
@@ -131,6 +141,7 @@ export default class UniversalMap extends Component {
                             searchOptions = {searchOptions}
                         />
                         ) }
+                        { Progress }
                     </div>
                 </div>
             </Panel>

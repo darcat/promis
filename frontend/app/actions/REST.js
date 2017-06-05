@@ -85,6 +85,7 @@ export default {
         }
     },
 
+
     /* disabled until proper backend filter */
     /*
     getParameters : function() {
@@ -104,6 +105,8 @@ export default {
             });
         }
     }*/
+
+    // TODO: freaking seriously?
 
     /* used until backend fix */
     getParameters : function(project) {
@@ -194,5 +197,22 @@ export default {
 
             });
         }
-    }
+    },
+
+    /* TODO: rename to getMeasurements afterwards */
+    getData : function(project, geo, begin, end, channels, parameters) {
+        return function(dispatch) {
+            makeQuery(dispatch, 'Measurements', '/en/api/data/', {
+                params: {
+                    space_project: project,
+                    time_begin: begin,
+                    time_end: end,
+                    polygon: geo,
+                    channels: channels,
+                    parameters: parameters
+                }
+            });
+        }
+    },
+
 }

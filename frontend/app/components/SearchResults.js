@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Button, Glyphicon } from 'react-bootstrap';
+import ReactSpinner from 'react-spinjs';
 import Tooltip from './Tooltip';
 import Quicklook from './Quicklook';
 
@@ -30,7 +31,10 @@ class DataSection extends Component {
         let mid = this.props.mid;
 
         if(mid) {
-            this.props.actions.getSingle('/en/api/download/' + mid + '/quicklook?source=' + this.props.source + '&points=100', {}, function(resp) {
+            let src  = '&source=' + this.props.source;
+            let time = '&time_start=' + this.props.timelapse.start;
+            time    += '&time_end=' + this.props.timelapse.end;
+            this.props.actions.getSingle('/en/api/download/' + mid + '/quicklook?points=100' + src + time, {}, function(resp) {
                 this.setState(function() {
                     return {
                         main: resp.source.name,
@@ -111,7 +115,7 @@ export default class SearchResults extends Component {
         var results = this.props.results;
 
         if(this.props.results.fetch) {
-            return (<div>Fetching data, please wait...</div>);
+            return (<ReactSpinner/>);
         } else {
             if(Array.isArray(results.data) && results.data.length > 0) {
                 let channels = this.props.options.useChannels;
@@ -146,20 +150,24 @@ export default class SearchResults extends Component {
 
                                 let size = 'size unknown';
 
-                                return (
-                                    <tr key = {index}>
-                                        <td>{UnixToISO(session.timelapse.start)}</td>
-                                        <td>{data.name}</td>
-                                        <td>{size}</td>
-                                        <td>
-                                            <DataSection
-                                                mid = {mid}
-                                                actions = {this.props.actions}
-                                                source = {(channels ? 'channel' : 'parameter')}
-                                            />
-                                        </td>
-                                    </tr>
-                                )
+                                /* each measurement may have multiple parts defined by the selection array */
+                                return measurement.selection.map(function(selection, index) {
+                                    return (
+                                        <tr key = {index}>
+                                            <td>{UnixToISO(selection.start)}</td>
+                                            <td>{data.name}</td>
+                                            <td>{size}</td>
+                                            <td>
+                                                <DataSection
+                                                    mid = {mid}
+                                                    actions = {this.props.actions}
+                                                    source = {(channels ? 'channel' : 'parameter')}
+                                                    timelapse = { selection }
+                                                />
+                                            </td>
+                                        </tr>
+                                    )
+                                }.bind(this));
                             }.bind(this))
                             }
                         </tbody>

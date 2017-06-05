@@ -4,7 +4,6 @@ import Spinner from 'react-spinjs';
 import stringify from 'wellknown';
 import moment  from 'moment';
 
-import SessionList from './SessionList';
 import ProjectSelector from './ProjectSelector';
 import ChannelParameterPicker from './ChannelParameterPicker';
 
@@ -21,27 +20,16 @@ export default class SearchForm extends Component {
             enabled: true
         };
 
-        this.doSearch = this.doSearch.bind(this);
         this.resetSearch = this.resetSearch.bind(this);
-        this.getSessions = this.getSessions.bind(this);
-        this.getMeasurements = this.getMeasurements.bind(this);
+        this.getData = this.getData.bind(this);
     }
 
     componentDidMount() {
         this.props.actions.getProjects();
     }
 
-    getMeasurements() {
-        let useChannels = this.props.options.useChannels;
-
-        this.props.actions.getMeasurements(
-            this.props.storage.sessions.data,
-            useChannels,
-            useChannels ? this.props.options.query.channels : this.props.options.query.parameters
-        );
-    }
-
-    getSessions() {
+    /* TODO: rename to getMeasurements */
+    getData() {
         let selection = null;
         let time = this.props.options.timelapse;
 
@@ -62,21 +50,15 @@ export default class SearchForm extends Component {
         /* create the WKT representation or replace with null */
         let geo_polygon = selection.length > 0 ? selectionToWKT(selection) : null;
 
-        this.props.actions.getSessions(
+        this.props.actions.getData(
             this.props.options.query.project,
             geo_polygon,
             /* workaround for projects with missing time intervals */
             time.begin > 0 ? time.begin : undefined,
-            time.end > 0 ? time.end : undefined
+            time.end > 0 ? time.end : undefined,
+            this.props.options.query.channels,
+            this.props.options.query.parameters
         );
-    }
-
-    doSearch() {
-        if(! isActiveState(this.props.storage.sessions))
-            this.getSessions();
-
-        if(! isActiveState(this.props.storage.measurements))
-            this.getMeasurements();
     }
 
     resetSearch() {
@@ -89,13 +71,14 @@ export default class SearchForm extends Component {
         let active = true;
         let Control = null;
 
-        let sessions = isActiveState(this.props.storage.sessions);
+        /* TODO: hunt where this setting is coming from */
+        //let sessions = isActiveState(this.props.storage.sessions);
         let measurements = isActiveState(this.props.storage.measurements);
 
-        if(! sessions || ! measurements) {
+        if(! measurements) {
             Control = (
-                <Button onClick = {this.doSearch}>
-                    <Glyphicon glyph = 'search' /> { (sessions ? 'Continue' : 'Search') }
+                <Button onClick = {this.getData}>
+                    <Glyphicon glyph = 'search' />Search
                 </Button>
             );
         } else {
@@ -135,19 +118,6 @@ export default class SearchForm extends Component {
                                 actions = {this.props.actions}
                                 storage = {this.props.storage}
                                 options = {this.props.options}
-                            />
-                        </Col>
-                    </FormGroup>
-                    <FormGroup controlId = 'Sessions'>
-                        <Col componentClass = {ControlLabel} sm = {3}>
-                            Sessions
-                        </Col>
-                        <Col sm = {9}>
-                            <SessionList
-                                mapped  = {this.props.mapped}
-                                actions = {this.props.actions}
-                                storage = {this.props.storage}
-                                search = {this.props.search}
                             />
                         </Col>
                     </FormGroup>
