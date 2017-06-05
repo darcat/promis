@@ -533,13 +533,13 @@ export default class CesiumContainer extends Component {
                         let seg = { start: segment.start - geoline.offset,
                                     end: segment.end - geoline.offset };
 
-                        // +2 because timelapse is inclusive and slice is exclusive
+                        // +1 to include seg.start and seg.end
                         if(seg.start - last > 0) {
-                            this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(last, seg.start + 2), MapStyle.SessionLeftovers));
+                            this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(last, seg.start + 1), MapStyle.SessionLeftovers));
                         }
 
                         if(seg.end - seg.start > 0) {
-                            this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(seg.start, seg.end + 2), MapStyle.Session));
+                            this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(seg.start, seg.end + 1), MapStyle.Session));
                         }
 
                         last = seg.end;
@@ -549,8 +549,6 @@ export default class CesiumContainer extends Component {
                         this.geolineHandles.push(this.makeGeoline(geoline.geo_line.slice(last), MapStyle.SessionLeftovers));
                     }
                 // TODO end of stub code
-
-                    this.geolineHandles.push(this.makeGeoline(geoline.geo_line));
                 }.bind(this));
             }
         }

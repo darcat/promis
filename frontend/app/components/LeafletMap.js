@@ -114,7 +114,7 @@ export default class LeafletContainer extends Component {
         for (let i = 1; i < coords.length; i++) {
             /* If it's the last point or there is a -180/180 jump, add what we have */
             if (i + 1 == coords.length || Math.abs(coords[i][1] - coords[i - 1][1]) > 90) {
-                let sliced = coords.slice(anchor, i);
+                let sliced = ( i + 1 == coords.length ) ? coords.slice(anchor) : coords.slice(anchor, i);
 
                 /* If we are not adding the final segment, add the current point
                     mirrored, e.g. -170 is +190 and so on. */
@@ -281,15 +281,15 @@ export default class LeafletContainer extends Component {
                         let seg = { start: segment.start - geoline.offset,
                                     end: segment.end - geoline.offset };
 
-                        // +2 because timelapse is inclusive and slice is exclusive
+                        // +1 to include seg.start and seg.end
                         if(seg.start - last > 0) {
-                            this.makeGeoline(geoline.geo_line.slice(last, seg.start + 2), MapStyle.SessionLeftovers).forEach(function(handle) {
+                            this.makeGeoline(geoline.geo_line.slice(last, seg.start + 1), MapStyle.SessionLeftovers).forEach(function(handle) {
                                 this.geolineHandles.push(handle);
                             }.bind(this));
                         }
 
                         if(seg.end - seg.start > 0) {
-                            this.makeGeoline(geoline.geo_line.slice(seg.start, seg.end + 2), MapStyle.Session).forEach(function(handle) {
+                            this.makeGeoline(geoline.geo_line.slice(seg.start, seg.end + 1), MapStyle.Session).forEach(function(handle) {
                                 this.geolineHandles.push(handle);
                             }.bind(this));
                         }

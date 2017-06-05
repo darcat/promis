@@ -304,9 +304,6 @@ class DataSerializer(serializers.ModelSerializer):
                         # TODO: if you ever catch this assert, call me
                         assert sect_end >= sect_start
 
-                        print(sect_start, sect_end)
-                        print(time_begin, time_end)
-
                         # If the data not within time selection, skip completely
                         if sect_end < time_begin or sect_start > time_end:
                             continue
