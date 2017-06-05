@@ -109,7 +109,7 @@ export default class UniversalMap extends Component {
         let mapStyles = this.determineStyle(options);
 
         /* creating a progressbar if needed */
-        let loaded = this.props.options.geolines.length;
+        let loaded = this.props.options.loaded;
         let total = this.props.options.total;
         let Progress = (loaded < total) ? (
             <div className = 'mapProgressBar'>

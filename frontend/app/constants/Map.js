@@ -10,7 +10,9 @@ export const Enum = {
     FlushTools       : 'MapFlushTools',
     PushGeolines     : 'MapPushGeolines',
     FlushGeolines    : 'MapFlushGeolines',
-    SelectionUpdated : 'MapSelectionUpdated'
+    SelectionUpdated : 'MapSelectionUpdated',
+    UpdateTotal      : 'MapUpdateTotal',
+    UpdateLoaded     : 'MapUpdateLoaded'
 };
 
 export const State = {
@@ -23,7 +25,9 @@ export const State = {
     round: false,          /* circular selection tool status */
     dims: [300, 300],      /* map fullscreen dimensions */
     geolines: new Array(), /* geolines to draw */
-    total: 0               /* total geolines expected */
+    total: 0,              /* total geolines expected */
+    // TODO: remove this
+    loaded: 0          /* geolines currently downloaded */
 };
 
 export const BingKey = 'AjsNBiX5Ely8chb5gH7nh6HLTjlQGVKOg2A6NLMZ30UhprYhSkg735u3YUkGFipk';

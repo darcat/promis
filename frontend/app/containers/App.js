@@ -100,6 +100,9 @@ class App extends Component {
                                 options = {this.props.searchOptions}
                                 storage = {this.props.storage}
                                 actions = {this.props.RESTActions}
+                                mapped  = {this.props.mapActions}     /* for geoline management */
+                                /* TODO: remove temporary code */
+                                map     = {this.props.mapOptions}
                             />
                         </Panel>
                     </Row>

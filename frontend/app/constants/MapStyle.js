@@ -46,7 +46,7 @@ export const SelectionHandle = {
 /* parts of the session that match selection criteria */
 export const Session = {
     ...Default,
-    stroke:         "#ff6666"
+    stroke:         "#dd0000"
 };
 
 /* highlighted session part (mouseover at measurements panel) */

@@ -91,7 +91,23 @@ export default function MapReducer(state = State, action) {
         case Enum.FlushGeolines:
             return {
                 ...state,
-                geolines: new Array()
+                geolines: new Array(),
+                total: 0,
+                loaded: 0
+            };
+        break;
+
+        case Enum.UpdateTotal:
+            return {
+                ...state,
+                total: action.payload
+            };
+        break;
+
+        case Enum.UpdateLoaded:
+            return {
+                ...state,
+                loaded: action.payload
             };
         break;
 

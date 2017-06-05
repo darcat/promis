@@ -114,6 +114,30 @@ export default class SearchResults extends Component {
         super(props);
     }
 
+    componentDidUpdate() {
+        /* TODO: this is not the right spot REFACTOR this whole thing */
+        /* check if we have a results list */
+        var results = this.props.results;
+
+        if(!this.props.results.fetch && Array.isArray(results.data) && results.data.length > 0 && this.props.map.total == 0) {
+            let total = results.data.length;
+
+            this.props.mapped.updateTotal(total);
+            let geolines = new Array();
+            results.data.forEach(function(measurement, index) {
+                this.props.actions.getSingle(measurement.session, null, function(data) {
+                    geolines.push(data.geo_line);
+                    let now = this.props.map.loaded + 1;
+                    this.props.mapped.updateLoaded(now);
+
+                    if(now == total || now == Math.floor(total/2)) {
+                        this.props.mapped.pushGeolines(geolines);
+                    }
+                }.bind(this));
+            }.bind(this));
+        }
+    }
+
     render() {
         var results = this.props.results;
 

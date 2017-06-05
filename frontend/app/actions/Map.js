@@ -101,5 +101,24 @@ export default {
                 payload: true
             })
         }
-    }
+    },
+
+    // TODO: refactor
+    updateTotal : function(total) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.UpdateTotal,
+                payload: total
+            })
+        }
+    },
+
+    updateLoaded: function(loaded) {
+        return function(dispatch) {
+            dispatch({
+                type: Enum.UpdateLoaded,
+                payload: loaded
+            })
+        }
+    },
 };

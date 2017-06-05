@@ -156,6 +156,7 @@ export default {
     },
 
     /* also used until backend fix */
+    // TODO: schedule removal
     getMeasurements : function(sessions, usechannels, data) {
         return function(dispatch) {
             dispatch({
