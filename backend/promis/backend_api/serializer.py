@@ -297,26 +297,31 @@ class DataSerializer(serializers.ModelSerializer):
                         isect = [ isect ]
 
                     for sect in isect:
-                        # NOTE: taking the first and last point within the selection
-                        sect_start = math.ceil(sect[0][2]) + session_start
-                        sect_end = math.floor(sect[-1][2]) + session_start
+                        # Pick up two ends
+                        sect_start, sect_end = sect[0][2], sect[-1][2]
 
-                        # TODO: if you ever catch this assert, call me
-                        assert sect_end >= sect_start
+                        # Reverse start and end if necessary
+                        if sect_end < sect_start:
+                            sect_end, sect_start = sect_start, sect_end
+
+                        # NOTE: taking the first and last point within the selection
+                        sect_start = math.ceil(sect_start) + session_start
+                        sect_end = math.floor(sect_end) + session_start
 
                         # If the data not within time selection, skip completely
                         if sect_end < time_begin or sect_start > time_end:
                             continue
 
-                        yield { 'start': max(time_begin, sect_start), 'end': min(time_end, sect_end) }
+                        yield max(time_begin, sect_start), min(time_end, sect_end)
 
 
                 except ValueError:
                     raise NotFound("Invalid WKT for polygon selection")
             # Otherwise take the whole session, just make sure to trim the time values
             else:
-                yield { 'start': max(time_begin, session_start),
-                        'end': min(time_end, session_end) }
+                yield max(time_begin, session_start), min(time_end, session_end)
 
+        # Generate a list of tuples, sort them, then convert to list of dictionaries
         # TODO: data links
-        return [ x for x in gen_selection() ]
+        res = sorted(x for x in gen_selection())
+        return [ { 'start': x[0], 'end': x[1] } for x in res ]
